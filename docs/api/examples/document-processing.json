@@ -1,0 +1,11 @@
+{
+  "id": "doc_demo_001",
+  "kind": "CV",
+  "fileName": "synthetic-cv.pdf",
+  "mediaType": "application/pdf",
+  "sizeBytes": 2048,
+  "status": "PROCESSING",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "error": null
+}

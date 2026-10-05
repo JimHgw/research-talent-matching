@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "rank": 1,
+      "talent": {
+        "talentId": "talent_demo_001",
+        "fields": {
+          "displayName": "Demo Talent A"
+        }
+      },
+      "summary": {
+        "score": 0,
+        "unknownWeightPercent": 100,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED",
+        "algorithmVersion": "tag-coverage-v1"
+      }
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "total": 1
+}

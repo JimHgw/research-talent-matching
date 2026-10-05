@@ -1,0 +1,81 @@
+{
+  "talentId": "talent_demo_001",
+  "revision": 4,
+  "content": {
+    "displayName": "Demo Talent A",
+    "disciplineGroup": "STEM",
+    "education": [
+      {
+        "id": "edu_001",
+        "institution": "UNSW",
+        "qualification": "Master of IT",
+        "discipline": "Computer Science",
+        "startYear": 2025,
+        "endYear": null
+      }
+    ],
+    "courses": [],
+    "researchExperience": [
+      {
+        "id": "exp_001",
+        "title": "Sample research project",
+        "organisation": "Demo lab",
+        "description": "Used Python to prepare a small synthetic dataset."
+      }
+    ],
+    "skills": [
+      {
+        "tagId": "skill_python",
+        "claim": "HAS",
+        "evidenceText": "Reviewed and corrected Python evidence."
+      },
+      {
+        "tagId": "skill_interviews",
+        "claim": "DOES_NOT_HAVE",
+        "evidenceText": "I have not conducted research interviews."
+      }
+    ],
+    "researchInterests": [
+      "interest_ml"
+    ],
+    "researchOutputs": []
+  },
+  "confirmation": {
+    "status": "UNCONFIRMED",
+    "confirmedRevision": null,
+    "confirmedAt": null
+  },
+  "origins": [
+    {
+      "field": "education",
+      "sourceType": "MANUAL",
+      "documentId": null
+    },
+    {
+      "field": "courses",
+      "sourceType": "MANUAL",
+      "documentId": null
+    },
+    {
+      "field": "researchExperience",
+      "sourceType": "MANUAL",
+      "documentId": null
+    },
+    {
+      "field": "skills",
+      "sourceType": "MANUAL",
+      "documentId": null
+    },
+    {
+      "field": "researchInterests",
+      "sourceType": "MANUAL",
+      "documentId": null
+    },
+    {
+      "field": "researchOutputs",
+      "sourceType": "MANUAL",
+      "documentId": null
+    }
+  ],
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

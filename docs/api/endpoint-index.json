@@ -1,0 +1,228 @@
+[
+  {
+    "method": "GET",
+    "path": "/auth/session",
+    "summary": "Read the current session and obtain a CSRF token",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login",
+    "summary": "Log in with a provisioned account",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/logout",
+    "summary": "Log out of the current session",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/tags",
+    "summary": "List shared skill and interest tags",
+    "jira": [
+      "H18ABANANA-27",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/profile",
+    "summary": "Read the current talent profile",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-27"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/me/profile",
+    "summary": "Save the complete talent profile",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-27",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/profile/confirmation",
+    "summary": "Confirm the current profile revision",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/privacy",
+    "summary": "Read discovery consent and field visibility",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-30"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/me/privacy",
+    "summary": "Save discovery consent and field visibility",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-30"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents",
+    "summary": "List documents uploaded by the current talent",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/documents",
+    "summary": "Upload a PDF or DOCX and start extraction",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}",
+    "summary": "Read document processing status",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}/extraction",
+    "summary": "Read extraction suggestions for review",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/documents/{documentId}/apply",
+    "summary": "Save user-reviewed extraction fields to the profile",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-22",
+      "H18ABANANA-24",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}/file",
+    "summary": "Download an original document owned by the current talent",
+    "jira": [
+      "H18ABANANA-23"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities",
+    "summary": "List published opportunities or team-owned opportunities",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/opportunities",
+    "summary": "Create a draft research opportunity",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}",
+    "summary": "Read research opportunity details",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/opportunities/{opportunityId}",
+    "summary": "Save research opportunity changes",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/opportunities/{opportunityId}/publish",
+    "summary": "Publish a research opportunity",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/recommendations",
+    "summary": "List ranked opportunity recommendations for the current talent",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-31",
+      "H18ABANANA-32"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/opportunity-matches/{opportunityId}",
+    "summary": "Read requirement-level matching explanations for the current talent",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-31",
+      "H18ABANANA-32"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}/talent-matches",
+    "summary": "List matching talent for a team-owned opportunity",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-30",
+      "H18ABANANA-31",
+      "H18ABANANA-33"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}/talent-matches/{talentId}",
+    "summary": "Read permitted talent information and matching explanations",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-30",
+      "H18ABANANA-31",
+      "H18ABANANA-33"
+    ]
+  }
+]

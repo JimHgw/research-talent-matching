@@ -1,0 +1,15 @@
+{
+  "id": "doc_demo_001",
+  "kind": "CV",
+  "fileName": "synthetic-cv.pdf",
+  "mediaType": "application/pdf",
+  "sizeBytes": 2048,
+  "status": "FAILED",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "error": {
+    "code": "EXTRACTION_FAILED",
+    "message": "Cannot extract readable content from this document.",
+    "fieldErrors": []
+  }
+}

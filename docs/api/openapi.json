@@ -1,0 +1,4915 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "H18ABANANA Sprint 1 API Contract",
+    "version": "0.1.0-draft",
+    "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Same-origin frontend/backend or development proxy; deployment URL is not chosen."
+    }
+  ],
+  "security": [
+    {
+      "SessionCookie": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "auth"
+    },
+    {
+      "name": "tags"
+    },
+    {
+      "name": "me"
+    },
+    {
+      "name": "opportunities"
+    }
+  ],
+  "paths": {
+    "/auth/session": {
+      "get": {
+        "operationId": "getSession",
+        "summary": "Read the current session and obtain a CSRF token",
+        "description": "Always 200 for valid requests. user=null means anonymous. Initialises anonymous session state when needed; no secret session ID appears in JSON.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS",
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-16",
+          "H18ABANANA-18"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Host-only h18_session cookie; HttpOnly; Secure on HTTPS; SameSite=Lax; Path=/. Never expose its value in JSON."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                },
+                "examples": {
+                  "anonymous-session": {
+                    "value": {
+                      "user": null,
+                      "csrfToken": "mock-csrf-token-not-a-real-credential"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Log in with a provisioned account",
+        "description": "Obtain CSRF token from GET /auth/session first. Rotate session and CSRF token after success; the frontend replaces its stored CSRF token. Role comes from the account, never a trusted client role field.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS",
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-16",
+          "H18ABANANA-18"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Host-only h18_session cookie; HttpOnly; Secure on HTTPS; SameSite=Lax; Path=/. Never expose its value in JSON."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                },
+                "examples": {
+                  "talent-session": {
+                    "value": {
+                      "user": {
+                        "id": "user_demo_001",
+                        "displayName": "Demo Talent A",
+                        "email": "talent@example.test",
+                        "role": "TALENT"
+                      },
+                      "csrfToken": "mock-csrf-after-login"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "talent@example.test",
+                "password": "EXAMPLE_ONLY_NOT_A_REAL_PASSWORD"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Log out of the current session",
+        "description": "Invalidate the server session and expire the cookie. Next login begins with GET /auth/session.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-16",
+          "H18ABANANA-18"
+        ],
+        "responses": {
+          "204": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Host-only h18_session cookie; HttpOnly; Secure on HTTPS; SameSite=Lax; Path=/. Never expose its value in JSON."
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ]
+      }
+    },
+    "/tags": {
+      "get": {
+        "operationId": "listTags",
+        "summary": "List shared skill and interest tags",
+        "description": "Small seeded vocabulary shared by profile and opportunity forms. No tag-management interface in Sprint 1.",
+        "tags": [
+          "tags"
+        ],
+        "x-roles": [
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-27",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagList"
+                },
+                "examples": {
+                  "tags": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "skill_python",
+                          "label": "Python",
+                          "kind": "SKILL",
+                          "disciplineGroups": [
+                            "STEM",
+                            "BUSINESS"
+                          ]
+                        },
+                        {
+                          "id": "skill_sql",
+                          "label": "SQL",
+                          "kind": "SKILL",
+                          "disciplineGroups": [
+                            "STEM",
+                            "BUSINESS"
+                          ]
+                        },
+                        {
+                          "id": "skill_interviews",
+                          "label": "Research interviews",
+                          "kind": "SKILL",
+                          "disciplineGroups": [
+                            "STEM",
+                            "BUSINESS"
+                          ]
+                        },
+                        {
+                          "id": "skill_r",
+                          "label": "R",
+                          "kind": "SKILL",
+                          "disciplineGroups": [
+                            "STEM",
+                            "BUSINESS"
+                          ]
+                        },
+                        {
+                          "id": "interest_ml",
+                          "label": "Machine learning",
+                          "kind": "INTEREST",
+                          "disciplineGroups": [
+                            "STEM",
+                            "BUSINESS"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SKILL",
+                "INTEREST"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/me/profile": {
+      "get": {
+        "operationId": "getMyProfile",
+        "summary": "Read the current talent profile",
+        "description": "Profile is provisioned with the talent account. An untouched profile is returned with revision=0 and empty content, not 404.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-27"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "examples": {
+                  "profile-confirmed": {
+                    "value": {
+                      "talentId": "talent_demo_001",
+                      "revision": 3,
+                      "content": {
+                        "displayName": "Demo Talent A",
+                        "disciplineGroup": "STEM",
+                        "education": [
+                          {
+                            "id": "edu_001",
+                            "institution": "UNSW",
+                            "qualification": "Master of IT",
+                            "discipline": "Computer Science",
+                            "startYear": 2025,
+                            "endYear": null
+                          }
+                        ],
+                        "courses": [],
+                        "researchExperience": [
+                          {
+                            "id": "exp_001",
+                            "title": "Sample research project",
+                            "organisation": "Demo lab",
+                            "description": "Used Python to prepare a small synthetic dataset."
+                          }
+                        ],
+                        "skills": [
+                          {
+                            "tagId": "skill_python",
+                            "claim": "HAS",
+                            "evidenceText": "Used Python in a user-reviewed demo project."
+                          },
+                          {
+                            "tagId": "skill_interviews",
+                            "claim": "DOES_NOT_HAVE",
+                            "evidenceText": "I have not conducted research interviews."
+                          }
+                        ],
+                        "researchInterests": [
+                          "interest_ml"
+                        ],
+                        "researchOutputs": []
+                      },
+                      "confirmation": {
+                        "status": "CONFIRMED",
+                        "confirmedRevision": 3,
+                        "confirmedAt": "2026-10-03T00:00:00Z"
+                      },
+                      "origins": [
+                        {
+                          "field": "education",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "courses",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchExperience",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "skills",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchInterests",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchOutputs",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        }
+                      ],
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "put": {
+        "operationId": "replaceMyProfile",
+        "summary": "Save the complete talent profile",
+        "description": "Compare expectedRevision atomically. An actual content change increments revision and resets confirmation for the whole profile; exact no-op keeps revision and confirmation. Changed sections become MANUAL provenance; unchanged sections retain origin. All content keys are required: read-modify-write the whole object. Server rejects unknown, duplicate or wrong-kind tag IDs.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-27",
+          "H18ABANANA-29"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "examples": {
+                  "profile-unconfirmed": {
+                    "value": {
+                      "talentId": "talent_demo_001",
+                      "revision": 4,
+                      "content": {
+                        "displayName": "Demo Talent A",
+                        "disciplineGroup": "STEM",
+                        "education": [
+                          {
+                            "id": "edu_001",
+                            "institution": "UNSW",
+                            "qualification": "Master of IT",
+                            "discipline": "Computer Science",
+                            "startYear": 2025,
+                            "endYear": null
+                          }
+                        ],
+                        "courses": [],
+                        "researchExperience": [
+                          {
+                            "id": "exp_001",
+                            "title": "Sample research project",
+                            "organisation": "Demo lab",
+                            "description": "Used Python to prepare a small synthetic dataset."
+                          }
+                        ],
+                        "skills": [
+                          {
+                            "tagId": "skill_python",
+                            "claim": "HAS",
+                            "evidenceText": "Reviewed and corrected Python evidence."
+                          },
+                          {
+                            "tagId": "skill_interviews",
+                            "claim": "DOES_NOT_HAVE",
+                            "evidenceText": "I have not conducted research interviews."
+                          }
+                        ],
+                        "researchInterests": [
+                          "interest_ml"
+                        ],
+                        "researchOutputs": []
+                      },
+                      "confirmation": {
+                        "status": "UNCONFIRMED",
+                        "confirmedRevision": null,
+                        "confirmedAt": null
+                      },
+                      "origins": [
+                        {
+                          "field": "education",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "courses",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchExperience",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "skills",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchInterests",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        },
+                        {
+                          "field": "researchOutputs",
+                          "sourceType": "MANUAL",
+                          "documentId": null
+                        }
+                      ],
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileWrite"
+              },
+              "example": {
+                "expectedRevision": 3,
+                "content": {
+                  "displayName": "Demo Talent A",
+                  "disciplineGroup": "STEM",
+                  "education": [
+                    {
+                      "id": "edu_001",
+                      "institution": "UNSW",
+                      "qualification": "Master of IT",
+                      "discipline": "Computer Science",
+                      "startYear": 2025,
+                      "endYear": null
+                    }
+                  ],
+                  "courses": [],
+                  "researchExperience": [
+                    {
+                      "id": "exp_001",
+                      "title": "Sample research project",
+                      "organisation": "Demo lab",
+                      "description": "Used Python to prepare a small synthetic dataset."
+                    }
+                  ],
+                  "skills": [
+                    {
+                      "tagId": "skill_python",
+                      "claim": "HAS",
+                      "evidenceText": "Reviewed and corrected Python evidence."
+                    },
+                    {
+                      "tagId": "skill_interviews",
+                      "claim": "DOES_NOT_HAVE",
+                      "evidenceText": "I have not conducted research interviews."
+                    }
+                  ],
+                  "researchInterests": [
+                    "interest_ml"
+                  ],
+                  "researchOutputs": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/profile/confirmation": {
+      "post": {
+        "operationId": "confirmMyProfile",
+        "summary": "Confirm the current profile revision",
+        "description": "Confirm exactly expectedRevision, without incrementing content revision. Require non-empty displayName and at least one non-empty academic/research section. Sets confirmedRevision=revision. Repeating for the same revision is idempotent. Confirmation is user review, not external credential verification.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-29"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "example": {
+                  "talentId": "talent_demo_001",
+                  "revision": 4,
+                  "content": {
+                    "displayName": "Demo Talent A",
+                    "disciplineGroup": "STEM",
+                    "education": [
+                      {
+                        "id": "edu_001",
+                        "institution": "UNSW",
+                        "qualification": "Master of IT",
+                        "discipline": "Computer Science",
+                        "startYear": 2025,
+                        "endYear": null
+                      }
+                    ],
+                    "courses": [],
+                    "researchExperience": [
+                      {
+                        "id": "exp_001",
+                        "title": "Sample research project",
+                        "organisation": "Demo lab",
+                        "description": "Used Python to prepare a small synthetic dataset."
+                      }
+                    ],
+                    "skills": [
+                      {
+                        "tagId": "skill_python",
+                        "claim": "HAS",
+                        "evidenceText": "Reviewed and corrected Python evidence."
+                      },
+                      {
+                        "tagId": "skill_interviews",
+                        "claim": "DOES_NOT_HAVE",
+                        "evidenceText": "I have not conducted research interviews."
+                      }
+                    ],
+                    "researchInterests": [
+                      "interest_ml"
+                    ],
+                    "researchOutputs": []
+                  },
+                  "confirmation": {
+                    "status": "CONFIRMED",
+                    "confirmedRevision": 4,
+                    "confirmedAt": "2026-10-03T00:01:00Z"
+                  },
+                  "origins": [
+                    {
+                      "field": "education",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "courses",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "researchExperience",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "skills",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "researchInterests",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "researchOutputs",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    }
+                  ],
+                  "updatedAt": "2026-10-03T00:01:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionRequest"
+              },
+              "example": {
+                "expectedRevision": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/privacy": {
+      "get": {
+        "operationId": "getMyPrivacy",
+        "summary": "Read discovery consent and field visibility",
+        "description": "",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-30"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Privacy"
+                },
+                "examples": {
+                  "privacy-default": {
+                    "value": {
+                      "revision": 0,
+                      "discoverable": false,
+                      "visibleFields": [],
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "put": {
+        "operationId": "replaceMyPrivacy",
+        "summary": "Save discovery consent and field visibility",
+        "description": "Privacy has its own revision. Default discoverable=false, visibleFields=[]. Updating privacy does not invalidate profile confirmation. Apply revocation to the next team list/detail request and invalidate cached results. Hidden fields cannot affect team-visible scores or evidence. Actual changes increment the privacy revision; an exact no-op preserves it. Actual changes increment the privacy revision; an exact no-op preserves it.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-30"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Privacy"
+                },
+                "examples": {
+                  "privacy-name-only": {
+                    "value": {
+                      "revision": 1,
+                      "discoverable": true,
+                      "visibleFields": [
+                        "displayName"
+                      ],
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivacyWrite"
+              },
+              "example": {
+                "expectedRevision": 0,
+                "discoverable": true,
+                "visibleFields": [
+                  "displayName"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/documents": {
+      "get": {
+        "operationId": "listMyDocuments",
+        "summary": "List documents uploaded by the current talent",
+        "description": "Owner-only records sorted by createdAt descending, then id ascending.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-22",
+          "H18ABANANA-23"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentPage"
+                },
+                "examples": {
+                  "document-page": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "doc_demo_001",
+                          "kind": "CV",
+                          "fileName": "synthetic-cv.pdf",
+                          "mediaType": "application/pdf",
+                          "sizeBytes": 2048,
+                          "status": "READY",
+                          "createdAt": "2026-10-03T00:00:00Z",
+                          "updatedAt": "2026-10-03T00:00:00Z",
+                          "error": null
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "uploadDocument",
+        "summary": "Upload a PDF or DOCX and start extraction",
+        "description": "Proposed limit 10 MiB. Accept PDF/DOCX, reject legacy .doc. Validate server-side content and size, not only extension. Return QUEUED immediately; extraction runs separately. Status polling does not imply a particular queue framework. Do not auto-import or confirm. Manual entry remains available.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-22",
+          "H18ABANANA-23",
+          "H18ABANANA-24"
+        ],
+        "responses": {
+          "202": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                },
+                "example": {
+                  "id": "doc_demo_001",
+                  "kind": "CV",
+                  "fileName": "synthetic-cv.pdf",
+                  "mediaType": "application/pdf",
+                  "sizeBytes": 2048,
+                  "status": "QUEUED",
+                  "createdAt": "2026-10-03T00:00:00Z",
+                  "updatedAt": "2026-10-03T00:00:00Z",
+                  "error": null
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "413": {
+            "$ref": "#/components/responses/413"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "CV",
+                      "TRANSCRIPT"
+                    ]
+                  }
+                },
+                "required": [
+                  "file",
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              "encoding": {
+                "file": {
+                  "contentType": "application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/documents/{documentId}": {
+      "get": {
+        "operationId": "getDocumentStatus",
+        "summary": "Read document processing status",
+        "description": "QUEUED -> PROCESSING -> READY or FAILED. Poll every 2 seconds while the view is open; stop on a terminal state and pause after 60 seconds with a manual refresh option. FAILED has a safe error; other states have error=null.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-22",
+          "H18ABANANA-23",
+          "H18ABANANA-24"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                },
+                "examples": {
+                  "document-processing": {
+                    "value": {
+                      "id": "doc_demo_001",
+                      "kind": "CV",
+                      "fileName": "synthetic-cv.pdf",
+                      "mediaType": "application/pdf",
+                      "sizeBytes": 2048,
+                      "status": "PROCESSING",
+                      "createdAt": "2026-10-03T00:00:00Z",
+                      "updatedAt": "2026-10-03T00:00:00Z",
+                      "error": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      }
+    },
+    "/me/documents/{documentId}/extraction": {
+      "get": {
+        "operationId": "getExtraction",
+        "summary": "Read extraction suggestions for review",
+        "description": "READY -> 200; QUEUED/PROCESSING -> 409 EXTRACTION_NOT_READY; FAILED -> 422 EXTRACTION_FAILED. Suggestions never alter the current profile.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-22",
+          "H18ABANANA-24"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extraction"
+                },
+                "examples": {
+                  "extraction-ready": {
+                    "value": {
+                      "documentId": "doc_demo_001",
+                      "status": "READY",
+                      "suggestedSections": {
+                        "education": [
+                          {
+                            "id": "edu_001",
+                            "institution": "UNSW",
+                            "qualification": "Master of IT",
+                            "discipline": "Computer Science",
+                            "startYear": 2025,
+                            "endYear": null
+                          }
+                        ],
+                        "skills": [
+                          {
+                            "tagId": "skill_python",
+                            "claim": "HAS",
+                            "evidenceText": "Used Python in a user-reviewed demo project."
+                          }
+                        ]
+                      },
+                      "uncertainFields": [
+                        {
+                          "field": "researchOutputs",
+                          "status": "NOT_RECOGNISED",
+                          "reason": "No reliable output information was found."
+                        }
+                      ],
+                      "warnings": [
+                        "Review suggestions before saving."
+                      ],
+                      "reviewRequired": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      }
+    },
+    "/me/documents/{documentId}/apply": {
+      "post": {
+        "operationId": "applyExtraction",
+        "summary": "Save user-reviewed extraction fields to the profile",
+        "description": "Require an owner-owned READY document. Check expectedProfileRevision atomically, replace only explicitly supplied sections with reviewed/corrected values, retain all other content, increment revision and mark UNCONFIRMED even if imported values are identical. Store USER_REVIEWED_DOCUMENT provenance for submitted sections. Separate confirmation is mandatory. Concurrent/stale updates return 409. No automatic retry after an ambiguous mutation: re-read first.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-21",
+          "H18ABANANA-22",
+          "H18ABANANA-24",
+          "H18ABANANA-29"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "example": {
+                  "talentId": "talent_demo_001",
+                  "revision": 4,
+                  "content": {
+                    "displayName": "Demo Talent A",
+                    "disciplineGroup": "STEM",
+                    "education": [
+                      {
+                        "id": "edu_001",
+                        "institution": "UNSW",
+                        "qualification": "Master of IT",
+                        "discipline": "Computer Science",
+                        "startYear": 2025,
+                        "endYear": null
+                      }
+                    ],
+                    "courses": [],
+                    "researchExperience": [
+                      {
+                        "id": "exp_001",
+                        "title": "Sample research project",
+                        "organisation": "Demo lab",
+                        "description": "Used Python to prepare a small synthetic dataset."
+                      }
+                    ],
+                    "skills": [
+                      {
+                        "tagId": "skill_python",
+                        "claim": "HAS",
+                        "evidenceText": "Used Python in a user-reviewed demo project."
+                      }
+                    ],
+                    "researchInterests": [
+                      "interest_ml"
+                    ],
+                    "researchOutputs": []
+                  },
+                  "confirmation": {
+                    "status": "UNCONFIRMED",
+                    "confirmedRevision": null,
+                    "confirmedAt": null
+                  },
+                  "origins": [
+                    {
+                      "field": "education",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "courses",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "researchExperience",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "skills",
+                      "sourceType": "USER_REVIEWED_DOCUMENT",
+                      "documentId": "doc_demo_001"
+                    },
+                    {
+                      "field": "researchInterests",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    },
+                    {
+                      "field": "researchOutputs",
+                      "sourceType": "MANUAL",
+                      "documentId": null
+                    }
+                  ],
+                  "updatedAt": "2026-10-03T00:03:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyExtractionRequest"
+              },
+              "example": {
+                "expectedProfileRevision": 3,
+                "sections": {
+                  "skills": [
+                    {
+                      "tagId": "skill_python",
+                      "claim": "HAS",
+                      "evidenceText": "Used Python in a user-reviewed demo project."
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/documents/{documentId}/file": {
+      "get": {
+        "operationId": "downloadMyDocument",
+        "summary": "Download an original document owned by the current talent",
+        "description": "Always check owner access. Research-team accounts cannot download, including when a talent profile is discoverable. Stream through authenticated route; no public URL.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-23"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "attachment; safely encoded owner filename."
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "nosniff"
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      }
+    },
+    "/opportunities": {
+      "get": {
+        "operationId": "listOpportunities",
+        "summary": "List published opportunities or team-owned opportunities",
+        "description": "Published means active for this Sprint. Default scope=published. Sort updatedAt descending then id ascending. Advanced filters/archiving are outside this version.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-19",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityPage"
+                },
+                "examples": {
+                  "opportunity-page": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "opp_demo_001",
+                          "revision": 2,
+                          "status": "PUBLISHED",
+                          "content": {
+                            "title": "Research assistant in data analysis",
+                            "university": "UNSW",
+                            "disciplineGroup": "STEM",
+                            "discipline": "Computer Science",
+                            "researchArea": "Research data analysis",
+                            "description": "Synthetic opportunity for the prototype demonstration.",
+                            "requirements": [
+                              {
+                                "id": "req_python",
+                                "label": "Python experience",
+                                "kind": "SKILL",
+                                "importance": "REQUIRED",
+                                "tagIds": [
+                                  "skill_python"
+                                ]
+                              },
+                              {
+                                "id": "req_analysis",
+                                "label": "Python and SQL",
+                                "kind": "SKILL",
+                                "importance": "REQUIRED",
+                                "tagIds": [
+                                  "skill_python",
+                                  "skill_sql"
+                                ]
+                              },
+                              {
+                                "id": "req_interviews",
+                                "label": "Research interview experience",
+                                "kind": "SKILL",
+                                "importance": "PREFERRED",
+                                "tagIds": [
+                                  "skill_interviews"
+                                ]
+                              },
+                              {
+                                "id": "req_r",
+                                "label": "R experience",
+                                "kind": "SKILL",
+                                "importance": "PREFERRED",
+                                "tagIds": [
+                                  "skill_r"
+                                ]
+                              }
+                            ]
+                          },
+                          "createdAt": "2026-10-03T00:00:00Z",
+                          "updatedAt": "2026-10-03T00:00:00Z"
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "published",
+                "mine"
+              ]
+            },
+            "description": "Default published. mine requires RESEARCH_TEAM and includes only that account’s drafts/published opportunities."
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createOpportunity",
+        "summary": "Create a draft research opportunity",
+        "description": "Server assigns owner, id, revision=1 and DRAFT status. Prototype: one RESEARCH_TEAM account represents one research team. Requirements may be empty while DRAFT.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-19",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                },
+                "examples": {
+                  "opportunity-draft": {
+                    "value": {
+                      "id": "opp_demo_001",
+                      "revision": 1,
+                      "status": "DRAFT",
+                      "content": {
+                        "title": "Research assistant in data analysis",
+                        "university": "UNSW",
+                        "disciplineGroup": "STEM",
+                        "discipline": "Computer Science",
+                        "researchArea": "Research data analysis",
+                        "description": "Synthetic opportunity for the prototype demonstration.",
+                        "requirements": [
+                          {
+                            "id": "req_python",
+                            "label": "Python experience",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python"
+                            ]
+                          },
+                          {
+                            "id": "req_analysis",
+                            "label": "Python and SQL",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python",
+                              "skill_sql"
+                            ]
+                          },
+                          {
+                            "id": "req_interviews",
+                            "label": "Research interview experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_interviews"
+                            ]
+                          },
+                          {
+                            "id": "req_r",
+                            "label": "R experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_r"
+                            ]
+                          }
+                        ]
+                      },
+                      "createdAt": "2026-10-03T00:00:00Z",
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityContent"
+              },
+              "example": {
+                "title": "Research assistant in data analysis",
+                "university": "UNSW",
+                "disciplineGroup": "STEM",
+                "discipline": "Computer Science",
+                "researchArea": "Research data analysis",
+                "description": "Synthetic opportunity for the prototype demonstration.",
+                "requirements": [
+                  {
+                    "id": "req_python",
+                    "label": "Python experience",
+                    "kind": "SKILL",
+                    "importance": "REQUIRED",
+                    "tagIds": [
+                      "skill_python"
+                    ]
+                  },
+                  {
+                    "id": "req_analysis",
+                    "label": "Python and SQL",
+                    "kind": "SKILL",
+                    "importance": "REQUIRED",
+                    "tagIds": [
+                      "skill_python",
+                      "skill_sql"
+                    ]
+                  },
+                  {
+                    "id": "req_interviews",
+                    "label": "Research interview experience",
+                    "kind": "SKILL",
+                    "importance": "PREFERRED",
+                    "tagIds": [
+                      "skill_interviews"
+                    ]
+                  },
+                  {
+                    "id": "req_r",
+                    "label": "R experience",
+                    "kind": "SKILL",
+                    "importance": "PREFERRED",
+                    "tagIds": [
+                      "skill_r"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/opportunities/{opportunityId}": {
+      "get": {
+        "operationId": "getOpportunity",
+        "summary": "Read research opportunity details",
+        "description": "Published opportunities are visible to signed-in users. Only the owner can read its draft; other users receive 404.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-19",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                },
+                "example": {
+                  "id": "opp_demo_001",
+                  "revision": 2,
+                  "status": "PUBLISHED",
+                  "content": {
+                    "title": "Research assistant in data analysis",
+                    "university": "UNSW",
+                    "disciplineGroup": "STEM",
+                    "discipline": "Computer Science",
+                    "researchArea": "Research data analysis",
+                    "description": "Synthetic opportunity for the prototype demonstration.",
+                    "requirements": [
+                      {
+                        "id": "req_python",
+                        "label": "Python experience",
+                        "kind": "SKILL",
+                        "importance": "REQUIRED",
+                        "tagIds": [
+                          "skill_python"
+                        ]
+                      },
+                      {
+                        "id": "req_analysis",
+                        "label": "Python and SQL",
+                        "kind": "SKILL",
+                        "importance": "REQUIRED",
+                        "tagIds": [
+                          "skill_python",
+                          "skill_sql"
+                        ]
+                      },
+                      {
+                        "id": "req_interviews",
+                        "label": "Research interview experience",
+                        "kind": "SKILL",
+                        "importance": "PREFERRED",
+                        "tagIds": [
+                          "skill_interviews"
+                        ]
+                      },
+                      {
+                        "id": "req_r",
+                        "label": "R experience",
+                        "kind": "SKILL",
+                        "importance": "PREFERRED",
+                        "tagIds": [
+                          "skill_r"
+                        ]
+                      }
+                    ]
+                  },
+                  "createdAt": "2026-10-03T00:00:00Z",
+                  "updatedAt": "2026-10-03T00:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "replaceOpportunity",
+        "summary": "Save research opportunity changes",
+        "description": "Owner-only, revision-checked replacement. Preserve publication status; changes increment revision and affect subsequent matching. No-op retains revision. Published opportunities must retain at least one valid requirement; never silently unpublish.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-19",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                },
+                "example": {
+                  "id": "opp_demo_001",
+                  "revision": 3,
+                  "status": "PUBLISHED",
+                  "content": {
+                    "title": "Research assistant in research data systems",
+                    "university": "UNSW",
+                    "disciplineGroup": "STEM",
+                    "discipline": "Computer Science",
+                    "researchArea": "Research data analysis",
+                    "description": "Synthetic opportunity for the prototype demonstration.",
+                    "requirements": [
+                      {
+                        "id": "req_python",
+                        "label": "Python experience",
+                        "kind": "SKILL",
+                        "importance": "REQUIRED",
+                        "tagIds": [
+                          "skill_python"
+                        ]
+                      },
+                      {
+                        "id": "req_analysis",
+                        "label": "Python and SQL",
+                        "kind": "SKILL",
+                        "importance": "REQUIRED",
+                        "tagIds": [
+                          "skill_python",
+                          "skill_sql"
+                        ]
+                      },
+                      {
+                        "id": "req_interviews",
+                        "label": "Research interview experience",
+                        "kind": "SKILL",
+                        "importance": "PREFERRED",
+                        "tagIds": [
+                          "skill_interviews"
+                        ]
+                      },
+                      {
+                        "id": "req_r",
+                        "label": "R experience",
+                        "kind": "SKILL",
+                        "importance": "PREFERRED",
+                        "tagIds": [
+                          "skill_r"
+                        ]
+                      }
+                    ]
+                  },
+                  "createdAt": "2026-10-03T00:00:00Z",
+                  "updatedAt": "2026-10-03T00:02:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityWrite"
+              },
+              "example": {
+                "expectedRevision": 2,
+                "content": {
+                  "title": "Research assistant in research data systems",
+                  "university": "UNSW",
+                  "disciplineGroup": "STEM",
+                  "discipline": "Computer Science",
+                  "researchArea": "Research data analysis",
+                  "description": "Synthetic opportunity for the prototype demonstration.",
+                  "requirements": [
+                    {
+                      "id": "req_python",
+                      "label": "Python experience",
+                      "kind": "SKILL",
+                      "importance": "REQUIRED",
+                      "tagIds": [
+                        "skill_python"
+                      ]
+                    },
+                    {
+                      "id": "req_analysis",
+                      "label": "Python and SQL",
+                      "kind": "SKILL",
+                      "importance": "REQUIRED",
+                      "tagIds": [
+                        "skill_python",
+                        "skill_sql"
+                      ]
+                    },
+                    {
+                      "id": "req_interviews",
+                      "label": "Research interview experience",
+                      "kind": "SKILL",
+                      "importance": "PREFERRED",
+                      "tagIds": [
+                        "skill_interviews"
+                      ]
+                    },
+                    {
+                      "id": "req_r",
+                      "label": "R experience",
+                      "kind": "SKILL",
+                      "importance": "PREFERRED",
+                      "tagIds": [
+                        "skill_r"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/opportunities/{opportunityId}/publish": {
+      "post": {
+        "operationId": "publishOpportunity",
+        "summary": "Publish a research opportunity",
+        "description": "Owner-only. Require current revision, valid basic fields and at least one requirement with known, correctly typed tags. DRAFT -> PUBLISHED increments revision. Repeating on the current published revision returns the same object.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-19",
+          "H18ABANANA-28"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                },
+                "examples": {
+                  "opportunity-published": {
+                    "value": {
+                      "id": "opp_demo_001",
+                      "revision": 2,
+                      "status": "PUBLISHED",
+                      "content": {
+                        "title": "Research assistant in data analysis",
+                        "university": "UNSW",
+                        "disciplineGroup": "STEM",
+                        "discipline": "Computer Science",
+                        "researchArea": "Research data analysis",
+                        "description": "Synthetic opportunity for the prototype demonstration.",
+                        "requirements": [
+                          {
+                            "id": "req_python",
+                            "label": "Python experience",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python"
+                            ]
+                          },
+                          {
+                            "id": "req_analysis",
+                            "label": "Python and SQL",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python",
+                              "skill_sql"
+                            ]
+                          },
+                          {
+                            "id": "req_interviews",
+                            "label": "Research interview experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_interviews"
+                            ]
+                          },
+                          {
+                            "id": "req_r",
+                            "label": "R experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_r"
+                            ]
+                          }
+                        ]
+                      },
+                      "createdAt": "2026-10-03T00:00:00Z",
+                      "updatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionRequest"
+              },
+              "example": {
+                "expectedRevision": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/recommendations": {
+      "get": {
+        "operationId": "listMyRecommendations",
+        "summary": "List ranked opportunity recommendations for the current talent",
+        "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Order score descending, unknownWeightPercent ascending, opportunityId ascending; null scores last. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-20",
+          "H18ABANANA-31",
+          "H18ABANANA-32"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationPage"
+                },
+                "examples": {
+                  "recommendations": {
+                    "value": {
+                      "items": [
+                        {
+                          "rank": 1,
+                          "opportunity": {
+                            "id": "opp_demo_001",
+                            "revision": 2,
+                            "status": "PUBLISHED",
+                            "content": {
+                              "title": "Research assistant in data analysis",
+                              "university": "UNSW",
+                              "disciplineGroup": "STEM",
+                              "discipline": "Computer Science",
+                              "researchArea": "Research data analysis",
+                              "description": "Synthetic opportunity for the prototype demonstration.",
+                              "requirements": [
+                                {
+                                  "id": "req_python",
+                                  "label": "Python experience",
+                                  "kind": "SKILL",
+                                  "importance": "REQUIRED",
+                                  "tagIds": [
+                                    "skill_python"
+                                  ]
+                                },
+                                {
+                                  "id": "req_analysis",
+                                  "label": "Python and SQL",
+                                  "kind": "SKILL",
+                                  "importance": "REQUIRED",
+                                  "tagIds": [
+                                    "skill_python",
+                                    "skill_sql"
+                                  ]
+                                },
+                                {
+                                  "id": "req_interviews",
+                                  "label": "Research interview experience",
+                                  "kind": "SKILL",
+                                  "importance": "PREFERRED",
+                                  "tagIds": [
+                                    "skill_interviews"
+                                  ]
+                                },
+                                {
+                                  "id": "req_r",
+                                  "label": "R experience",
+                                  "kind": "SKILL",
+                                  "importance": "PREFERRED",
+                                  "tagIds": [
+                                    "skill_r"
+                                  ]
+                                }
+                              ]
+                            },
+                            "createdAt": "2026-10-03T00:00:00Z",
+                            "updatedAt": "2026-10-03T00:00:00Z"
+                          },
+                          "summary": {
+                            "score": 50,
+                            "unknownWeightPercent": 16.67,
+                            "requiredGapCount": 0,
+                            "evaluationStatus": "EVALUATED",
+                            "algorithmVersion": "tag-coverage-v1"
+                          }
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ]
+      }
+    },
+    "/me/opportunity-matches/{opportunityId}": {
+      "get": {
+        "operationId": "getMyOpportunityMatch",
+        "summary": "Read requirement-level matching explanations for the current talent",
+        "description": "Published opportunity only; current profile must be confirmed. Re-evaluate against current revisions, not a stale stored score. Owner evidence may reference owner documents; it must not include fabricated claims.",
+        "tags": [
+          "me"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-20",
+          "H18ABANANA-31",
+          "H18ABANANA-32"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerMatch"
+                },
+                "examples": {
+                  "owner-match-four-statuses": {
+                    "value": {
+                      "opportunity": {
+                        "id": "opp_demo_001",
+                        "revision": 2,
+                        "status": "PUBLISHED",
+                        "content": {
+                          "title": "Research assistant in data analysis",
+                          "university": "UNSW",
+                          "disciplineGroup": "STEM",
+                          "discipline": "Computer Science",
+                          "researchArea": "Research data analysis",
+                          "description": "Synthetic opportunity for the prototype demonstration.",
+                          "requirements": [
+                            {
+                              "id": "req_python",
+                              "label": "Python experience",
+                              "kind": "SKILL",
+                              "importance": "REQUIRED",
+                              "tagIds": [
+                                "skill_python"
+                              ]
+                            },
+                            {
+                              "id": "req_analysis",
+                              "label": "Python and SQL",
+                              "kind": "SKILL",
+                              "importance": "REQUIRED",
+                              "tagIds": [
+                                "skill_python",
+                                "skill_sql"
+                              ]
+                            },
+                            {
+                              "id": "req_interviews",
+                              "label": "Research interview experience",
+                              "kind": "SKILL",
+                              "importance": "PREFERRED",
+                              "tagIds": [
+                                "skill_interviews"
+                              ]
+                            },
+                            {
+                              "id": "req_r",
+                              "label": "R experience",
+                              "kind": "SKILL",
+                              "importance": "PREFERRED",
+                              "tagIds": [
+                                "skill_r"
+                              ]
+                            }
+                          ]
+                        },
+                        "createdAt": "2026-10-03T00:00:00Z",
+                        "updatedAt": "2026-10-03T00:00:00Z"
+                      },
+                      "profileRevision": 3,
+                      "summary": {
+                        "score": 50,
+                        "unknownWeightPercent": 16.67,
+                        "requiredGapCount": 0,
+                        "evaluationStatus": "EVALUATED",
+                        "algorithmVersion": "tag-coverage-v1"
+                      },
+                      "requirements": [
+                        {
+                          "requirement": {
+                            "id": "req_python",
+                            "label": "Python experience",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python"
+                            ]
+                          },
+                          "status": "MATCHED",
+                          "reasonCode": "ALL_TAGS_SUPPORTED",
+                          "reason": "Confirmed Python claim supports this requirement.",
+                          "evidence": [
+                            {
+                              "field": "skills",
+                              "recordId": "skill_python",
+                              "valueSummary": "Has Python experience.",
+                              "confirmedRevision": 3,
+                              "sourceType": "MANUAL",
+                              "documentId": null
+                            }
+                          ]
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_analysis",
+                            "label": "Python and SQL",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python",
+                              "skill_sql"
+                            ]
+                          },
+                          "status": "PARTIAL",
+                          "reasonCode": "SOME_TAGS_SUPPORTED",
+                          "reason": "Python is supported; there is insufficient evidence for SQL.",
+                          "evidence": [
+                            {
+                              "field": "skills",
+                              "recordId": "skill_python",
+                              "valueSummary": "Has Python experience.",
+                              "confirmedRevision": 3,
+                              "sourceType": "MANUAL",
+                              "documentId": null
+                            }
+                          ]
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_interviews",
+                            "label": "Research interview experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_interviews"
+                            ]
+                          },
+                          "status": "GAP",
+                          "reasonCode": "EXPLICIT_NEGATIVE_CLAIM",
+                          "reason": "The user explicitly confirmed no research interview experience.",
+                          "evidence": [
+                            {
+                              "field": "skills",
+                              "recordId": "skill_interviews",
+                              "valueSummary": "Explicitly reports no research interview experience.",
+                              "confirmedRevision": 3,
+                              "sourceType": "MANUAL",
+                              "documentId": null
+                            }
+                          ]
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_r",
+                            "label": "R experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_r"
+                            ]
+                          },
+                          "status": "UNKNOWN",
+                          "reasonCode": "INSUFFICIENT_EVIDENCE",
+                          "reason": "There is insufficient confirmed evidence for this requirement.",
+                          "evidence": []
+                        }
+                      ],
+                      "evaluatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      }
+    },
+    "/opportunities/{opportunityId}/talent-matches": {
+      "get": {
+        "operationId": "listTalentMatches",
+        "summary": "List matching talent for a team-owned opportunity",
+        "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Order score descending, unknownWeightPercent ascending, talentId ascending; null scores last. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-20",
+          "H18ABANANA-30",
+          "H18ABANANA-31",
+          "H18ABANANA-33"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TalentMatchPage"
+                },
+                "examples": {
+                  "team-talent-page": {
+                    "value": {
+                      "items": [
+                        {
+                          "rank": 1,
+                          "talent": {
+                            "talentId": "talent_demo_001",
+                            "fields": {
+                              "displayName": "Demo Talent A"
+                            }
+                          },
+                          "summary": {
+                            "score": 0,
+                            "unknownWeightPercent": 100,
+                            "requiredGapCount": 0,
+                            "evaluationStatus": "EVALUATED",
+                            "algorithmVersion": "tag-coverage-v1"
+                          }
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ]
+      }
+    },
+    "/opportunities/{opportunityId}/talent-matches/{talentId}": {
+      "get": {
+        "operationId": "getTalentMatch",
+        "summary": "Read permitted talent information and matching explanations",
+        "description": "Re-check opportunity ownership/publication, current confirmation, opt-in and visibility on every request. An opted-out or unconfirmed talent returns 404, including for previously seen results. Use a redacted schema: never return owner document references, private field names/values or hidden-source reasons. Missing/hidden evidence uses the same generic INSUFFICIENT_EVIDENCE reason. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner.",
+        "tags": [
+          "opportunities"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "x-jira-issues": [
+          "H18ABANANA-20",
+          "H18ABANANA-30",
+          "H18ABANANA-31",
+          "H18ABANANA-33"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMatch"
+                },
+                "examples": {
+                  "team-match-hidden-skills": {
+                    "value": {
+                      "opportunityId": "opp_demo_001",
+                      "opportunityRevision": 2,
+                      "talent": {
+                        "talentId": "talent_demo_001",
+                        "fields": {
+                          "displayName": "Demo Talent A"
+                        }
+                      },
+                      "summary": {
+                        "score": 0,
+                        "unknownWeightPercent": 100,
+                        "requiredGapCount": 0,
+                        "evaluationStatus": "EVALUATED",
+                        "algorithmVersion": "tag-coverage-v1"
+                      },
+                      "requirements": [
+                        {
+                          "requirement": {
+                            "id": "req_python",
+                            "label": "Python experience",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python"
+                            ]
+                          },
+                          "status": "UNKNOWN",
+                          "reasonCode": "INSUFFICIENT_EVIDENCE",
+                          "reason": "There is insufficient shared evidence for this requirement.",
+                          "evidence": []
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_analysis",
+                            "label": "Python and SQL",
+                            "kind": "SKILL",
+                            "importance": "REQUIRED",
+                            "tagIds": [
+                              "skill_python",
+                              "skill_sql"
+                            ]
+                          },
+                          "status": "UNKNOWN",
+                          "reasonCode": "INSUFFICIENT_EVIDENCE",
+                          "reason": "There is insufficient shared evidence for this requirement.",
+                          "evidence": []
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_interviews",
+                            "label": "Research interview experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_interviews"
+                            ]
+                          },
+                          "status": "UNKNOWN",
+                          "reasonCode": "INSUFFICIENT_EVIDENCE",
+                          "reason": "There is insufficient shared evidence for this requirement.",
+                          "evidence": []
+                        },
+                        {
+                          "requirement": {
+                            "id": "req_r",
+                            "label": "R experience",
+                            "kind": "SKILL",
+                            "importance": "PREFERRED",
+                            "tagIds": [
+                              "skill_r"
+                            ]
+                          },
+                          "status": "UNKNOWN",
+                          "reasonCode": "INSUFFICIENT_EVIDENCE",
+                          "reason": "There is insufficient shared evidence for this requirement.",
+                          "evidence": []
+                        }
+                      ],
+                      "evaluatedAt": "2026-10-03T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "name": "talentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Id": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{1,64}$"
+      },
+      "ProfileField": {
+        "type": "string",
+        "enum": [
+          "displayName",
+          "disciplineGroup",
+          "education",
+          "courses",
+          "researchExperience",
+          "skills",
+          "researchInterests",
+          "researchOutputs"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "TALENT",
+              "RESEARCH_TEAM"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "email",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "csrfToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "user",
+          "csrfToken"
+        ],
+        "additionalProperties": false,
+        "description": "GET also bootstraps an anonymous CSRF/session cookie. Login rotates both the session and CSRF token."
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SKILL",
+              "INTEREST"
+            ]
+          },
+          "disciplineGroups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "STEM",
+                "BUSINESS"
+              ]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "disciplineGroups"
+        ],
+        "additionalProperties": false
+      },
+      "TagList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "Education": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "institution": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "qualification": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "discipline": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "startYear": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1900,
+                "maximum": 2200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endYear": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1900,
+                "maximum": 2200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "institution",
+          "qualification",
+          "discipline",
+          "startYear",
+          "endYear"
+        ],
+        "additionalProperties": false
+      },
+      "Course": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "ResearchExperience": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "organisation": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "organisation",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "SkillClaim": {
+        "type": "object",
+        "properties": {
+          "tagId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "claim": {
+            "type": "string",
+            "enum": [
+              "HAS",
+              "DOES_NOT_HAVE"
+            ]
+          },
+          "evidenceText": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "tagId",
+          "claim",
+          "evidenceText"
+        ],
+        "additionalProperties": false,
+        "description": "A selected skill normally uses HAS. DOES_NOT_HAVE is an explicit user assertion, never inferred from an omitted tag. Confirmation is user review, not credential verification."
+      },
+      "ResearchOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PUBLICATION",
+              "PROJECT",
+              "OTHER"
+            ]
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "type",
+          "url",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileContent": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "disciplineGroup": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "STEM",
+                  "BUSINESS"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "education": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Education"
+            },
+            "maxItems": 100
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Course"
+            },
+            "maxItems": 100
+          },
+          "researchExperience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchExperience"
+            },
+            "maxItems": 100
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillClaim"
+            },
+            "maxItems": 100
+          },
+          "researchInterests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "uniqueItems": true,
+            "maxItems": 100
+          },
+          "researchOutputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchOutput"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "displayName",
+          "disciplineGroup",
+          "education",
+          "courses",
+          "researchExperience",
+          "skills",
+          "researchInterests",
+          "researchOutputs"
+        ],
+        "additionalProperties": false,
+        "description": "Full replacement shape for PUT. Arrays use stable client-generated record IDs; IDs must be unique and tag kind must match the field. Empty arrays mean clear the section."
+      },
+      "ProfileSections": {
+        "type": "object",
+        "properties": {
+          "education": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Education"
+            },
+            "maxItems": 100
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Course"
+            },
+            "maxItems": 100
+          },
+          "researchExperience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchExperience"
+            },
+            "maxItems": 100
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillClaim"
+            },
+            "maxItems": 100
+          },
+          "researchInterests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "uniqueItems": true,
+            "maxItems": 100
+          },
+          "researchOutputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchOutput"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "minProperties": 1,
+        "description": "Only submitted sections are replaced. Omitted sections remain unchanged. An explicit empty array clears that section."
+      },
+      "Confirmation": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNCONFIRMED",
+              "CONFIRMED"
+            ]
+          },
+          "confirmedRevision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "confirmedRevision",
+          "confirmedAt"
+        ],
+        "additionalProperties": false,
+        "description": "Prototype choice: confirm the entire current profile revision. Any actual content change invalidates confirmation for the whole profile. Privacy changes are separate."
+      },
+      "FieldOrigin": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "education",
+              "courses",
+              "researchExperience",
+              "skills",
+              "researchInterests",
+              "researchOutputs"
+            ]
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "USER_REVIEWED_DOCUMENT"
+            ]
+          },
+          "documentId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "sourceType",
+          "documentId"
+        ],
+        "additionalProperties": false,
+        "description": "Owner-only provenance set by the server. USER_REVIEWED_DOCUMENT records a review/import workflow, not independent verification of document contents."
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "talentId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "content": {
+            "$ref": "#/components/schemas/ProfileContent"
+          },
+          "confirmation": {
+            "$ref": "#/components/schemas/Confirmation"
+          },
+          "origins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldOrigin"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "talentId",
+          "revision",
+          "content",
+          "confirmation",
+          "origins",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileWrite": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "content": {
+            "$ref": "#/components/schemas/ProfileContent"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "RevisionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "expectedRevision"
+        ],
+        "additionalProperties": false
+      },
+      "Privacy": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "discoverable": {
+            "type": "boolean"
+          },
+          "visibleFields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileField"
+            },
+            "uniqueItems": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "revision",
+          "discoverable",
+          "visibleFields",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "PrivacyWrite": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "discoverable": {
+            "type": "boolean"
+          },
+          "visibleFields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileField"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "discoverable",
+          "visibleFields"
+        ],
+        "additionalProperties": false
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "UNAUTHENTICATED",
+              "INVALID_CREDENTIALS",
+              "FORBIDDEN",
+              "CSRF_INVALID",
+              "NOT_FOUND",
+              "VALIDATION_ERROR",
+              "REVISION_CONFLICT",
+              "PROFILE_UNCONFIRMED",
+              "EXTRACTION_NOT_READY",
+              "EXTRACTION_FAILED",
+              "UPLOAD_TOO_LARGE",
+              "UNSUPPORTED_FILE_TYPE",
+              "RATE_LIMITED",
+              "INTERNAL_ERROR",
+              "BAD_REQUEST",
+              "UNSUPPORTED_MEDIA_TYPE"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            }
+          },
+          "currentRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "fieldErrors"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "CV",
+              "TRANSCRIPT"
+            ]
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string",
+            "enum": [
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10485760
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "PROCESSING",
+              "READY",
+              "FAILED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "fileName",
+          "mediaType",
+          "sizeBytes",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "UncertainField": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "education",
+              "courses",
+              "researchExperience",
+              "skills",
+              "researchInterests",
+              "researchOutputs"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "NOT_RECOGNISED"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "status",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "Extraction": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "READY"
+            ]
+          },
+          "suggestedSections": {
+            "type": "object",
+            "properties": {
+              "education": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Education"
+                },
+                "maxItems": 100
+              },
+              "courses": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Course"
+                },
+                "maxItems": 100
+              },
+              "researchExperience": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ResearchExperience"
+                },
+                "maxItems": 100
+              },
+              "skills": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SkillClaim"
+                },
+                "maxItems": 100
+              },
+              "researchInterests": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                },
+                "uniqueItems": true,
+                "maxItems": 100
+              },
+              "researchOutputs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ResearchOutput"
+                },
+                "maxItems": 100
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "uncertainFields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UncertainField"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewRequired": {
+            "const": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documentId",
+          "status",
+          "suggestedSections",
+          "uncertainFields",
+          "warnings",
+          "reviewRequired"
+        ],
+        "additionalProperties": false,
+        "description": "Suggestions do not mutate the profile. Unknown values are not converted to positive skill claims. All source information stays owner-only."
+      },
+      "ApplyExtractionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedProfileRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sections": {
+            "$ref": "#/components/schemas/ProfileSections"
+          }
+        },
+        "required": [
+          "expectedProfileRevision",
+          "sections"
+        ],
+        "additionalProperties": false,
+        "description": "User-reviewed values, possibly corrected, to import from an owner-owned READY document. Replaces only named sections, increments profile revision and marks the whole profile UNCONFIRMED. Does not confirm or match automatically."
+      },
+      "Requirement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SKILL",
+              "INTEREST"
+            ]
+          },
+          "importance": {
+            "type": "string",
+            "enum": [
+              "REQUIRED",
+              "PREFERRED"
+            ]
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "importance",
+          "tagIds"
+        ],
+        "additionalProperties": false,
+        "description": "Tags in one requirement form an AND group. Tag kind must match requirement kind. Stable IDs allow explanations to refer to the exact requirement."
+      },
+      "OpportunityContent": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "university": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "disciplineGroup": {
+            "type": "string",
+            "enum": [
+              "STEM",
+              "BUSINESS"
+            ]
+          },
+          "discipline": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "researchArea": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Requirement"
+            },
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "title",
+          "university",
+          "disciplineGroup",
+          "discipline",
+          "researchArea",
+          "description",
+          "requirements"
+        ],
+        "additionalProperties": false
+      },
+      "Opportunity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PUBLISHED"
+            ]
+          },
+          "content": {
+            "$ref": "#/components/schemas/OpportunityContent"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "status",
+          "content",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "OpportunityWrite": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "content": {
+            "$ref": "#/components/schemas/OpportunityContent"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "MatchStatus": {
+        "type": "string",
+        "enum": [
+          "MATCHED",
+          "PARTIAL",
+          "GAP",
+          "UNKNOWN"
+        ]
+      },
+      "OwnerEvidence": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/ProfileField"
+          },
+          "recordId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "valueSummary": {
+            "type": "string"
+          },
+          "confirmedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "USER_REVIEWED_DOCUMENT"
+            ]
+          },
+          "documentId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "recordId",
+          "valueSummary",
+          "confirmedRevision",
+          "sourceType",
+          "documentId"
+        ],
+        "additionalProperties": false
+      },
+      "TeamEvidence": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/ProfileField"
+          },
+          "recordId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "valueSummary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "recordId",
+          "valueSummary"
+        ],
+        "additionalProperties": false,
+        "description": "Redacted shape: no document IDs, raw filenames, download URLs, raw extraction text or hidden fields."
+      },
+      "OwnerRequirementResult": {
+        "type": "object",
+        "properties": {
+          "requirement": {
+            "$ref": "#/components/schemas/Requirement"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MatchStatus"
+          },
+          "reasonCode": {
+            "type": "string",
+            "enum": [
+              "ALL_TAGS_SUPPORTED",
+              "SOME_TAGS_SUPPORTED",
+              "EXPLICIT_NEGATIVE_CLAIM",
+              "INSUFFICIENT_EVIDENCE"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnerEvidence"
+            }
+          }
+        },
+        "required": [
+          "requirement",
+          "status",
+          "reasonCode",
+          "reason",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "TeamRequirementResult": {
+        "type": "object",
+        "properties": {
+          "requirement": {
+            "$ref": "#/components/schemas/Requirement"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MatchStatus"
+          },
+          "reasonCode": {
+            "type": "string",
+            "enum": [
+              "ALL_TAGS_SUPPORTED",
+              "SOME_TAGS_SUPPORTED",
+              "EXPLICIT_NEGATIVE_CLAIM",
+              "INSUFFICIENT_EVIDENCE"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamEvidence"
+            }
+          }
+        },
+        "required": [
+          "requirement",
+          "status",
+          "reasonCode",
+          "reason",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "MatchSummary": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unknownWeightPercent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requiredGapCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "evaluationStatus": {
+            "type": "string",
+            "enum": [
+              "EVALUATED",
+              "INSUFFICIENT_CRITERIA"
+            ]
+          },
+          "algorithmVersion": {
+            "type": "string",
+            "enum": [
+              "tag-coverage-v1"
+            ]
+          }
+        },
+        "required": [
+          "score",
+          "unknownWeightPercent",
+          "requiredGapCount",
+          "evaluationStatus",
+          "algorithmVersion"
+        ],
+        "additionalProperties": false,
+        "description": "Draft scoring: REQUIRED weight 2, PREFERRED 1; MATCHED=1, PARTIAL=.5, GAP/UNKNOWN=0. Score is evidence coverage, not a probability. No criteria -> null score and null unknown percentage."
+      },
+      "OwnerMatch": {
+        "type": "object",
+        "properties": {
+          "opportunity": {
+            "$ref": "#/components/schemas/Opportunity"
+          },
+          "profileRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnerRequirementResult"
+            }
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "opportunity",
+          "profileRevision",
+          "summary",
+          "requirements",
+          "evaluatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "VisibleProfile": {
+        "type": "object",
+        "properties": {
+          "talentId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "displayName": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "disciplineGroup": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "STEM",
+                      "BUSINESS"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "education": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Education"
+                },
+                "maxItems": 100
+              },
+              "courses": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Course"
+                },
+                "maxItems": 100
+              },
+              "researchExperience": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ResearchExperience"
+                },
+                "maxItems": 100
+              },
+              "skills": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SkillClaim"
+                },
+                "maxItems": 100
+              },
+              "researchInterests": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$"
+                },
+                "uniqueItems": true,
+                "maxItems": 100
+              },
+              "researchOutputs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ResearchOutput"
+                },
+                "maxItems": 100
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "talentId",
+          "fields"
+        ],
+        "additionalProperties": false,
+        "description": "Contains only allowed fields. Omit private keys entirely. No email, original files, origin metadata or privacy settings. Matching uses this same filtered evidence scope."
+      },
+      "TeamMatch": {
+        "type": "object",
+        "properties": {
+          "opportunityId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "opportunityRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "talent": {
+            "$ref": "#/components/schemas/VisibleProfile"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamRequirementResult"
+            }
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "opportunityId",
+          "opportunityRevision",
+          "talent",
+          "summary",
+          "requirements",
+          "evaluatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "RecommendationItem": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/Opportunity"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          }
+        },
+        "required": [
+          "rank",
+          "opportunity",
+          "summary"
+        ],
+        "additionalProperties": false
+      },
+      "TalentMatchItem": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "talent": {
+            "$ref": "#/components/schemas/VisibleProfile"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MatchSummary"
+          }
+        },
+        "required": [
+          "rank",
+          "talent",
+          "summary"
+        ],
+        "additionalProperties": false
+      },
+      "OpportunityPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Opportunity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "additionalProperties": false
+      },
+      "DocumentPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "additionalProperties": false
+      },
+      "RecommendationPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecommendationItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "additionalProperties": false
+      },
+      "TalentMatchPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TalentMatchItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "parameters": {
+      "Csrf": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Value returned by GET /auth/session (or login). Required for every mutation, including multipart upload and login. Validate Origin as well."
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "PageSize": {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "Malformed JSON or invalid request framing.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Authentication is missing/expired, or credentials are invalid.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Wrong role or invalid CSRF/Origin.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Resource does not exist or is inaccessible to this user.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Revision conflict, unconfirmed profile, or extraction not ready.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "413": {
+        "description": "File exceeds the proposed 10 MiB limit.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported request media type, or unsupported uploaded file type.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Field validation failed, extraction failed, or publish/confirm preconditions failed.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Rate limit exceeded.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Unexpected server error; do not return internal details.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "h18_session",
+        "description": "Opaque server-side session. HTTPS cookie: HttpOnly, Secure, SameSite=Lax, Path=/, host-only. All mutations additionally require X-CSRF-Token and an allowed Origin. Use a same-origin development proxy."
+      }
+    }
+  }
+}

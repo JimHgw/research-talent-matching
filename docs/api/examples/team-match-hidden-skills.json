@@ -1,0 +1,81 @@
+{
+  "opportunityId": "opp_demo_001",
+  "opportunityRevision": 2,
+  "talent": {
+    "talentId": "talent_demo_001",
+    "fields": {
+      "displayName": "Demo Talent A"
+    }
+  },
+  "summary": {
+    "score": 0,
+    "unknownWeightPercent": 100,
+    "requiredGapCount": 0,
+    "evaluationStatus": "EVALUATED",
+    "algorithmVersion": "tag-coverage-v1"
+  },
+  "requirements": [
+    {
+      "requirement": {
+        "id": "req_python",
+        "label": "Python experience",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient shared evidence for this requirement.",
+      "evidence": []
+    },
+    {
+      "requirement": {
+        "id": "req_analysis",
+        "label": "Python and SQL",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python",
+          "skill_sql"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient shared evidence for this requirement.",
+      "evidence": []
+    },
+    {
+      "requirement": {
+        "id": "req_interviews",
+        "label": "Research interview experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_interviews"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient shared evidence for this requirement.",
+      "evidence": []
+    },
+    {
+      "requirement": {
+        "id": "req_r",
+        "label": "R experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_r"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient shared evidence for this requirement.",
+      "evidence": []
+    }
+  ],
+  "evaluatedAt": "2026-10-03T00:00:00Z"
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "file": "anonymous-session.json",
+    "schema": "Session"
+  },
+  {
+    "file": "talent-session.json",
+    "schema": "Session"
+  },
+  {
+    "file": "login-request.json",
+    "schema": "LoginRequest"
+  },
+  {
+    "file": "tags.json",
+    "schema": "TagList"
+  },
+  {
+    "file": "profile-confirmed.json",
+    "schema": "Profile"
+  },
+  {
+    "file": "profile-write.json",
+    "schema": "ProfileWrite"
+  },
+  {
+    "file": "profile-unconfirmed.json",
+    "schema": "Profile"
+  },
+  {
+    "file": "confirm-request.json",
+    "schema": "RevisionRequest"
+  },
+  {
+    "file": "privacy-default.json",
+    "schema": "Privacy"
+  },
+  {
+    "file": "privacy-write.json",
+    "schema": "PrivacyWrite"
+  },
+  {
+    "file": "privacy-name-only.json",
+    "schema": "Privacy"
+  },
+  {
+    "file": "document-ready.json",
+    "schema": "Document"
+  },
+  {
+    "file": "document-processing.json",
+    "schema": "Document"
+  },
+  {
+    "file": "document-failed.json",
+    "schema": "Document"
+  },
+  {
+    "file": "document-page.json",
+    "schema": "DocumentPage"
+  },
+  {
+    "file": "extraction-ready.json",
+    "schema": "Extraction"
+  },
+  {
+    "file": "apply-extraction-request.json",
+    "schema": "ApplyExtractionRequest"
+  },
+  {
+    "file": "opportunity-create.json",
+    "schema": "OpportunityContent"
+  },
+  {
+    "file": "opportunity-draft.json",
+    "schema": "Opportunity"
+  },
+  {
+    "file": "opportunity-published.json",
+    "schema": "Opportunity"
+  },
+  {
+    "file": "opportunity-page.json",
+    "schema": "OpportunityPage"
+  },
+  {
+    "file": "owner-match-four-statuses.json",
+    "schema": "OwnerMatch"
+  },
+  {
+    "file": "recommendations.json",
+    "schema": "RecommendationPage"
+  },
+  {
+    "file": "recommendations-empty.json",
+    "schema": "RecommendationPage"
+  },
+  {
+    "file": "team-match-hidden-skills.json",
+    "schema": "TeamMatch"
+  },
+  {
+    "file": "team-talent-page.json",
+    "schema": "TalentMatchPage"
+  },
+  {
+    "file": "error-revision-conflict.json",
+    "schema": "Error"
+  },
+  {
+    "file": "error-unconfirmed.json",
+    "schema": "Error"
+  },
+  {
+    "file": "error-opted-out.json",
+    "schema": "Error"
+  },
+  {
+    "file": "error-validation.json",
+    "schema": "Error"
+  }
+]

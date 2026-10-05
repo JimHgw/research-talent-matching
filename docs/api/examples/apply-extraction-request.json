@@ -1,0 +1,12 @@
+{
+  "expectedProfileRevision": 3,
+  "sections": {
+    "skills": [
+      {
+        "tagId": "skill_python",
+        "claim": "HAS",
+        "evidenceText": "Used Python in a user-reviewed demo project."
+      }
+    ]
+  }
+}

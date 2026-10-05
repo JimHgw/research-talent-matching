@@ -1,0 +1,155 @@
+{
+  "opportunity": {
+    "id": "opp_demo_001",
+    "revision": 2,
+    "status": "PUBLISHED",
+    "content": {
+      "title": "Research assistant in data analysis",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_python",
+          "label": "Python experience",
+          "kind": "SKILL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python"
+          ]
+        },
+        {
+          "id": "req_analysis",
+          "label": "Python and SQL",
+          "kind": "SKILL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python",
+            "skill_sql"
+          ]
+        },
+        {
+          "id": "req_interviews",
+          "label": "Research interview experience",
+          "kind": "SKILL",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "skill_interviews"
+          ]
+        },
+        {
+          "id": "req_r",
+          "label": "R experience",
+          "kind": "SKILL",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "skill_r"
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-10-03T00:00:00Z",
+    "updatedAt": "2026-10-03T00:00:00Z"
+  },
+  "profileRevision": 3,
+  "summary": {
+    "score": 50,
+    "unknownWeightPercent": 16.67,
+    "requiredGapCount": 0,
+    "evaluationStatus": "EVALUATED",
+    "algorithmVersion": "tag-coverage-v1"
+  },
+  "requirements": [
+    {
+      "requirement": {
+        "id": "req_python",
+        "label": "Python experience",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python"
+        ]
+      },
+      "status": "MATCHED",
+      "reasonCode": "ALL_TAGS_SUPPORTED",
+      "reason": "Confirmed Python claim supports this requirement.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_python",
+          "valueSummary": "Has Python experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "id": "req_analysis",
+        "label": "Python and SQL",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python",
+          "skill_sql"
+        ]
+      },
+      "status": "PARTIAL",
+      "reasonCode": "SOME_TAGS_SUPPORTED",
+      "reason": "Python is supported; there is insufficient evidence for SQL.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_python",
+          "valueSummary": "Has Python experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "id": "req_interviews",
+        "label": "Research interview experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_interviews"
+        ]
+      },
+      "status": "GAP",
+      "reasonCode": "EXPLICIT_NEGATIVE_CLAIM",
+      "reason": "The user explicitly confirmed no research interview experience.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_interviews",
+          "valueSummary": "Explicitly reports no research interview experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "id": "req_r",
+        "label": "R experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_r"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient confirmed evidence for this requirement.",
+      "evidence": []
+    }
+  ],
+  "evaluatedAt": "2026-10-03T00:00:00Z"
+}
