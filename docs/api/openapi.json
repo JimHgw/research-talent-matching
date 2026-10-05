@@ -34,7 +34,7 @@
     "/auth/session": {
       "get": {
         "operationId": "getSession",
-        "summary": "读取登录状态并获取 CSRF token",
+        "summary": "Read the current session and obtain a CSRF token",
         "description": "Always 200 for valid requests. user=null means anonymous. Initialises anonymous session state when needed; no secret session ID appears in JSON.",
         "tags": [
           "auth"
@@ -92,7 +92,7 @@
     "/auth/login": {
       "post": {
         "operationId": "login",
-        "summary": "使用预置账号登录",
+        "summary": "Log in with a provisioned account",
         "description": "Obtain CSRF token from GET /auth/session first. Rotate session and CSRF token after success; the frontend replaces its stored CSRF token. Role comes from the account, never a trusted client role field.",
         "tags": [
           "auth"
@@ -192,7 +192,7 @@
     "/auth/logout": {
       "post": {
         "operationId": "logout",
-        "summary": "退出当前会话",
+        "summary": "Log out of the current session",
         "description": "Invalidate the server session and expire the cookie. Next login begins with GET /auth/session.",
         "tags": [
           "auth"
@@ -247,7 +247,7 @@
     "/tags": {
       "get": {
         "operationId": "listTags",
-        "summary": "读取统一技能和兴趣标签",
+        "summary": "List shared skill and interest tags",
         "description": "Small seeded vocabulary shared by profile and opportunity forms. No tag-management interface in Sprint 1.",
         "tags": [
           "tags"
@@ -364,7 +364,7 @@
     "/me/profile": {
       "get": {
         "operationId": "getMyProfile",
-        "summary": "读取本人资料",
+        "summary": "Read the current talent profile",
         "description": "Profile is provisioned with the talent account. An untouched profile is returned with revision=0 and empty content, not 404.",
         "tags": [
           "me"
@@ -497,7 +497,7 @@
       },
       "put": {
         "operationId": "replaceMyProfile",
-        "summary": "保存本人完整资料",
+        "summary": "Save the complete talent profile",
         "description": "Compare expectedRevision atomically. An actual content change increments revision and resets confirmation for the whole profile; exact no-op keeps revision and confirmation. Changed sections become MANUAL provenance; unchanged sections retain origin. All content keys are required: read-modify-write the whole object. Server rejects unknown, duplicate or wrong-kind tag IDs.",
         "tags": [
           "me"
@@ -699,7 +699,7 @@
     "/me/profile/confirmation": {
       "post": {
         "operationId": "confirmMyProfile",
-        "summary": "确认当前资料版本",
+        "summary": "Confirm the current profile revision",
         "description": "Confirm exactly expectedRevision, without incrementing content revision. Require non-empty displayName and at least one non-empty academic/research section. Sets confirmedRevision=revision. Repeating for the same revision is idempotent. Confirmation is user review, not external credential verification.",
         "tags": [
           "me"
@@ -857,7 +857,7 @@
     "/me/privacy": {
       "get": {
         "operationId": "getMyPrivacy",
-        "summary": "读取发现权限和字段可见性",
+        "summary": "Read discovery consent and field visibility",
         "description": "",
         "tags": [
           "me"
@@ -915,7 +915,7 @@
       },
       "put": {
         "operationId": "replaceMyPrivacy",
-        "summary": "保存发现权限和字段可见性",
+        "summary": "Save discovery consent and field visibility",
         "description": "Privacy has its own revision. Default discoverable=false, visibleFields=[]. Updating privacy does not invalidate profile confirmation. Apply revocation to the next team list/detail request and invalidate cached results. Hidden fields cannot affect team-visible scores or evidence. Actual changes increment the privacy revision; an exact no-op preserves it. Actual changes increment the privacy revision; an exact no-op preserves it.",
         "tags": [
           "me"
@@ -1008,7 +1008,7 @@
     "/me/documents": {
       "get": {
         "operationId": "listMyDocuments",
-        "summary": "读取本人上传记录",
+        "summary": "List documents uploaded by the current talent",
         "description": "Owner-only records sorted by createdAt descending, then id ascending.",
         "tags": [
           "me"
@@ -1086,7 +1086,7 @@
       },
       "post": {
         "operationId": "uploadDocument",
-        "summary": "上传 PDF 或 DOCX 并开始提取",
+        "summary": "Upload a PDF or DOCX and start extraction",
         "description": "Proposed limit 10 MiB. Accept PDF/DOCX, reject legacy .doc. Validate server-side content and size, not only extension. Return QUEUED immediately; extraction runs separately. Status polling does not imply a particular queue framework. Do not auto-import or confirm. Manual entry remains available.",
         "tags": [
           "me"
@@ -1198,7 +1198,7 @@
     "/me/documents/{documentId}": {
       "get": {
         "operationId": "getDocumentStatus",
-        "summary": "查询文件处理状态",
+        "summary": "Read document processing status",
         "description": "QUEUED -> PROCESSING -> READY or FAILED. Poll every 2 seconds while the view is open; stop on a terminal state and pause after 60 seconds with a manual refresh option. FAILED has a safe error; other states have error=null.",
         "tags": [
           "me"
@@ -1278,7 +1278,7 @@
     "/me/documents/{documentId}/extraction": {
       "get": {
         "operationId": "getExtraction",
-        "summary": "读取待审核提取建议",
+        "summary": "Read extraction suggestions for review",
         "description": "READY -> 200; QUEUED/PROCESSING -> 409 EXTRACTION_NOT_READY; FAILED -> 422 EXTRACTION_FAILED. Suggestions never alter the current profile.",
         "tags": [
           "me"
@@ -1383,7 +1383,7 @@
     "/me/documents/{documentId}/apply": {
       "post": {
         "operationId": "applyExtraction",
-        "summary": "保存用户审核后的提取字段",
+        "summary": "Save user-reviewed extraction fields to the profile",
         "description": "Require an owner-owned READY document. Check expectedProfileRevision atomically, replace only explicitly supplied sections with reviewed/corrected values, retain all other content, increment revision and mark UNCONFIRMED even if imported values are identical. Store USER_REVIEWED_DOCUMENT provenance for submitted sections. Separate confirmation is mandatory. Concurrent/stale updates return 409. No automatic retry after an ambiguous mutation: re-read first.",
         "tags": [
           "me"
@@ -1559,7 +1559,7 @@
     "/me/documents/{documentId}/file": {
       "get": {
         "operationId": "downloadMyDocument",
-        "summary": "下载本人的原始文件",
+        "summary": "Download an original document owned by the current talent",
         "description": "Always check owner access. Research-team accounts cannot download, including when a talent profile is discoverable. Stream through authenticated route; no public URL.",
         "tags": [
           "me"
@@ -1641,7 +1641,7 @@
     "/opportunities": {
       "get": {
         "operationId": "listOpportunities",
-        "summary": "浏览已发布机会或团队自有机会",
+        "summary": "List published opportunities or team-owned opportunities",
         "description": "Published means active for this Sprint. Default scope=published. Sort updatedAt descending then id ascending. Advanced filters/archiving are outside this version.",
         "tags": [
           "opportunities"
@@ -1775,7 +1775,7 @@
       },
       "post": {
         "operationId": "createOpportunity",
-        "summary": "创建研究机会草稿",
+        "summary": "Create a draft research opportunity",
         "description": "Server assigns owner, id, revision=1 and DRAFT status. Prototype: one RESEARCH_TEAM account represents one research team. Requirements may be empty while DRAFT.",
         "tags": [
           "opportunities"
@@ -1951,7 +1951,7 @@
     "/opportunities/{opportunityId}": {
       "get": {
         "operationId": "getOpportunity",
-        "summary": "读取机会详情",
+        "summary": "Read research opportunity details",
         "description": "Published opportunities are visible to signed-in users. Only the owner can read its draft; other users receive 404.",
         "tags": [
           "opportunities"
@@ -2068,7 +2068,7 @@
       },
       "put": {
         "operationId": "replaceOpportunity",
-        "summary": "保存研究机会修改",
+        "summary": "Save research opportunity changes",
         "description": "Owner-only, revision-checked replacement. Preserve publication status; changes increment revision and affect subsequent matching. No-op retains revision. Published opportunities must retain at least one valid requirement; never silently unpublish.",
         "tags": [
           "opportunities"
@@ -2258,7 +2258,7 @@
     "/opportunities/{opportunityId}/publish": {
       "post": {
         "operationId": "publishOpportunity",
-        "summary": "发布研究机会",
+        "summary": "Publish a research opportunity",
         "description": "Owner-only. Require current revision, valid basic fields and at least one requirement with known, correctly typed tags. DRAFT -> PUBLISHED increments revision. Repeating on the current published revision returns the same object.",
         "tags": [
           "opportunities"
@@ -2405,7 +2405,7 @@
     "/me/recommendations": {
       "get": {
         "operationId": "listMyRecommendations",
-        "summary": "获取本人推荐机会排序",
+        "summary": "List ranked opportunity recommendations for the current talent",
         "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Order score descending, unknownWeightPercent ascending, opportunityId ascending; null scores last. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route.",
         "tags": [
           "me"
@@ -2542,7 +2542,7 @@
     "/me/opportunity-matches/{opportunityId}": {
       "get": {
         "operationId": "getMyOpportunityMatch",
-        "summary": "读取本人逐项匹配解释",
+        "summary": "Read requirement-level matching explanations for the current talent",
         "description": "Published opportunity only; current profile must be confirmed. Re-evaluate against current revisions, not a stale stored score. Owner evidence may reference owner documents; it must not include fabricated claims.",
         "tags": [
           "me"
@@ -2769,7 +2769,7 @@
     "/opportunities/{opportunityId}/talent-matches": {
       "get": {
         "operationId": "listTalentMatches",
-        "summary": "获取团队机会的匹配人才",
+        "summary": "List matching talent for a team-owned opportunity",
         "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Order score descending, unknownWeightPercent ascending, talentId ascending; null scores last. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner.",
         "tags": [
           "opportunities"
@@ -2868,7 +2868,7 @@
     "/opportunities/{opportunityId}/talent-matches/{talentId}": {
       "get": {
         "operationId": "getTalentMatch",
-        "summary": "读取获准公开的人才资料与匹配解释",
+        "summary": "Read permitted talent information and matching explanations",
         "description": "Re-check opportunity ownership/publication, current confirmation, opt-in and visibility on every request. An opted-out or unconfirmed talent returns 404, including for previously seen results. Use a redacted schema: never return owner document references, private field names/values or hidden-source reasons. Missing/hidden evidence uses the same generic INSUFFICIENT_EVIDENCE reason. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner.",
         "tags": [
           "opportunities"

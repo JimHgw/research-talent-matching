@@ -5,7 +5,7 @@ Version: `0.1.0-draft`. Covers US-01–US-09 with 24 HTTP operations.
 
 ## Start here
 
-- [Complete API contract](sprint-1-api-contract.md): request/response fields, examples, permissions, errors, workflows and integration acceptance cases. Written in Chinese with English API identifiers.
+- [Complete API contract](sprint-1-api-contract.md): request/response fields, examples, permissions, errors, workflows and integration acceptance cases. All documentation and examples are in English.
 - [OpenAPI 3.1 definition](openapi.json): machine-readable paths and 47 public schemas.
 - [Endpoint index](endpoint-index.json): HTTP operations and related Jira implementation tasks.
 - [Example index](examples/index.json): maps 30 synthetic JSON fixtures to their schemas.

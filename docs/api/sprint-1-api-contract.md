@@ -1,186 +1,186 @@
-# H18ABANANA — Sprint 1 前后端接口约定
+# H18ABANANA — Sprint 1 Frontend and Backend API Contract
 
-版本：`0.1.0-draft`
+Version: `0.1.0-draft`
 
-整理日期：2026-10-03
+Prepared: 2026-10-03. English edition: 2026-10-05.
 
-前端语言：JavaScript；后端语言：Python
+Frontend language: JavaScript. Backend language: Python.
 
-范围：当前 Sprint 1 的 **US-01～US-09，24 个 HTTP 接口**。这是用于团队评审和并行开发的接口草案，不代表后端已经实现，也不代表团队已同意所有设计选择。
+Scope: **US-01 through US-09 in the current Sprint 1, comprising 24 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
 
-本文件可单独分享：接口、字段表、请求和响应示例、权限、错误码及联调要求均包含在内。配套的 `openapi.json` 提供同一版本的机器可读结构。
+This document can be shared on its own: it contains endpoints, field definitions, request and response examples, permissions, errors and integration requirements. The accompanying `openapi.json` provides the machine-readable definition of the same version.
 
-## 1. 范围和协作约定
+## 1. Scope and collaboration
 
-### 1.1 当前版本覆盖什么
+### 1.1 Coverage
 
-| 用户故事 | Jira 主任务 | 本版接口支持 |
+| User story | Jira parent issue | API coverage in this version |
 |---|---|---|
-| US-01 登录与人才资料 | H18ABANANA-9 | 会话、登录、退出、资料读取与保存、统一标签 |
-| US-02 研究机会管理 | H18ABANANA-10 | 创建草稿、编辑、发布、列表、详情 |
-| US-03 审核与确认 | H18ABANANA-11 | 确认当前资料版本；修改后重新确认 |
-| US-04 人才寻找机会 | H18ABANANA-13 | 排序后的机会推荐、逐项解释 |
-| US-05 团队寻找人才 | H18ABANANA-12 | 某个机会下的人才排序、逐项解释 |
-| US-06 Sprint 流程测试 | H18ABANANA-14 | 使用本文件的接口和合成样例测试；不新增公开测试接口 |
-| US-07 隐私与字段可见性 | H18ABANANA-15 | 是否允许被发现、允许公开哪些资料字段 |
-| US-08 逐项匹配证据 | H18ABANANA-1 | Matched / Partial / Gap / Unknown、证据、排序与分数 |
-| US-09 上传与信息提取 | H18ABANANA-2 | PDF/DOCX 上传、处理状态、提取草稿、人工审核后导入 |
+| US-01 Login and talent profile | H18ABANANA-9 | Session, login, logout, profile retrieval and storage, shared tags |
+| US-02 Research opportunity management | H18ABANANA-10 | Create drafts, edit, publish, list and view details |
+| US-03 Review and confirmation | H18ABANANA-11 | Confirm the current profile revision; reconfirm after changes |
+| US-04 Talent discovers opportunities | H18ABANANA-13 | Ranked recommendations and requirement-level explanations |
+| US-05 Teams discover talent | H18ABANANA-12 | Ranked talent for an opportunity and requirement-level explanations |
+| US-06 Sprint flow testing | H18ABANANA-14 | Test these APIs using synthetic examples; no additional public test endpoint |
+| US-07 Privacy and field visibility | H18ABANANA-15 | Discovery consent and a whitelist of visible profile fields |
+| US-08 Requirement-level evidence | H18ABANANA-1 | Matched / Partial / Gap / Unknown, evidence, ranking and scores |
+| US-09 Document upload and extraction | H18ABANANA-2 | PDF/DOCX upload, processing status, extraction drafts and reviewed imports |
 
-“全部接口”在本文件中指 **Sprint 1 的全部接口**。Backlog 中的收藏、高级筛选、语义匹配、完整注册/密码重置、复杂身份切换不纳入 v0.1。机会删除、下架、团队成员管理也未在此版本约定。
+“All endpoints” here means all endpoints for **Sprint 1**. Backlog features such as favourites, advanced filters, semantic matching, full registration/password reset and complex role switching are outside v0.1. Opportunity deletion, unpublishing and team membership management are also not defined in this version.
 
-客户 2026-09-30 会议记录允许 Demo 1 在提取未完成时使用手工录入；当前 Jira 已把 US-09 放入 Sprint，因此这里保留其完整接口。提取不可用时，前端仍应允许手动填写。
+The client meeting on 2026-09-30 allowed manual entry for Demo 1 if extraction was not ready. US-09 is now in the Jira Sprint, so its complete interface is retained here. Manual entry must remain available when extraction is unavailable.
 
-### 1.2 并行开发分工
+### 1.2 Parallel development responsibilities
 
-| 前端模块 | 主要调用接口 | Python 后端负责 |
+| Frontend module | Main endpoints | Python backend responsibility |
 |---|---|---|
-| FE-1 页面框架与登录 | 01～03 | 身份认证、会话、角色检查 |
-| FE-2 人才资料、审核、隐私 | 04～09、14 | 持久化、校验、版本冲突、确认和隐私规则 |
-| FE-3 机会创建与管理 | 04、16～20 | 机会所有权、编辑、发布 |
-| FE-4 双向匹配与解释 | 21～24 | 计算排序、状态、证据和团队端数据过滤 |
-| FE-5 上传与提取审核入口 | 10～15，并衔接 05～07 | 私有文件保存、提取、导入资料 |
+| FE-1 Layout and login | 01–03 | Authentication, sessions and role checks |
+| FE-2 Talent profile, review and privacy | 04–09, 14 | Persistence, validation, revision conflicts, confirmation and privacy rules |
+| FE-3 Opportunity creation and management | 04, 16–20 | Ownership, editing and publishing |
+| FE-4 Bidirectional matching and explanations | 21–24 | Ranking, statuses, evidence and filtering team-visible data |
+| FE-5 Upload and extraction review | 10–15, followed by 05–07 | Private file storage, extraction and importing profile sections |
 
-前端使用模拟返回值即可先做页面；真实联调时只切换 API 地址和请求适配层。**权限、确认状态、证据选择、排序分数的最终判定均由 Python 后端执行**，前端显示后端结果。模拟实现不能代替服务端权限控制。
+The frontend can use mock responses while the backend is developed, then switch the API address and request adapter for integration. **The Python backend is authoritative for permissions, confirmation, evidence selection, ranking and scores.** The frontend displays its results. A mock implementation does not replace server-side access controls.
 
-### 1.3 本草案提出的默认选择
+### 1.3 Proposed defaults for team review
 
-以下是为避免两端自行猜测而明确提出的方案，需要团队确认后共同锁定版本；不是从 Jira 中读取到的既定技术要求。
+These choices make the draft explicit so the two implementations do not make incompatible assumptions. The team should agree on them before locking the version; they are not presented as technical requirements already approved in Jira.
 
-| 项目 | v0.1 草案选择 |
+| Topic | Proposed v0.1 default |
 |---|---|
-| API 风格 | REST + JSON，统一前缀 `/api/v1` |
-| 登录 | 预置账号，Cookie 会话；账号角色由后端决定 |
-| 团队关系 | 一个 `RESEARCH_TEAM` 账号代表一个研究团队 |
-| 资料确认粒度 | 确认整份资料当前版本；内容修改后整份资料待重新确认 |
-| 上传 | PDF 与 DOCX；单个文件最多 10 MiB；本版不接收旧 `.doc` |
-| 原型学科范围 | STEM、BUSINESS，与最近客户会议分工一致 |
-| 匹配基线 | 结构化技能/兴趣标签；不依赖 embeddings |
-| 分数 | 必须项权重 2、偏好项 1；Matched=1、Partial=0.5、其他=0 |
-| 已发布机会编辑 | 保存后立即影响下一次匹配；不自动变回草稿 |
+| API style | REST + JSON with the `/api/v1` prefix |
+| Login | Provisioned accounts, cookie sessions and server-assigned roles |
+| Team model | One `RESEARCH_TEAM` account represents one research team |
+| Confirmation granularity | Confirm the entire current profile revision; content changes require reconfirmation |
+| Upload | PDF and DOCX, at most 10 MiB per file; legacy `.doc` is not accepted |
+| Prototype discipline scope | STEM and BUSINESS, following the latest client meeting allocation |
+| Matching baseline | Structured skill and interest tags, without requiring embeddings |
+| Scores | Required weight 2, preferred weight 1; Matched=1, Partial=0.5, other statuses=0 |
+| Editing published opportunities | Changes affect subsequent matching immediately; publication status is preserved |
 
-## 2. 所有接口共用的规则
+## 2. Shared conventions
 
-### 2.1 地址、数据与命名
+### 2.1 Addresses, data and naming
 
-- 本文路径均相对 `/api/v1`。例如 `GET /me/profile` 实际调用 `/api/v1/me/profile`。
-- 请求和响应使用 UTF-8；普通请求为 `application/json`，上传为 `multipart/form-data`，原始文件下载为二进制。
-- JSON 字段使用 `camelCase`，如 `researchInterests`。Python 内部可以使用其他命名，但对外字段必须保持一致。
-- 枚举大小写固定：`TALENT`、`RESEARCH_TEAM`、`CONFIRMED` 等。
-- 时间统一为 UTC RFC3339 字符串，如 `2026-10-03T00:00:00Z`；前端负责转换当地时间。
-- 所有 ID 均为不透明字符串：1～64 位，允许英文字母、数字、下划线和连字符。前端不能解析 ID 推断业务含义。
-- 表格标为“必填”的字段必须存在；允许 `null` 与“可省略”是两回事。空数组 `[]` 代表没有记录或显式清空。
-- 对象只接受本文件列出的字段。后端拒绝未知字段、重复记录 ID、重复技能 tagId 和不匹配的标签类别，返回 422。
-- 文本默认是纯文本，前端按文本显示，不能作为 HTML 插入页面。
-- 成功响应直接返回业务对象，**不再包一层 `data` 或 `success`**。204 无响应体。
+- Paths are relative to `/api/v1`. For example, `GET /me/profile` uses `/api/v1/me/profile`.
+- Requests and responses use UTF-8. Normal bodies use `application/json`; uploads use `multipart/form-data`; original file downloads are binary.
+- JSON fields use `camelCase`, such as `researchInterests`. Internal Python names may differ, but the external names must remain consistent.
+- Enum spelling and case are fixed, including `TALENT`, `RESEARCH_TEAM` and `CONFIRMED`.
+- Timestamps are UTC RFC3339 strings, such as `2026-10-03T00:00:00Z`. The frontend converts these for local display.
+- IDs are opaque strings of 1–64 ASCII letters, digits, underscores or hyphens. The frontend must not infer business meaning from their structure.
+- Required fields must be present. Allowing `null` is different from allowing omission. An empty array `[]` means no records or an explicit request to clear a section.
+- Objects accept only the documented fields. Reject unknown fields, duplicate record IDs, duplicate skill tag IDs and incorrectly typed tags with 422.
+- Text is plain text by default. The frontend must render it as text rather than inserting it as HTML.
+- Successful responses return the business object directly, without an extra `data` or `success` wrapper. A 204 response has no body.
 
-### 2.2 会话、权限和请求头
+### 2.2 Sessions, permissions and headers
 
-`h18_session` 为不透明的服务端会话 Cookie，设置 `HttpOnly; SameSite=Lax; Path=/`，不设置 Domain；HTTPS 环境加 `Secure`。本地 HTTP 开发环境可不加 Secure。浏览器不读取 Cookie 内容；响应 JSON 不包含会话 ID。
+`h18_session` is an opaque server-side session cookie with `HttpOnly; SameSite=Lax; Path=/` and no Domain attribute. Add `Secure` on HTTPS; local HTTP development may omit it. JavaScript does not read its value, and response JSON never contains the session ID.
 
-调用顺序：
+Session flow:
 
-1. 页面启动调用 `GET /auth/session`。未登录时仍返回 200，`user: null`，同时初始化匿名会话并返回 `csrfToken`。
-2. 登录请求带 `X-CSRF-Token`；登录成功时后端轮换会话和 CSRF token。
-3. 前端使用登录响应中的新 `csrfToken`。所有 POST/PUT，包括上传和退出，都带此请求头。
-4. 后端校验 CSRF token 和允许的 Origin。登录角色来自账号，不接受前端传入角色改变权限。
-5. 退出后后端使会话失效并过期 Cookie。前端清空账号及个人数据缓存，下次登录重新读取 session。
+1. On startup, call `GET /auth/session`. Anonymous users receive 200 with `user: null`; the server initialises an anonymous session and returns `csrfToken`.
+2. Include `X-CSRF-Token` when logging in. Successful login rotates the session and CSRF token.
+3. Use the new token returned by login. Every POST/PUT request, including upload and logout, must include it.
+4. The backend validates both CSRF and the allowed Origin. Role comes from the account, not a client-supplied role field.
+5. Logout invalidates the server session and expires the cookie. The frontend clears account and personal-data caches and reads the session again before the next login.
 
 ```http
 Accept: application/json
 Content-Type: application/json
-X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
+X-CSRF-Token: <csrfToken returned by session; required for mutations>
 ```
 
-推荐同源访问：JavaScript 前端请求相对路径 `/api/v1`，开发代理转发至 Python 服务，例如 `http://127.0.0.1:8000`。代理保持浏览器 Origin；Python 服务显式允许该前端 Origin。Cookie 请求使用 `credentials: 'include'`。不要给 FormData 手写 Content-Type，浏览器会生成 boundary。
+Use same-origin requests: the JavaScript frontend requests `/api/v1`, and a development proxy forwards to Python, for example `http://127.0.0.1:8000`. The proxy preserves the browser Origin, which the Python service explicitly allows. Cookie requests use `credentials: 'include'`. Do not manually set Content-Type for FormData; the browser supplies its boundary.
 
-权限缩写：
+Permission labels:
 
-| 标记 | 含义 |
+| Label | Meaning |
 |---|---|
-| 匿名 | 无需登录，仅用于读取会话、登录 |
-| 已登录 | TALENT 或 RESEARCH_TEAM |
-| 人才本人 | TALENT；后端从会话定位本人资料，不能通过请求体冒充其他人 |
-| 团队本人 | RESEARCH_TEAM；只能操作自己创建的机会 |
+| Anonymous | No login required; used only for session retrieval and login |
+| Signed-in | Either TALENT or RESEARCH_TEAM |
+| Talent owner | TALENT; the backend identifies the current talent from the session, not the request body |
+| Team owner | RESEARCH_TEAM; may operate only on opportunities owned by that team |
 
-账号未登录/过期返回 401；角色错误返回 403；资源不存在或属于他人时统一返回 404。登录失败使用通用提示，不透露账号是否存在。所有个性化响应设置 `Cache-Control: no-store`。
+Missing/expired authentication returns 401. An incorrect role returns 403. A missing or inaccessible resource returns 404. Login errors must not reveal whether an account exists. Personalised responses use `Cache-Control: no-store`.
 
-### 2.3 分页、排序与空结果
+### 2.3 Pagination, sorting and empty results
 
-列表参数统一为 `page`（默认 1，最小 1）和 `pageSize`（默认 20，范围 1～100）。超出范围或非整数返回 422，不静默修正。没有数据或请求页超出总页数时返回 200、`items: []`。
+List parameters are `page` (default 1, minimum 1) and `pageSize` (default 20, range 1–100). Non-integers or out-of-range values return 422 rather than being silently corrected. No results, or a page beyond the last page, returns 200 with `items: []`.
 
 ```json
 { "items": [], "page": 1, "pageSize": 20, "total": 0 }
 ```
 
-- `total` 是当前用户有权查看的全部结果数，不是当前页数量。
-- 普通机会列表按 `updatedAt` 降序、`id` 升序；文件列表按 `createdAt` 降序、`id` 升序。
-- 匹配列表按 `score` 降序、`unknownWeightPercent` 升序、对象 ID 升序；无分数的项排最后。
-- `rank` 是分页前的全局名次，从 1 开始；第二页不会重新从 1 排名。
-- 每次请求读取当时数据，不承诺跨分页请求快照。资料、机会、隐私发生变化后，两端应重新获取列表。
-- 标签表数量小，返回全部标签，不分页。
+- `total` counts all results the caller may access, not just the current page.
+- Opportunity lists sort by `updatedAt` descending, then `id` ascending. Documents sort by `createdAt` descending, then `id` ascending.
+- Match lists sort by `score` descending, `unknownWeightPercent` ascending, then object ID ascending. Null scores come last.
+- `rank` is the global rank before pagination, starting at 1. It does not restart on each page.
+- Each request uses current data; there is no cross-request pagination snapshot. Refetch after profile, opportunity or privacy changes.
+- The small shared tag vocabulary is returned without pagination.
 
-### 2.4 保存、版本冲突和重试
+### 2.4 Saving, revision conflicts and retries
 
-资料、隐私设置、机会各自有独立的 `revision`。读取后携带该值作为 `expectedRevision` 保存；导入提取结果使用 `expectedProfileRevision`。
+Profiles, privacy settings and opportunities have independent `revision` counters. Send the last retrieved value as `expectedRevision` when writing; extraction imports use `expectedProfileRevision`.
 
-后端在一次原子操作/数据库事务中比较版本、检查权限并写入。旧版本返回 `409 REVISION_CONFLICT`，响应包含服务器 `currentRevision`。前端保留本地输入，提示用户重新载入并比较，不能自动覆盖最新内容。
+The backend checks the revision and permissions and writes the changes atomically in a transaction. A stale revision returns `409 REVISION_CONFLICT` with `currentRevision`. The frontend preserves local input and asks the user to reload and compare; it must not silently overwrite newer content.
 
-普通 PUT 的实际内容未变时不增加版本；实际修改增加 1。新资料和隐私从 revision 0 开始，机会创建成功为 revision 1。确认资料不增加内容版本。发布草稿增加机会版本。导入文件提取字段即使值相同也增加资料版本并重新要求确认。
+An ordinary PUT that changes nothing preserves the revision. Actual changes increment it by one. New profiles and privacy settings start at revision 0; newly created opportunities start at 1. Confirming a profile does not increment its content revision. Publishing a draft increments its opportunity revision. Importing extraction fields always increments the profile revision and requires reconfirmation, even if the values are identical.
 
-写入请求遇到网络超时，不自动重发 POST：请求可能已在服务端成功。先重新读取资源；创建/上传可通过最新列表人工核对。v0.1 未约定 Idempotency-Key，因此不能宣称创建请求天然幂等。
+Do not automatically retry a POST after a network timeout: the server may already have applied it. Read the resource again first; creation/upload can be checked against the latest list. v0.1 does not define Idempotency-Key and does not promise idempotent creation requests.
 
-## 3. 接口总表
+## 3. Endpoint overview
 
-| 编号 | 方法 | 路径（省略 /api/v1） | 用途 | 权限 |
+| No. | Method | Path (without /api/v1) | Purpose | Permission |
 |---|---|---|---|---|
-| [01](#api-01) | GET | `/auth/session` | 读取登录状态并获取 CSRF token | 匿名 |
-| [02](#api-02) | POST | `/auth/login` | 使用预置账号登录 | 匿名 |
-| [03](#api-03) | POST | `/auth/logout` | 退出当前会话 | 已登录 |
-| [04](#api-04) | GET | `/tags` | 读取统一技能和兴趣标签 | 已登录 |
-| [05](#api-05) | GET | `/me/profile` | 读取本人资料 | 人才本人 |
-| [06](#api-06) | PUT | `/me/profile` | 保存本人完整资料 | 人才本人 |
-| [07](#api-07) | POST | `/me/profile/confirmation` | 确认当前资料版本 | 人才本人 |
-| [08](#api-08) | GET | `/me/privacy` | 读取发现权限和字段可见性 | 人才本人 |
-| [09](#api-09) | PUT | `/me/privacy` | 保存发现权限和字段可见性 | 人才本人 |
-| [10](#api-10) | GET | `/me/documents` | 读取本人上传记录 | 人才本人 |
-| [11](#api-11) | POST | `/me/documents` | 上传 PDF 或 DOCX 并开始提取 | 人才本人 |
-| [12](#api-12) | GET | `/me/documents/{documentId}` | 查询文件处理状态 | 人才本人 |
-| [13](#api-13) | GET | `/me/documents/{documentId}/extraction` | 读取待审核提取建议 | 人才本人 |
-| [14](#api-14) | POST | `/me/documents/{documentId}/apply` | 保存用户审核后的提取字段 | 人才本人 |
-| [15](#api-15) | GET | `/me/documents/{documentId}/file` | 下载本人的原始文件 | 人才本人 |
-| [16](#api-16) | GET | `/opportunities` | 浏览已发布机会或团队自有机会 | 已登录 |
-| [17](#api-17) | POST | `/opportunities` | 创建研究机会草稿 | 团队本人 |
-| [18](#api-18) | GET | `/opportunities/{opportunityId}` | 读取机会详情 | 已登录 |
-| [19](#api-19) | PUT | `/opportunities/{opportunityId}` | 保存研究机会修改 | 团队本人 |
-| [20](#api-20) | POST | `/opportunities/{opportunityId}/publish` | 发布研究机会 | 团队本人 |
-| [21](#api-21) | GET | `/me/recommendations` | 获取本人推荐机会排序 | 人才本人 |
-| [22](#api-22) | GET | `/me/opportunity-matches/{opportunityId}` | 读取本人逐项匹配解释 | 人才本人 |
-| [23](#api-23) | GET | `/opportunities/{opportunityId}/talent-matches` | 获取团队机会的匹配人才 | 团队本人 |
-| [24](#api-24) | GET | `/opportunities/{opportunityId}/talent-matches/{talentId}` | 读取获准公开的人才资料与匹配解释 | 团队本人 |
+| [01](#api-01) | GET | `/auth/session` | Read the current session and obtain a CSRF token | Anonymous |
+| [02](#api-02) | POST | `/auth/login` | Log in with a provisioned account | Anonymous |
+| [03](#api-03) | POST | `/auth/logout` | Log out of the current session | Signed-in |
+| [04](#api-04) | GET | `/tags` | List shared skill and interest tags | Signed-in |
+| [05](#api-05) | GET | `/me/profile` | Read the current talent profile | Talent owner |
+| [06](#api-06) | PUT | `/me/profile` | Save the complete talent profile | Talent owner |
+| [07](#api-07) | POST | `/me/profile/confirmation` | Confirm the current profile revision | Talent owner |
+| [08](#api-08) | GET | `/me/privacy` | Read discovery consent and field visibility | Talent owner |
+| [09](#api-09) | PUT | `/me/privacy` | Save discovery consent and field visibility | Talent owner |
+| [10](#api-10) | GET | `/me/documents` | List documents uploaded by the current talent | Talent owner |
+| [11](#api-11) | POST | `/me/documents` | Upload a PDF or DOCX and start extraction | Talent owner |
+| [12](#api-12) | GET | `/me/documents/{documentId}` | Read document processing status | Talent owner |
+| [13](#api-13) | GET | `/me/documents/{documentId}/extraction` | Read extraction suggestions for review | Talent owner |
+| [14](#api-14) | POST | `/me/documents/{documentId}/apply` | Save user-reviewed extraction fields to the profile | Talent owner |
+| [15](#api-15) | GET | `/me/documents/{documentId}/file` | Download an original document owned by the current talent | Talent owner |
+| [16](#api-16) | GET | `/opportunities` | List published opportunities or team-owned opportunities | Signed-in |
+| [17](#api-17) | POST | `/opportunities` | Create a draft research opportunity | Team owner |
+| [18](#api-18) | GET | `/opportunities/{opportunityId}` | Read research opportunity details | Signed-in |
+| [19](#api-19) | PUT | `/opportunities/{opportunityId}` | Save research opportunity changes | Team owner |
+| [20](#api-20) | POST | `/opportunities/{opportunityId}/publish` | Publish a research opportunity | Team owner |
+| [21](#api-21) | GET | `/me/recommendations` | List ranked opportunity recommendations for the current talent | Talent owner |
+| [22](#api-22) | GET | `/me/opportunity-matches/{opportunityId}` | Read requirement-level matching explanations for the current talent | Talent owner |
+| [23](#api-23) | GET | `/opportunities/{opportunityId}/talent-matches` | List matching talent for a team-owned opportunity | Team owner |
+| [24](#api-24) | GET | `/opportunities/{opportunityId}/talent-matches/{talentId}` | Read permitted talent information and matching explanations | Team owner |
 
-## 4. 逐个接口详情
+## 4. Endpoint details
 
-每个接口的请求体和响应体引用第 6 节字段表，字段表规定完整结构与必填性；下面的 JSON 是可解析的示例，不省略字段、不使用伪 JSON。示例 ID 和账号均为合成数据。各段示例用于说明结构，只有第 7 节的流程说明承诺调用顺序，不应把所有独立示例串成同一段数据库历史。
+Request and response models link to the complete field definitions in section 6. The JSON examples below are parseable and contain no omitted fields or pseudo-JSON. IDs and accounts are synthetic. Examples illustrate individual operations; only the workflows in section 7 specify a sequence. Do not treat every example as part of one continuous database history.
 
-所有接口均可能返回 500；有参数校验的接口可返回 422。下面同时列出本接口声明的状态码。统一错误结构见第 5 节。
+All operations may return 500. Parameter validation can return 422. Each entry lists its declared error statuses; the shared error structure is in section 5.
 
 
 <a id="api-01"></a>
 
-### 01. 读取登录状态并获取 CSRF token
+### 01. Read the current session and obtain a CSRF token
 
 `GET /api/v1/auth/session`
 
-权限：**匿名**。
+Permission: **Anonymous**.
 
-首次请求可初始化匿名会话。未登录不是错误，返回 user=null。csrfToken 用于下一次变更请求；真实会话 ID 只能存于 HttpOnly Cookie。
+An initial request may create anonymous session state. Being logged out is not an error: return user=null. The CSRF token is used by subsequent mutations; the real session ID remains only in the HttpOnly cookie.
 
 
-路径/查询参数：无。
+Path/query parameters: none.
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Session](#model-session)。
+Success: **200**, [Session](#model-session).
 
 ```json
 {
@@ -190,26 +190,26 @@ X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
 ```
 
 
-错误状态：`500`。
+Error statuses: `500`.
 
-关联 Jira 子任务：H18ABANANA-16、H18ABANANA-18。
+Related Jira subtasks: H18ABANANA-16, H18ABANANA-18.
 
 <a id="api-02"></a>
 
-### 02. 使用预置账号登录
+### 02. Log in with a provisioned account
 
 `POST /api/v1/auth/login`
 
-权限：**匿名**。
+Permission: **Anonymous**.
 
-先读取 session，再带其 CSRF token 登录。后端验证预置账号密码并轮换会话与 CSRF token；前端立即替换旧 token。响应角色由后端账号信息决定。失败统一返回 401 INVALID_CREDENTIALS。
+Read the session first and include its CSRF token. The backend validates the provisioned account and rotates the session and CSRF token. The frontend replaces its old token immediately. Role is derived from the account. Invalid credentials return 401 INVALID_CREDENTIALS without identifying which credential failed.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[LoginRequest](#model-loginrequest)。
+Request body: `application/json`, [LoginRequest](#model-loginrequest).
 
 ```json
 {
@@ -219,7 +219,7 @@ X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
 ```
 
 
-成功响应：**200**，[Session](#model-session)。
+Success: **200**, [Session](#model-session).
 
 ```json
 {
@@ -234,51 +234,51 @@ X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
 ```
 
 
-错误状态：`400`、`401`、`403`、`415`、`422`、`429`、`500`。
+Error statuses: `400`, `401`, `403`, `415`, `422`, `429`, `500`.
 
-关联 Jira 子任务：H18ABANANA-16、H18ABANANA-18。
+Related Jira subtasks: H18ABANANA-16, H18ABANANA-18.
 
 <a id="api-03"></a>
 
-### 03. 退出当前会话
+### 03. Log out of the current session
 
 `POST /api/v1/auth/logout`
 
-权限：**已登录**。
+Permission: **Signed-in**.
 
-使当前服务端会话失效并过期 Cookie。前端清空资料、文件、推荐等用户缓存。返回 204，没有 JSON。
+Invalidate the server session and expire the cookie. Clear frontend profile, document and recommendation caches. Return 204 without JSON.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：无。
+Request body: none.
 
-成功响应：**204 No Content**，无响应体。
+Success: **204 No Content**, without a response body.
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-16、H18ABANANA-18。
+Related Jira subtasks: H18ABANANA-16, H18ABANANA-18.
 
 <a id="api-04"></a>
 
-### 04. 读取统一技能和兴趣标签
+### 04. List shared skill and interest tags
 
 `GET /api/v1/tags`
 
-权限：**已登录**。
+Permission: **Signed-in**.
 
-获取前后端共用的标准词表。不传 kind 时返回两类；传 SKILL 或 INTEREST 时只返回相应类型。提交资料和机会时使用 id，不用 label 作为匹配键。v0.1 没有新增/编辑标签接口。
+Return the vocabulary shared by profile and opportunity forms. Without kind, return both types; SKILL or INTEREST filters the response. Submit tag IDs rather than labels as matching keys. v0.1 has no tag creation or editing endpoint.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `kind` | query | 否 | `SKILL` / `INTEREST` | — |
+| `kind` | query | No | `SKILL` / `INTEREST` | — |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[TagList](#model-taglist)。
+Success: **200**, [TagList](#model-taglist).
 
 ```json
 {
@@ -333,26 +333,26 @@ X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
 ```
 
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-27、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-27, H18ABANANA-28.
 
 <a id="api-05"></a>
 
-### 05. 读取本人资料
+### 05. Read the current talent profile
 
 `GET /api/v1/me/profile`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-人才账号初始化时即有资料对象；未填写返回 revision=0、UNCONFIRMED、空数组、displayName=""、disciplineGroup=null，不返回 404。只允许本人读取。
+A profile is provisioned with each talent account. An untouched profile has revision=0, UNCONFIRMED status, empty arrays, displayName="" and disciplineGroup=null; it does not return 404. Only the owner may read it.
 
 
-路径/查询参数：无。
+Path/query parameters: none.
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Profile](#model-profile)。
+Success: **200**, [Profile](#model-profile).
 
 ```json
 {
@@ -439,26 +439,26 @@ X-CSRF-Token: <session 返回的 csrfToken，仅变更请求需要>
 ```
 
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-27。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-27.
 
 <a id="api-06"></a>
 
-### 06. 保存本人完整资料
+### 06. Save the complete talent profile
 
 `PUT /api/v1/me/profile`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-content 是完整替换对象，必须提供全部 8 个字段。前端先读取，再保留未编辑字段提交。实际内容改变后 revision+1，confirmation 变为 UNCONFIRMED，confirmedRevision 和 confirmedAt 清空；未变则保持。修改的资料章节 provenance 变为 MANUAL；未修改章节保留来源。
+content fully replaces the profile content and must include all eight fields. Read first, retain unedited fields, then submit. Actual changes increment revision, set confirmation to UNCONFIRMED and clear confirmedRevision and confirmedAt. An exact no-op preserves all three. Changed sections receive MANUAL provenance; unchanged sections keep their origin.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[ProfileWrite](#model-profilewrite)。
+Request body: `application/json`, [ProfileWrite](#model-profilewrite).
 
 ```json
 {
@@ -506,7 +506,7 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-成功响应：**200**，[Profile](#model-profile)。
+Success: **200**, [Profile](#model-profile).
 
 ```json
 {
@@ -593,26 +593,26 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-错误状态：`400`、`401`、`403`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-27、H18ABANANA-29。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-27, H18ABANANA-29.
 
 <a id="api-07"></a>
 
-### 07. 确认当前资料版本
+### 07. Confirm the current profile revision
 
 `POST /api/v1/me/profile/confirmation`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-确认 expectedRevision 指定的当前整份资料。至少有非空姓名和一个非空学术/研究章节，否则 422。成功令 confirmedRevision=revision，不增加 revision；重复确认同一版本保持原结果和确认时间。确认表示用户审核，不代表第三方验证学历或资质。
+Confirm the complete current profile at expectedRevision. Require a non-empty displayName and at least one non-empty academic/research section, otherwise return 422. Set confirmedRevision=revision without incrementing revision. Repeating confirmation for the same revision preserves the result and original confirmation time. This is user review, not external credential verification.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[RevisionRequest](#model-revisionrequest)。
+Request body: `application/json`, [RevisionRequest](#model-revisionrequest).
 
 ```json
 {
@@ -621,7 +621,7 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-成功响应：**200**，[Profile](#model-profile)。
+Success: **200**, [Profile](#model-profile).
 
 ```json
 {
@@ -708,26 +708,26 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-错误状态：`400`、`401`、`403`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-29。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-29.
 
 <a id="api-08"></a>
 
-### 08. 读取发现权限和字段可见性
+### 08. Read discovery consent and field visibility
 
 `GET /api/v1/me/privacy`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-新账号默认 discoverable=false、visibleFields=[]、revision=0。隐私设置只返回给本人。隐私版本与资料版本独立。
+New accounts default to discoverable=false, visibleFields=[] and revision=0. Return privacy settings only to the owner. This revision is independent of the profile revision.
 
 
-路径/查询参数：无。
+Path/query parameters: none.
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Privacy](#model-privacy)。
+Success: **200**, [Privacy](#model-privacy).
 
 ```json
 {
@@ -739,26 +739,26 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-30。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-30.
 
 <a id="api-09"></a>
 
-### 09. 保存发现权限和字段可见性
+### 09. Save discovery consent and field visibility
 
 `PUT /api/v1/me/privacy`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-完整保存 discoverable 与 visibleFields。实际改变时隐私 revision+1，内容无变化时不递增。不影响资料确认。关闭被发现后，下一次团队列表/详情立即排除该人才；后端使旧匹配缓存失效。任何隐藏字段不得参与团队可见评分或解释。
+Replace discoverable and visibleFields together. Actual changes increment the privacy revision; a no-op preserves it. Do not invalidate profile confirmation. Revoking discovery excludes the talent from the next team list/detail request and invalidates stale match caches. Hidden fields must never affect team-visible scores or explanations.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[PrivacyWrite](#model-privacywrite)。
+Request body: `application/json`, [PrivacyWrite](#model-privacywrite).
 
 ```json
 {
@@ -771,7 +771,7 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-成功响应：**200**，[Privacy](#model-privacy)。
+Success: **200**, [Privacy](#model-privacy).
 
 ```json
 {
@@ -785,29 +785,29 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-错误状态：`400`、`401`、`403`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-30。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-30.
 
 <a id="api-10"></a>
 
-### 10. 读取本人上传记录
+### 10. List documents uploaded by the current talent
 
 `GET /api/v1/me/documents`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-只返回当前人才本人上传记录，按 createdAt 降序、id 升序。返回文件元数据，不返回公开下载地址。
+Return only documents uploaded by the current talent, ordered by createdAt descending and id ascending. Include metadata, not public download URLs.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `page` | query | 否 | integer | 最小 1；默认 1 |
-| `pageSize` | query | 否 | integer | 最小 1；最大 100；默认 20 |
+| `page` | query | No | integer | minimum: 1; default: 1 |
+| `pageSize` | query | No | integer | minimum: 1; maximum: 100; default: 20 |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[DocumentPage](#model-documentpage)。
+Success: **200**, [DocumentPage](#model-documentpage).
 
 ```json
 {
@@ -831,31 +831,31 @@ content 是完整替换对象，必须提供全部 8 个字段。前端先读取
 ```
 
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-22、H18ABANANA-23。
+Related Jira subtasks: H18ABANANA-22, H18ABANANA-23.
 
 <a id="api-11"></a>
 
-### 11. 上传 PDF 或 DOCX 并开始提取
+### 11. Upload a PDF or DOCX and start extraction
 
 `POST /api/v1/me/documents`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-使用 multipart/form-data 上传单文件。file 与 kind 均必填；kind 为 CV 或 TRANSCRIPT。草案限 10 MiB（10,485,760 字节），只收 PDF/DOCX，不收旧 .doc。后端检查实际内容、格式和大小，不只看扩展名。接收成功立即返回 202 和 QUEUED 文档对象，之后异步处理。上传与提取不会自动覆盖、确认或公开资料。
+Upload one file using multipart/form-data. Both file and kind are required; kind is CV or TRANSCRIPT. Proposed limit: 10 MiB (10,485,760 bytes), PDF/DOCX only, no legacy .doc. Validate actual content, format and size on the server, not just the extension. Return 202 with a QUEUED document immediately after acceptance and process extraction asynchronously. Uploading or extracting never automatically overwrites, confirms or publishes profile information.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`multipart/form-data`。
+Request body: `multipart/form-data`.
 
-| 字段 | 类型 | 必填 | 说明 |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| file | binary | 是 | 单个 PDF/DOCX 文件，非空，最多 10 MiB |
-| kind | string | 是 | CV / TRANSCRIPT |
+| file | binary | Yes | One non-empty PDF/DOCX, at most 10 MiB |
+| kind | string | Yes | CV / TRANSCRIPT |
 
 ```javascript
 const form = new FormData();
@@ -870,7 +870,7 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-成功响应：**202**，[Document](#model-document)。
+Success: **202**, [Document](#model-document).
 
 ```json
 {
@@ -887,28 +887,28 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-错误状态：`400`、`401`、`403`、`413`、`415`、`422`、`429`、`500`。
+Error statuses: `400`, `401`, `403`, `413`, `415`, `422`, `429`, `500`.
 
-关联 Jira 子任务：H18ABANANA-22、H18ABANANA-23、H18ABANANA-24。
+Related Jira subtasks: H18ABANANA-22, H18ABANANA-23, H18ABANANA-24.
 
 <a id="api-12"></a>
 
-### 12. 查询文件处理状态
+### 12. Read document processing status
 
 `GET /api/v1/me/documents/{documentId}`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-状态流为 QUEUED → PROCESSING → READY 或 FAILED。视图打开时前端每 2 秒轮询，终态停止；等待 60 秒后暂停自动轮询并显示手动刷新，不能把前端等待超时当作后端 FAILED。FAILED 的 error 给出可展示错误，其他状态 error=null。
+The lifecycle is QUEUED → PROCESSING → READY or FAILED. Poll every two seconds while the view is open and stop at a terminal state. After 60 seconds, pause automatic polling and offer manual refresh; a frontend timeout does not mean the backend status is FAILED. FAILED includes a safe error; other states have error=null.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `documentId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `documentId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Document](#model-document)。
+Success: **200**, [Document](#model-document).
 
 ```json
 {
@@ -925,28 +925,28 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-错误状态：`401`、`403`、`404`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-22、H18ABANANA-23、H18ABANANA-24。
+Related Jira subtasks: H18ABANANA-22, H18ABANANA-23, H18ABANANA-24.
 
 <a id="api-13"></a>
 
-### 13. 读取待审核提取建议
+### 13. Read extraction suggestions for review
 
 `GET /api/v1/me/documents/{documentId}/extraction`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-只允许本人读取。READY 返回 200；QUEUED/PROCESSING 返回 409 EXTRACTION_NOT_READY；FAILED 返回 422 EXTRACTION_FAILED。suggestedSections 是待审核建议，不改变资料。无法可靠识别的项放 uncertainFields，不凭空补正向技能。
+Owner-only. READY returns 200; QUEUED/PROCESSING returns 409 EXTRACTION_NOT_READY; FAILED returns 422 EXTRACTION_FAILED. suggestedSections contains review suggestions and does not mutate the profile. Put unreliable information in uncertainFields rather than inventing positive skill claims.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `documentId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `documentId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Extraction](#model-extraction)。
+Success: **200**, [Extraction](#model-extraction).
 
 ```json
 {
@@ -986,27 +986,27 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-错误状态：`401`、`403`、`404`、`409`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `409`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-22、H18ABANANA-24。
+Related Jira subtasks: H18ABANANA-22, H18ABANANA-24.
 
 <a id="api-14"></a>
 
-### 14. 保存用户审核后的提取字段
+### 14. Save user-reviewed extraction fields to the profile
 
 `POST /api/v1/me/documents/{documentId}/apply`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-只接受属于本人的 READY 文档。校验 expectedProfileRevision；未就绪返回 409，提取失败返回 422。sections 至少含一个章节；仅替换传入章节，未传章节保留，显式 [] 清空该章节。字段值是用户审核/纠正后的值，并非必须原样复制提取建议。后端原子保存、revision+1、整份资料 UNCONFIRMED，并标记这些章节 USER_REVIEWED_DOCUMENT 来源。之后必须另调确认接口。
+Require a READY document owned by the current talent and validate expectedProfileRevision. Not ready returns 409; failed extraction returns 422. sections must contain at least one section. Replace only submitted sections; preserve omitted sections; an explicit [] clears a section. Values are user-reviewed and may correct extraction suggestions. Atomically save, increment revision, mark the entire profile UNCONFIRMED and record USER_REVIEWED_DOCUMENT provenance for the submitted sections. A separate confirmation request is mandatory.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `documentId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `documentId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[ApplyExtractionRequest](#model-applyextractionrequest)。
+Request body: `application/json`, [ApplyExtractionRequest](#model-applyextractionrequest).
 
 ```json
 {
@@ -1024,7 +1024,7 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-成功响应：**200**，[Profile](#model-profile)。
+Success: **200**, [Profile](#model-profile).
 
 ```json
 {
@@ -1106,28 +1106,28 @@ await fetch("/api/v1/me/documents", {
 ```
 
 
-错误状态：`400`、`401`、`403`、`404`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `404`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-21、H18ABANANA-22、H18ABANANA-24、H18ABANANA-29。
+Related Jira subtasks: H18ABANANA-21, H18ABANANA-22, H18ABANANA-24, H18ABANANA-29.
 
 <a id="api-15"></a>
 
-### 15. 下载本人的原始文件
+### 15. Download an original document owned by the current talent
 
 `GET /api/v1/me/documents/{documentId}/file`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-每次检查文件所有权；团队账号即使能发现此人才也不能下载原件。通过已认证接口下载，不提供公开链接。响应流的 Content-Type 对应实际 PDF/DOCX；Content-Disposition 使用 attachment 与安全编码的文件名；设置 X-Content-Type-Options: nosniff。
+Check file ownership on every request. A research team cannot download original documents even if the talent is discoverable. Stream through the authenticated endpoint without a public URL. Content-Type must match PDF/DOCX; use Content-Disposition: attachment with a safely encoded filename and X-Content-Type-Options: nosniff.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `documentId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `documentId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，文件二进制流。
+Success: **200**, a binary file stream.
 
 ```http
 Content-Type: application/pdf
@@ -1139,30 +1139,30 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`404`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-23。
+Related Jira subtasks: H18ABANANA-23.
 
 <a id="api-16"></a>
 
-### 16. 浏览已发布机会或团队自有机会
+### 16. List published opportunities or team-owned opportunities
 
 `GET /api/v1/opportunities`
 
-权限：**已登录**。
+Permission: **Signed-in**.
 
-默认 scope=published，只返回已发布机会；scope=mine 仅限团队账号，返回本人草稿和已发布机会。人才使用 mine 返回 403。v0.1 的 PUBLISHED 视为活跃机会。此接口不做个性化排序；人才推荐使用接口 21。
+scope defaults to published and returns published opportunities. scope=mine is team-only and includes that team’s drafts and published opportunities; a talent account requesting mine receives 403. PUBLISHED means active in v0.1. This list is not personalised; use endpoint 21 for talent recommendations.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `scope` | query | 否 | `published` / `mine` | — |
-| `page` | query | 否 | integer | 最小 1；默认 1 |
-| `pageSize` | query | 否 | integer | 最小 1；最大 100；默认 20 |
+| `scope` | query | No | `published` / `mine` | — |
+| `page` | query | No | integer | minimum: 1; default: 1 |
+| `pageSize` | query | No | integer | minimum: 1; maximum: 100; default: 20 |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[OpportunityPage](#model-opportunitypage)。
+Success: **200**, [OpportunityPage](#model-opportunitypage).
 
 ```json
 {
@@ -1229,26 +1229,26 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`422`、`500`。
+Error statuses: `401`, `403`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-19、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 <a id="api-17"></a>
 
-### 17. 创建研究机会草稿
+### 17. Create a draft research opportunity
 
 `POST /api/v1/opportunities`
 
-权限：**团队本人**。
+Permission: **Team owner**.
 
-仅团队账号可创建。后端生成机会 id、所有者、revision=1、status=DRAFT；请求不能自行指定所有者或状态。基础字段必填，草稿允许 requirements=[]。
+Team-only. The backend assigns id, ownership, revision=1 and status=DRAFT. Clients cannot choose the owner or publication status. Basic fields are required, but a draft may have requirements=[].
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[OpportunityContent](#model-opportunitycontent)。
+Request body: `application/json`, [OpportunityContent](#model-opportunitycontent).
 
 ```json
 {
@@ -1301,7 +1301,7 @@ X-Content-Type-Options: nosniff
 ```
 
 
-成功响应：**201**，[Opportunity](#model-opportunity)。
+Success: **201**, [Opportunity](#model-opportunity).
 
 ```json
 {
@@ -1361,28 +1361,28 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`400`、`401`、`403`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-19、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 <a id="api-18"></a>
 
-### 18. 读取机会详情
+### 18. Read research opportunity details
 
 `GET /api/v1/opportunities/{opportunityId}`
 
-权限：**已登录**。
+Permission: **Signed-in**.
 
-已发布机会对登录用户可见；草稿仅其所有者可读取。其他人读取草稿返回 404。响应不包含内部团队账号或数据库对象。
+Signed-in users may read published opportunities. Only the owner may read a draft; other callers receive 404. Do not return internal team account data or database objects.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[Opportunity](#model-opportunity)。
+Success: **200**, [Opportunity](#model-opportunity).
 
 ```json
 {
@@ -1442,27 +1442,27 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`404`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-19、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 <a id="api-19"></a>
 
-### 19. 保存研究机会修改
+### 19. Save research opportunity changes
 
 `PUT /api/v1/opportunities/{opportunityId}`
 
-权限：**团队本人**。
+Permission: **Team owner**.
 
-仅所有者可编辑；以 expectedRevision 防止覆盖，并完整替换 content。内容变化 revision+1，不变则保留。保持当前发布状态；已发布机会编辑后下次匹配使用新版本，至少保留一个有效 requirement，否则 422。
+Owner-only, with expectedRevision checking and full content replacement. Actual changes increment revision; a no-op preserves it. Keep publication status unchanged. Subsequent matching uses the edited version of a published opportunity. A published opportunity must retain at least one valid requirement, otherwise return 422.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[OpportunityWrite](#model-opportunitywrite)。
+Request body: `application/json`, [OpportunityWrite](#model-opportunitywrite).
 
 ```json
 {
@@ -1518,7 +1518,7 @@ X-Content-Type-Options: nosniff
 ```
 
 
-成功响应：**200**，[Opportunity](#model-opportunity)。
+Success: **200**, [Opportunity](#model-opportunity).
 
 ```json
 {
@@ -1578,27 +1578,27 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`400`、`401`、`403`、`404`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `404`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-19、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 <a id="api-20"></a>
 
-### 20. 发布研究机会
+### 20. Publish a research opportunity
 
 `POST /api/v1/opportunities/{opportunityId}/publish`
 
-权限：**团队本人**。
+Permission: **Team owner**.
 
-仅所有者可发布，检查当前版本、基础字段和至少一个有效 requirement；标签必须存在且类型正确。DRAFT → PUBLISHED 增加 revision。已经发布且 expectedRevision 为当前版本时，重复调用不再递增；旧版本仍返回 409。
+Owner-only. Check the current revision, basic fields and at least one valid requirement whose tags exist and have the correct kind. DRAFT → PUBLISHED increments revision. Repeating publication with the current published revision does not increment it again; a stale revision still returns 409.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `X-CSRF-Token` | header | 是 | string | 最短 1 |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `X-CSRF-Token` | header | Yes | string | minimum length: 1 |
 
-请求体：`application/json`，[RevisionRequest](#model-revisionrequest)。
+Request body: `application/json`, [RevisionRequest](#model-revisionrequest).
 
 ```json
 {
@@ -1607,7 +1607,7 @@ X-Content-Type-Options: nosniff
 ```
 
 
-成功响应：**200**，[Opportunity](#model-opportunity)。
+Success: **200**, [Opportunity](#model-opportunity).
 
 ```json
 {
@@ -1667,29 +1667,29 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`400`、`401`、`403`、`404`、`409`、`415`、`422`、`500`。
+Error statuses: `400`, `401`, `403`, `404`, `409`, `415`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-19、H18ABANANA-28。
+Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 <a id="api-21"></a>
 
-### 21. 获取本人推荐机会排序
+### 21. List ranked opportunity recommendations for the current talent
 
 `GET /api/v1/me/recommendations`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-仅人才本人。当前资料未确认或 confirmedRevision 不等于 revision，返回 409 PROFILE_UNCONFIRMED；否则基于本人已确认资料计算全部已发布机会。本人私有字段可用于本人的推荐。按全局匹配规则排序并分页；没有机会返回 200 空列表。
+Talent owner only. Return 409 PROFILE_UNCONFIRMED unless the current profile is confirmed and confirmedRevision equals revision. Otherwise evaluate all published opportunities using the owner’s confirmed content. Private owner fields may be used for this owner-only result. Apply the global ranking rules before pagination. No opportunities returns 200 with an empty list.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `page` | query | 否 | integer | 最小 1；默认 1 |
-| `pageSize` | query | 否 | integer | 最小 1；最大 100；默认 20 |
+| `page` | query | No | integer | minimum: 1; default: 1 |
+| `pageSize` | query | No | integer | minimum: 1; maximum: 100; default: 20 |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[RecommendationPage](#model-recommendationpage)。
+Success: **200**, [RecommendationPage](#model-recommendationpage).
 
 ```json
 {
@@ -1766,28 +1766,28 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`409`、`422`、`500`。
+Error statuses: `401`, `403`, `409`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-20、H18ABANANA-31、H18ABANANA-32。
+Related Jira subtasks: H18ABANANA-20, H18ABANANA-31, H18ABANANA-32.
 
 <a id="api-22"></a>
 
-### 22. 读取本人逐项匹配解释
+### 22. Read requirement-level matching explanations for the current talent
 
 `GET /api/v1/me/opportunity-matches/{opportunityId}`
 
-权限：**人才本人**。
+Permission: **Talent owner**.
 
-仅人才本人，目标机会必须已发布，否则 404。当前资料必须已确认，否则 409。逐项返回 requirement、status、reasonCode、reason 和 evidence；使用当前机会/资料版本，不能返回旧版本分数。本人的 evidence 可含本人文件来源引用，但不能捏造证据。
+Talent owner only. The opportunity must be published, otherwise return 404. The current profile must be confirmed, otherwise return 409. Return each requirement, status, reasonCode, reason and evidence using current profile/opportunity revisions, not a stale score. Owner evidence may reference owner documents but must not contain fabricated claims.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[OwnerMatch](#model-ownermatch)。
+Success: **200**, [OwnerMatch](#model-ownermatch).
 
 ```json
 {
@@ -1948,30 +1948,30 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`404`、`409`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `409`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-20、H18ABANANA-31、H18ABANANA-32。
+Related Jira subtasks: H18ABANANA-20, H18ABANANA-31, H18ABANANA-32.
 
 <a id="api-23"></a>
 
-### 23. 获取团队机会的匹配人才
+### 23. List matching talent for a team-owned opportunity
 
 `GET /api/v1/opportunities/{opportunityId}/talent-matches`
 
-权限：**团队本人**。
+Permission: **Team owner**.
 
-仅已发布机会的所有者。不存在、非本人或未发布机会返回 404。先排除未同意被发现和当前未确认的人才，再用各自允许公开的字段计算、排序、分页与 total。隐藏字段当作证据不足处理。允许 visibleFields=[]，此时仍可出现匿名对象，但匹配为 UNKNOWN。
+Only the owner of a published opportunity may call this endpoint. Missing, non-owned or unpublished opportunities return 404. Exclude opted-out and currently unconfirmed talent before scoring, ranking, paginating and counting total. Use only each talent’s allowed visible fields; hidden fields count as insufficient evidence. visibleFields=[] is allowed: an anonymous talent object can appear with UNKNOWN results.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `page` | query | 否 | integer | 最小 1；默认 1 |
-| `pageSize` | query | 否 | integer | 最小 1；最大 100；默认 20 |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `page` | query | No | integer | minimum: 1; default: 1 |
+| `pageSize` | query | No | integer | minimum: 1; maximum: 100; default: 20 |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[TalentMatchPage](#model-talentmatchpage)。
+Success: **200**, [TalentMatchPage](#model-talentmatchpage).
 
 ```json
 {
@@ -2000,29 +2000,29 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`404`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-20、H18ABANANA-30、H18ABANANA-31、H18ABANANA-33。
+Related Jira subtasks: H18ABANANA-20, H18ABANANA-30, H18ABANANA-31, H18ABANANA-33.
 
 <a id="api-24"></a>
 
-### 24. 读取获准公开的人才资料与匹配解释
+### 24. Read permitted talent information and matching explanations
 
 `GET /api/v1/opportunities/{opportunityId}/talent-matches/{talentId}`
 
-权限：**团队本人**。
+Permission: **Team owner**.
 
-每次重新检查机会所有权及发布状态、人才被发现授权、当前确认状态、字段可见性。人才关闭授权或变为待确认后返回 404，即使此前列表中出现过。只返回公开字段与 TeamEvidence；不返回邮箱、文件 ID、原始文件名、下载链接、隐藏字段值或来源元数据。
+Re-check opportunity ownership/publication, discovery consent, current confirmation and field visibility on every request. Opted-out or unconfirmed talent returns 404 even if previously listed. Return only permitted fields and TeamEvidence: no email, document IDs, original filenames, download links, private field values or origin metadata.
 
 
-| 参数 | 位置 | 必填 | 类型 / 可选值 | 约束 |
+| Parameter | Location | Required | Type / allowed values | Constraints |
 |---|---|---|---|---|
-| `opportunityId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `talentId` | path | 是 | string | 正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `opportunityId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `talentId` | path | Yes | string | pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
-请求体：无。
+Request body: none.
 
-成功响应：**200**，[TeamMatch](#model-teammatch)。
+Success: **200**, [TeamMatch](#model-teammatch).
 
 ```json
 {
@@ -2109,13 +2109,13 @@ X-Content-Type-Options: nosniff
 ```
 
 
-错误状态：`401`、`403`、`404`、`422`、`500`。
+Error statuses: `401`, `403`, `404`, `422`, `500`.
 
-关联 Jira 子任务：H18ABANANA-20、H18ABANANA-30、H18ABANANA-31、H18ABANANA-33。
+Related Jira subtasks: H18ABANANA-20, H18ABANANA-30, H18ABANANA-31, H18ABANANA-33.
 
-## 5. 统一错误处理
+## 5. Shared error handling
 
-错误响应采用下面结构。前端按 `error.code` 分支，不匹配 message 的英文文本；message 用于展示。字段路径使用点号与数组下标，如 `content.education[0].institution`。无字段错误时 `fieldErrors=[]`。`currentRevision` 只在版本冲突时提供，不适用时省略。
+Use the structure below for every error response. The frontend branches on `error.code`, not the wording of message. message is suitable for display. Field paths use dot notation and array indices, for example `content.education[0].institution`. Use `fieldErrors=[]` if there are no field errors. Include `currentRevision` only for revision conflicts; otherwise omit it.
 
 
 ```json
@@ -2131,672 +2131,672 @@ X-Content-Type-Options: nosniff
 ```
 
 
-| HTTP | error.code | 触发情况 | 前端处理 |
+| HTTP | error.code | Condition | Frontend response |
 |---|---|---|---|
-| 400 | BAD_REQUEST | JSON 无法解析、multipart 结构损坏 | 提示请求失败，保留当前输入 |
-| 401 | UNAUTHENTICATED | 未登录、会话失效 | 清理账号缓存，返回登录入口 |
-| 401 | INVALID_CREDENTIALS | 登录账号或密码错误 | 登录框显示通用错误 |
-| 403 | FORBIDDEN | 角色无权限 | 显示无权限，不重试 |
-| 403 | CSRF_INVALID | CSRF 或 Origin 校验失败 | 重新获取会话；提示重试，不自动重发写入 |
-| 404 | NOT_FOUND | 不存在、别人的私有资源、已撤销可见性的人才 | 显示不可用并重新读取列表 |
-| 409 | REVISION_CONFLICT | expectedRevision 过期 | 保留本地输入，重新载入和比较 |
-| 409 | PROFILE_UNCONFIRMED | 请求本人推荐时当前资料未确认 | 引导用户审核并确认 |
-| 409 | EXTRACTION_NOT_READY | 提取仍在等待/处理中 | 继续状态查询，不导入 |
-| 413 | UPLOAD_TOO_LARGE | 超过 10 MiB | 提示大小限制 |
-| 415 | UNSUPPORTED_FILE_TYPE | 文件不是受支持的 PDF/DOCX | 提示文件类型要求 |
-| 415 | UNSUPPORTED_MEDIA_TYPE | 请求的 Content-Type 错误 | 修正请求适配层 |
-| 422 | VALIDATION_ERROR | 字段无效、发布/确认前置条件不满足 | 就地显示 fieldErrors |
-| 422 | EXTRACTION_FAILED | 已失败文档请求提取/导入 | 显示手动录入入口，保留已有资料 |
-| 429 | RATE_LIMITED | 登录或上传频率受限 | 提示稍后再试，停止连续请求 |
-| 500 | INTERNAL_ERROR | 后端意外异常 | 提示稍后再试，保留输入和 requestId |
+| 400 | BAD_REQUEST | Unparseable JSON or malformed multipart framing | Show failure and preserve input |
+| 401 | UNAUTHENTICATED | Missing or expired session | Clear account caches and return to login |
+| 401 | INVALID_CREDENTIALS | Invalid login credentials | Show a generic login error |
+| 403 | FORBIDDEN | Role lacks permission | Show access denied; do not retry |
+| 403 | CSRF_INVALID | CSRF or Origin validation failed | Read the session again and offer retry; do not automatically replay a mutation |
+| 404 | NOT_FOUND | Missing/inaccessible resource or talent whose visibility was revoked | Show unavailable and refetch the list |
+| 409 | REVISION_CONFLICT | Stale expectedRevision | Preserve local input, reload and compare |
+| 409 | PROFILE_UNCONFIRMED | Owner requests recommendations with an unconfirmed current profile | Direct the user to review and confirm |
+| 409 | EXTRACTION_NOT_READY | Extraction is queued or processing | Continue status checks without importing |
+| 413 | UPLOAD_TOO_LARGE | File exceeds 10 MiB | Explain the size limit |
+| 415 | UNSUPPORTED_FILE_TYPE | Upload is not a supported PDF/DOCX | Explain accepted formats |
+| 415 | UNSUPPORTED_MEDIA_TYPE | Incorrect request Content-Type | Correct the request adapter |
+| 422 | VALIDATION_ERROR | Invalid fields or unmet publication/confirmation prerequisites | Display fieldErrors beside the relevant inputs |
+| 422 | EXTRACTION_FAILED | Extraction/import requested for a failed document | Offer manual entry and preserve existing profile content |
+| 429 | RATE_LIMITED | Login or upload rate limit exceeded | Ask the user to try later and stop repeated requests |
+| 500 | INTERNAL_ERROR | Unexpected server failure | Preserve input and requestId and offer a later retry |
 
-后端不要把堆栈、数据库错误、文件系统路径放入 message。`requestId` 用于团队定位日志。`Document.error` 为 ErrorDetail（不嵌套 requestId）；文件状态 GET 本身可成功返回 200 和 status=FAILED，只有读取/导入失败的提取结果才返回 422。
+Do not expose stack traces, database errors or filesystem paths in message. `requestId` supports log investigation. `Document.error` uses ErrorDetail without a nested requestId. A document status request may successfully return 200 with status=FAILED; requesting or importing that failed extraction returns 422.
 
-## 6. 完整数据字段表
+## 6. Complete data model definitions
 
-引用类型会链接到本节相应模型。数组条目必须符合该类型。所有对象都拒绝额外字段；“必填”指字段必须存在，允许 null 的字段仍按表中规定发送。
+Referenced types link to their definitions below. Array entries must match their item type. All objects reject additional fields. Required means the key must exist; nullable required fields must still be sent.
 
-本节涵盖全部 47 个公共模型。`file` 上传字段为唯一额外的二进制请求形态，见接口 11。
+This section defines all 47 public models. The binary upload request is the additional request shape described in endpoint 11.
 
 
 <a id="model-id"></a>
 
 ### Id
 
-所有业务 ID 使用此格式。后端生成顶层资源 ID；前端可为教育、课程、经历、成果、要求条目生成稳定的 UUID 字符串。条目编辑时保持 ID，不能用数组下标充当长期 ID。
+All business IDs follow this format. The backend generates top-level resource IDs. The frontend may generate stable UUID strings for education, course, experience, output and requirement records. Retain IDs when editing, create new IDs for new records and do not use array indices as persistent IDs.
 
-类型：string。正则 `^[A-Za-z0-9_-]{1,64}$`。
+Type: string. pattern: `^[A-Za-z0-9_-]{1,64}$`.
 
 <a id="model-profilefield"></a>
 
 ### ProfileField
 
-本版本隐私控制单位为整个字段/章节，而不是某个教育记录或技能条目。此枚举是 visibleFields 的唯一白名单。
+Privacy applies to an entire field/section in this version, not an individual education record or skill. This enum is the complete whitelist for visibleFields.
 
-类型：`displayName` / `disciplineGroup` / `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs`。。
+Type: `displayName` / `disciplineGroup` / `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs`. .
 
 <a id="model-user"></a>
 
 ### User
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `displayName` | string | 是 | 展示姓名；在团队视图中也受可见性控制；最短 1 |
-| `email` | string | 是 | 登录邮箱，仅账号本人可见；格式 email |
-| `role` | `TALENT` / `RESEARCH_TEAM` | 是 | 账号角色，由后端决定 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `displayName` | string | Yes | Display name; also subject to visibility controls in team responses; minimum length: 1 |
+| `email` | string | Yes | Login email, visible only to the account owner; format: email |
+| `role` | `TALENT` / `RESEARCH_TEAM` | Yes | Account role assigned by the backend |
 
 <a id="model-session"></a>
 
 ### Session
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `user` | [User](#model-user) / null | 是 | 匿名时 null；已登录时账号对象 |
-| `csrfToken` | string | 是 | 仅供后续变更请求校验，不是登录会话 ID；最短 1 |
+| `user` | [User](#model-user) / null | Yes | null for anonymous sessions; otherwise the account object |
+| `csrfToken` | string | Yes | Token for subsequent mutations; not the session ID; minimum length: 1 |
 
 <a id="model-loginrequest"></a>
 
 ### LoginRequest
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `email` | string | 是 | 登录邮箱，仅账号本人可见；格式 email |
-| `password` | string | 是 | 只用于请求，不回传或记录明文；最短 1；最长 200 |
+| `email` | string | Yes | Login email, visible only to the account owner; format: email |
+| `password` | string | Yes | Request-only; never return or log plaintext passwords; minimum length: 1; maximum length: 200 |
 
 <a id="model-tag"></a>
 
 ### Tag
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `label` | string | 是 | 供用户阅读的名称；最短 1 |
-| `kind` | `SKILL` / `INTEREST` | 是 | 类别，按列出的枚举传值 |
-| `disciplineGroups` | `STEM` / `BUSINESS`[] | 是 | 标签可用学科组；不可重复 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `label` | string | Yes | Human-readable label; minimum length: 1 |
+| `kind` | `SKILL` / `INTEREST` | Yes | Category; use the specified enum values |
+| `disciplineGroups` | `STEM` / `BUSINESS`[] | Yes | Discipline groups in which the tag is available; unique items |
 
 <a id="model-taglist"></a>
 
 ### TagList
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `items` | [Tag](#model-tag)[] | 是 | 当前页内容（标签列表为全部结果） |
+| `items` | [Tag](#model-tag)[] | Yes | Current page items; for tags, the complete vocabulary result |
 
 <a id="model-education"></a>
 
 ### Education
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `institution` | string | 是 | 学校/机构名称；最短 1；最长 200 |
-| `qualification` | string | 是 | 学位/学历名称；最短 1；最长 200 |
-| `discipline` | string | 是 | 学科名称；最长 200 |
-| `startYear` | integer / null | 是 | 开始年份；未知为 null；最小 1900；最大 2200 |
-| `endYear` | integer / null | 是 | 结束年份；在读或未知为 null；最小 1900；最大 2200 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `institution` | string | Yes | University or institution name; minimum length: 1; maximum length: 200 |
+| `qualification` | string | Yes | Degree or qualification name; minimum length: 1; maximum length: 200 |
+| `discipline` | string | Yes | Discipline name; maximum length: 200 |
+| `startYear` | integer / null | Yes | Starting year; null if unknown; minimum: 1900; maximum: 2200 |
+| `endYear` | integer / null | Yes | Ending year; null if ongoing or unknown; minimum: 1900; maximum: 2200 |
 
 <a id="model-course"></a>
 
 ### Course
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `name` | string | 是 | 名称；最短 1；最长 200 |
-| `code` | string / null | 是 | 课程代码；未知为 null（错误对象中为错误码）；最长 100 |
-| `description` | string | 是 | 纯文本说明；最长 5000 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `name` | string | Yes | Name; minimum length: 1; maximum length: 200 |
+| `code` | string / null | Yes | Course code; null if unknown. In an error object, this is the error code; maximum length: 100 |
+| `description` | string | Yes | Plain-text description; maximum length: 5000 |
 
 <a id="model-researchexperience"></a>
 
 ### ResearchExperience
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `title` | string | 是 | 标题；最短 1；最长 200 |
-| `organisation` | string | 是 | 研究机构/组织；最长 200 |
-| `description` | string | 是 | 纯文本说明；最长 5000 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `title` | string | Yes | Title; minimum length: 1; maximum length: 200 |
+| `organisation` | string | Yes | Research institution or organisation; maximum length: 200 |
+| `description` | string | Yes | Plain-text description; maximum length: 5000 |
 
 <a id="model-skillclaim"></a>
 
 ### SkillClaim
 
-未选择技能代表未知，不代表不具备。明确的 DOES_NOT_HAVE 声明仅由用户输入/审核，提取服务不得根据“没找到”自动创建。
+An unselected skill is unknown, not absent. DOES_NOT_HAVE is entered or reviewed explicitly by the user; extraction must not infer it from a skill not being found.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `tagId` | string | 是 | 统一标签 ID，不能使用显示文字代替；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `claim` | `HAS` / `DOES_NOT_HAVE` | 是 | HAS 为用户声明具备；DOES_NOT_HAVE 为明确声明不具备，不能根据未填写推断 |
-| `evidenceText` | string | 是 | 用户审核后的证据描述；可为空，此时只能引用用户标签声明；最长 2000 |
+| `tagId` | string | Yes | Shared tag ID; do not substitute display text; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `claim` | `HAS` / `DOES_NOT_HAVE` | Yes | HAS is an affirmative user claim; DOES_NOT_HAVE is an explicit negative claim, never inferred from omission |
+| `evidenceText` | string | Yes | User-reviewed evidence description; may be empty, in which case only the tag claim itself can be cited; maximum length: 2000 |
 
 <a id="model-researchoutput"></a>
 
 ### ResearchOutput
 
-URL 仅允许 http/https。前端打开新页时应采用适当的链接属性；服务端不因该字段自动抓取任意地址。
+Only HTTP/HTTPS URLs are accepted. The frontend should use appropriate link attributes when opening a new tab. The backend must not automatically fetch arbitrary addresses from this field.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `title` | string | 是 | 标题；最短 1；最长 300 |
-| `type` | `PUBLICATION` / `PROJECT` / `OTHER` | 是 | 成果类型 |
-| `url` | string / null | 是 | 成果链接，限 http/https；没有时 null；格式 uri；正则 `^https?://` |
-| `description` | string | 是 | 纯文本说明；最长 5000 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `title` | string | Yes | Title; minimum length: 1; maximum length: 300 |
+| `type` | `PUBLICATION` / `PROJECT` / `OTHER` | Yes | Research output type |
+| `url` | string / null | Yes | HTTP/HTTPS link to an output; null if absent; format: uri; pattern: `^https?://` |
+| `description` | string | Yes | Plain-text description; maximum length: 5000 |
 
 <a id="model-profilecontent"></a>
 
 ### ProfileContent
 
-PUT 为完整替换，8 个字段全部必填。某章节未填写使用 []，未知学科组用 null。已有子记录编辑保留 id；新增条目用新 id；删除条目在数组中移除。每个章节最多 100 条。
+PUT fully replaces all eight required fields. Use [] for an unfilled section and null for an unknown discipline group. Keep an existing child record ID when editing, assign a new ID when adding and remove a record from its array to delete it. Each section allows up to 100 items.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `displayName` | string | 是 | 展示姓名；在团队视图中也受可见性控制；最长 100 |
-| `disciplineGroup` | `STEM` / `BUSINESS` / null | 是 | STEM 或 BUSINESS；人才尚未选择时可为 null |
-| `education` | [Education](#model-education)[] | 是 | 教育记录列表；最多项数 100 |
-| `courses` | [Course](#model-course)[] | 是 | 课程记录列表；最多项数 100 |
-| `researchExperience` | [ResearchExperience](#model-researchexperience)[] | 是 | 研究经历列表；最多项数 100 |
-| `skills` | [SkillClaim](#model-skillclaim)[] | 是 | 技能声明列表；tagId 唯一且必须是 SKILL 标签；最多项数 100 |
-| `researchInterests` | string[] | 是 | 兴趣标签 ID 列表；必须是 INTEREST 标签；最多项数 100；不可重复 |
-| `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | 是 | 成果列表；最多项数 100 |
+| `displayName` | string | Yes | Display name; also subject to visibility controls in team responses; maximum length: 100 |
+| `disciplineGroup` | `STEM` / `BUSINESS` / null | Yes | STEM or BUSINESS; nullable for talent who has not selected a group |
+| `education` | [Education](#model-education)[] | Yes | Education records; maximum items: 100 |
+| `courses` | [Course](#model-course)[] | Yes | Course records; maximum items: 100 |
+| `researchExperience` | [ResearchExperience](#model-researchexperience)[] | Yes | Research experience records; maximum items: 100 |
+| `skills` | [SkillClaim](#model-skillclaim)[] | Yes | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
+| `researchInterests` | string[] | Yes | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
+| `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | Yes | Research output records; maximum items: 100 |
 
 <a id="model-profilesections"></a>
 
 ### ProfileSections
 
-局部导入对象，必须至少含一个章节；省略表示不改，[] 表示清空。只允许六个学术/研究章节，不修改 displayName 或 disciplineGroup。
+Partial import object with at least one section. Omitted sections are unchanged; [] clears a section. Only the six academic/research sections are accepted; displayName and disciplineGroup are not imported here.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `education` | [Education](#model-education)[] | 否 | 教育记录列表；最多项数 100 |
-| `courses` | [Course](#model-course)[] | 否 | 课程记录列表；最多项数 100 |
-| `researchExperience` | [ResearchExperience](#model-researchexperience)[] | 否 | 研究经历列表；最多项数 100 |
-| `skills` | [SkillClaim](#model-skillclaim)[] | 否 | 技能声明列表；tagId 唯一且必须是 SKILL 标签；最多项数 100 |
-| `researchInterests` | string[] | 否 | 兴趣标签 ID 列表；必须是 INTEREST 标签；最多项数 100；不可重复 |
-| `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | 否 | 成果列表；最多项数 100 |
+| `education` | [Education](#model-education)[] | No | Education records; maximum items: 100 |
+| `courses` | [Course](#model-course)[] | No | Course records; maximum items: 100 |
+| `researchExperience` | [ResearchExperience](#model-researchexperience)[] | No | Research experience records; maximum items: 100 |
+| `skills` | [SkillClaim](#model-skillclaim)[] | No | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
+| `researchInterests` | string[] | No | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
+| `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | No | Research output records; maximum items: 100 |
 
 <a id="model-confirmation"></a>
 
 ### Confirmation
 
-只有 status=CONFIRMED 且 confirmedRevision=Profile.revision 才能参与匹配。UNCONFIRMED 时 confirmedRevision 和 confirmedAt 必须同时为 null。
+Matching requires status=CONFIRMED and confirmedRevision=Profile.revision. For UNCONFIRMED, both confirmedRevision and confirmedAt must be null.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `status` | `UNCONFIRMED` / `CONFIRMED` | 是 | 状态枚举；含义见业务规则 |
-| `confirmedRevision` | integer / null | 是 | 已确认版本；待确认时为 null；最小 0 |
-| `confirmedAt` | string / null | 是 | 用户确认时间；待确认时为 null；格式 date-time |
+| `status` | `UNCONFIRMED` / `CONFIRMED` | Yes | Status enum; see the relevant business rules |
+| `confirmedRevision` | integer / null | Yes | Confirmed revision; null while unconfirmed; minimum: 0 |
+| `confirmedAt` | string / null | Yes | Time of user confirmation; null while unconfirmed; format: date-time |
 
 <a id="model-fieldorigin"></a>
 
 ### FieldOrigin
 
-按章节记录来源，不冒充逐句文件引用或第三方验证。文档导入后用户修改某章节时，该章节来源改为 MANUAL。来源由后端写入，前端不能在 PUT 中自行指定。
+Provenance is tracked per section, not as a verified sentence-level file citation or independent credential check. Manually editing an imported section changes its origin to MANUAL. The backend sets provenance; PUT cannot specify it.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | 是 | 所属字段/章节 |
-| `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | 是 | 后端维护的来源类别，MANUAL 或经用户审核的文档导入 |
-| `documentId` | string / null | 是 | 本人文件来源引用；手工输入时为 null，不对研究团队公开；正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | Yes | Server-maintained origin: MANUAL or USER_REVIEWED_DOCUMENT |
+| `documentId` | string / null | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
 <a id="model-profile"></a>
 
 ### Profile
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `talentId` | string | 是 | 人才标识，后端确定；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `revision` | integer | 是 | 资源当前版本；与其他资源版本相互独立；最小 0 |
-| `content` | [ProfileContent](#model-profilecontent) | 是 | 资源业务内容 |
-| `confirmation` | [Confirmation](#model-confirmation) | 是 | 当前资料确认状态 |
-| `origins` | [FieldOrigin](#model-fieldorigin)[] | 是 | 本人可见的章节来源元数据 |
-| `updatedAt` | string | 是 | 最近更新的 UTC 时间；格式 date-time |
+| `talentId` | string | Yes | Talent identifier assigned by the backend; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `revision` | integer | Yes | Current resource version, independent of other resources; minimum: 0 |
+| `content` | [ProfileContent](#model-profilecontent) | Yes | Business content of the resource |
+| `confirmation` | [Confirmation](#model-confirmation) | Yes | Confirmation state of the current profile |
+| `origins` | [FieldOrigin](#model-fieldorigin)[] | Yes | Section provenance visible only to the owner |
+| `updatedAt` | string | Yes | Last update time in UTC; format: date-time |
 
 <a id="model-profilewrite"></a>
 
 ### ProfileWrite
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `expectedRevision` | integer | 是 | 前端最近读到的此资源版本；最小 0 |
-| `content` | [ProfileContent](#model-profilecontent) | 是 | 资源业务内容 |
+| `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
+| `content` | [ProfileContent](#model-profilecontent) | Yes | Business content of the resource |
 
 <a id="model-revisionrequest"></a>
 
 ### RevisionRequest
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `expectedRevision` | integer | 是 | 前端最近读到的此资源版本；最小 0 |
+| `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
 
 <a id="model-privacy"></a>
 
 ### Privacy
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `revision` | integer | 是 | 资源当前版本；与其他资源版本相互独立；最小 0 |
-| `discoverable` | boolean | 是 | 是否允许团队发现；新账号默认 false |
-| `visibleFields` | [ProfileField](#model-profilefield)[] | 是 | 允许团队看到并用于匹配的字段白名单；新账号为空；不可重复 |
-| `updatedAt` | string | 是 | 最近更新的 UTC 时间；格式 date-time |
+| `revision` | integer | Yes | Current resource version, independent of other resources; minimum: 0 |
+| `discoverable` | boolean | Yes | Consent to discovery by teams; defaults to false |
+| `visibleFields` | [ProfileField](#model-profilefield)[] | Yes | Whitelist of fields teams may see and use for matching; empty for new accounts; unique items |
+| `updatedAt` | string | Yes | Last update time in UTC; format: date-time |
 
 <a id="model-privacywrite"></a>
 
 ### PrivacyWrite
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `expectedRevision` | integer | 是 | 前端最近读到的此资源版本；最小 0 |
-| `discoverable` | boolean | 是 | 是否允许团队发现；新账号默认 false |
-| `visibleFields` | [ProfileField](#model-profilefield)[] | 是 | 允许团队看到并用于匹配的字段白名单；新账号为空；不可重复 |
+| `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
+| `discoverable` | boolean | Yes | Consent to discovery by teams; defaults to false |
+| `visibleFields` | [ProfileField](#model-profilefield)[] | Yes | Whitelist of fields teams may see and use for matching; empty for new accounts; unique items |
 
 <a id="model-fielderror"></a>
 
 ### FieldError
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | string | 是 | 所属字段/章节 |
-| `message` | string | 是 | 可展示说明；不要用于程序分支 |
+| `field` | string | Yes | Associated field or section |
+| `message` | string | Yes | Displayable explanation; do not branch on its wording |
 
 <a id="model-errordetail"></a>
 
 ### ErrorDetail
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` | 是 | 课程代码；未知为 null（错误对象中为错误码） |
-| `message` | string | 是 | 可展示说明；不要用于程序分支 |
-| `fieldErrors` | [FieldError](#model-fielderror)[] | 是 | 字段校验问题；没有问题则空数组 |
-| `currentRevision` | integer | 否 | 版本冲突时服务器版本；其他错误省略；最小 0 |
+| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` | Yes | Course code; null if unknown. In an error object, this is the error code |
+| `message` | string | Yes | Displayable explanation; do not branch on its wording |
+| `fieldErrors` | [FieldError](#model-fielderror)[] | Yes | Field validation problems; empty if none |
+| `currentRevision` | integer | No | Server revision on conflict; omitted for other errors; minimum: 0 |
 
 <a id="model-error"></a>
 
 ### Error
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `error` | [ErrorDetail](#model-errordetail) | 是 | 统一错误详情；Document 非 FAILED 时为 null |
-| `requestId` | string | 是 | 后端生成的请求排查标识 |
+| `error` | [ErrorDetail](#model-errordetail) | Yes | Error details; null for a Document unless status is FAILED |
+| `requestId` | string | Yes | Server-generated identifier for investigating a request |
 
 <a id="model-document"></a>
 
 ### Document
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `kind` | `CV` / `TRANSCRIPT` | 是 | 类别，按列出的枚举传值 |
-| `fileName` | string | 是 | 原始文件名，仅本人可见 |
-| `mediaType` | `application/pdf` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | 是 | 实际文件 MIME 类型 |
-| `sizeBytes` | integer | 是 | 文件字节数；最小 1；最大 10485760 |
-| `status` | `QUEUED` / `PROCESSING` / `READY` / `FAILED` | 是 | 状态枚举；含义见业务规则 |
-| `createdAt` | string | 是 | 创建时间；格式 date-time |
-| `updatedAt` | string | 是 | 最近更新的 UTC 时间；格式 date-time |
-| `error` | [ErrorDetail](#model-errordetail) / null | 是 | 统一错误详情；Document 非 FAILED 时为 null |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `kind` | `CV` / `TRANSCRIPT` | Yes | Category; use the specified enum values |
+| `fileName` | string | Yes | Original filename, visible only to its owner |
+| `mediaType` | `application/pdf` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | Yes | Actual file MIME type |
+| `sizeBytes` | integer | Yes | File size in bytes; minimum: 1; maximum: 10485760 |
+| `status` | `QUEUED` / `PROCESSING` / `READY` / `FAILED` | Yes | Status enum; see the relevant business rules |
+| `createdAt` | string | Yes | Creation timestamp; format: date-time |
+| `updatedAt` | string | Yes | Last update time in UTC; format: date-time |
+| `error` | [ErrorDetail](#model-errordetail) / null | Yes | Error details; null for a Document unless status is FAILED |
 
 <a id="model-uncertainfield"></a>
 
 ### UncertainField
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | 是 | 所属字段/章节 |
-| `status` | `UNKNOWN` / `NOT_RECOGNISED` | 是 | 状态枚举；含义见业务规则 |
-| `reason` | string | 是 | 可展示解释，只依据当前有权使用的证据 |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `status` | `UNKNOWN` / `NOT_RECOGNISED` | Yes | Status enum; see the relevant business rules |
+| `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
 
 <a id="model-extraction"></a>
 
 ### Extraction
 
-suggestedSections 可以为空；此时只显示不确定项和手动录入入口，不能发空 sections 导入。提取完成、导入完成、资料确认是三个不同阶段。
+suggestedSections may be empty. In that case, show uncertainty and manual entry rather than sending an empty sections import. Extraction completion, importing and profile confirmation are separate stages.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `documentId` | string | 是 | 本人文件来源引用；手工输入时为 null，不对研究团队公开；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `status` | `READY` | 是 | 状态枚举；含义见业务规则 |
-| `suggestedSections` | object（六个章节的可选子集） | 是 | 可包含六个资料章节中的任意子集；也可为空对象。结构与 ProfileSections 字段一致，但无至少一个字段的限制 |
-| `uncertainFields` | [UncertainField](#model-uncertainfield)[] | 是 | 不能可靠提取的章节与原因 |
-| `warnings` | string[] | 是 | 审核提示列表 |
-| `reviewRequired` | `true` | 是 | 固定为 true，提取结果必须经过人工审核 |
+| `documentId` | string | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `status` | `READY` | Yes | Status enum; see the relevant business rules |
+| `suggestedSections` | object (optional subset of six sections) | Yes | Any subset of the six profile sections, including an empty object; same field shapes as ProfileSections without the minimum-one-field requirement |
+| `uncertainFields` | [UncertainField](#model-uncertainfield)[] | Yes | Sections that could not be reliably extracted, with reasons |
+| `warnings` | string[] | Yes | Review guidance |
+| `reviewRequired` | `true` | Yes | Always true; extraction suggestions require user review |
 
 <a id="model-applyextractionrequest"></a>
 
 ### ApplyExtractionRequest
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `expectedProfileRevision` | integer | 是 | 导入时读取到的本人资料版本；最小 0 |
-| `sections` | [ProfileSections](#model-profilesections) | 是 | 只替换包含的章节；未传保留，[] 明确清空 |
+| `expectedProfileRevision` | integer | Yes | Owner profile revision read before importing; minimum: 0 |
+| `sections` | [ProfileSections](#model-profilesections) | Yes | Replace submitted sections only; omitted sections stay unchanged and [] explicitly clears a section |
 
 <a id="model-requirement"></a>
 
 ### Requirement
 
-本版只对 SKILL 和 INTEREST 标签要求做确定性评估。教育、课程、成果作为资料可展示，但不从自然语言臆测为某个技能证据。
+This version deterministically evaluates SKILL and INTEREST tag requirements. Education, courses and outputs may be displayed as profile information, but free text is not used to invent skill evidence.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `label` | string | 是 | 供用户阅读的名称；最短 1；最长 300 |
-| `kind` | `SKILL` / `INTEREST` | 是 | 类别，按列出的枚举传值 |
-| `importance` | `REQUIRED` / `PREFERRED` | 是 | REQUIRED 必须项或 PREFERRED 偏好项 |
-| `tagIds` | string[] | 是 | 同一要求内为 AND 关系；每个标签类别须与 kind 一致；最少项数 1；最多项数 20；不可重复 |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `label` | string | Yes | Human-readable label; minimum length: 1; maximum length: 300 |
+| `kind` | `SKILL` / `INTEREST` | Yes | Category; use the specified enum values |
+| `importance` | `REQUIRED` / `PREFERRED` | Yes | REQUIRED or PREFERRED |
+| `tagIds` | string[] | Yes | AND group within a requirement; each tag kind must match kind; minimum items: 1; maximum items: 20; unique items |
 
 <a id="model-opportunitycontent"></a>
 
 ### OpportunityContent
 
-已发布机会至少有一个要求；草稿允许空 requirements，但基础文本字段仍需填入。无关闭/删除/申请状态。
+Published opportunities require at least one requirement. Drafts may have an empty requirements array, but basic text fields are still required. This version has no closed/deleted/application states.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `title` | string | 是 | 标题；最短 1；最长 200 |
-| `university` | string | 是 | 机会所属大学；最短 1；最长 200 |
-| `disciplineGroup` | `STEM` / `BUSINESS` | 是 | STEM 或 BUSINESS；人才尚未选择时可为 null |
-| `discipline` | string | 是 | 学科名称；最短 1；最长 200 |
-| `researchArea` | string | 是 | 研究方向名称；最短 1；最长 300 |
-| `description` | string | 是 | 纯文本说明；最短 1；最长 10000 |
-| `requirements` | [Requirement](#model-requirement)[] | 是 | 要求列表；草稿可为空，发布至少一项；最多项数 50 |
+| `title` | string | Yes | Title; minimum length: 1; maximum length: 200 |
+| `university` | string | Yes | University offering the opportunity; minimum length: 1; maximum length: 200 |
+| `disciplineGroup` | `STEM` / `BUSINESS` | Yes | STEM or BUSINESS; nullable for talent who has not selected a group |
+| `discipline` | string | Yes | Discipline name; minimum length: 1; maximum length: 200 |
+| `researchArea` | string | Yes | Research area name; minimum length: 1; maximum length: 300 |
+| `description` | string | Yes | Plain-text description; minimum length: 1; maximum length: 10000 |
+| `requirements` | [Requirement](#model-requirement)[] | Yes | Requirements; may be empty in a draft, but publication requires at least one; maximum items: 50 |
 
 <a id="model-opportunity"></a>
 
 ### Opportunity
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `id` | string | 是 | 对象标识；不得改变已有记录 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `revision` | integer | 是 | 资源当前版本；与其他资源版本相互独立；最小 0 |
-| `status` | `DRAFT` / `PUBLISHED` | 是 | 状态枚举；含义见业务规则 |
-| `content` | [OpportunityContent](#model-opportunitycontent) | 是 | 资源业务内容 |
-| `createdAt` | string | 是 | 创建时间；格式 date-time |
-| `updatedAt` | string | 是 | 最近更新的 UTC 时间；格式 date-time |
+| `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `revision` | integer | Yes | Current resource version, independent of other resources; minimum: 0 |
+| `status` | `DRAFT` / `PUBLISHED` | Yes | Status enum; see the relevant business rules |
+| `content` | [OpportunityContent](#model-opportunitycontent) | Yes | Business content of the resource |
+| `createdAt` | string | Yes | Creation timestamp; format: date-time |
+| `updatedAt` | string | Yes | Last update time in UTC; format: date-time |
 
 <a id="model-opportunitywrite"></a>
 
 ### OpportunityWrite
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `expectedRevision` | integer | 是 | 前端最近读到的此资源版本；最小 0 |
-| `content` | [OpportunityContent](#model-opportunitycontent) | 是 | 资源业务内容 |
+| `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
+| `content` | [OpportunityContent](#model-opportunitycontent) | Yes | Business content of the resource |
 
 <a id="model-matchstatus"></a>
 
 ### MatchStatus
 
-类型：`MATCHED` / `PARTIAL` / `GAP` / `UNKNOWN`。。
+Type: `MATCHED` / `PARTIAL` / `GAP` / `UNKNOWN`. .
 
 <a id="model-ownerevidence"></a>
 
 ### OwnerEvidence
 
-只用于人才本人的匹配详情。documentId 是来源引用，不是公开链接；sourceType=MANUAL 时 documentId=null。
+Used only for the talent owner’s match details. documentId is a source reference, not a public link. MANUAL sourceType requires documentId=null.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | [ProfileField](#model-profilefield) | 是 | 所属字段/章节 |
-| `recordId` | string | 是 | 证据记录 ID；skills/interests 用 tagId，其余用子记录 id；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `valueSummary` | string | 是 | 证据的简短文本，不得加入来源没有的事实 |
-| `confirmedRevision` | integer | 是 | 已确认版本；待确认时为 null；最小 0 |
-| `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | 是 | 后端维护的来源类别，MANUAL 或经用户审核的文档导入 |
-| `documentId` | string / null | 是 | 本人文件来源引用；手工输入时为 null，不对研究团队公开；正则 `^[A-Za-z0-9_-]{1,64}$` |
+| `field` | [ProfileField](#model-profilefield) | Yes | Associated field or section |
+| `recordId` | string | Yes | Evidence record ID; tagId for skills/interests and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `valueSummary` | string | Yes | Brief evidence text without invented facts |
+| `confirmedRevision` | integer | Yes | Confirmed revision; null while unconfirmed; minimum: 0 |
+| `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | Yes | Server-maintained origin: MANUAL or USER_REVIEWED_DOCUMENT |
+| `documentId` | string / null | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
 <a id="model-teamevidence"></a>
 
 ### TeamEvidence
 
-严格比 OwnerEvidence 少字段，不包含 documentId、sourceType、confirmedRevision。证据必须来自当前公开字段，不能通过解释文案透露隐藏内容。
+A reduced shape compared with OwnerEvidence: no documentId, sourceType or confirmedRevision. Evidence must come from currently shared fields, and explanation text must not disclose hidden information.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | [ProfileField](#model-profilefield) | 是 | 所属字段/章节 |
-| `recordId` | string | 是 | 证据记录 ID；skills/interests 用 tagId，其余用子记录 id；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `valueSummary` | string | 是 | 证据的简短文本，不得加入来源没有的事实 |
+| `field` | [ProfileField](#model-profilefield) | Yes | Associated field or section |
+| `recordId` | string | Yes | Evidence record ID; tagId for skills/interests and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `valueSummary` | string | Yes | Brief evidence text without invented facts |
 
 <a id="model-ownerrequirementresult"></a>
 
 ### OwnerRequirementResult
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `requirement` | [Requirement](#model-requirement) | 是 | 原始要求完整对象 |
-| `status` | [MatchStatus](#model-matchstatus) | 是 | 状态枚举；含义见业务规则 |
-| `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | 是 | 稳定解释类别，前端可据此显示说明 |
-| `reason` | string | 是 | 可展示解释，只依据当前有权使用的证据 |
-| `evidence` | [OwnerEvidence](#model-ownerevidence)[] | 是 | 证据列表；UNKNOWN 时必须为空 |
+| `requirement` | [Requirement](#model-requirement) | Yes | Complete original requirement object |
+| `status` | [MatchStatus](#model-matchstatus) | Yes | Status enum; see the relevant business rules |
+| `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | Yes | Stable explanation category for frontend use |
+| `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
+| `evidence` | [OwnerEvidence](#model-ownerevidence)[] | Yes | Evidence records; must be empty for UNKNOWN |
 
 <a id="model-teamrequirementresult"></a>
 
 ### TeamRequirementResult
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `requirement` | [Requirement](#model-requirement) | 是 | 原始要求完整对象 |
-| `status` | [MatchStatus](#model-matchstatus) | 是 | 状态枚举；含义见业务规则 |
-| `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | 是 | 稳定解释类别，前端可据此显示说明 |
-| `reason` | string | 是 | 可展示解释，只依据当前有权使用的证据 |
-| `evidence` | [TeamEvidence](#model-teamevidence)[] | 是 | 证据列表；UNKNOWN 时必须为空 |
+| `requirement` | [Requirement](#model-requirement) | Yes | Complete original requirement object |
+| `status` | [MatchStatus](#model-matchstatus) | Yes | Status enum; see the relevant business rules |
+| `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | Yes | Stable explanation category for frontend use |
+| `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
+| `evidence` | [TeamEvidence](#model-teamevidence)[] | Yes | Evidence records; must be empty for UNKNOWN |
 
 <a id="model-matchsummary"></a>
 
 ### MatchSummary
 
-前端使用后端提供的 summary，不自行从当前页重算。保留两位小数，客户端显示可按产品方案决定是否展示数字，但必须保留整体排序与逐项解释。
+Display the backend summary rather than recalculating from a page of results. Values use two decimal places. The product may choose whether to display numeric scores, but must preserve ranking and requirement-level explanations.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `score` | number / null | 是 | 0～100 的加权证据覆盖分，不代表录用概率；没有要求时 null；最小 0；最大 100 |
-| `unknownWeightPercent` | number / null | 是 | UNKNOWN 要求所占权重百分比；没有要求时 null；最小 0；最大 100 |
-| `requiredGapCount` | integer | 是 | 状态 GAP 且 importance=REQUIRED 的要求数量；最小 0 |
-| `evaluationStatus` | `EVALUATED` / `INSUFFICIENT_CRITERIA` | 是 | 正常评估或缺少可评估要求 |
-| `algorithmVersion` | `tag-coverage-v1` | 是 | 匹配算法约定版本 |
+| `score` | number / null | Yes | Weighted evidence coverage from 0 to 100, not an admission probability; null if there are no criteria; minimum: 0; maximum: 100 |
+| `unknownWeightPercent` | number / null | Yes | Percentage of requirement weight classified UNKNOWN; null if there are no criteria; minimum: 0; maximum: 100 |
+| `requiredGapCount` | integer | Yes | Number of REQUIRED requirements classified GAP; minimum: 0 |
+| `evaluationStatus` | `EVALUATED` / `INSUFFICIENT_CRITERIA` | Yes | Evaluated or insufficient criteria |
+| `algorithmVersion` | `tag-coverage-v1` | Yes | Version of the matching rules |
 
 <a id="model-ownermatch"></a>
 
 ### OwnerMatch
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `opportunity` | [Opportunity](#model-opportunity) | 是 | 机会完整对象 |
-| `profileRevision` | integer | 是 | 本次使用的已确认资料版本；最小 0 |
-| `summary` | [MatchSummary](#model-matchsummary) | 是 | 匹配概况 |
-| `requirements` | [OwnerRequirementResult](#model-ownerrequirementresult)[] | 是 | 要求列表；草稿可为空，发布至少一项 |
-| `evaluatedAt` | string | 是 | 本次评估时间；格式 date-time |
+| `opportunity` | [Opportunity](#model-opportunity) | Yes | Complete opportunity object |
+| `profileRevision` | integer | Yes | Confirmed profile revision used for this evaluation; minimum: 0 |
+| `summary` | [MatchSummary](#model-matchsummary) | Yes | Matching overview |
+| `requirements` | [OwnerRequirementResult](#model-ownerrequirementresult)[] | Yes | Requirements; may be empty in a draft, but publication requires at least one |
+| `evaluatedAt` | string | Yes | Evaluation timestamp; format: date-time |
 
 <a id="model-visibleprofile"></a>
 
 ### VisibleProfile
 
-fields 可包含 ProfileContent 的任意字段子集，全部可省略。其键的值遵循 ProfileContent 的同名类型。没有 displayName 时前端显示“匿名人才”，不能请求其他接口绕过隐私补全姓名。
+fields may contain any subset of ProfileContent fields, all optional. Present values follow the corresponding ProfileContent types. If displayName is absent, display “Anonymous talent”; do not bypass visibility through another endpoint to retrieve the name.
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `talentId` | string | 是 | 人才标识，后端确定；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `fields` | object（[ProfileContent](#model-profilecontent) 的字段子集） | 是 | 只包含获准公开的 ProfileContent 字段；隐藏键完全省略 |
+| `talentId` | string | Yes | Talent identifier assigned by the backend; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `fields` | object (subset of [ProfileContent](#model-profilecontent) fields) | Yes | Only permitted ProfileContent fields; omit hidden keys entirely |
 
 <a id="model-teammatch"></a>
 
 ### TeamMatch
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `opportunityId` | string | 是 | 被匹配的机会 ID；正则 `^[A-Za-z0-9_-]{1,64}$` |
-| `opportunityRevision` | integer | 是 | 评估使用的机会版本；最小 0 |
-| `talent` | [VisibleProfile](#model-visibleprofile) | 是 | 过滤后的可见人才资料 |
-| `summary` | [MatchSummary](#model-matchsummary) | 是 | 匹配概况 |
-| `requirements` | [TeamRequirementResult](#model-teamrequirementresult)[] | 是 | 要求列表；草稿可为空，发布至少一项 |
-| `evaluatedAt` | string | 是 | 本次评估时间；格式 date-time |
+| `opportunityId` | string | Yes | Opportunity being evaluated; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `opportunityRevision` | integer | Yes | Opportunity revision used for the evaluation; minimum: 0 |
+| `talent` | [VisibleProfile](#model-visibleprofile) | Yes | Filtered, visible talent profile |
+| `summary` | [MatchSummary](#model-matchsummary) | Yes | Matching overview |
+| `requirements` | [TeamRequirementResult](#model-teamrequirementresult)[] | Yes | Requirements; may be empty in a draft, but publication requires at least one |
+| `evaluatedAt` | string | Yes | Evaluation timestamp; format: date-time |
 
 <a id="model-recommendationitem"></a>
 
 ### RecommendationItem
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `rank` | integer | 是 | 分页前全局名次，从 1 起；最小 1 |
-| `opportunity` | [Opportunity](#model-opportunity) | 是 | 机会完整对象 |
-| `summary` | [MatchSummary](#model-matchsummary) | 是 | 匹配概况 |
+| `rank` | integer | Yes | Global rank before pagination, starting at 1; minimum: 1 |
+| `opportunity` | [Opportunity](#model-opportunity) | Yes | Complete opportunity object |
+| `summary` | [MatchSummary](#model-matchsummary) | Yes | Matching overview |
 
 <a id="model-talentmatchitem"></a>
 
 ### TalentMatchItem
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `rank` | integer | 是 | 分页前全局名次，从 1 起；最小 1 |
-| `talent` | [VisibleProfile](#model-visibleprofile) | 是 | 过滤后的可见人才资料 |
-| `summary` | [MatchSummary](#model-matchsummary) | 是 | 匹配概况 |
+| `rank` | integer | Yes | Global rank before pagination, starting at 1; minimum: 1 |
+| `talent` | [VisibleProfile](#model-visibleprofile) | Yes | Filtered, visible talent profile |
+| `summary` | [MatchSummary](#model-matchsummary) | Yes | Matching overview |
 
 <a id="model-opportunitypage"></a>
 
 ### OpportunityPage
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `items` | [Opportunity](#model-opportunity)[] | 是 | 当前页内容（标签列表为全部结果） |
-| `page` | integer | 是 | 当前页码；最小 1 |
-| `pageSize` | integer | 是 | 每页上限；最小 1；最大 100 |
-| `total` | integer | 是 | 有权访问的全部结果数；最小 0 |
+| `items` | [Opportunity](#model-opportunity)[] | Yes | Current page items; for tags, the complete vocabulary result |
+| `page` | integer | Yes | Current page number; minimum: 1 |
+| `pageSize` | integer | Yes | Maximum items per page; minimum: 1; maximum: 100 |
+| `total` | integer | Yes | Total number of accessible results; minimum: 0 |
 
 <a id="model-documentpage"></a>
 
 ### DocumentPage
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `items` | [Document](#model-document)[] | 是 | 当前页内容（标签列表为全部结果） |
-| `page` | integer | 是 | 当前页码；最小 1 |
-| `pageSize` | integer | 是 | 每页上限；最小 1；最大 100 |
-| `total` | integer | 是 | 有权访问的全部结果数；最小 0 |
+| `items` | [Document](#model-document)[] | Yes | Current page items; for tags, the complete vocabulary result |
+| `page` | integer | Yes | Current page number; minimum: 1 |
+| `pageSize` | integer | Yes | Maximum items per page; minimum: 1; maximum: 100 |
+| `total` | integer | Yes | Total number of accessible results; minimum: 0 |
 
 <a id="model-recommendationpage"></a>
 
 ### RecommendationPage
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `items` | [RecommendationItem](#model-recommendationitem)[] | 是 | 当前页内容（标签列表为全部结果） |
-| `page` | integer | 是 | 当前页码；最小 1 |
-| `pageSize` | integer | 是 | 每页上限；最小 1；最大 100 |
-| `total` | integer | 是 | 有权访问的全部结果数；最小 0 |
+| `items` | [RecommendationItem](#model-recommendationitem)[] | Yes | Current page items; for tags, the complete vocabulary result |
+| `page` | integer | Yes | Current page number; minimum: 1 |
+| `pageSize` | integer | Yes | Maximum items per page; minimum: 1; maximum: 100 |
+| `total` | integer | Yes | Total number of accessible results; minimum: 0 |
 
 <a id="model-talentmatchpage"></a>
 
 ### TalentMatchPage
 
-| 字段 | 类型 / 可选值 | 必填 | 说明与约束 |
+| Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `items` | [TalentMatchItem](#model-talentmatchitem)[] | 是 | 当前页内容（标签列表为全部结果） |
-| `page` | integer | 是 | 当前页码；最小 1 |
-| `pageSize` | integer | 是 | 每页上限；最小 1；最大 100 |
-| `total` | integer | 是 | 有权访问的全部结果数；最小 0 |
+| `items` | [TalentMatchItem](#model-talentmatchitem)[] | Yes | Current page items; for tags, the complete vocabulary result |
+| `page` | integer | Yes | Current page number; minimum: 1 |
+| `pageSize` | integer | Yes | Maximum items per page; minimum: 1; maximum: 100 |
+| `total` | integer | Yes | Total number of accessible results; minimum: 0 |
 
-## 7. 关键业务规则与调用顺序
+## 7. Business rules and call sequences
 
-### 7.1 手工资料流程
+### 7.1 Manual profile entry
 
 ```text
 GET /auth/session → POST /auth/login
 GET /tags + GET /me/profile
-编辑本地表单
-PUT /me/profile（expectedRevision + 完整 content）
-检查返回的新 revision 与 UNCONFIRMED 状态
-用户审核 → POST /me/profile/confirmation（新 revision）
+Edit the local form
+PUT /me/profile (expectedRevision + complete content)
+Read the new revision and UNCONFIRMED state
+User reviews → POST /me/profile/confirmation (new revision)
 GET /me/recommendations → GET /me/opportunity-matches/{opportunityId}
 ```
 
-用户只修改隐私时不需要重新确认资料。用户修改资料内容后，整份资料暂停参与匹配，直到确认当前版本；本版不提供“部分字段已确认、部分字段未确认”的混合匹配。
+Privacy-only changes do not require profile reconfirmation. Content changes suspend the entire profile from matching until the user confirms its current revision. This version does not mix individually confirmed and unconfirmed fields in one evaluation.
 
-### 7.2 文件提取与手工录入共存
+### 7.2 Document extraction alongside manual entry
 
 ```text
 POST /me/documents → 202 QUEUED
 GET /me/documents/{documentId} → PROCESSING → READY / FAILED
 READY → GET /me/documents/{documentId}/extraction
-用户选择要导入的章节，修改/删除不正确建议
-GET /me/profile（了解当前资料和版本）
-POST /me/documents/{documentId}/apply（expectedProfileRevision + sections）
-返回新的 UNCONFIRMED 资料 → 用户检查 → POST /me/profile/confirmation
+User selects sections and corrects/removes inaccurate suggestions
+GET /me/profile (read current content and revision)
+POST /me/documents/{documentId}/apply (expectedProfileRevision + sections)
+New UNCONFIRMED profile → user reviews → POST /me/profile/confirmation
 ```
 
-- 前端应展示导入会替换哪些章节；要合并旧技能与新技能时，先在本地按 tagId 合并，让用户审核，提交合并后的完整 skills 数组。
-- 提取结果到达时不能直接覆盖用户正编辑的表单。提交用最新已知版本，冲突时让用户比较；不偷偷覆盖。
-- `READY` 只意味着提取完成，不意味着用户确认，也不意味着内容准确。
-- `UNKNOWN` 表示无法确定，`NOT_RECOGNISED` 表示未识别出可靠内容；均不转换成正向技能或负向技能声明。
-- 提取失败后仍保留手动录入功能。v0.1 没有单独“重试提取”接口，需要重传文件重新开始。
+- Show which sections the import will replace. To merge old and new skills, combine them locally by tagId, let the user review and submit the complete merged skills array.
+- An extraction response must not overwrite a form the user is currently editing. Submit the last known revision and handle conflicts through comparison, not silent replacement.
+- `READY` means extraction completed, not that the user confirmed it or that it is accurate.
+- `UNKNOWN` means the value cannot be determined; `NOT_RECOGNISED` means no reliable information was identified. Neither becomes an affirmative or negative skill claim automatically.
+- Keep manual entry available after extraction failure. v0.1 has no separate extraction retry endpoint; uploading again starts a new attempt.
 
-### 7.3 团队机会与人才发现流程
+### 7.3 Team opportunities and talent discovery
 
 ```text
-团队登录 → GET /opportunities?scope=mine
-GET /tags → POST /opportunities（创建 DRAFT）
-PUT /opportunities/{opportunityId}（编辑）
-POST /opportunities/{opportunityId}/publish（当前 revision）
+Team login → GET /opportunities?scope=mine
+GET /tags → POST /opportunities (create DRAFT)
+PUT /opportunities/{opportunityId} (edit)
+POST /opportunities/{opportunityId}/publish (current revision)
 GET /opportunities/{opportunityId}/talent-matches
 GET /opportunities/{opportunityId}/talent-matches/{talentId}
 ```
 
-创建机会不能直接传 status=PUBLISHED；先创建草稿再发布。团队看人才无需新增 `/talents/{id}` 公共全量资料接口，使用匹配详情内的 `VisibleProfile` 即可，避免绕过可见性控制。
+Create a draft and then publish it; creation does not accept status=PUBLISHED. Teams use the VisibleProfile in match details rather than a new full-profile `/talents/{id}` endpoint that could bypass visibility controls.
 
-### 7.4 隐私必须在计算前生效
+### 7.4 Apply privacy before calculating matches
 
-人才本人推荐：使用本人当前已确认的完整资料。即使 discoverable=false，本人仍可获得推荐。
+Owner recommendations use the talent’s complete current confirmed profile. The talent may still receive recommendations when discoverable=false.
 
-团队反向匹配：
+For team-facing reverse matching:
 
-1. 验证团队拥有该已发布机会。
-2. 排除 discoverable=false 或当前版本未确认的人才。
-3. 只取 visibleFields 允许的字段。
-4. 基于这些字段计算状态、分数、解释，再排序、分页和统计 total。
-5. 输出 VisibleProfile 和 TeamEvidence。每次列表/详情请求重新检查授权；结果缓存若存在，必须随资料、机会和隐私版本变化失效。
+1. Verify that the team owns the published opportunity.
+2. Exclude talent with discoverable=false or an unconfirmed current revision.
+3. Select only fields allowed by visibleFields.
+4. Compute statuses, scores and explanations from those fields, then rank, paginate and count total.
+5. Return VisibleProfile and TeamEvidence. Recheck permission on every list/detail request. Any result cache must be invalidated when profile, opportunity or privacy revisions change.
 
-例如某人才本人可以得到 50 分，但只向团队公开姓名时，团队端全部要求为 UNKNOWN、score=0、unknownWeightPercent=100。这是不同证据权限下的正常结果。**不能先用私有技能算分，然后只在界面上隐藏技能。**
+For example, a talent may receive a score of 50 in their own view. If they share only their name, the team view has all requirements UNKNOWN, score=0 and unknownWeightPercent=100. Different evidence permissions legitimately produce different results. **Do not calculate a score from private skills and merely hide those skills in the interface.**
 
-原始简历/成绩单、提取原文、文件来源和登录邮箱不在可公开字段白名单中。接口不能用“该用户隐藏了 Python”之类文案泄漏隐藏信息；隐藏与缺少证据使用同一通用解释。
+Original CVs/transcripts, raw extracted text, file provenance and login email are not part of the visible-field whitelist. Wording such as “this user hid Python” would disclose private information. Missing and hidden evidence must use the same generic explanation.
 
-隐私撤回作用于后续响应，不能声称收回别人已经看到或自行保存的信息。团队页面重新进入、刷新、聚焦时应重新请求，不长期保留过期结果。
+Revocation affects subsequent responses; it cannot retract information that another person has already seen or saved. Refetch when the team page is entered, refreshed or focused rather than retaining stale results indefinitely.
 
-### 7.5 四种状态的确定性规则
+### 7.5 Deterministic status rules
 
-只使用符合当前权限且来自已确认版本的信息。一个 requirement 的多个 tagIds 是 AND 关系。SKILL 查找 skills 中对应声明；INTEREST 查找 researchInterests。其他章节在 v0.1 不自动推断成标签。
+Use only authorised information from a confirmed revision. Multiple tagIds in one requirement form an AND group. SKILL requirements look up claims in skills; INTEREST requirements look up researchInterests. Other sections do not automatically imply tags in v0.1.
 
-按以下顺序判断：
+Evaluate in this order:
 
-| 优先级 | 条件 | status | reasonCode |
+| Priority | Condition | status | reasonCode |
 |---|---|---|---|
-| 1 | 任意所需技能有明确的 DOES_NOT_HAVE 声明 | GAP | EXPLICIT_NEGATIVE_CLAIM |
-| 2 | 全部所需标签有正向证据 | MATCHED | ALL_TAGS_SUPPORTED |
-| 3 | 部分标签有正向证据，剩余未知 | PARTIAL | SOME_TAGS_SUPPORTED |
-| 4 | 没有可用的正向或明确负向证据 | UNKNOWN | INSUFFICIENT_EVIDENCE |
+| 1 | Any requested skill has an explicit DOES_NOT_HAVE claim | GAP | EXPLICIT_NEGATIVE_CLAIM |
+| 2 | Every requested tag has affirmative evidence | MATCHED | ALL_TAGS_SUPPORTED |
+| 3 | Some tags have affirmative evidence and the rest are unknown | PARTIAL | SOME_TAGS_SUPPORTED |
+| 4 | No usable affirmative or explicit negative evidence | UNKNOWN | INSUFFICIENT_EVIDENCE |
 
-因此在一个 AND 要求中，同时有“具备 Python”和“明确不具备 SQL”时为 GAP；有 Python、SQL 没填时为 PARTIAL。全部未填为 UNKNOWN。未确认资料不会进入计算。缺少文档、未提及技能、技能被隐藏都不能自动变成 GAP。
+Thus an AND requirement with “has Python” and “explicitly does not have SQL” is GAP. “Has Python” with no SQL information is PARTIAL. No information for either is UNKNOWN. Unconfirmed profiles never enter matching. Missing documents, omitted skills or hidden skills must not automatically become GAP.
 
-MATCHED/PARTIAL 的 evidence 引用支持判断的实际声明；GAP 引用明确负向声明；UNKNOWN 的 evidence=[]。interest 的 recordId 为其 tagId。用户没有提供详细 evidenceText 时，可以解释为“用户确认具备该标签”，不能补写项目或课程经历。
+MATCHED/PARTIAL evidence cites actual supporting claims; GAP cites the explicit negative claim; UNKNOWN has evidence=[]. An interest uses its tagId as recordId. If evidenceText is empty, the explanation may cite the user’s confirmed tag claim, but cannot invent project or course experience.
 
-### 7.6 分数与排序
+### 7.6 Scores and ranking
 
 ```text
-要求权重 w：REQUIRED = 2；PREFERRED = 1
-状态取值 v：MATCHED = 1；PARTIAL = 0.5；GAP = 0；UNKNOWN = 0
+Requirement weight w: REQUIRED = 2; PREFERRED = 1
+Status value v: MATCHED = 1; PARTIAL = 0.5; GAP = 0; UNKNOWN = 0
 
-score = round_half_up(100 × Σ(w × v) / Σ(w), 2)
-unknownWeightPercent = round_half_up(100 × Σ(UNKNOWN 的 w) / Σ(w), 2)
-requiredGapCount = REQUIRED 且 GAP 的要求数量
+score = round_half_up(100 × sum(w × v) / sum(w), 2)
+unknownWeightPercent = round_half_up(100 × sum(w for UNKNOWN) / sum(w), 2)
+requiredGapCount = count(requirements where importance=REQUIRED and status=GAP)
 ```
 
-用十进制四舍五入保留两位，Python 实现可使用 Decimal 的 ROUND_HALF_UP，以免语言默认舍入差异。前端不重复计算正式结果。总权重为零时分数和未知百分比都为 null，evaluationStatus=INSUFFICIENT_CRITERIA；不能除零或返回 NaN。发布接口会拦截空要求，此分支用于防御旧数据。
+Use decimal half-up rounding to two places; Python can use Decimal with ROUND_HALF_UP to avoid differences between language defaults. The frontend does not recalculate authoritative scores. If total weight is zero, both score and unknownWeightPercent are null and evaluationStatus=INSUFFICIENT_CRITERIA; never divide by zero or return NaN. Publication rejects empty requirements, so this branch protects against legacy data.
 
-示例：Python 必须项 MATCHED（权重 2），Python+SQL 必须项 PARTIAL（权重 2），访谈偏好项 GAP（权重 1），R 偏好项 UNKNOWN（权重 1）。结果为 score=50、unknownWeightPercent=16.67、requiredGapCount=0，详见接口 22 的完整响应。
+Example: Python REQUIRED is MATCHED (weight 2); Python+SQL REQUIRED is PARTIAL (weight 2); interviews PREFERRED is GAP (weight 1); R PREFERRED is UNKNOWN (weight 1). The result is score=50, unknownWeightPercent=16.67 and requiredGapCount=0. Endpoint 22 contains the complete response.
 
-本版 REQUIRED 代表较高权重和显式缺口计数，不直接过滤存在 GAP 的候选。若团队决定“必须项 GAP 应排除”，需修改算法版本与两端测试样例后统一实施。分数代表证据覆盖程度，不代表录用概率或资质认证。
+In this version, REQUIRED increases weight and exposes an explicit gap count; it does not automatically exclude candidates with a GAP. Changing that eligibility rule requires a coordinated algorithm-version and fixture update. Scores represent evidence coverage, not admission probability or verified credentials.
 
-## 8. JavaScript / Python 对接示例
+## 8. JavaScript / Python integration examples
 
-### 8.1 JavaScript 请求封装示意
+### 8.1 JavaScript request adapter
 
-这段只展示协议对接；实际前端还应处理加载状态、字段错误、会话失效和取消请求。
+This snippet demonstrates the protocol only. The actual frontend also needs loading states, field errors, session-expiry handling and request cancellation.
 
 ```javascript
 let csrfToken = '';
@@ -2827,7 +2827,7 @@ async function apiRequest(path, { method = 'GET', body } = {}) {
 await apiRequest('/auth/session');
 await apiRequest('/auth/login', {
   method: 'POST',
-  body: { email: 'talent@example.test', password: '<预置测试账号密码>' },
+  body: { email: 'talent@example.test', password: '<provisioned-test-account-password>' },
 });
 const profile = await apiRequest('/me/profile');
 const content = structuredClone(profile.content);
@@ -2836,64 +2836,64 @@ const saved = await apiRequest('/me/profile', {
   method: 'PUT',
   body: { expectedRevision: profile.revision, content },
 });
-// 用户实际审核并点击确认后才执行：
+// Run only after the user has reviewed the content and selected Confirm:
 await apiRequest('/me/profile/confirmation', {
   method: 'POST', body: { expectedRevision: saved.revision },
 });
 ```
 
-### 8.2 Python 后端实现约束
+### 8.2 Python backend requirements
 
-此协议不绑定 Python Web 框架或数据库。后端需要实现以下行为：
+The contract does not prescribe a Python web framework or database. The implementation must:
 
-- 对外 JSON 保持 camelCase；输出 UTC 字符串、标准 JSON boolean/null，不能直接返回 datetime 或数据库模型。
-- 用会话得到账号和资源所有者，不信任前端传入的 talentId、ownerId、角色或确认状态。
-- 在数据库事务中完成版本检查和更新；仅“先读取版本，再无条件 UPDATE”不能防并发覆盖。
-- 为上传保存私有存储键，不生成对外公开静态链接；下载通过接口 15 重新鉴权。
-- 提取过程可采用框架现有的后台任务机制；状态、结果必须可以通过约定接口读取。不要求前端知道任务队列实现。
-- 按请求者权限构造独立响应：人才侧 OwnerEvidence，团队侧 TeamEvidence。不要序列化完整资料后交给前端过滤。
-- 确认状态、隐私规则、评分在后端统一实现；前端只展示，避免两个版本算法漂移。
-- 校验失败、框架默认错误都转换为第 5 节 Error 格式，包括 Python 框架默认的 422 响应。
+- Keep external JSON names in camelCase. Return UTC strings and JSON boolean/null values, not raw datetime or database model objects.
+- Identify the account and resource owner from the session. Do not trust client-supplied talentId, ownerId, role or confirmation state.
+- Check revisions and update within a transaction. Reading a revision followed by an unconditional UPDATE does not prevent concurrent overwrites.
+- Store uploads privately without public static URLs. Endpoint 15 rechecks ownership before downloads.
+- Expose extraction status and results through the agreed endpoints. The backend may use its framework’s background processing facilities without exposing queue details to the frontend.
+- Construct separate response shapes for each audience: OwnerEvidence for the talent owner, TeamEvidence for teams. Do not send complete profiles for the frontend to filter.
+- Implement confirmation, privacy and scoring centrally on the backend to avoid divergent frontend rules.
+- Convert validation and framework errors into the Error structure in section 5, including a Python framework’s default 422 output.
 
-## 9. 双方完成接口联调的判断标准
+## 9. Integration acceptance cases
 
-| 用例 | 预期结果 |
+| Case | Expected result |
 |---|---|
-| 未登录进入页面 | session 返回 200 和 user=null；私有接口返回 401 |
-| 人才/团队登录 | 返回正确角色；错误角色接口拒绝访问 |
-| 新人才资料 | revision=0、待确认、默认不允许被发现 |
-| 保存与再读资料 | 内容一致；刷新后可读到后端保存值 |
-| 编辑已经确认的资料 | 状态变待确认；推荐接口 409；重新确认后恢复 |
-| 两个页面同时编辑 | 旧版本保存 409，不覆盖较新数据 |
-| 只更新隐私 | 资料确认保持；隐私 revision 独立递增 |
-| PDF/DOCX 上传 | 202 后可以查询过程与终态 |
-| 超大/错误类型文件 | 分别 413 / 415；不会导致已有资料丢失 |
-| 提取失败或内容不确定 | 保留手动输入；不会自动生成已确认事实 |
-| 审核并导入部分章节 | 只替换选中章节；其他字段保留；导入后待确认 |
-| 机会创建、编辑、发布 | 只有发布后进入推荐池；无要求不能发布 |
-| 四种匹配状态 | 同一合成案例显示 MATCHED / PARTIAL / GAP / UNKNOWN |
-| 缺失/隐藏技能 | 不产生虚构证据，也不能直接判为 GAP |
-| 团队查看人才 | 仅出现同意被发现且当前资料已确认的人才 |
-| 团队姓名/技能不可见 | 响应省略对应键；隐藏技能不影响团队评分 |
-| 人才关闭被发现 | 下一次列表中消失；旧详情 URL 返回 404 |
-| 团队请求原始文件 | 拒绝；匹配响应中也没有文件链接/来源 ID |
-| 分页、排序、空列表 | rank 全局连续，total 权限过滤后统计，空数据正常 200 |
-| 退出再登录其他账号 | 不残留上一个账号资料或匹配缓存 |
+| Open the app while logged out | Session returns 200 with user=null; private endpoints return 401 |
+| Talent/team login | Correct role returned; endpoints for other roles reject access |
+| New talent profile | revision=0, unconfirmed and not discoverable by default |
+| Save and reread a profile | Content agrees; refresh retrieves the saved backend values |
+| Edit a confirmed profile | Becomes unconfirmed; recommendations return 409 until reconfirmed |
+| Edit from two pages | Stale save returns 409 without overwriting newer content |
+| Change privacy only | Profile confirmation is preserved; privacy revision changes independently |
+| Upload PDF/DOCX | 202 is followed by queryable processing and terminal states |
+| Oversized/unsupported upload | 413 / 415 respectively; existing profile is preserved |
+| Failed or uncertain extraction | Manual entry remains available; no automatic confirmed facts |
+| Import reviewed sections | Only selected sections are replaced; others remain; result is unconfirmed |
+| Create, edit and publish an opportunity | Only published opportunities enter recommendations; no publication without requirements |
+| Four match statuses | A synthetic case displays MATCHED / PARTIAL / GAP / UNKNOWN |
+| Missing/hidden skills | No fabricated evidence and no automatic GAP |
+| Team views talent | Only opted-in talent with a confirmed current profile appears |
+| Name/skills are private | Corresponding keys are omitted; hidden skills do not affect team scores |
+| Talent revokes discovery | Absent from the next list; old detail URL returns 404 |
+| Team requests an original document | Denied; matching responses contain no original-file links or provenance IDs |
+| Pagination, ordering and empty lists | Global ranks, permission-filtered total and 200 for empty results |
+| Logout and log in as another account | No previous account profile or match cache remains |
 
-US-06 负责准备合成/去标识数据和记录上述测试结果，不需要为了测试新增开放的管理接口。本文样例只证明约定结构，不代表真实后端或整个产品已通过这些验收。
+US-06 prepares synthetic/de-identified data and records these test results. No additional public management API is needed for testing. The examples establish contract structure; they do not demonstrate that a real backend or the whole product has passed integration acceptance.
 
-## 10. 本文之外的后续范围
+## 10. Later scope
 
-US-10～US-16 中的后续工作仍在 Backlog：更完整的文件/确认保护、系统化质量评估、收藏、语义匹配、高级搜索、完整注册/身份管理、全项目测试。与当前隐私/测试有重叠的基础规则已在本 Sprint 实现范围中约定，但未把后续故事整体提前加入。
+US-10 through US-16 remain in the Backlog: broader file/confirmation protection, systematic quality evaluation, favourites, semantic matching, advanced search, full registration/identity management and whole-project testing. Overlapping privacy and testing foundations are specified for this Sprint without bringing all those later stories into scope.
 
-新增能力时先更新接口版本、字段表、模拟样例和测试，再安排两端实现。尤其不要单方改变字段大小写、枚举、完整替换含义、确认粒度或隐藏字段参与评分的规则。
+When adding capabilities, update the contract version, field definitions, mock fixtures and tests before coordinating both implementations. Do not unilaterally change field casing, enums, replacement semantics, confirmation granularity or the use of hidden fields in scoring.
 
-## 11. 配套文件与依据
+## 11. Companion files and references
 
-- `openapi.json`：同版 OpenAPI 3.1.0 定义，可供接口工具和校验程序使用。
-- `endpoint-index.json`：24 个接口的方法、路径与 Jira 对应关系。
-- `examples/`：30 份合成请求/响应样例，`index.json` 标明每份对应模型。
-- 业务依据：对话中提供的 Sprint 1 Jira 工作项、工作区客户会议记录 `Client_Meeting_Minutes_2026-09-30.docx` 及 Week 3 会议记录。没有假定未提供的后端已经存在。
-- 格式依据：[OpenAPI 3.1.0 官方规范](https://spec.openapis.org/oas/v3.1.0.html)。Cookie 相关属性参见 [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie)。
+- [openapi.json](openapi.json): the corresponding OpenAPI 3.1.0 definition for tooling and validation.
+- [endpoint-index.json](endpoint-index.json): methods, paths and related Jira tasks for all 24 operations.
+- [examples/](examples/): 30 synthetic request/response fixtures; [index.json](examples/index.json) maps each fixture to its model.
+- Business inputs: the Sprint 1 Jira work items provided in the discussion, `Client_Meeting_Minutes_2026-09-30.docx` and the Week 3 meeting minutes in the working folder. No unprovided backend implementation is assumed to exist.
+- Format reference: [OpenAPI 3.1.0 specification](https://spec.openapis.org/oas/v3.1.0.html). Cookie attributes: [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie).
 
-团队确认第 1.3 节的默认选择后，可以把版本改为 `0.1.0` 并按此开始并行开发。尚未确认前，模拟接口也应沿用本草案字段，避免边写页面边自行增加不一致的数据结构。
+After the team agrees on the defaults in section 1.3, the version can be promoted to `0.1.0` for parallel development. Until then, mock endpoints should follow this draft’s fields rather than introduce inconsistent structures while building pages.

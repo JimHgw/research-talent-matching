@@ -2,7 +2,7 @@
   {
     "method": "GET",
     "path": "/auth/session",
-    "summary": "读取登录状态并获取 CSRF token",
+    "summary": "Read the current session and obtain a CSRF token",
     "jira": [
       "H18ABANANA-16",
       "H18ABANANA-18"
@@ -11,7 +11,7 @@
   {
     "method": "POST",
     "path": "/auth/login",
-    "summary": "使用预置账号登录",
+    "summary": "Log in with a provisioned account",
     "jira": [
       "H18ABANANA-16",
       "H18ABANANA-18"
@@ -20,7 +20,7 @@
   {
     "method": "POST",
     "path": "/auth/logout",
-    "summary": "退出当前会话",
+    "summary": "Log out of the current session",
     "jira": [
       "H18ABANANA-16",
       "H18ABANANA-18"
@@ -29,7 +29,7 @@
   {
     "method": "GET",
     "path": "/tags",
-    "summary": "读取统一技能和兴趣标签",
+    "summary": "List shared skill and interest tags",
     "jira": [
       "H18ABANANA-27",
       "H18ABANANA-28"
@@ -38,7 +38,7 @@
   {
     "method": "GET",
     "path": "/me/profile",
-    "summary": "读取本人资料",
+    "summary": "Read the current talent profile",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-27"
@@ -47,7 +47,7 @@
   {
     "method": "PUT",
     "path": "/me/profile",
-    "summary": "保存本人完整资料",
+    "summary": "Save the complete talent profile",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-27",
@@ -57,7 +57,7 @@
   {
     "method": "POST",
     "path": "/me/profile/confirmation",
-    "summary": "确认当前资料版本",
+    "summary": "Confirm the current profile revision",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-29"
@@ -66,7 +66,7 @@
   {
     "method": "GET",
     "path": "/me/privacy",
-    "summary": "读取发现权限和字段可见性",
+    "summary": "Read discovery consent and field visibility",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-30"
@@ -75,7 +75,7 @@
   {
     "method": "PUT",
     "path": "/me/privacy",
-    "summary": "保存发现权限和字段可见性",
+    "summary": "Save discovery consent and field visibility",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-30"
@@ -84,7 +84,7 @@
   {
     "method": "GET",
     "path": "/me/documents",
-    "summary": "读取本人上传记录",
+    "summary": "List documents uploaded by the current talent",
     "jira": [
       "H18ABANANA-22",
       "H18ABANANA-23"
@@ -93,7 +93,7 @@
   {
     "method": "POST",
     "path": "/me/documents",
-    "summary": "上传 PDF 或 DOCX 并开始提取",
+    "summary": "Upload a PDF or DOCX and start extraction",
     "jira": [
       "H18ABANANA-22",
       "H18ABANANA-23",
@@ -103,7 +103,7 @@
   {
     "method": "GET",
     "path": "/me/documents/{documentId}",
-    "summary": "查询文件处理状态",
+    "summary": "Read document processing status",
     "jira": [
       "H18ABANANA-22",
       "H18ABANANA-23",
@@ -113,7 +113,7 @@
   {
     "method": "GET",
     "path": "/me/documents/{documentId}/extraction",
-    "summary": "读取待审核提取建议",
+    "summary": "Read extraction suggestions for review",
     "jira": [
       "H18ABANANA-22",
       "H18ABANANA-24"
@@ -122,7 +122,7 @@
   {
     "method": "POST",
     "path": "/me/documents/{documentId}/apply",
-    "summary": "保存用户审核后的提取字段",
+    "summary": "Save user-reviewed extraction fields to the profile",
     "jira": [
       "H18ABANANA-21",
       "H18ABANANA-22",
@@ -133,7 +133,7 @@
   {
     "method": "GET",
     "path": "/me/documents/{documentId}/file",
-    "summary": "下载本人的原始文件",
+    "summary": "Download an original document owned by the current talent",
     "jira": [
       "H18ABANANA-23"
     ]
@@ -141,7 +141,7 @@
   {
     "method": "GET",
     "path": "/opportunities",
-    "summary": "浏览已发布机会或团队自有机会",
+    "summary": "List published opportunities or team-owned opportunities",
     "jira": [
       "H18ABANANA-19",
       "H18ABANANA-28"
@@ -150,7 +150,7 @@
   {
     "method": "POST",
     "path": "/opportunities",
-    "summary": "创建研究机会草稿",
+    "summary": "Create a draft research opportunity",
     "jira": [
       "H18ABANANA-19",
       "H18ABANANA-28"
@@ -159,7 +159,7 @@
   {
     "method": "GET",
     "path": "/opportunities/{opportunityId}",
-    "summary": "读取机会详情",
+    "summary": "Read research opportunity details",
     "jira": [
       "H18ABANANA-19",
       "H18ABANANA-28"
@@ -168,7 +168,7 @@
   {
     "method": "PUT",
     "path": "/opportunities/{opportunityId}",
-    "summary": "保存研究机会修改",
+    "summary": "Save research opportunity changes",
     "jira": [
       "H18ABANANA-19",
       "H18ABANANA-28"
@@ -177,7 +177,7 @@
   {
     "method": "POST",
     "path": "/opportunities/{opportunityId}/publish",
-    "summary": "发布研究机会",
+    "summary": "Publish a research opportunity",
     "jira": [
       "H18ABANANA-19",
       "H18ABANANA-28"
@@ -186,7 +186,7 @@
   {
     "method": "GET",
     "path": "/me/recommendations",
-    "summary": "获取本人推荐机会排序",
+    "summary": "List ranked opportunity recommendations for the current talent",
     "jira": [
       "H18ABANANA-20",
       "H18ABANANA-31",
@@ -196,7 +196,7 @@
   {
     "method": "GET",
     "path": "/me/opportunity-matches/{opportunityId}",
-    "summary": "读取本人逐项匹配解释",
+    "summary": "Read requirement-level matching explanations for the current talent",
     "jira": [
       "H18ABANANA-20",
       "H18ABANANA-31",
@@ -206,7 +206,7 @@
   {
     "method": "GET",
     "path": "/opportunities/{opportunityId}/talent-matches",
-    "summary": "获取团队机会的匹配人才",
+    "summary": "List matching talent for a team-owned opportunity",
     "jira": [
       "H18ABANANA-20",
       "H18ABANANA-30",
@@ -217,7 +217,7 @@
   {
     "method": "GET",
     "path": "/opportunities/{opportunityId}/talent-matches/{talentId}",
-    "summary": "读取获准公开的人才资料与匹配解释",
+    "summary": "Read permitted talent information and matching explanations",
     "jira": [
       "H18ABANANA-20",
       "H18ABANANA-30",
