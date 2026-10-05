@@ -1,0 +1,9 @@
+{
+  "user": {
+    "id": "user_demo_001",
+    "displayName": "Demo Talent A",
+    "email": "talent@example.test",
+    "role": "TALENT"
+  },
+  "csrfToken": "mock-csrf-after-login"
+}

@@ -1,0 +1,228 @@
+[
+  {
+    "method": "GET",
+    "path": "/auth/session",
+    "summary": "读取登录状态并获取 CSRF token",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login",
+    "summary": "使用预置账号登录",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/logout",
+    "summary": "退出当前会话",
+    "jira": [
+      "H18ABANANA-16",
+      "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/tags",
+    "summary": "读取统一技能和兴趣标签",
+    "jira": [
+      "H18ABANANA-27",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/profile",
+    "summary": "读取本人资料",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-27"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/me/profile",
+    "summary": "保存本人完整资料",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-27",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/profile/confirmation",
+    "summary": "确认当前资料版本",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/privacy",
+    "summary": "读取发现权限和字段可见性",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-30"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/me/privacy",
+    "summary": "保存发现权限和字段可见性",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-30"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents",
+    "summary": "读取本人上传记录",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/documents",
+    "summary": "上传 PDF 或 DOCX 并开始提取",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}",
+    "summary": "查询文件处理状态",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-23",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}/extraction",
+    "summary": "读取待审核提取建议",
+    "jira": [
+      "H18ABANANA-22",
+      "H18ABANANA-24"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/me/documents/{documentId}/apply",
+    "summary": "保存用户审核后的提取字段",
+    "jira": [
+      "H18ABANANA-21",
+      "H18ABANANA-22",
+      "H18ABANANA-24",
+      "H18ABANANA-29"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/documents/{documentId}/file",
+    "summary": "下载本人的原始文件",
+    "jira": [
+      "H18ABANANA-23"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities",
+    "summary": "浏览已发布机会或团队自有机会",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/opportunities",
+    "summary": "创建研究机会草稿",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}",
+    "summary": "读取机会详情",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/opportunities/{opportunityId}",
+    "summary": "保存研究机会修改",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/opportunities/{opportunityId}/publish",
+    "summary": "发布研究机会",
+    "jira": [
+      "H18ABANANA-19",
+      "H18ABANANA-28"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/recommendations",
+    "summary": "获取本人推荐机会排序",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-31",
+      "H18ABANANA-32"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me/opportunity-matches/{opportunityId}",
+    "summary": "读取本人逐项匹配解释",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-31",
+      "H18ABANANA-32"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}/talent-matches",
+    "summary": "获取团队机会的匹配人才",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-30",
+      "H18ABANANA-31",
+      "H18ABANANA-33"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/opportunities/{opportunityId}/talent-matches/{talentId}",
+    "summary": "读取获准公开的人才资料与匹配解释",
+    "jira": [
+      "H18ABANANA-20",
+      "H18ABANANA-30",
+      "H18ABANANA-31",
+      "H18ABANANA-33"
+    ]
+  }
+]

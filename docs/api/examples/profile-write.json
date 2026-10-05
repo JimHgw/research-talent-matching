@@ -1,0 +1,42 @@
+{
+  "expectedRevision": 3,
+  "content": {
+    "displayName": "Demo Talent A",
+    "disciplineGroup": "STEM",
+    "education": [
+      {
+        "id": "edu_001",
+        "institution": "UNSW",
+        "qualification": "Master of IT",
+        "discipline": "Computer Science",
+        "startYear": 2025,
+        "endYear": null
+      }
+    ],
+    "courses": [],
+    "researchExperience": [
+      {
+        "id": "exp_001",
+        "title": "Sample research project",
+        "organisation": "Demo lab",
+        "description": "Used Python to prepare a small synthetic dataset."
+      }
+    ],
+    "skills": [
+      {
+        "tagId": "skill_python",
+        "claim": "HAS",
+        "evidenceText": "Reviewed and corrected Python evidence."
+      },
+      {
+        "tagId": "skill_interviews",
+        "claim": "DOES_NOT_HAVE",
+        "evidenceText": "I have not conducted research interviews."
+      }
+    ],
+    "researchInterests": [
+      "interest_ml"
+    ],
+    "researchOutputs": []
+  }
+}

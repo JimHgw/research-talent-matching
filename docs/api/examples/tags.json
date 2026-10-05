@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "skill_python",
+      "label": "Python",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_sql",
+      "label": "SQL",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_interviews",
+      "label": "Research interviews",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_r",
+      "label": "R",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "interest_ml",
+      "label": "Machine learning",
+      "kind": "INTEREST",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    }
+  ]
+}

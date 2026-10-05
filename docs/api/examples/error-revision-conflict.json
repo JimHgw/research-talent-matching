@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "REVISION_CONFLICT",
+    "message": "Reload the latest resource before saving.",
+    "fieldErrors": [],
+    "currentRevision": 4
+  },
+  "requestId": "req_demo_001"
+}

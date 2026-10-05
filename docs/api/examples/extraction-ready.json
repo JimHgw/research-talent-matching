@@ -1,0 +1,34 @@
+{
+  "documentId": "doc_demo_001",
+  "status": "READY",
+  "suggestedSections": {
+    "education": [
+      {
+        "id": "edu_001",
+        "institution": "UNSW",
+        "qualification": "Master of IT",
+        "discipline": "Computer Science",
+        "startYear": 2025,
+        "endYear": null
+      }
+    ],
+    "skills": [
+      {
+        "tagId": "skill_python",
+        "claim": "HAS",
+        "evidenceText": "Used Python in a user-reviewed demo project."
+      }
+    ]
+  },
+  "uncertainFields": [
+    {
+      "field": "researchOutputs",
+      "status": "NOT_RECOGNISED",
+      "reason": "No reliable output information was found."
+    }
+  ],
+  "warnings": [
+    "Review suggestions before saving."
+  ],
+  "reviewRequired": true
+}

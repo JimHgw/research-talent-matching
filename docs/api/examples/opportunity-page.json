@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "opp_demo_001",
+      "revision": 2,
+      "status": "PUBLISHED",
+      "content": {
+        "title": "Research assistant in data analysis",
+        "university": "UNSW",
+        "disciplineGroup": "STEM",
+        "discipline": "Computer Science",
+        "researchArea": "Research data analysis",
+        "description": "Synthetic opportunity for the prototype demonstration.",
+        "requirements": [
+          {
+            "id": "req_python",
+            "label": "Python experience",
+            "kind": "SKILL",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "skill_python"
+            ]
+          },
+          {
+            "id": "req_analysis",
+            "label": "Python and SQL",
+            "kind": "SKILL",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "skill_python",
+              "skill_sql"
+            ]
+          },
+          {
+            "id": "req_interviews",
+            "label": "Research interview experience",
+            "kind": "SKILL",
+            "importance": "PREFERRED",
+            "tagIds": [
+              "skill_interviews"
+            ]
+          },
+          {
+            "id": "req_r",
+            "label": "R experience",
+            "kind": "SKILL",
+            "importance": "PREFERRED",
+            "tagIds": [
+              "skill_r"
+            ]
+          }
+        ]
+      },
+      "createdAt": "2026-10-03T00:00:00Z",
+      "updatedAt": "2026-10-03T00:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "total": 1
+}

@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "PROFILE_UNCONFIRMED",
+    "message": "Review and confirm the current profile before matching.",
+    "fieldErrors": []
+  },
+  "requestId": "req_demo_001"
+}

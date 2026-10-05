@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Some fields are invalid.",
+    "fieldErrors": [
+      {
+        "field": "content.skills[0].tagId",
+        "message": "Unknown skill tag."
+      }
+    ]
+  },
+  "requestId": "req_demo_002"
+}

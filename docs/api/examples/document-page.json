@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "doc_demo_001",
+      "kind": "CV",
+      "fileName": "synthetic-cv.pdf",
+      "mediaType": "application/pdf",
+      "sizeBytes": 2048,
+      "status": "READY",
+      "createdAt": "2026-10-03T00:00:00Z",
+      "updatedAt": "2026-10-03T00:00:00Z",
+      "error": null
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "total": 1
+}
