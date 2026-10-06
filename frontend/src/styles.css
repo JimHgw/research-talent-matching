@@ -1,0 +1,6 @@
+@import './shared/styles.css';
+@import './features/auth/styles.css';
+@import './layout/styles.css';
+@import './features/profile/styles.css';
+@import './features/privacy/styles.css';
+@import './features/documents/styles.css';

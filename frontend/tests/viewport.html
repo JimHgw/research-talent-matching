@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive UI test viewports</title>
+    <style>
+      body {
+        background: #e7e9f0;
+        font: 14px system-ui;
+        margin: 24px;
+        color: #303249;
+      }
+      header {
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      p {
+        color: #62677c;
+      }
+      main {
+        display: flex;
+        align-items: flex-start;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+      h2 {
+        font-size: 14px;
+      }
+      iframe {
+        border: 1px solid #c9cdd9;
+        border-radius: 8px;
+        background: white;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Responsive UI test viewports</h1>
+      <p>
+        Test harness only. Both frames load the unchanged frontend through the isolated test
+        service.
+      </p>
+    </header>
+    <main>
+      <section>
+        <h2>Phone · 390 × 844</h2>
+        <iframe title="Phone viewport" src="/" width="390" height="844"></iframe>
+      </section>
+      <section>
+        <h2>Tablet · 768 × 844</h2>
+        <iframe title="Tablet viewport" src="/" width="768" height="844"></iframe>
+      </section>
+    </main>
+  </body>
+</html>
