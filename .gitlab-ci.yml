@@ -9,6 +9,18 @@ pipeline_check:
     - echo "GitLab CI pipeline is working"
     - python --version
 
+frontend_test:
+  stage: test
+  image: node:22
+
+  before_script:
+    - corepack enable
+    - cd frontend
+    - pnpm install --frozen-lockfile
+
+  script:
+    - pnpm test
+
 frontend_build:
   stage: build
   image: node:22
