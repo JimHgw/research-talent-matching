@@ -1,0 +1,198 @@
+.login-page {
+  display: grid;
+  grid-template-columns: 1.03fr 1fr;
+  min-height: 100dvh;
+  background: #fff;
+}
+.login-story {
+  background: #24243d;
+  color: #fff;
+  padding: 46px clamp(30px, 5vw, 80px) 25px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.login-story .brand {
+  margin-bottom: 62px;
+}
+.login-story h1 {
+  margin: 19px 0 23px;
+  font-size: clamp(35px, 3.9vw, 61px);
+  line-height: 1.14;
+  letter-spacing: -2.5px;
+  font-weight: 550;
+}
+.login-story h1 em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  color: #dad59a;
+}
+.login-story > p {
+  color: #bfbfd1;
+  font-size: 14px;
+}
+.login-story footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #a5a5bd;
+  padding-top: 35px;
+}
+.orbital-art {
+  height: 225px;
+  position: relative;
+  margin: 5px 0 10px;
+}
+.orbit {
+  position: absolute;
+  border: 1px solid #64627e70;
+  width: 280px;
+  height: 175px;
+  border-radius: 50%;
+  top: 20px;
+  left: calc(50% - 140px);
+  transform: rotate(-23deg);
+}
+.orbit.o2 {
+  transform: rotate(34deg);
+  width: 215px;
+  height: 210px;
+  top: 0;
+  left: calc(50% - 107px);
+}
+.art-core {
+  position: absolute;
+  top: 68px;
+  left: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+  border: 1px solid #8b7fb1;
+  background: #52456c;
+  border-radius: 22px;
+  color: #e8e2bc;
+  display: grid;
+  place-items: center;
+  transform: rotate(-12deg);
+  box-shadow: 0 0 50px #9d7ddb22;
+}
+.art-label {
+  position: absolute;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  background: #37374f;
+  border: 1px solid #54516c;
+  padding: 13px 17px;
+  border-radius: 9px;
+  font-size: 11px;
+  box-shadow: 0 10px 30px #10102630;
+  z-index: 1;
+}
+.al1 {
+  left: 3%;
+  top: 15px;
+  transform: rotate(-7deg);
+}
+.al2 {
+  right: 0;
+  bottom: 12px;
+  transform: rotate(6deg);
+}
+.star {
+  position: absolute;
+  background: #e4dba3;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.s1 {
+  left: 15%;
+  bottom: 28px;
+}
+.s2 {
+  right: 12%;
+  top: 35px;
+}
+.s3 {
+  right: 35%;
+  bottom: 26px;
+  width: 4px;
+  height: 4px;
+}
+.login-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+}
+.login-card {
+  width: 100%;
+  max-width: 385px;
+}
+.login-card h2 {
+  font-size: 31px;
+  margin: 14px 0 12px;
+  letter-spacing: -1px;
+}
+.login-card > p {
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.login-card .button.full {
+  margin-top: 9px;
+  min-height: 46px;
+}
+.login-foot {
+  border-top: 1px solid var(--line);
+  margin-top: 38px;
+  padding-top: 23px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+@media (max-width: 1050px) {
+  .login-story {
+    padding: 36px;
+  }
+  .login-form {
+    padding: 35px;
+  }
+  .login-story h1 {
+    letter-spacing: -1.5px;
+  }
+}
+@media (max-width: 760px) {
+  .login-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .login-story {
+    padding: 25px 30px 32px;
+  }
+  .login-story .brand {
+    margin-bottom: 30px;
+  }
+  .login-story h1 {
+    font-size: 38px;
+  }
+  .login-story > p,
+  .orbital-art,
+  .login-story footer {
+    display: none;
+  }
+  .login-form {
+    padding: 38px 28px;
+  }
+  .login-card {
+    max-width: 460px;
+  }
+  .login-card h2 {
+    font-size: 28px;
+  }
+}

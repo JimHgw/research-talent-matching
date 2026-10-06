@@ -1,0 +1,69 @@
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 275px;
+  gap: 23px;
+  align-items: start;
+}
+.profile-fields .panel {
+  margin-bottom: 20px;
+}
+.skill-grid {
+  grid-template-columns: 1fr 1fr 35px;
+  align-items: center;
+}
+.sticky-panel {
+  position: sticky;
+  top: 25px;
+}
+.editor-aside {
+  height: 100%;
+}
+.editor-aside p {
+  font-size: 12px;
+}
+.editor-aside small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 14px;
+}
+.editor-aside .button {
+  margin-top: 12px;
+}
+.review-divider {
+  border-top: 1px solid var(--line);
+  margin: 23px 0;
+}
+
+@media (max-width: 1250px) {
+  .editor-layout {
+    grid-template-columns: minmax(0, 1fr) 235px;
+    gap: 18px;
+  }
+  .editor-aside .panel {
+    padding: 20px;
+  }
+}
+@media (max-width: 1050px) {
+  .editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-aside {
+    height: auto;
+  }
+  .sticky-panel {
+    position: static;
+  }
+}
+@media (max-width: 480px) {
+  .skill-grid {
+    grid-template-columns: minmax(0, 1fr) 36px;
+  }
+  .skill-grid .field {
+    grid-column: 1;
+  }
+  .skill-grid > .button {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
