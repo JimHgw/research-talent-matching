@@ -1,427 +1,504 @@
-# Backend Developer README — User Registration and Authentication (auth.py)
+# COMP3900 / COMP9900 — H18ABANANA
 
-Last updated: 2026-10-05  
-Project: H18ABANANA / Python Backend  
-Document status: Development requirements and API design; this document does not indicate that the features have been implemented.
+**🍌 Explainable Two-Sided Research Matching · Sprint 1 Developer Specification**
 
-This task requires the routes and business logic for **email registration, account initialisation, basic information entry, user ID generation, session token issuance and validation, user lookup by ID/token, login, and logout** to be consolidated in `auth.py`. The application entry point should only mount the routes. Database connections and migrations may use shared project infrastructure. User data must be persisted rather than stored only in a Python global dictionary.
+An explainable bidirectional matching system for research talent and research opportunities in Australian universities.
 
-## 1. Relationship to the Existing API Contract
+## Contents
 
-Refer to `docs/api/sprint-1-api-contract.md`, version `0.1.0-draft`, in the project. It already defines login, session, logout, profile, and privacy endpoints, but its original scope uses provisioned accounts and does not define complete registration.
+[[_TOC_]]
 
-**This README follows the latest requirement: register a general account first, then participate in the relevant activities as needed.** Users do not choose between being talent and an opportunity publisher during registration. The same account can create a personal profile, upload a CV, and publish research opportunities. Both activities can take place concurrently, without switching roles or registering again.
+## Change Log
 
-This changes the previous assumptions about mutually exclusive `TALENT / RESEARCH_TEAM` roles, automatic profile creation during account setup, and one account representing one team. Existing endpoint paths should be retained where possible, while User responses, profile initialisation timing, and permission semantics must follow this document. Update the API contract, OpenAPI definition, frontend mocks, and tests together during implementation. This document describes development requirements, not completed functionality.
+- **2026-10-06**: Organised the complete Sprint 1 developer specification using the aims, iteration tasks, data design, interfaces, testing and acceptance structure of `README_1531.md`; covers US-01–US-09 and 24 HTTP operations.
+- **2026-10-06**: Confirmed SQLite + SQLAlchemy ORM; added a proposed physical schema, type mappings and concurrent-write rules.
+- This edition follows the Sprint 1 API contract, replacing the previous registration extension with provisioned-account login. Registration endpoints, fixed session lifetimes and account-name synchronisation rules absent from the contract are no longer listed as Sprint 1 requirements.
 
-Authentication continues to use the existing contract's **HttpOnly cookies and server-side sessions**. “Automatically issuing a token” means that the backend generates a login credential and delivers it to the browser through `Set-Cookie`. The login token is not exposed in response JSON. Do not introduce a separate Bearer/JWT scheme that would leave the frontend and backend using different authentication protocols.
+> **Document status: Development specification, not an implementation completion report.** The corresponding API version is `0.1.0-draft`. Proposed interface defaults still require team review; the testing and acceptance checklists below describe work to be performed, not tests that have already passed.
 
-Successful registration creates only a User and a login Session, automatically assigning a user ID and token. It does not create a TalentProfile, talent privacy settings, a CV, a research team, or an opportunity. `User` no longer contains a business identity field named `role`, and registration does not require `roles`. Talent and publisher describe how users participate in the application; permissions depend on the authenticated account, resource ownership, and business conditions.
+## 🫡 0. Aims — Sprint Goals
 
-## 2. Responsibilities of auth.py
+1. Deliver working frontend and backend workflows for research talent and research teams.
+2. Save manual input and user-reviewed document extraction results as structured talent profiles.
+3. Implement both talent-to-opportunity and opportunity-to-talent matching, displaying requirements, evidence and statuses individually.
+4. Use only the current confirmed profile revision for matching, applying discovery consent and field visibility before team-facing matching.
+5. Develop the JavaScript frontend and Python backend against a shared API contract, validating key workflows with reproducible tests.
 
-| Feature | Required behaviour |
+## 🌈 1. Overview — Project and Scope
+
+### 1.1 Project Background
+
+A research talent's education, courses, research experience, skills, research interests and outputs are often spread across CVs, transcripts and personal descriptions. Research teams need to compare this information against opportunity requirements. This system structures information on both sides to support bidirectional discovery and traceable matching explanations.
+
+The original project focuses on the Australian Go8 university research environment. Following the allocation agreed at the client meeting on 2026-09-30 and the current contract, the BANANA prototype uses two discipline groups: **STEM / BUSINESS**. Matching helps users discover research opportunities; it does not constitute an admission decision, application submission or credential verification.
+
+### 1.2 Sources and How to Use This Document
+
+| Source | Use in this document |
 |---|---|
-| Email registration | Validate the email, password, and display name; prevent duplicate emails; create the account and log the user in automatically |
-| Account initialisation | Generate a user ID automatically; create only the general account and login session |
-| Talent profile after registration | Generate a talent ID and default privacy settings only when the user explicitly creates a personal profile; profile entry and CV upload follow |
-| Basic information | Collect only email, password, and account display name during registration; collect detailed talent information separately after profile creation |
-| ID lookup | Provide an internal backend function to retrieve an account by user ID |
-| Token lookup | Validate the session token, locate the account, and check session expiry and account status |
-| Login | Validate email and password; rotate the session token and CSRF token; allow the same session to access both talent and opportunity publishing features |
-| Session retrieval | Return the current user and CSRF token; return user=null for anonymous sessions |
-| Logout | Revoke the current server-side session and clear the browser cookie |
-| Permissions | Centralise authentication, resource ownership, CSRF, and Origin checks without mutually exclusive talent/publisher checks |
-| Profile confirmation and privacy | Implement the existing endpoints involved in the post-registration profile workflow |
+| User-provided screenshot of the [Jira backlog](https://unsw-comp3900-comp9900-26t3.atlassian.net/jira/software/projects/H18ABANANA/boards/103/backlog) | Identifies the nine Sprint 1 parent stories, estimates and dates; this document records the screenshot's scope and does not claim to report live Jira status |
+| [Sprint 1 API contract](docs/api/sprint-1-api-contract.md) | Detailed reference for endpoint paths, fields, permissions, errors, states and matching rules |
+| [OpenAPI](docs/api/openapi.json), [endpoint index](docs/api/endpoint-index.json), [example index](docs/api/examples/index.json) | Machine-readable interfaces and integration fixtures; the endpoint index includes the implementation subtask associations recorded in the contract |
+| `client_meeting_0930.txt` | Client context, discipline allocation, explanation requirements and the manual-entry fallback for the first demonstration |
+| Project 109 specification PDF | Background on structured profiles, bidirectional discovery, evidence-based explanations and human review |
+| `README_1531.md` | Reference for document organisation and interface presentation; its technology stack, assessment weights, submission commands and iteration schedule do not apply |
 
-Account, authentication, talent profile creation, and profile-related logic belong in `auth.py`. Opportunity management, matching algorithms, file uploads, and extraction belong in their respective business modules, which call the authentication and ownership validation functions provided by `auth.py`. The shared tag endpoint continues to follow the original contract. Profile validation must use the same tag data.
+Read this document first to understand the sprint tasks, then implement individual endpoints and models using sections 4 and 6 of the contract. This is a developer guide to that contract. Any protocol change must update the contract, OpenAPI, examples and tests together, rather than changing only the README or one implementation.
 
-## 3. Distinguishing IDs, Login Tokens, and CSRF Tokens
+### 1.3 Sprint 1 Boundaries
 
-| Name | Purpose | Generation and delivery |
+This sprint uses provisioned `TALENT` and `RESEARCH_TEAM` accounts; one research-team account represents one team. Talent can maintain and confirm profiles, control field visibility and view opportunity recommendations. Research teams can manage their own opportunities and discover talent whose information may be shared.
+
+This sprint excludes full registration, password reset, complex identity switching, favourites, semantic vector matching and advanced filters. It also does not add opportunity deletion, unpublishing, team membership management, application or admissions workflows. Implement only US-01–US-09 below; later sprints are not detailed here.
+
+**Document extraction remains part of Sprint 1.** The meeting allowed temporary manual entry for Demo 1 if extraction was not ready, but Jira includes US-09 in this sprint. Retain the complete upload, extraction, review and import workflow. An upload button or static extraction fixture alone does not complete US-09. If the demonstration uses the fallback, clearly record the unfinished work.
+
+## 🐶 2. Sprint 1 — Basic Functionality and Tests
+
+### 2.1 Task — Sprint Requirements
+
+The screenshot shows Sprint 1 running from **3 October to 15 October**, with **9 work items and 36 Story Points**. Points estimate effort; they are not assessment weights or completion percentages. All items in the screenshot are in To Do.
+
+| Story | Jira | Points | Required behaviour for this sprint |
+|---|---|---:|---|
+| US-01 User Login and Talent Profile Creation | [H18ABANANA-9](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-9) | 3 | Provisioned-account login, sessions and logout; talent can read, edit and save their own structured profiles |
+| US-02 Create and Manage Research Opportunities | [H18ABANANA-10](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-10) | 3 | Teams can create drafts, edit, publish and view their own opportunities; published opportunities can be discovered |
+| US-03 Review and Confirm Talent Profile Information | [H18ABANANA-11](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-11) | 2 | Users review and confirm the current profile, then reconfirm after content changes |
+| US-04 View Recommended Opportunities and Matching Explanations | [H18ABANANA-13](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-13) | 5 | Talent can view ranked opportunity recommendations and requirement-level explanations |
+| US-05 Discover Matching Research Talent | [H18ABANANA-12](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-12) | 3 | Teams can view permitted talent lists and explanations for their own published opportunities |
+| US-06 Test the Sprint 1 Profile and Matching Flows | [H18ABANANA-14](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-14) | 4 | Test profile, matching, privacy and upload workflows using synthetic or de-identified data, and record actual results |
+| US-07 Manage Profile Privacy and Field Visibility | [H18ABANANA-15](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-15) | 3 | Talent actively choose whether to be discoverable and which profile fields teams may view and use for matching |
+| US-08 Requirement-Level Matching Results and Evidence | [H18ABANANA-1](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-1) | 5 | Display candidate information, evidence, reasons and Matched / Partial / Gap / Unknown for each requirement |
+| US-09 Resume / Transcript Upload and Information Extraction | [H18ABANANA-2](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-2) | 8 | Upload a CV or transcript, query extraction status, review and correct suggestions, import selected sections, then confirm the profile |
+| **Total** | **US-01–US-09** | **36** | **24 HTTP operations and their corresponding frontend workflows** |
+
+US-04 and US-05 reuse the matching rules from US-08, but scores may differ between directions because viewing permissions differ. US-06 spans all features and adds no public testing or database-reset endpoint.
+
+### 2.2 Storing Data — Structures and States
+
+#### 2.2.1 Logical Models
+
+The following describes data responsibilities, not existing database tables or directories. **This project has selected SQLite + SQLAlchemy ORM**; the HTTP contract retains its existing structure. Section 2.2.4 proposes the physical schema. Saved data must be retrievable, with revision checks and updates handled transactionally.
+
+| Data | Public structure or key fields | Internal responsibility |
 |---|---|---|
-| `user.id` | Permanent account identifier; internal function parameters may use `user_id` | Generated by the backend and may be returned in responses to the current user |
-| `talentId` | Identifier of a talent profile explicitly created after registration, linked to the account by a foreign key | Generated by the backend only when the profile is created; accounts without a profile have no talent ID |
-| session token | Establishes that a request belongs to a valid authenticated session | Generated by the backend and delivered only in the `h18_session` HttpOnly cookie |
-| `csrfToken` | Protects state-changing requests against forgery from other sites | Returned by session retrieval, registration, and login responses; sent by the frontend in `X-CSRF-Token` |
+| User / Session | `user: {id, displayName, email, role}` or `null`; `csrfToken` | Store accounts, roles and server-side sessions; login credentials must not appear in business response JSON |
+| Tag / TagList | `id`, `label`, `kind`, `disciplineGroups`; list shape `{items}` | Shared vocabulary for skills and interests; tag kinds are `SKILL` / `INTEREST` |
+| Profile | `talentId`, `revision`, `content`, `confirmation`, `origins`, `updatedAt` | Associate the talent account with profile content, revision, confirmation and provenance |
+| Privacy | `revision`, `discoverable`, `visibleFields`, `updatedAt` | Associate settings with the talent account; privacy revisions are independent of profile revisions |
+| Document / Extraction | File metadata and processing status; `suggestedSections`, `uncertainFields`, `warnings`, `reviewRequired` | Associate files with their uploader and store originals privately; keep extraction suggestions separate from the saved profile |
+| Opportunity | `id`, `revision`, `status`, `content`, `createdAt`, `updatedAt` | Store team ownership internally; clients cannot assign ownership or publication status |
+| OwnerMatch / TeamMatch | Opportunity or talent information, `summary`, individual `requirements`, `evaluatedAt` | Calculate using the current confirmed revision and access permissions; invalidate caches when profiles, privacy or opportunities change |
 
-**An ID identifies a resource and cannot authenticate a user on its own. A CSRF token cannot replace a login token either.** A session token is a credential that can expire, rotate, or be revoked; it is not a permanent account field. One account may have multiple independent sessions.
+All **eight fields of `ProfileContent` are required**:
 
-Business IDs may use a `user_` or `talent_` prefix followed by a UUID4 hexadecimal string, satisfying the original contract's `^[A-Za-z0-9_-]{1,64}$` pattern. Enforce primary-key or unique constraints in the database and regenerate an ID if a collision occurs.
+| Field | Type and meaning |
+|---|---|
+| `displayName` | String, at most 100 characters; an empty string is allowed in a draft |
+| `disciplineGroup` | `STEM` / `BUSINESS` / `null` |
+| `education` | Education records: `id`, `institution`, `qualification`, `discipline`, `startYear`, `endYear` |
+| `courses` | Course records: `id`, `name`, `code`, `description` |
+| `researchExperience` | Experience records: `id`, `title`, `organisation`, `description` |
+| `skills` | Skill claims: `tagId`, `claim`, `evidenceText`; claim is `HAS` / `DOES_NOT_HAVE` |
+| `researchInterests` | Array of `INTEREST` tag IDs |
+| `researchOutputs` | Output records: `id`, `title`, `type`, `url`, `description` |
 
-Generate the login token and CSRF token separately using `secrets.token_urlsafe(32)`. Do not construct them from user IDs, emails, timestamps, or the ordinary `random` module. See the [Python secrets documentation](https://docs.python.org/3/library/secrets.html).
+Each of the six arrays allows at most 100 items. Required fields, nullability, lengths and enum constraints for nested records are defined in [ProfileContent](docs/api/sprint-1-api-contract.md#model-profilecontent) and its associated models. The backend generates top-level resource IDs. The frontend may generate stable IDs for education, course, experience, output and requirement records; preserve them during editing and do not substitute array indices.
 
-## 4. Persistence Requirements
+**Storage structures and response structures are different.** The server needs internal data such as ownership and session records, but must not return database objects directly to the browser. In particular, do not send complete talent profiles to research teams and rely on the frontend to hide fields.
 
-The following is a logical data model. It does not prescribe a particular ORM or database.
+#### 2.2.2 States and Revisions
 
-| Data | Main internal fields | Constraints |
+| Object or operation | Initial state / transition rules |
+|---|---|
+| Provisioned talent profile | `revision=0`, `displayName=""`, `disciplineGroup=null`, six empty arrays; `UNCONFIRMED`, with confirmation revision and time set to `null` |
+| Privacy settings | `revision=0`, `discoverable=false`, `visibleFields=[]` |
+| Ordinary profile / privacy / opportunity PUT | Check `expectedRevision` atomically; increment by 1 only for actual changes; an exact no-op preserves the revision |
+| Profile content change | Reset to `UNCONFIRMED`, clear `confirmedRevision` and `confirmedAt`, and stop matching against the previously confirmed content |
+| Profile confirmation | Require a non-empty name and at least one non-empty academic / research array; set `confirmedRevision=revision` without incrementing the content revision; repeated confirmation preserves the original confirmation time |
+| Privacy change | Affects only the privacy revision and subsequent team access; does not invalidate profile confirmation |
+| Document processing | `QUEUED → PROCESSING → READY / FAILED`; READY means only that extraction has completed |
+| Importing reviewed extraction results | Check `expectedProfileRevision`; every successful import increments the profile revision and invalidates confirmation, even if values are identical |
+| Research opportunity | Created as `DRAFT, revision=1`; publication changes it to `PUBLISHED` and increments the revision; repeating publication with the current revision does not increment it again |
+| Editing a published opportunity | Remains `PUBLISHED`; must retain at least one valid requirement; subsequent matching uses the new content |
+
+Revision conflicts return `409 REVISION_CONFLICT` with the current revision, without overwriting newer data. The frontend preserves local input, reloads and compares; it must not silently retry an overwrite.
+
+#### 2.2.3 Confirmed Database Technology and Configuration
+
+**SQLite is the database; SQLAlchemy ORM maps Python models to tables and generates parameterised SQL.** Using an ORM still requires explicit columns, primary and foreign keys, unique constraints, relationships and transactions. API JSON models do not replace database design.
+
+- Persist runtime data in a SQLite file on disk. The suggested development URL is `sqlite+pysqlite:///./data/h18abanana.db`, read from environment configuration with relative paths resolved against the project root. Do not commit database files or uploaded originals to Git.
+- Use SQLAlchemy 2.x-style `DeclarativeBase`, `Mapped`, `mapped_column` and `relationship`; pin the actual dependency version in the backend dependency manifest.
+- Each HTTP request and background extraction task creates its own ORM Session. Do not share it across requests, threads or tasks. An ORM Session is a database unit of work, distinct from the login-session table.
+- Enable `PRAGMA foreign_keys=ON` on every database connection, including schema-initialisation connections, and verify that it returns 1 at startup. Declaring SQLite foreign keys alone does not guarantee runtime enforcement; see the [SQLite foreign-key documentation](https://www.sqlite.org/foreignkeys.html).
+- Configure real transaction BEGIN behaviour rather than relying on Python sqlite3's legacy transaction mode. Set a bounded lock wait, suggested at five seconds. A busy database is not a revision conflict and must not always return 409. Follow the [SQLAlchemy SQLite documentation](https://docs.sqlalchemy.org/en/20/dialects/sqlite.html) for connection and transaction configuration.
+
+Implement SQLite connection options against the project's pinned Python / SQLAlchemy versions. Perform extraction and other slow operations outside write transactions, opening a short transaction to commit results.
+
+#### 2.2.4 Proposed Tables and ORM Mappings
+
+**The technology choice is confirmed. The following table names, fields and storage layout are proposed Sprint 1 implementation decisions, not running ORM models or migrations.** Internal columns use `snake_case`; response serialisation uses the contract's `camelCase` fields.
+
+Type conventions: business IDs use `String(64)`; counts, revisions and positions use `Integer`; flags use `Boolean`; ordinary long text uses `Text`; timestamps use `DateTime`. Convert timestamps to UTC before writing, store consistently as timezone-naive UTC values in SQLite, then explicitly restore UTC on reading and serialise as RFC3339. Never interpret them as local time. Only columns marked `?` below are nullable. PK means primary key, FK foreign key, and UQ unique constraint.
+
+| Table / ORM class | Columns and types | Relationships, constraints and purpose |
 |---|---|---|
-| User | `id`, `email`, `email_normalized`, `password_hash`, `display_name`, `is_active`, `created_at`, `updated_at` | Unique `email_normalized`; no mutually exclusive business role |
-| Session | `token_hash`, `user_id`, `csrf_token`, `created_at`, `expires_at`, `revoked_at` | Unique token digest; user_id=null for anonymous sessions; supports expiry and revocation checks |
-| TalentProfile | `talent_id`, `user_id`, `revision`, `content`, `confirmation`, `origins`, `updated_at` | Unique user_id; each general account may have zero or one talent profile |
-| PrivacySettings | `user_id`, `revision`, `discoverable`, `visible_fields`, `updated_at` | Created together with the talent profile; initially discoverable=false and visible_fields=[] |
-| Opportunity (another business module) | `id`, `owner_user_id`, and the original opportunity fields | An account may own zero or more opportunities; owner_user_id comes from the authenticated account |
+| `users` / `User` | `id` ID PK; `email`, `email_normalized`, `password_hash`, `display_name`, `role` text; `is_active` boolean; `created_at`, `updated_at` timestamps | `email_normalized` UQ; role limited to TALENT/RESEARCH_TEAM. Proposed provisioning and login policy: trim email whitespace and use lowercase for lookup; store password hashes only |
+| `auth_sessions` / `AuthSession` | `token_hash` text PK; `user_id` ID? FK; `csrf_token` text; `created_at`, `expires_at` timestamps; `revoked_at` timestamp? | user_id → users.id, null for anonymous sessions; store a login-token digest rather than its raw value; index user_id and expires_at |
+| `talent_profiles` / `TalentProfile` | `talent_id` ID PK; `user_id` ID FK UQ; `display_name` text; `discipline_group` text?; `education`, `courses`, `research_experience`, `research_outputs` JSON arrays; `revision` integer; `confirmation_status` text; `confirmed_revision` integer?; `confirmed_at` timestamp?; `updated_at` timestamp | user_id → users.id, one profile per talent; revision defaults to 0 and is non-negative; discipline limited to STEM/BUSINESS/null; four display-oriented sections retain ordered JSON, with skills and interests linked to tags separately |
+| `privacy_settings` / `PrivacySettings` | `talent_id` ID PK/FK; `revision` integer; `discoverable` boolean; `updated_at` timestamp | talent_id → talent_profiles.talent_id, one-to-one; revision defaults to 0, discoverable to false |
+| `privacy_visible_fields` / `PrivacyVisibleField` | `talent_id` ID FK; `field` text | Composite PK `(talent_id, field)`; talent_id → privacy_settings.talent_id; CHECK limits field to the eight ProfileField values; no rows means `visibleFields=[]` |
+| `tags` / `Tag` | `id` ID PK; `label`, `kind` text | kind limited to SKILL/INTEREST; shared vocabulary, without substituting user-entered display text for relationship keys |
+| `tag_discipline_groups` / `TagDisciplineGroup` | `tag_id` ID FK; `discipline_group` text | Composite PK `(tag_id, discipline_group)`; tag_id → tags.id; discipline limited to STEM/BUSINESS |
+| `profile_skills` / `ProfileSkill` | `talent_id`, `tag_id` ID FK; `claim`, `evidence_text` text; `position` integer | Composite PK `(talent_id, tag_id)`; references profiles and tags respectively; claim limited to HAS/DOES_NOT_HAVE; position non-negative, determining response-array order |
+| `profile_interests` / `ProfileInterest` | `talent_id`, `tag_id` ID FK; `position` integer | Composite PK `(talent_id, tag_id)`; references profiles and tags respectively; position non-negative, determining response-array order |
+| `documents` / `Document` | `id` ID PK; `talent_id` ID FK; `kind`, `file_name`, `media_type`, `storage_key`, `status` text; `size_bytes` integer; `error` JSON?; `created_at`, `updated_at` timestamps | talent_id → talent_profiles.talent_id; storage_key UQ locates a private file; kind limited to CV/TRANSCRIPT, status to the four processing states, size_bytes to 1–10485760; file contents are not stored in this table |
+| `extractions` / `Extraction` | `document_id` ID PK/FK; `suggested_sections` JSON object; `uncertain_fields`, `warnings` JSON arrays | document_id → documents.id; at most one successful extraction result per document, with no row required during processing; Document supplies status and the serialiser supplies `reviewRequired=true` |
+| `profile_origins` / `ProfileOrigin` | `talent_id` ID FK; `field`, `source_type` text; `document_id` ID? FK | Composite PK `(talent_id, field)`; references profile and document; field limited to the six academic sections; MANUAL requires document_id=null, USER_REVIEWED_DOCUMENT requires a document; service layer verifies matching ownership |
+| `opportunities` / `Opportunity` | `id` ID PK; `owner_user_id` ID FK; `revision` integer; `status`, `title`, `university`, `discipline_group`, `discipline`, `research_area`, `description` text; `created_at`, `updated_at` timestamps | owner_user_id → users.id; revision starts at 1 and is ≥1, status limited to DRAFT/PUBLISHED; discipline limited to STEM/BUSINESS; service layer verifies the publisher's team role |
+| `opportunity_requirements` / `OpportunityRequirement` | `opportunity_id` ID FK; `id` ID; `label`, `kind`, `importance` text; `position` integer | Composite PK `(opportunity_id, id)`; opportunity_id → opportunities.id; kind limited to SKILL/INTEREST, importance to REQUIRED/PREFERRED; position non-negative, preserving requirement order |
+| `requirement_tags` / `RequirementTag` | `opportunity_id`, `requirement_id`, `tag_id` IDs; `position` integer | Composite PK `(opportunity_id, requirement_id, tag_id)`; composite FK to opportunity_requirements; tag_id FK → tags.id; position non-negative, preserving tagIds order |
 
-- Use a maintained password hashing library to generate salted Argon2id hashes. Do not implement password cryptography yourself or store passwords using a single SHA-256 hash. See [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
-- A SHA-256 digest may be used as the lookup key for a high-entropy session token. Compute the digest from the received cookie before querying. Do not store or log the raw session token. This has a different purpose from password hashing.
-- Retain the CSRF token in session storage so that `GET /auth/session` can return the current value. Do not write it to logs.
-- The registration transaction creates only the User and new login Session and revokes the previous anonymous session. Roll back the whole transaction on failure. An account without a talent profile or opportunity is a valid state.
-- When the user explicitly creates a profile, a separate transaction atomically creates the TalentProfile and PrivacySettings. Failure does not affect the registered account or login session. Opportunity creation uses its own business transaction and does not require a talent profile.
-- Use foreign keys to maintain referential integrity. The database or shared session store must support multiple server processes, and saved accounts must remain readable after a server restart.
+All business columns are NOT NULL unless marked `?`. SQLite's `String(n)` does not replace length validation. Declare `CheckConstraint`, `UniqueConstraint` and `ForeignKeyConstraint`, and enforce contract lengths, ID formats, nested JSON structures, array limits and duplicate-record rules in request validation.
 
-## 5. HTTP Endpoint Overview
+Use CHECK constraints for confirmation consistency: UNCONFIRMED requires null confirmation revision and time; CONFIRMED requires both non-null and confirmed_revision=revision. A FAILED Document requires error; other states require error=null. The service layer checks cross-table business rules inside the transaction, including tag kinds, talent / team roles, source-document ownership and at least one requirement before publication.
 
-All endpoints in the following table are registered in `auth.py` and use the `/api/v1` prefix.
+Use `JSON` with callable `list` defaults for the four profile arrays and `dict` for extraction objects. Assign complete new values when updating rather than relying on detection of in-place nested-list mutations. Combine related rows on reading to reconstruct the contract's six arrays; a new profile must return `[]` for all six.
 
-| Method | Path | Permission | Successful result | Status |
-|---|---|---|---|---|
-| GET | `/api/v1/auth/session` | Anonymous or authenticated | 200 Session | Existing |
-| POST | `/api/v1/auth/register` | Anonymous | 201 Session + login cookie | New |
-| POST | `/api/v1/auth/login` | Anonymous | 200 Session + login cookie | Existing |
-| POST | `/api/v1/auth/logout` | Authenticated | 204, no response body | Existing |
-| POST | `/api/v1/me/profile` | Authenticated, with no existing talent profile | 201 Profile | New |
-| GET | `/api/v1/me/profile` | Authenticated, reading own profile | 200 Profile; 404 if not yet created | Existing path, revised semantics |
-| PUT | `/api/v1/me/profile` | Authenticated owner of an existing profile | 200 Profile | Existing path, revised permissions |
-| POST | `/api/v1/me/profile/confirmation` | Authenticated owner of an existing profile | 200 Profile | Existing path, revised permissions |
-| GET | `/api/v1/me/privacy` | Authenticated owner of an existing profile | 200 PrivacySettings | Existing path, revised permissions |
-| PUT | `/api/v1/me/privacy` | Authenticated owner of an existing profile | 200 PrivacySettings | Existing path, revised permissions |
+Suggested indexes: `documents(talent_id, created_at, id)`, `opportunities(owner_user_id, updated_at, id)`, `opportunities(status, updated_at, id)` and `privacy_settings(discoverable, talent_id)`. Also index FK columns not covered by a PK / UQ prefix. Ordered child tables have unique constraints on `(parent key, position)`; replace arrays by deleting old relationship rows and inserting replacements within the same transaction.
 
-Use `GET /auth/session` to retrieve the current user through the session token. ID lookup is an internal backend capability. Do not add anonymous `/users/{id}` or `/users?token=...` endpoints.
+Do not create a permanent match-result / score table in this sprint; calculate from currently authorised data first, avoiding stale scores being treated as facts. Accounts, profiles, documents and opportunities have no public deletion workflow, so FKs restrict deletion by default. Do not configure ORM cascades that delete independent resources by default. Define cleanup order and file handling when deletion is introduced.
 
-### 5.1 Email Registration
+#### 2.2.5 Write Transactions and SQL Semantics
 
-`POST /api/v1/auth/register`
+Profile content, related arrays, provenance, revision and confirmation state must commit or roll back together. Provision a talent's User, TalentProfile and PrivacySettings in one transaction; a provisioned team account does not receive a talent profile. Background extraction must also save Extraction and change Document to READY in one transaction.
 
-First call `GET /auth/session` to establish an anonymous session. Include its cookie and `X-CSRF-Token` in the registration request. If the caller is already authenticated, return `409 ALREADY_AUTHENTICATED`; the user must log out before creating another account.
+Use short, service-controlled write transactions, acquiring the SQLite write transaction (`BEGIN IMMEDIATE`) before reads, authorisation and revision comparison. This prevents ordinary no-op saves, confirmation and publication from interleaving with another write. Only the database transaction adapter should begin the transaction, once; do not issue BEGIN inside an already active ORM transaction. Implement the integration for the pinned driver version. All write paths follow the same convention, while read transactions maintain a consistent data snapshot.
 
-Example request:
+The following parameterised SQL illustrates updating the profile revision **after determining that the current content actually changes**. It is not a complete save function; other field, child-table and provenance updates belong in the same transaction:
 
-```json
-{
-  "email": "alice@example.test",
-  "password": "Example-Only-Passphrase-2026!",
-  "displayName": "Alice"
-}
+```sql
+UPDATE talent_profiles
+SET display_name = :display_name,
+    revision = revision + 1,
+    confirmation_status = 'UNCONFIRMED',
+    confirmed_revision = NULL,
+    confirmed_at = NULL,
+    updated_at = :updated_at
+WHERE talent_id = :talent_id
+  AND user_id = :current_user_id
+  AND revision = :expected_revision;
 ```
 
-Validation rules introduced in this iteration:
+Execute the equivalent conditional update through the ORM with bound parameters and check the affected-row count. Return 409 only when authorisation succeeds, the resource exists and its revision is actually stale; not every zero-row update is a revision conflict. Ordinary no-op PUT preserves the revision; imports always increment it; confirmation preserves the content revision; initial draft publication increments the opportunity revision.
 
-| Field | Rule |
-|---|---|
-| email | Required string; trim leading and trailing whitespace, validate email format, and allow at most 254 characters |
-| password | Required string; 15–200 characters for registration; preserve case and whitespace, without trimming or truncation |
-| displayName | Required string; 1–100 characters after trimming leading and trailing whitespace |
+Do not directly enable an ORM strategy that increments the public revision on every UPDATE, because confirmation would incorrectly increment it. If using `version_id_col`, explicitly handle these business differences; automatic checks also do not cover all bulk updates. See the [SQLAlchemy version-counter documentation](https://docs.sqlalchemy.org/en/20/orm/versioning.html).
 
-This project trims and lowercases email addresses to produce the unique matching key. Registration and login must use the same rule. Do not remove dots or `+suffix` components from email addresses. This is the project's account matching policy, not a claim that all email providers interpret addresses identically.
+Add database acceptance checks: persistence after restart, foreign keys enabled on every connection, duplicate emails / skill relationships rejected, invalid confirmation combinations rejected, no partial writes after transaction failure, and two independent connections unable to overwrite successfully using the same stale revision. Manage empty-database initialisation separately from subsequent migrations; `create_all()` does not replace migrations of existing tables.
 
-Reject unknown fields, especially client-supplied `id`, `userId`, `talentId`, `role`, `roles`, `token`, `passwordHash`, and confirmation state. The registration form does not collect a business identity, detailed talent information, a CV, or opportunity information. Return `409 EMAIL_ALREADY_REGISTERED` for a duplicate email. Handle concurrency through a database unique constraint, not only a query followed by an insert. This response reveals that an email is registered; this iteration adopts that user-facing behaviour alongside registration rate limiting.
+### 2.3 Implementing Features — Sequence and Responsibilities
 
-Successful backend processing sequence:
+Work in small, verifiable features, completing one end-to-end workflow before extending another:
 
-1. Validate JSON, the anonymous session, CSRF, Origin, and rate limits.
-2. Normalise the email, validate the fields, and compute the password hash.
-3. Generate a new user ID, login token, and CSRF token. Do not generate a talent ID or opportunity ID.
-4. In one transaction, create only the general account and new session, and revoke the previous anonymous session.
-5. Set the cookie and return 201 after the transaction commits. Do not return a valid login credential if the transaction rolls back.
+1. Agree on the contract defaults and prepare provisioned talent / team accounts, shared tags, synthetic profiles and opportunity data.
+2. Implement sessions, login and permissions, followed by manual profile saving, confirmation and privacy settings.
+3. Implement opportunity creation, editing and publication, then connect talent recommendations and team discovery.
+4. Implement US-08 statuses, evidence, scoring and sorting; apply privacy before team-facing scoring.
+5. Connect document upload, asynchronous extraction and reviewed imports, retaining manual entry.
+6. Execute US-06 acceptance cases, fix defects and prepare the complete Demo 1.
 
-Example response (placeholder values must not be used for real authentication):
+| Module | Main endpoint numbers | Frontend responsibility | Python backend responsibility |
+|---|---|---|---|
+| FE-1 Layout and login | 01–03 | Login page, session restoration, logout and account-cache cleanup | Sessions, authentication, role and CSRF checks |
+| FE-2 Profiles, review and privacy | 04–09, 14 | Forms, review and confirmation, conflict prompts, visible-field selection | Validation, storage, revision control, confirmation and privacy |
+| FE-3 Opportunity management | 04, 16–20 | Create / edit forms, draft and publication pages | Team ownership, full replacement and publication prerequisites |
+| FE-4 Bidirectional matching and explanations | 21–24 | Ranked lists, requirement-level explanations and empty states | Permission filtering, four statuses, evidence, scores and sorting |
+| FE-5 Documents and extraction review | 10–15, followed by 05–07 | Upload, status polling, corrections and selected-section previews | Private files, extraction processing, provenance and atomic imports |
 
-```json
-{
-  "user": {
-    "id": "user_demo_001",
-    "displayName": "Alice",
-    "email": "alice@example.test"
-  },
-  "csrfToken": "example-only-new-csrf-token"
-}
-```
+This table divides responsibilities; it does not assign work to named team members. Backend modules may separate authentication, profiles, opportunities, documents and matching; the team chooses filenames and frameworks. The authentication module may retain the name `auth.py`, while HTTP routing should remain separate from pure matching rules and storage details.
 
-```http
-Set-Cookie: h18_session=<generated-session-token>; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400
-Cache-Control: no-store
-```
+### 2.4 Testing Guidelines — Testing Principles
 
-This iteration uses email and password registration without verification codes or activation emails. Successful registration does not mean that email ownership has been verified. Phone numbers, avatars, email changes, password resets, third-party login, and multi-member team management are outside this task. An ordinary authenticated user can proceed directly to creating a research opportunity, without registering a separate publisher account or waiting for the server to assign a RESEARCH_TEAM identity.
+- **Test behaviour.** Check responses, state transitions, permissions and subsequent reads without depending on internal function or table names.
+- **Cover success, failure and boundaries.** Test empty profiles and lists, repeated confirmation, revision conflicts, unknown fields, duplicate IDs, incorrect tag types, incorrect roles and unauthorised resource access.
+- **Isolate tests.** Use independent data or controlled setup for each test; resets belong only in the test environment, with no public `/clear` endpoint.
+- **Verify each layer.** Use deterministic unit tests for matching rules, API tests for requests, responses and permissions, and browser integration tests for complete user workflows and cache cleanup.
+- **Fixtures are inputs, not proof of passing tests.** The [30 JSON fixtures](docs/api/examples/index.json) support mocks and protocol checks. Real authentication, persistence, file processing and permissions still require backend integration tests.
+- **Record reproducible results.** US-06 records must include at least the story ID, initial data, steps, expected result, actual result, pass / fail status, associated defect and retest result.
 
-### 5.2 Create a Talent Profile After Registration, Then Enter Details or Upload a CV
+### 2.5 Sprint 1 Interface — API Specification
 
-The account's `User.displayName` comes from the registration form. Completing registration does not require the user to create a profile or publish an opportunity immediately. Users may enter either workflow later or participate in both at the same time.
+#### 2.5.1 Shared Conventions
 
-When the user explicitly selects “Create my talent profile”, call the new `POST /api/v1/me/profile` endpoint with `{}` as the request body. Include the login cookie and CSRF token, and validate Origin. The server obtains user.id from the current session, generates a talent ID, creates an empty TalentProfile and default PrivacySettings in one transaction, and returns **201 Profile**. Do not accept client-supplied userId, talentId, or confirmation state.
+- All paths below omit the common `/api/v1` prefix. JSON uses UTF-8, `camelCase` fields and the specified enum spelling and case.
+- All business IDs match `^[A-Za-z0-9_-]{1,64}$`; timestamps are UTC RFC3339 strings.
+- Successful responses return the business object directly, without a `data` / `success` wrapper; 204 has no response body.
+- Required fields that allow `null` must still be present. Reject unknown fields, duplicate record IDs and incorrect types. Render plain text as text.
+- Every POST / PUT includes `X-CSRF-Token`; the backend checks both the session and allowed Origin.
+- Request bodies default to `application/json`; uploads use `multipart/form-data`; original-file downloads return binary data.
+- Pagination defaults to `page=1`, `pageSize=20`; page must be at least 1 and pageSize an integer from 1–100. Invalid values return 422.
+- Paginated responses use `{items, page, pageSize, total}`. No results or a page beyond the last page returns 200 with `items: []`; total counts only accessible records.
+- Opportunities sort by `updatedAt` descending, then ID ascending; documents sort by `createdAt` descending, then ID ascending. Matching order is defined in 2.7.
+- After a timeout, read the current state before deciding whether to retry a POST. This version provides no `Idempotency-Key` or creation deduplication guarantee.
 
-Only one profile may exist per user_id. Duplicate or concurrent creation returns `409 PROFILE_ALREADY_EXISTS`, after which the frontend retrieves the existing profile with GET. Before a profile exists, `GET /me/profile` returns `404 NOT_FOUND` and does not create one. PUT, confirmation, privacy, and document endpoints return `409 PROFILE_REQUIRED`, prompting the user to create a profile first. A failed profile creation does not revoke the login session or affect the user's research opportunities.
+The following follows README_1531's function, parameter, return and error format. Numbering matches the contract, and model names refer to section 6 of the contract. Shared errors are listed in 2.5.6; the tables also highlight key business errors. Follow each endpoint link for its complete status-code list.
 
-A new profile starts with `revision=0`, `content.displayName=""`, `disciplineGroup=null`, and empty arrays. The frontend may prefill the profile form with the account display name; it is written to the profile when the user saves. Creating or editing a talent profile does not assign an exclusive role, change the user ID, or require another login.
+#### 2.5.2 Sessions, Tags, Talent Profiles and Privacy
 
-Example 201 response for talent profile creation (not the registration response):
+| Number / endpoint and purpose | Request parameters or body | Success response | Permissions and key errors |
+|---|---|---|---|
+| [01](docs/api/sprint-1-api-contract.md#api-01) `GET /auth/session`: read session and CSRF token | None | **200 Session**: `{user, csrfToken}` | Anonymous access allowed; logged-out users receive `user=null`, not 401 |
+| [02](docs/api/sprint-1-api-contract.md#api-02) `POST /auth/login`: log in with a provisioned account | `{email, password}`; obtain anonymous CSRF first | **200 Session**, with a new Cookie | Invalid credentials: 401 `INVALID_CREDENTIALS`; rate limit: 429 |
+| [03](docs/api/sprint-1-api-contract.md#api-03) `POST /auth/logout`: log out | No request body | **204**, revokes session and clears Cookie | Either signed-in role |
+| [04](docs/api/sprint-1-api-contract.md#api-04) `GET /tags`: read shared tags | Optional query: `kind=SKILL/INTEREST` | **200 TagList**: `{items}`, without pagination | Either signed-in role; invalid parameters: 422 |
+| [05](docs/api/sprint-1-api-contract.md#api-05) `GET /me/profile`: read own profile | None | **200 Profile** | TALENT owner; a new profile returns its initial object, not 404 |
+| [06](docs/api/sprint-1-api-contract.md#api-06) `PUT /me/profile`: save complete profile | **ProfileWrite**: `{expectedRevision, content}`, including all eight content fields | **200 Profile** | TALENT owner; stale revision: 409; invalid content: 422 |
+| [07](docs/api/sprint-1-api-contract.md#api-07) `POST /me/profile/confirmation`: confirm current profile | **RevisionRequest**: `{expectedRevision}` | **200 Profile** | TALENT owner; stale revision: 409; unmet confirmation prerequisites: 422 |
+| [08](docs/api/sprint-1-api-contract.md#api-08) `GET /me/privacy`: read privacy settings | None | **200 Privacy** | TALENT owner |
+| [09](docs/api/sprint-1-api-contract.md#api-09) `PUT /me/privacy`: save privacy settings | **PrivacyWrite**: `{expectedRevision, discoverable, visibleFields}` | **200 Privacy** | TALENT owner; stale revision: 409; invalid / duplicate fields: 422 |
 
-```json
-{
-  "talentId": "talent_demo_001",
-  "revision": 0,
-  "content": {
-    "displayName": "",
-    "disciplineGroup": null,
-    "education": [],
-    "courses": [],
-    "researchExperience": [],
-    "skills": [],
-    "researchInterests": [],
-    "researchOutputs": []
-  },
-  "confirmation": {
-    "status": "UNCONFIRMED",
-    "confirmedRevision": null,
-    "confirmedAt": null
-  },
-  "origins": [],
-  "updatedAt": "2026-10-05T00:00:00Z"
-}
-```
+Login `password` accepts 1–200 characters. The server reads the role from the account; the request cannot select it. `visibleFields` accepts only the eight ProfileContent fields in 2.2, with no authorisation for email, original files or individual skill records.
 
-The frontend saves profile details through `PUT /api/v1/me/profile`. Include the current session cookie, `X-CSRF-Token`, and the complete request body below:
+Profile PUT performs **full replacement**: include unedited content, and use `[]` to clear a section. Actually changed academic sections receive `MANUAL` provenance and `documentId=null`; unchanged sections retain their provenance. Do not accept client-supplied confirmation state or fabricated provenance.
 
-```json
-{
-  "expectedRevision": 0,
-  "content": {
-    "displayName": "Alice",
-    "disciplineGroup": "STEM",
-    "education": [
-      {
-        "id": "edu_demo_001",
-        "institution": "UNSW",
-        "qualification": "Master of IT",
-        "discipline": "Computer Science",
-        "startYear": 2025,
-        "endYear": null
-      }
-    ],
-    "courses": [],
-    "researchExperience": [],
-    "skills": [],
-    "researchInterests": [],
-    "researchOutputs": []
-  }
-}
-```
+#### 2.5.3 Document Upload, Extraction, Review and Import
 
-Field and processing rules:
+| Number / endpoint and purpose | Request parameters or body | Success response | Permissions and key errors |
+|---|---|---|---|
+| [10](docs/api/sprint-1-api-contract.md#api-10) `GET /me/documents`: list own documents | Query: `page`, `pageSize` | **200 DocumentPage** | TALENT owner; metadata only, with no public download URLs |
+| [11](docs/api/sprint-1-api-contract.md#api-11) `POST /me/documents`: upload and start extraction | FormData: `file` + `kind=CV/TRANSCRIPT` | **202 Document**, initially `QUEUED` | TALENT owner; too large: 413; unsupported format: 415; rate limit: 429 |
+| [12](docs/api/sprint-1-api-contract.md#api-12) `GET /me/documents/{documentId}`: read processing status | Path: `documentId` | **200 Document** | Document owner; missing / another user's document: 404 |
+| [13](docs/api/sprint-1-api-contract.md#api-13) `GET /me/documents/{documentId}/extraction`: read review suggestions | Path: `documentId` | **200 Extraction** | Document owner; pending extraction: 409 `EXTRACTION_NOT_READY`; failed extraction: 422 `EXTRACTION_FAILED` |
+| [14](docs/api/sprint-1-api-contract.md#api-14) `POST /me/documents/{documentId}/apply`: import reviewed content | Path: `documentId`; **ApplyExtractionRequest**: `{expectedProfileRevision, sections}` | **200 Profile**, with a new revision and unconfirmed state | Document owner; revision conflict / not ready: 409; failed extraction / invalid sections: 422 |
+| [15](docs/api/sprint-1-api-contract.md#api-15) `GET /me/documents/{documentId}/file`: download original file | Path: `documentId` | **200 binary file** | Document owner; teams cannot download; missing / another user's document: 404 |
 
-- All eight fields in `content` are required. PUT replaces the complete content. `[]` clears the corresponding section; omitted fields must not mean “leave unchanged”.
-- `displayName` allows at most 100 characters. An empty string is allowed when saving a draft. `disciplineGroup` must be `STEM`, `BUSINESS`, or `null`.
-- Each array allows at most 100 items. Validate the child fields of education, courses, experience, and outputs against section 6 of the original contract. Preserve child record IDs when editing; the frontend may generate them for new records. They are not account IDs.
-- `skills` uses the `tagId` of a valid SKILL tag; `researchInterests` uses valid INTEREST tag IDs. Reject duplicates and tags of the wrong type.
-- Compare `expectedRevision` and perform the update within the same transaction. Increment revision by one when content actually changes. A save with no changes preserves revision. A stale revision returns 409.
-- When content changes, reset the state to `UNCONFIRMED` and set both `confirmedRevision` and `confirmedAt` to null. For manually edited academic sections, update the origin to `MANUAL` with documentId=null.
-- New consistency rule for this iteration: saving a non-empty profile display name also updates the account display name. If the profile name is cleared, preserve the previous account name so that User.displayName remains non-empty in Session responses. Perform this update in the same transaction as the profile save.
-- Return the complete Profile on success: `talentId`, `revision`, `content`, `confirmation`, `origins`, and `updatedAt`. Do not include email or password in ProfileContent.
-- Account existence, authentication, and the ability to create research opportunities do not depend on whether a talent profile exists, is complete, or is confirmed.
+Uploads accept non-empty **PDF / DOCX files, up to 10 MiB (10,485,760 bytes)**, excluding legacy `.doc`. The backend validates actual content, format and size, rather than checking the extension alone. The frontend must not manually set Content-Type when using FormData.
 
-After creating a profile, the user may enter details manually or upload a CV through the existing `POST /me/documents` endpoint using multipart/form-data. Its fields and file restrictions follow the original contract. Uploading, checking processing status, reviewing extraction results, and importing user-reviewed content are optional post-registration activities. Uploading does not automatically confirm the talent profile. Users can create and complete their profiles manually without uploading a CV. The document module must verify that the current account owns the profile and the relevant document.
+Poll status every two seconds while the page is open, stopping at READY / FAILED. After 60 seconds, pause automatic polling and offer manual refresh. A frontend timeout must not change the backend status to FAILED. A status response of 200 + FAILED successfully reports a failed processing state; requesting the failed extraction result instead returns 422.
 
-### 5.3 Profile Confirmation and Privacy
+Extraction always returns `reviewRequired` as `true`. Put uncertain information in `uncertainFields` (`UNKNOWN` / `NOT_RECOGNISED`); do not automatically infer positive or negative skill claims.
 
-`POST /me/profile/confirmation` accepts `{"expectedRevision":1}`. The current profile must have a non-empty display name and at least one non-empty array among the six academic/research sections. On success, set the status to `CONFIRMED` and confirmedRevision=revision without increasing the content revision. Reconfirming the same revision preserves the original confirmation time. Profile confirmation is not email verification or verification of academic credentials.
+Imported `sections` may select only the six academic / research arrays and must contain at least one section: **replace submitted sections only, preserve omitted sections, and clear a section when explicitly given `[]`**. Users may correct suggestions. To merge existing skills, the frontend combines them by tagId, lets the user review them, then submits the complete skills array. Record `USER_REVIEWED_DOCUMENT` provenance after import and require a separate confirmation.
 
-`GET /me/privacy` returns `revision`, `discoverable`, `visibleFields`, and `updatedAt`. Privacy settings are initialised when the talent profile is created, with revision=0, discoverable=false, and visibleFields=[]. They are not created during registration. `PUT /me/privacy` accepts `expectedRevision`, `discoverable`, and `visibleFields`, applies an independent revision check, and returns the complete updated PrivacySettings.
+Store original files privately and recheck ownership on every download. Use the correct media type, `Content-Disposition: attachment` and `X-Content-Type-Options: nosniff`. Preserve manual entry after extraction failure. This sprint has no dedicated retry endpoint; a new upload starts a new attempt.
 
-`visibleFields` accepts only the eight ProfileContent fields. Reject duplicates, email fields, and file-related fields. Privacy changes do not reset profile confirmation. Changes to discovery permissions or profile data must notify the matching module to invalidate relevant caches. Opportunity publishers continue to retrieve candidate information through the existing matching endpoints and visible-field allowlist. They must not bypass privacy rules by using internal ID lookup functions to return complete profiles.
+#### 2.5.4 Research Opportunity Management
 
-### 5.4 Login, Session Retrieval, and Logout
+| Number / endpoint and purpose | Request parameters or body | Success response | Permissions and key errors |
+|---|---|---|---|
+| [16](docs/api/sprint-1-api-contract.md#api-16) `GET /opportunities`: list opportunities | Query: `scope=published/mine`, default published; `page`, `pageSize` | **200 OpportunityPage** | Either signed-in role; mine is team-only, otherwise 403 |
+| [17](docs/api/sprint-1-api-contract.md#api-17) `POST /opportunities`: create a draft | **OpportunityContent**, submitted directly as the content object | **201 Opportunity**, `DRAFT, revision=1` | RESEARCH_TEAM; server assigns ID and ownership |
+| [18](docs/api/sprint-1-api-contract.md#api-18) `GET /opportunities/{opportunityId}`: read opportunity details | Path: `opportunityId` | **200 Opportunity** | Signed-in users may read published content; drafts are owner-team-only, otherwise 404 |
+| [19](docs/api/sprint-1-api-contract.md#api-19) `PUT /opportunities/{opportunityId}`: replace complete content | Path: `opportunityId`; **OpportunityWrite**: `{expectedRevision, content}` | **200 Opportunity** | Owner team; another team: 404; stale revision: 409; invalid content: 422 |
+| [20](docs/api/sprint-1-api-contract.md#api-20) `POST /opportunities/{opportunityId}/publish`: publish | Path: `opportunityId`; `{expectedRevision}` | **200 Opportunity**, `PUBLISHED` | Owner team; stale revision: 409; no valid requirements: 422 |
 
-- `POST /auth/login` accepts `email` and `password`; obtain an anonymous CSRF token first. Login continues to accept passwords of 1–200 characters as specified in the original contract, so the new registration minimum does not prevent existing provisioned accounts from logging in.
-- Unknown emails, incorrect passwords, and disabled accounts all return `401 INVALID_CREDENTIALS`, without revealing which condition failed. For an unknown email, perform equivalent password verification work through the library to avoid obvious timing differences.
-- Successful login generates a new session token and CSRF token and revokes the current old session. The user ID does not change. Return 200 Session and set the new cookie.
-- With a valid cookie, `GET /auth/session` returns the current User and the session's csrfToken. Without a valid authenticated session, return `{"user":null,"csrfToken":"<new-anonymous-csrf>"}`, establish or update an anonymous session, and use status 200.
-- Private business endpoints return 401 for missing, unknown, expired, or revoked tokens, or for disabled accounts. They must not return an anonymous 200 response as the session retrieval endpoint does.
-- `POST /auth/logout` validates the session, CSRF, and Origin, revokes the current session, and returns 204. Clear the cookie using the same Path, no Domain, and Max-Age=0. Sessions on other devices remain unaffected.
+`OpportunityContent` must include `title`, `university`, `disciplineGroup`, `discipline`, `researchArea`, `description` and `requirements`. Drafts may have `requirements=[]`, but basic text fields are still required. Published opportunities must retain at least one valid requirement.
 
-### 5.5 Publish Research Opportunities After Registration, Alongside the Talent Workflow
+Each requirement includes `id`, `label`, `kind=SKILL/INTEREST`, `importance=REQUIRED/PREFERRED` and `tagIds`. Allow at most 50 requirements, with 1–20 unique tags of the correct kind per requirement. Tags within a requirement form an **AND** group. Do not independently add fields such as opportunity type, funding or timing merely because the original project mentions them; they are absent from this contract.
 
-Any account with a valid authenticated session may enter the opportunity creation workflow. There is no prerequisite to create a talent profile, upload a CV, confirm talent information, or apply for a publisher role. The opportunity module implements these endpoints; `auth.py` provides current-user authentication and ownership checks.
+#### 2.5.5 Bidirectional Matching and Requirement-Level Explanations
 
-| Operation | Permissions and behaviour |
-|---|---|
-| `POST /opportunities` | Any authenticated user may create their own draft; the server sets owner_user_id=current_user.id; request fields follow the original contract |
-| `PUT /opportunities/{opportunityId}` | Only the opportunity owner may edit it; return 404 for other accounts |
-| `POST /opportunities/{opportunityId}/publish` | Only the owner may publish; continue to validate expectedRevision, required information, and the original publication conditions |
-| `GET /opportunities?scope=mine` | Return opportunities created by the current user ID |
-| `GET /opportunities/{opportunityId}/talent-matches` and its detail endpoint | Verify that the current user owns the published opportunity, then return candidate data subject to confirmation status, discovery consent, and field visibility |
+| Number / endpoint and purpose | Request parameters | Success response | Permissions and key errors |
+|---|---|---|---|
+| [21](docs/api/sprint-1-api-contract.md#api-21) `GET /me/recommendations`: personal opportunity ranking | Query: `page`, `pageSize` | **200 RecommendationPage** | TALENT owner; current profile unconfirmed: 409 `PROFILE_UNCONFIRMED` |
+| [22](docs/api/sprint-1-api-contract.md#api-22) `GET /me/opportunity-matches/{opportunityId}`: personal match explanation | Path: `opportunityId` | **200 OwnerMatch** | TALENT owner; unconfirmed: 409; unpublished / missing opportunity: 404 |
+| [23](docs/api/sprint-1-api-contract.md#api-23) `GET /opportunities/{opportunityId}/talent-matches`: talent ranking | Path: `opportunityId`; query: `page`, `pageSize` | **200 TalentMatchPage** | Owner of the published opportunity; unpublished / another team's opportunity: 404 |
+| [24](docs/api/sprint-1-api-contract.md#api-24) `GET /opportunities/{opportunityId}/talent-matches/{talentId}`: visible talent information and explanations | Path: `opportunityId`, `talentId` | **200 TeamMatch** | Owner of the published opportunity; talent opted out / current profile unconfirmed: 404 |
 
-If opportunity responses retain the original `ownerId` field, its value becomes the opportunity owner's user.id. Update the field definition accordingly. Clients cannot specify or modify ownerId/owner_user_id. A user must not be prevented from publishing opportunities because they have a talent profile. Likewise, a user must not be prevented from creating a profile, uploading a CV, or viewing their own recommendations because they have published opportunities. Access to other users' information remains subject to resource permissions.
+`RecommendationPage.items` contains `rank, opportunity, summary`; `TalentMatchPage.items` contains `rank, talent, summary`. Details return the complete `requirement`, `status`, `reasonCode`, `reason` and `evidence` for each item. The frontend displays individual results, not just an overall score.
 
-The frontend may provide “My profile” and “My research opportunities” entry points. Switching pages changes only the current view; it does not change a role, token, user ID, or existing business data.
+The talent owner's details use **OwnerEvidence**: `field, recordId, valueSummary, confirmedRevision, sourceType, documentId`. Teams receive **TeamEvidence**: only `field, recordId, valueSummary`. Talent information uses **VisibleProfile**: `{talentId, fields}`, omitting hidden keys entirely.
 
-## 6. Session Token Lifecycle
-
-Defaults for this iteration: authenticated sessions have an absolute lifetime of 24 hours, and anonymous sessions last 1 hour. Manage these durations through configuration. Reads and ordinary requests do not automatically extend the lifetime; the user logs in again after expiry. This iteration has no refresh token endpoint.
-
-Set `HttpOnly; SameSite=Lax; Path=/` on the cookie and omit Domain. Set Secure under HTTPS; it may be omitted only for local HTTP development. Browser Max-Age must match the corresponding server-side lifetime. The server's time and revocation records ultimately determine validity.
-
-All state-changing requests, including registration, login, logout, PUT, and confirmation, must validate both `X-CSRF-Token` and the allowed Origin. Bind the CSRF token to the current session and compare it in constant time. A CSRF token alone does not authenticate the caller. After successful registration or login, the frontend must replace its old CSRF token immediately.
-
-Frontend requests use `credentials: 'include'`. Login tokens must not appear in localStorage, response JSON, URLs, or logs. Responses containing personal information use `Cache-Control: no-store`. If the database or session store is unavailable, return the standard service error rather than bypassing authentication.
-
-## 7. User Lookup by ID or Token
-
-Define these functions in `auth.py` for reuse by this module and other backend modules. The following are proposed responsibilities and signatures, not implemented code:
-
-```python
-# Registration, validation, and credentials
-normalize_email(email: str) -> str
-hash_password(password: str) -> str
-verify_password(password: str, password_hash: str) -> bool
-register_user(payload, request) -> SessionResponse
-login_user(payload, request) -> SessionResponse
-logout_user(request) -> None
-create_session(user_id: str | None) -> IssuedSession
-revoke_session(raw_token: str) -> None
-
-# Internal lookup and authentication
-get_user_by_id(user_id: str) -> UserRecord | None
-get_user_by_email(email: str) -> UserRecord | None
-get_user_by_token(raw_token: str) -> UserRecord
-get_current_user(request) -> UserRecord
-require_profile(user: UserRecord) -> ProfileRecord
-require_owner(user: UserRecord, owner_user_id: str) -> None
-serialize_user(user: UserRecord) -> dict
-
-# Routes and profile workflows
-get_session(request) -> SessionResponse
-create_my_profile(request, payload) -> ProfileResponse
-get_my_profile(request) -> ProfileResponse
-update_my_profile(request, payload) -> ProfileResponse
-confirm_my_profile(request, payload) -> ProfileResponse
-get_my_privacy(request) -> PrivacyResponse
-update_my_privacy(request, payload) -> PrivacyResponse
-```
-
-`get_user_by_id` locates an account by its primary key and returns None if it is not found. It does not itself grant the caller permission to view that account. `get_user_by_email` normalises the email first and is primarily used for registration and password verification. These internal functions may read database records, but those records must not be serialised directly into HTTP responses.
-
-`get_user_by_token` must perform the following sequence:
-
-```text
-Obtain the raw token
-→ Validate its type, non-empty value, and reasonable length
-→ Compute the token digest and query Session
-→ Check that it has not expired or been revoked, and that user_id is non-null
-→ Query the account using session.user_id
-→ Check that the account exists and is_active=true
-→ Return the trusted internal user record
-```
-
-If any step fails the authentication requirements, raise the standard authentication error. `get_current_user` reads the token only from the `h18_session` cookie and calls this function. It must not infer identity from a URL, a userId in the request body, or a CSRF token.
-
-Profile endpoints use the authenticated user.id to retrieve the user's own profile. If an endpoint that accepts a user ID in the URL is added later, it must check access permissions before returning data. This task does not introduce an administrator role or allow anyone to view another account merely by knowing its ID.
-
-`require_profile` looks up the profile associated with the current user.id and returns `409 PROFILE_REQUIRED` if it does not exist. The profile retrieval GET returns 404 instead, as specified by that endpoint. `require_owner` compares the authenticated user.id with the resource's actual owner_user_id; it must not trust ownership information in the request body. Talent profile and opportunity publishing operations no longer use mutually exclusive `require_role(TALENT/RESEARCH_TEAM)` checks.
-
-`serialize_user` uses an allowlist to return only `id`, `displayName`, and `email` in responses to the account owner. Registration, login, and session retrieval must use the same User structure and omit the former role field. Never return password hashes, session digests, login tokens, or internal database fields.
-
-## 8. Errors and Edge Cases
-
-Retain the existing error structure. Successful responses return the business object directly, without an additional `data` or `success` wrapper.
+#### 2.5.6 Errors — Shared Error Format
 
 ```json
 {
   "error": {
-    "code": "EMAIL_ALREADY_REGISTERED",
-    "message": "This email is already registered. Please log in.",
-    "fieldErrors": [
-      { "field": "email", "message": "This email is already registered." }
-    ]
+    "code": "REVISION_CONFLICT",
+    "message": "Reload the latest resource before saving.",
+    "fieldErrors": [],
+    "currentRevision": 4
   },
   "requestId": "req_demo_001"
 }
 ```
 
-| HTTP | error.code | Condition |
+The frontend branches on `error.code`, not message wording. `fieldErrors` is always present; `currentRevision` is included only for revision conflicts. Field paths use a format such as `content.education[0].institution`.
+
+| HTTP | error.code | Frontend action |
 |---|---|---|
-| 400 | BAD_REQUEST | JSON parsing failed |
-| 401 | INVALID_CREDENTIALS | Incorrect login credentials or an account that cannot log in |
-| 401 | UNAUTHENTICATED | A private endpoint lacks a valid authenticated session |
-| 403 | CSRF_INVALID | CSRF or Origin validation failed |
-| 403 | FORBIDDEN | Another explicit business permission is not satisfied; participation in the other workflow alone must not cause rejection |
-| 404 | NOT_FOUND | The target resource does not exist or is inaccessible |
-| 409 | EMAIL_ALREADY_REGISTERED | New: email uniqueness constraint conflict |
-| 409 | ALREADY_AUTHENTICATED | New: registration attempted while logged in |
-| 409 | PROFILE_ALREADY_EXISTS | New: duplicate or concurrent creation of the user's talent profile |
-| 409 | PROFILE_REQUIRED | New: saving, confirming, accessing privacy or documents, or requesting talent recommendations before creating a talent profile |
-| 409 | REVISION_CONFLICT | Profile or privacy revision conflict; include currentRevision |
-| 415 | UNSUPPORTED_MEDIA_TYPE | Unsupported request media type |
-| 422 | VALIDATION_ERROR | Invalid fields, unknown fields, or unmet confirmation requirements |
-| 429 | RATE_LIMITED | Registration or login rate limit exceeded |
-| 500 | INTERNAL_ERROR | Internal processing or storage failure |
+| 400 | `BAD_REQUEST` | Request cannot be parsed; preserve input and show the failure |
+| 401 | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` | Clear expired-session caches and return to login; use a generic message for invalid credentials |
+| 403 | `FORBIDDEN` / `CSRF_INVALID` | Deny unauthorised access; after a CSRF error, reread the session and let the user retry without automatically replaying a mutation |
+| 404 | `NOT_FOUND` | Resource is missing or inaccessible; refresh the list |
+| 409 | `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` | Compare revisions, request profile confirmation or wait for extraction, respectively |
+| 413 | `UPLOAD_TOO_LARGE` | Explain the 10 MiB limit |
+| 415 | `UNSUPPORTED_FILE_TYPE` / `UNSUPPORTED_MEDIA_TYPE` | Select a supported file or correct the request media type |
+| 422 | `VALIDATION_ERROR` / `EXTRACTION_FAILED` | Display field errors or offer manual entry |
+| 429 | `RATE_LIMITED` | Stop repeated requests and ask the user to try later |
+| 500 | `INTERNAL_ERROR` | Preserve input and requestId for investigation |
 
-Add the four new 409 error codes to the contract and OpenAPI enum. Use fieldErrors=[] when there are no field errors. Include currentRevision only for revision conflicts. Do not return stack traces, SQL, passwords, or tokens. Registration and login rate limiting must cover at least the source IP and normalised email; manage the thresholds through configuration.
+Do not return stack traces, database errors, server paths, passwords or session credentials. Convert Python framework validation errors to the same structure. `Document.error` contains only ErrorDetail, without a nested requestId.
 
-## 9. Frontend and Backend Integration Sequence
+### 2.6 Authorisation — Sessions, Roles and Privacy
+
+#### 2.6.1 Cookie Sessions
 
 ```text
-GET /auth/session                       Establish an anonymous session and obtain csrfToken
-POST /auth/register                     Register by email; generate an ID and login session
-                                        Browser receives the cookie; frontend updates csrfToken
-GET /auth/session                       Read the current user using the cookie
-                                        Registration is complete; no business identity selection
-
-Optional workflow A: Create research opportunities (no talent profile required)
-POST /opportunities                     Create an opportunity draft owned by the current user
-PUT /opportunities/{id}                 Edit the user's own opportunity
-POST /opportunities/{id}/publish        Publish after meeting the publication conditions
-
-Optional workflow B: Create a personal profile (no prior opportunity publication required)
-POST /me/profile                        Explicitly create profile and privacy settings; revision=0
-GET /tags + GET /me/profile             Retrieve tags and the user's own profile
-PUT /me/profile                         Enter and save profile details manually
-POST /me/documents                      Optional: upload a CV and review extraction results
-POST /me/documents/{id}/apply           Optional: import selected content after user review
-POST /me/profile/confirmation           Confirm the latest revision after user review
-PUT /me/privacy                         Let the user choose discovery consent and visible fields
-
-Choose either or both workflows, concurrently or sequentially, using the same account and session
-POST /auth/logout                       Revoke the current session and clear frontend personal-data caches
-GET /auth/session → POST /auth/login    Obtain anonymous CSRF, then log in again with the existing account
+GET /auth/session       → Create / read anonymous session and return csrfToken
+POST /auth/login        → Include Cookie + CSRF; rotate both after login
+GET /auth/session       → Return current User; session ID remains in Cookie only
+POST /auth/logout       → Revoke server session, clear Cookie and return 204
 ```
 
-Do not automatically repeat a registration or login POST after a timeout. Query the current session first to determine whether the operation succeeded. Clear frontend profile, document, and recommendation caches on login, logout, and account changes. After CSRF validation fails, retrieve the session again and let the user retry the state-changing operation.
+The cookie is named `h18_session`, with `HttpOnly; SameSite=Lax; Path=/` and no Domain attribute. Use Secure on HTTPS; local HTTP may omit it. Browser requests use `credentials: 'include'`. Replace the CSRF token after successful login; never put the login session value in localStorage, URLs or JSON.
 
-## 10. Backend Acceptance Checklist
+`user.id` and `talentId` identify resources and cannot replace authentication; `csrfToken` is not a login credential either. The backend determines the current account, role and resource owner from the session, rather than trusting client-supplied owner, role or confirmation state. Session expiry and account provisioning are implementation configuration; this contract does not prescribe fixed values.
 
-- [ ] Registering a new email returns 201 and creates only User and Session; no talent ID, talent profile, privacy settings, CV, or opportunity is created.
-- [ ] Registration does not require choosing talent or publisher; registration, login, and session responses no longer contain a mutually exclusive role.
-- [ ] Successful responses issue an HttpOnly cookie; JSON contains no login token; only password hashes are stored.
-- [ ] Email case and leading/trailing whitespace follow one normalisation rule; only one concurrent registration for the same email succeeds.
-- [ ] Invalid emails, short passwords, empty names, unknown fields, and client-supplied role/id values are rejected.
-- [ ] Registration initialisation is transactional; a simulated database failure leaves no account or valid session behind.
-- [ ] GET returns 404 when no profile exists after registration and does not create one automatically; profile-dependent operations return PROFILE_REQUIRED.
-- [ ] A talent ID is generated only after explicit profile creation, with revision=0, UNCONFIRMED status, and privacy settings that disable discovery by default.
-- [ ] Only one concurrent profile creation succeeds; others return PROFILE_ALREADY_EXISTS. Failure rolls back the profile and privacy settings without affecting the existing account.
-- [ ] An authenticated user without a talent profile, CV, or profile confirmation can still create and publish research opportunities that satisfy publication requirements.
-- [ ] A user who has published opportunities can create a talent profile and upload a CV; a user with a profile can publish opportunities without registering again or switching roles.
-- [ ] ID lookup locates the correct account, but knowing an ID alone cannot bypass authentication to read profile information.
-- [ ] A valid token locates the correct user; invalid, expired, revoked, or disabled-account tokens are rejected.
-- [ ] A CSRF token alone cannot access private endpoints; state-changing requests with missing CSRF or an invalid Origin fail.
-- [ ] Login and registration rotate tokens and invalidate the previous session; logging in again preserves the account's user ID.
-- [ ] Profile data persists across restarts; saving unchanged content preserves revision; a concurrent stale save returns 409.
-- [ ] Profile changes require reconfirmation; privacy changes do not reset confirmation; display-name synchronisation behaves consistently on repeated verification.
-- [ ] The same account can manage its own profile and opportunities; different accounts cannot modify each other's profiles, documents, or opportunities.
-- [ ] Publishers' access to candidate data still respects confirmation, discovery consent, and field visibility; participation in both workflows does not expand read permissions.
-- [ ] Logout returns 204 with no response body; replaying the previous token fails; sessions on other devices remain valid.
-- [ ] An unauthenticated GET /auth/session returns 200 with user=null; private endpoints return 401.
-- [ ] Registration and login rate limiting returns 429, and error responses always follow the standard structure.
-- [ ] Endpoints retain camelCase and UTC RFC3339 timestamps; remove the old mutually exclusive business-role checks and authorise by account and resource ownership.
-- [ ] The API contract, OpenAPI definition, frontend request examples, and mocks reflect registration, separate profile creation, the User structure, ownerId semantics, and the new error codes.
+Private endpoints return 401 without a valid session, 403 for an incorrect role and 404 for missing or inaccessible resources. Personalised responses use `Cache-Control: no-store`. Clear frontend profile, document and recommendation caches when logging out or signing in as another account.
 
-## 11. Updates to the Previous Contract and Existing Data
+#### 2.6.2 Filter Permissions Before Calculating Team Matches
 
-- Remove `User.role` from the public User structure. Update registration, login, session retrieval, and frontend route guards together, not only the registration response.
-- Replace the former `Talent owner` permission with “the current account owns the relevant talent profile” and `Team owner` with “the current account owns the relevant research opportunity”. Update document, recommendation, and matching modules as well; do not leave exclusive TALENT/RESEARCH_TEAM checks in place.
-- Replace automatic profile provisioning for every account with explicit POST creation by the user. Distinguish an absent profile from an empty profile. GET must not create data.
-- Preserve existing user IDs, passwords, saved profiles, and opportunities. Associate previous opportunity owners with their actual account user IDs and validate the mapping before migration. Do not infer ownership from display names.
-- Existing provisioned team accounts may also create personal profiles, and existing individual accounts may publish opportunities. Multi-member team collaboration and membership management are separate features outside this change.
-- This iteration updates only this README. The contract, code, database, and frontend changes described above remain implementation tasks.
+Process team requests in this order:
 
-The acceptance checklist defines completion criteria for development. It is not a record of tests already executed or passed as part of this README.
+1. Verify that the team owns the published opportunity.
+2. Exclude talent with `discoverable=false` or an unconfirmed current revision.
+3. Select the information permitted by `visibleFields` for this request.
+4. Generate statuses, scores and explanations using only those fields, then sort, paginate and calculate total.
+5. Recheck every detail request and invalidate stale result caches after profile, opportunity or privacy changes.
+
+Hidden fields must not affect team-visible scores, rankings or explanations. Use a generic "insufficient evidence" explanation for both missing and hidden evidence; do not say "this user hid Python". Display anonymous talent when `displayName` is not visible. Even with `visibleFields=[]`, a currently confirmed talent who permits discovery may appear anonymously with UNKNOWN results.
+
+Owner recommendations may use the talent's complete confirmed profile, even when `discoverable=false`. Team responses must never expose login email, original filenames, document IDs, download links, raw extracted text or provenance information. Revoking discovery affects subsequent requests: the talent disappears from the next list, and an old detail URL returns 404. Refetch when entering, refreshing or refocusing the team page.
+
+### 2.7 Matching Rules — Statuses, Evidence and Ranking
+
+This sprint uses algorithm version `tag-coverage-v1`. Evaluate SKILL / INTEREST tags using only **the current confirmed information authorised for this request**. Do not independently infer skills from free-text course or project descriptions.
+
+Evaluate each AND requirement in this priority order:
+
+| Priority | Condition | API status / display label | reasonCode |
+|---:|---|---|---|
+| 1 | Any requested skill has an explicit `DOES_NOT_HAVE` claim | `GAP` / Gap | `EXPLICIT_NEGATIVE_CLAIM` |
+| 2 | Every tag has affirmative evidence | `MATCHED` / Matched | `ALL_TAGS_SUPPORTED` |
+| 3 | Some tags have affirmative evidence and the rest are unknown | `PARTIAL` / Partial | `SOME_TAGS_SUPPORTED` |
+| 4 | No usable affirmative or explicit negative evidence | `UNKNOWN` / Unknown | `INSUFFICIENT_EVIDENCE` |
+
+For Python+SQL, having Python and explicitly not having SQL produces GAP; having Python with SQL unknown produces PARTIAL; no information for either produces UNKNOWN. Missing uploads, omitted skills or hidden skills must not automatically become GAP. Unconfirmed profiles do not enter matching.
+
+MATCHED / PARTIAL cite actual supporting evidence; GAP cites the explicit negative claim; UNKNOWN has `evidence=[]`. When `evidenceText` is empty, cite only the confirmed tag claim without inventing experience. Interest evidence.recordId uses tagId.
+
+```text
+Requirement weight w: REQUIRED = 2, PREFERRED = 1
+Status value v: MATCHED = 1, PARTIAL = 0.5, GAP = 0, UNKNOWN = 0
+
+score = round_half_up(100 × sum(w × v) / sum(w), 2)
+unknownWeightPercent = round_half_up(100 × sum(w for UNKNOWN requirements) / sum(w), 2)
+requiredGapCount = count(requirements where importance=REQUIRED and status=GAP)
+```
+
+The backend uses decimal half-up rounding to two places; the frontend displays the returned values. When total weight is zero, return `null` for both percentages and `evaluationStatus=INSUFFICIENT_CRITERIA`, never NaN. Normal evaluations use `EVALUATED`. Publication rejects empty requirements; this branch protects against legacy data.
+
+Sort by **score descending → unknownWeightPercent ascending → object ID ascending**, placing null scores last. Paginate after sorting. `rank` is global and does not restart on each page. REQUIRED increases weight and contributes to requiredGapCount; this sprint does not automatically exclude talent because of a GAP.
+
+The contract's four-status example has Python REQUIRED as MATCHED, Python+SQL REQUIRED as PARTIAL, interviews PREFERRED as GAP and R PREFERRED as UNKNOWN. It produces **score=50, unknownWeightPercent=16.67, requiredGapCount=0**. If the talent shares only their name, all four team-facing results are UNKNOWN, with score=0 and unknownWeightPercent=100. Scores represent evidence coverage, not admission probability.
+
+### 2.8 Working in Parallel — Collaboration and Integration
+
+The frontend builds mocks using [OpenAPI](docs/api/openapi.json) and the [fixtures](docs/api/examples/index.json), while the backend implements the same protocol. The server is authoritative for identity, confirmation, evidence selection, permission filtering and scoring. The frontend requests `/api/v1`; a development proxy forwards requests to Python while preserving Origin. The team configures the actual listening address.
+
+Use a separate branch and Merge Request for each feature where practical, linking the Jira item and relevant test results. Coordinate API changes by updating the contract version, OpenAPI, examples and tests on both sides together. Before locking the version, review defaults in contract section 1.3, including cookie sessions, whole-profile confirmation, the 10 MiB upload limit and scoring weights.
+
+**Manual profile workflow:**
+
+```text
+Read session → Talent login → Read tags and profile
+→ PUT complete profile → User review → POST confirmation of current revision
+→ GET recommendations → GET requirement-level match explanations
+```
+
+**Document extraction workflow:**
+
+```text
+Upload → Query processing status → Read extraction suggestions once READY
+→ User selects, corrects and reviews the sections to replace
+→ Read current profile revision → apply import → Review and confirm profile again
+→ Refetch recommendations
+```
+
+**Team discovery and privacy workflow:**
+
+```text
+Talent confirms profile → Actively enables discoverable and selects visible fields
+Team login → Read own opportunities → Create draft → Edit → Publish
+→ Read talent rankings and explanations
+Talent revokes discovery → Team refresh no longer lists the talent; old details return 404
+```
+
+IDs, emails and passwords in fixtures are fictional, not provisioned test accounts. Fixtures illustrate individual requests / responses; do not assume that all revisions form a continuous database history. Use the revision actually read when making requests.
+
+### 2.9 Acceptance Criteria — Required Outcomes
+
+These are Sprint 1 functional acceptance criteria; COMP1531 grading weights and MR-count requirements do not apply.
+
+| Acceptance case | Related stories | Required observable result |
+|---|---|---|
+| Anonymous sessions and provisioned-account login | US-01 | Anonymous session returns 200 + user=null; private requests return 401; both roles log in correctly; login rotates the session and logout invalidates it |
+| Profile initialisation and saving | US-01 | New profile starts at revision 0, unconfirmed and not discoverable; saved content survives refresh; full replacement preserves unedited fields |
+| Review, repeated confirmation and reconfirmation | US-03 | Empty profiles cannot be confirmed; repeated confirmation preserves revision / original confirmation time; actual edits cause recommendations to return 409 until reconfirmed |
+| Concurrent saves | US-01, US-02, US-07 | Profiles, privacy and opportunities reject stale revisions with 409; newer data remains intact; ordinary no-op saves preserve the revision |
+| Opportunity lifecycle | US-02 | Talent cannot view drafts or receive them as recommendations; publication requires requirements; owner teams can edit published content and other teams cannot modify it |
+| Talent recommendations | US-04 | Use the current confirmed profile and published opportunities; disabling discoverable does not affect owner recommendations; no opportunities returns 200 with an empty list |
+| Team discovery | US-05 | Only currently confirmed, opted-in talent appear; no visible fields may still produce anonymous UNKNOWN results; total is calculated after permission filtering |
+| Four statuses and evidence | US-08 | The four-status fixture matches 2.7; explicit negative claims take priority; missing data is not GAP; UNKNOWN has no evidence; no invented course / project facts |
+| Ranking, pagination and boundaries | US-04, US-05, US-08 | Deterministic ordering, continuous rank across pages, invalid pagination returns 422 and out-of-range pages are empty; zero requirements safely return null scores |
+| Privacy changes | US-07 | Privacy-only changes preserve profile confirmation; hiding skills changes team scores and explanations, and hidden keys are omitted from responses |
+| Discovery revocation and caching | US-05, US-07 | The next list excludes the talent and old details return 404; opportunity / profile / privacy changes do not leave stale results in use |
+| Original-file access | US-07, US-09 | Uploaders can download; other talent and teams are denied; team responses contain no email, file or provenance information |
+| Upload and processing | US-09 | PDF / DOCX acceptance returns 202 with queryable status; oversized files return 413, unsupported formats 415; READY or FAILED can be observed |
+| Uncertain or failed extraction | US-09 | No automatic confirmation or profile overwrite; manual entry remains available; stopping automatic polling after 60 seconds does not imply backend failure |
+| Reviewed imports | US-03, US-09 | Replace selected sections only, preserve omitted ones and clear explicit empty arrays; imports increment revision and require reconfirmation; stale imports return 409 |
+| Authentication, CSRF and account changes | US-01, US-07 | Mutations without CSRF / with an incorrect Origin are rejected; knowing an ID cannot bypass permissions; account changes leave no previous-account cache |
+| Protocol and errors | US-06 and related stories | Paths, fields, enums and response statuses match the contract; every error follows the shared structure without leaking internal information |
+| Test records and defect retesting | US-06 | Record reproducible steps and actual results; link failures to Jira and record retests after fixes |
+
+### 2.10 Dryrun — Pre-Demonstration Checks
+
+The current repository contains documentation, OpenAPI and fixtures, but does not yet provide application source code, dependency manifests, startup scripts or a test runner. Therefore, this document does not present `npm test`, `pytest` or course dryrun commands as currently executable steps.
+
+Once implementation is integrated, add actual operating instructions: dependencies and versions, an environment-variable template, data initialisation, how to obtain provisioned accounts, frontend and backend startup commands, application URLs, test commands and test-data reset procedures. Do not put real passwords in the README.
+
+Before the demonstration, complete these steps:
+
+1. Initialise isolated test data, including at least two independent talent accounts and two team accounts to verify cross-account and cross-team access.
+2. Use a talent account to save a manual profile, confirm it, view recommendations and inspect requirement-level explanations.
+3. Upload test PDF / DOCX files and demonstrate processing, review and correction, import and reconfirmation; also check manual entry after failure.
+4. Use a team account to create and publish an opportunity, then view talent rankings and visible information.
+5. Change talent field visibility and demonstrate changes to team scores and explanations; then revoke discovery and verify that old details are inaccessible.
+6. Check concurrent stale saves, all four match statuses, empty lists, oversized files, unauthorised access and cache cleanup after logout.
+7. Record actual results under US-06 and clearly identify mocks, incomplete features or temporary fallbacks in the demonstration.
+
+Useful fixtures:
+
+| Scenario | Repository fixtures |
+|---|---|
+| Saving, confirmation and privacy | [profile-write.json](docs/api/examples/profile-write.json), [confirm-request.json](docs/api/examples/confirm-request.json), [privacy-write.json](docs/api/examples/privacy-write.json) |
+| Opportunity creation | [opportunity-create.json](docs/api/examples/opportunity-create.json) |
+| Extraction and import | [extraction-ready.json](docs/api/examples/extraction-ready.json), [apply-extraction-request.json](docs/api/examples/apply-extraction-request.json) |
+| Four match statuses | [owner-match-four-statuses.json](docs/api/examples/owner-match-four-statuses.json) |
+| Team results with hidden skills | [team-match-hidden-skills.json](docs/api/examples/team-match-hidden-skills.json) |
+| Conflict and unconfirmed-profile errors | [error-revision-conflict.json](docs/api/examples/error-revision-conflict.json), [error-unconfirmed.json](docs/api/examples/error-unconfirmed.json) |
+
+### 2.11 Sprint 1 Delivery — Delivery Checklist
+
+- [ ] Frontend behaviour and corresponding backend endpoints for US-01–US-09 are implemented, with traceable MR, test or demonstration evidence in Jira.
+- [ ] All 24 HTTP operations match the `0.1.0-draft` contract or a version updated jointly by the team.
+- [ ] Manual talent entry, reviewed document imports, team opportunity management and bidirectional explanations can be demonstrated.
+- [ ] Confirmation, privacy, ownership, revision-conflict and session rules have passed actual tests.
+- [ ] US-06 records cover successful flows, errors, boundaries, permissions and defect retesting.
+- [ ] Actual installation, startup, data initialisation and test commands are included in the operating instructions.
+- [ ] Demonstration data contains no unauthorised real personal information; accounts and secrets are supplied through appropriate channels.
+- [ ] Documentation clearly identifies completed work, known limitations, mocks and manual fallbacks without marking planned features as complete.
+
+The Jira screenshot's 15 October date is the sprint end date. Official demonstration dates, submission channels and course deadlines follow course and team announcements; this document does not infer additional deadlines.
