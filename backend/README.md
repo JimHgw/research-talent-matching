@@ -8,7 +8,30 @@ manual talent profile creation. Requests and responses follow the checked-in
 
 **After pulling the repository, run the setup program before writing code,
 starting either service or running tests.** Run it again after dependency files
-change. From the repository root on Windows, run:
+change. Choose the entry point for your operating system.
+
+### macOS / Linux
+
+Install Python 3.12+ and Node.js 22.12+ **with npm**, and make `python3`, `node`
+and `npm` available on PATH. On Linux, the Python installation also needs its
+`venv`/`ensurepip` support (some distributions package it separately).
+From the repository root:
+
+```sh
+sh setup.sh
+```
+
+From `backend/`, use `sh ../setup.sh`. To choose a particular Python, use
+`PYTHON=python3.12 sh setup.sh`. The script creates/reuses `.venv/bin/python`,
+installs backend dependencies and the pinned project-local pnpm, installs frontend
+dependencies from the lockfile, then runs both test suites and required real HTTP
+integration. It needs internet access for downloads; no global pnpm or Codex
+installation is required. Missing/old runtimes produce an error; the script does
+not run Homebrew, apt, sudo or change your shell configuration.
+
+### Windows
+
+From the repository root:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
@@ -44,23 +67,14 @@ rerun setup to create a new one. Database contents, accounts and `.env` files ar
 not changed by setup; tests use separate temporary databases.
 
 The installer records local Node/pnpm paths in the ignored `.venv/toolchain.json`.
-Pytest and `frontend/run.ps1` read it automatically, so new terminals can find Node
+Pytest and the frontend launchers (`run.ps1` / `run.sh`) read it automatically, so new terminals can find Node
 without setting `NODE_BINARY` or relying on a Codex installation. Do not commit
 `.venv/` or `node_modules/`; commit the setup scripts, manifests and lockfile.
 If you move the checkout or remove a runtime, rerun setup to refresh these paths.
 
-For macOS/Linux, this Windows installer does not run. Install Python 3.12+,
-Node.js 22.12+ and pnpm 11.25.0, then run from the repository root:
-
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r backend/requirements-dev.txt
-cd frontend
-pnpm install --frozen-lockfile
-pnpm test
-cd ..
-.venv/bin/python -m pytest -q
-```
+Both installers leave accounts, database contents and `.env` files unchanged.
+Do not copy `.venv/` or `node_modules/` between operating systems: recreate them
+on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 
 ## Implemented scope
 
@@ -110,7 +124,32 @@ Features use `db/` and `shared/` without importing another feature. Register new
 feature blueprints in `src/app.py`. The repository's `docs/api/` remains the shared
 contract and fixture source; existing SQLite files remain in the root `data/`.
 
-## Start on Windows
+## Start the services
+
+### macOS / Linux
+
+After setup completes, run from the repository root:
+
+```sh
+.venv/bin/python -m flask --app backend.app init-db
+.venv/bin/python -m flask --app backend.app seed-tags
+.venv/bin/python -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT
+.venv/bin/python -m flask --app backend.app provision-user --email team@example.test --display-name "Demo Team" --role RESEARCH_TEAM
+export COOKIE_SECURE=false
+.venv/bin/python -m flask --app backend.app run --host 127.0.0.1 --port 8000
+```
+
+In another terminal, from the repository root:
+
+```sh
+sh frontend/run.sh dev
+```
+
+From inside `backend/`, the equivalent server command is
+`../.venv/bin/python -m flask --app src.app run --host 127.0.0.1 --port 8000`.
+Set `COOKIE_SECURE=false` in that terminal as well.
+
+### Windows
 
 After **First step after cloning** completes, run from the repository root:
 
@@ -138,8 +177,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 dev
 
 Open `http://127.0.0.1:5173`. The existing Vite configuration forwards `/api` to
 port 8000. Use the same browser hostname throughout. No `.env` copy is required
-for these defaults. On macOS/Linux, use `python3 -m venv .venv`,
-`.venv/bin/python` and `export COOKIE_SECURE=false`; the Flask commands are the same.
+for these defaults.
 
 To work from `backend/`, reuse the same virtual environment and run:
 
@@ -202,19 +240,34 @@ directory, local environments and credentials are ignored by Git.
 
 Maintenance command:
 
+```sh
+.venv/bin/python -m flask --app backend.app prune-sessions
+```
+
+On Windows:
+
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app backend.app prune-sessions
 ```
 
 ## Verification
 
-From the repository root:
+For full US-01 acceptance, from the repository root on macOS/Linux:
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
+```sh
+.venv/bin/python -m pytest -q -rs --require-frontend
+sh frontend/run.sh test
 ```
 
-Or, from `backend/`, run `..\.venv\Scripts\python.exe -m pytest -q`.
+On Windows:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q -rs --require-frontend
+powershell -NoProfile -ExecutionPolicy Bypass -File .\frontend\run.ps1 test
+```
+
+From `backend/`, use `../.venv/bin/python` (macOS/Linux) or
+`..\.venv\Scripts\python.exe` (Windows) with the same pytest arguments.
 The root `pytest.ini` forwards discovery to `backend/tests/`; backend-local
 configuration supports running the same suite from inside `backend/`.
 
@@ -225,8 +278,14 @@ manages separate numbered directories for each run. Explicit `--basetemp` or
 
 To run just the real frontend integration test from the repository root:
 
+```sh
+.venv/bin/python -m pytest backend/tests/test_frontend_integration.py -q --require-frontend
+```
+
+On Windows:
+
 ```powershell
-.\.venv\Scripts\python.exe -m pytest backend/tests/test_frontend_integration.py -q
+.\.venv\Scripts\python.exe -m pytest backend/tests/test_frontend_integration.py -q --require-frontend
 ```
 
 Run test files through `python -m pytest`, rather than directly with `python`;
@@ -252,9 +311,23 @@ browser layout, Vite proxying or HTTPS cookie enforcement. Set `NODE_BINARY` to
 an absolute Node executable to override automatic selection. On a manually
 configured environment, this integration test is explicitly skipped when Node or
 frontend dependencies are unavailable; use `pytest -rs` to display the reason.
-Run `setup.ps1` on Windows to prepare both dependencies before testing.
+With `--require-frontend`, missing Node/jsdom is a failure, not a skip. Both setup
+scripts use this flag. Omit it only for backend-only development; a skipped HTTP
+test is not evidence that integration passed. The two WinGet installer tests
+remain intentionally skipped on macOS/Linux. Portable setup tests run on all
+platforms and cover platform-specific paths, directories with spaces, failure
+propagation and the strict integration requirement. Those simulated setup tests
+do not replace running the full suite on each native OS.
 
 The existing frontend suite remains separate:
+
+```sh
+sh frontend/run.sh test
+sh frontend/run.sh build
+sh frontend/run.sh format:check
+```
+
+On Windows:
 
 ```powershell
 cd frontend

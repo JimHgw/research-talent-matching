@@ -1,0 +1,2 @@
+# Shell launchers must remain runnable after checkouts with core.autocrlf=true.
+*.sh text eol=lf

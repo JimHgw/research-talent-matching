@@ -12,6 +12,11 @@ PASSWORD = "Test-password-123!"
 ORIGIN = "http://127.0.0.1:5173"
 
 
+def pytest_addoption(parser):
+    parser.addoption("--require-frontend", action="store_true",
+                     help="Fail instead of skipping real HTTP integration when Node/jsdom is missing.")
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_configure(config):
     """Load the local toolchain and keep temporary databases in the workspace."""
@@ -24,7 +29,7 @@ def pytest_configure(config):
             if not isinstance(node, str) or not node:
                 raise ValueError("missing Node executable")
         except (OSError, ValueError, KeyError) as error:
-            raise pytest.UsageError("Invalid .venv/toolchain.json; rerun setup.ps1.") from error
+            raise pytest.UsageError("Invalid .venv/toolchain.json; rerun setup.ps1 (Windows) or sh setup.sh (macOS/Linux).") from error
         patch.setenv("NODE_BINARY", node)
     if config.getoption("basetemp") or os.environ.get("PYTEST_DEBUG_TEMPROOT"):
         return

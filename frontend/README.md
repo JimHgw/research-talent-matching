@@ -22,17 +22,22 @@ dependencies and verifies both test suites. `run.ps1` uses the saved local
 toolchain, so it works in a fresh terminal without globally installed pnpm.
 See [first-time setup](../backend/README.md#first-step-after-cloning-install-the-development-environment).
 
-Requirements: Node.js 22.12+ and pnpm. Run these commands from `frontend/`:
+On macOS/Linux, install Python 3.12+ and Node.js 22.12+ with npm on PATH,
+then run these commands from `frontend/`:
 
 ```sh
-./run.sh install --frozen-lockfile
-cp .env.example .env
-./run.sh dev
+sh ../setup.sh
+sh run.sh dev
 ```
 
-The optional `run.sh` wrapper uses your installed Node/pnpm, or the local Codex
-runtime when available. It does not change shell settings. Normal pnpm commands
-also work when Node and pnpm are on PATH.
+Setup installs the pnpm version pinned in `package.json` inside `.venv/node-tools/`
+and records the local Node/pnpm paths in `.venv/toolchain.json`. Both launchers
+use those paths, work from other directories and preserve arguments containing
+spaces. They do not depend on Codex or a global pnpm installation. Rerun setup if
+you move the checkout or replace Node. Recreate `.venv/` and `node_modules/` when
+changing operating systems. If you manually manage dependencies instead, use
+the pinned pnpm version directly (`pnpm install --frozen-lockfile`, `pnpm dev`).
+Copy `.env.example` to `.env` only if you need to change the proxy defaults.
 
 Open the URL printed by Vite (normally `http://127.0.0.1:5173`). Start the team's
 Python service separately using the [US-01 backend setup](../backend/README.md). Requests use
@@ -78,6 +83,10 @@ For real HTTP integration, run the repository-root Python test suite after insta
 frontend dependencies. `backend/tests/test_frontend_integration.py` runs frontend's `tests/us01-live.mjs`
 against a temporary Python service and SQLite database. The actual React pages
 exercise login, editing, saving, reload, conflicts, logout and account isolation.
+Use `.venv/bin/python -m pytest -q -rs --require-frontend` on macOS/Linux, or
+`.\.venv\Scripts\python.exe -m pytest -q -rs --require-frontend` on Windows.
+The flag fails if Node/jsdom is missing instead of accepting a skipped integration
+test. macOS/Linux may still skip the two Windows-only installer tests.
 
 ## Isolated visual checks without Python
 

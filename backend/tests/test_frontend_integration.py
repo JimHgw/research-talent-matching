@@ -12,14 +12,22 @@ from werkzeug.serving import make_server
 from backend.src.shared.paths import ROOT
 
 
-def test_real_frontend_login_save_reload_conflict_logout(app):
+def frontend_node(required=False):
+    """Optional for backend-only work, mandatory for setup and full acceptance."""
     node = os.getenv("NODE_BINARY") or shutil.which("node")
+    hint = "Run setup.ps1 (Windows) or sh setup.sh (macOS/Linux)."
+    unavailable = pytest.fail if required else pytest.skip
     if not node:
-        pytest.skip("Node.js is unavailable. Run setup.ps1 (Windows), or set NODE_BINARY/add Node to PATH. Use -rs for skip reasons.")
+        unavailable("Node.js is unavailable. " + hint)
     if not (ROOT / "frontend/node_modules/jsdom").exists():
-        pytest.skip("Frontend dependencies are missing. Run setup.ps1 (Windows), or pnpm install --frozen-lockfile in frontend/.")
+        unavailable("Frontend dependencies are missing. " + hint)
     if not Path(node).is_file():
-        pytest.fail("The configured Node executable is missing. Rerun setup.ps1 or correct NODE_BINARY.")
+        pytest.fail("The configured Node executable is missing. Correct NODE_BINARY. " + hint)
+    return node
+
+
+def test_real_frontend_login_save_reload_conflict_logout(app, request):
+    node = frontend_node(required=request.config.getoption("--require-frontend"))
     server = make_server("127.0.0.1", 0, app, threaded=True)
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
