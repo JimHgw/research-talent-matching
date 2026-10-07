@@ -27,15 +27,15 @@ def setup(root=ROOT):
     env = os.environ.copy()
     node = shutil.which(env.get("NODE_BINARY") or "node")
     if not node:
-        raise RuntimeError("Install Node.js 22.12+ with npm and add it to PATH, then rerun setup.")
+        raise RuntimeError("Install Node.js 22.13+ with npm and add it to PATH, then rerun setup.")
     # Preserve the PATH entry of version-manager symlinks (e.g. nvm/Homebrew).
     node = os.path.abspath(node)
     env["PATH"] = str(Path(node).parent) + os.pathsep + env.get("PATH", "")
     env["NODE_BINARY"] = node
     version = run([node, "--version"], cwd=root, env=env, capture=True)
     match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", version)
-    if not match or tuple(map(int, match.groups())) < (22, 12, 0):
-        raise RuntimeError("Node.js 22.12 or newer is required.")
+    if not match or tuple(map(int, match.groups())) < (22, 13, 0):
+        raise RuntimeError("Node.js 22.13 or newer is required.")
     npm = shutil.which("npm", path=env["PATH"])
     if not npm:
         raise RuntimeError("npm is missing. Install Node.js with npm, then rerun setup.")
@@ -75,6 +75,9 @@ def setup(root=ROOT):
              "--ignore-scripts", "--package-lock=false", manager], cwd=root, env=env)
     if run([node, pnpm, "--version"], cwd=root, env=env, capture=True) != manager.removeprefix("pnpm@"):
         raise RuntimeError("The installed pnpm version does not match frontend/package.json.")
+    # pnpm may invoke its own CLI when checking dependency status.
+    # npm creates this launcher directory during the project-local installation.
+    env["PATH"] = str(tools / "node_modules/.bin") + os.pathsep + env["PATH"]
 
     print("[4/5] Installing frontend dependencies from the lockfile...", flush=True)
     env["CI"] = "true"
@@ -100,7 +103,9 @@ def frontend(args, root=ROOT):
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise RuntimeError("The saved toolchain is unavailable. " + SETUP_HINT) from error
     env = os.environ.copy()
-    env["PATH"] = str(Path(node).parent) + os.pathsep + env.get("PATH", "")
+    env["PATH"] = os.pathsep.join((str(Path(node).parent),
+                                  str(root / ".venv/node-tools/node_modules/.bin"),
+                                  env.get("PATH", "")))
     run([node, pnpm, *args], cwd=root / "frontend", env=env)
 
 

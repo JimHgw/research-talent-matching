@@ -11,7 +11,8 @@ try {
         }
     }
     $previousPath = $env:Path
-    $env:Path = (Split-Path $toolchain.node) + ';' + $env:Path
+    $pnpmBin = Join-Path (Split-Path $PSScriptRoot) '.venv/node-tools/node_modules/.bin'
+    $env:Path = (Split-Path $toolchain.node) + ';' + $pnpmBin + ';' + $env:Path
     Push-Location -LiteralPath $PSScriptRoot
     try {
         & $toolchain.node $toolchain.pnpm @args
