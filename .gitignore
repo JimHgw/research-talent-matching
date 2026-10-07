@@ -5,3 +5,8 @@ dist/
 .env.*
 !.env.example
 /frontend/TASKS.md
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+/data/

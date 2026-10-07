@@ -2139,6 +2139,7 @@ Use the structure below for every error response. The frontend branches on `erro
 | 403 | FORBIDDEN | Role lacks permission | Show access denied; do not retry |
 | 403 | CSRF_INVALID | CSRF or Origin validation failed | Read the session again and offer retry; do not automatically replay a mutation |
 | 404 | NOT_FOUND | Missing/inaccessible resource or talent whose visibility was revoked | Show unavailable and refetch the list |
+| 405 | BAD_REQUEST | HTTP method is unsupported; `Allow` lists supported methods | Correct the request method; do not replay unchanged |
 | 409 | REVISION_CONFLICT | Stale expectedRevision | Preserve local input, reload and compare |
 | 409 | PROFILE_UNCONFIRMED | Owner requests recommendations with an unconfirmed current profile | Direct the user to review and confirm |
 | 409 | EXTRACTION_NOT_READY | Extraction is queued or processing | Continue status checks without importing |
@@ -2244,7 +2245,7 @@ Type: `displayName` / `disciplineGroup` / `education` / `courses` / `researchExp
 |---|---|---|---|
 | `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `name` | string | Yes | Name; minimum length: 1; maximum length: 200 |
-| `code` | string / null | Yes | Course code; null if unknown. In an error object, this is the error code; maximum length: 100 |
+| `code` | string / null | Yes | Course code; null if unknown. In an error object, this is the error code; maximum length: 200 |
 | `description` | string | Yes | Plain-text description; maximum length: 5000 |
 
 <a id="model-researchexperience"></a>
