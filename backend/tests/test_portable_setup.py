@@ -34,9 +34,11 @@ def test_setup_uses_local_tools_and_stops_on_failure(tmp_path, monkeypatch, caps
         args = [str(arg) for arg in args]
         events.append((args, cwd))
         assert env["NODE_BINARY"] == str(node)
-        assert env["PATH"].split(os.pathsep)[0] == str(runtime)
+        assert str(runtime) in env["PATH"].split(os.pathsep)
+        if "--frozen-lockfile" in args or args[-1] == "test":
+            assert str(checkout / ".venv/node-tools/node_modules/.bin") in env["PATH"].split(os.pathsep)
         if args == [str(node), "--version"]:
-            return "v22.12.0"
+            return "v22.13.0"
         if args[1:3] == ["-m", "venv"]:
             python = Path(args[3]) / ("Scripts/python.exe" if platform == "win32" else "bin/python")
             python.parent.mkdir(parents=True)
@@ -86,7 +88,7 @@ def test_setup_rejects_unusable_environment_before_installing(tmp_path, monkeypa
 
     def fake_run(args, **kwargs):
         events.append(args)
-        return "v22.11.0" if problem == "old_node" else "v24.0.0"
+        return "v22.12.0" if problem == "old_node" else "v24.0.0"
 
     monkeypatch.setattr(dev, "run", fake_run)
     with pytest.raises(RuntimeError):
@@ -103,12 +105,18 @@ def test_frontend_runner_preserves_arguments_cwd_and_failure_code(tmp_path, monk
     result_path = tmp_path / "result.json"
     probe.write_text(
         "import json, os, pathlib, sys\n"
-        "pathlib.Path(sys.argv[1]).write_text(json.dumps({'args': sys.argv[2:], 'cwd': os.getcwd(), 'path': os.environ['PATH']}))\n"
+        "import shutil\n"
+        "pathlib.Path(sys.argv[1]).write_text(json.dumps({'args': sys.argv[2:], 'cwd': os.getcwd(), 'path': os.environ['PATH'], 'pnpm': shutil.which('pnpm')}))\n"
         "sys.exit(7)\n", encoding="utf-8",
     )
     (tmp_path / ".venv/toolchain.json").write_text(
         json.dumps({"node": sys.executable, "pnpm": str(probe)}), encoding="utf-8-sig",
     )
+    pnpm_bin = tmp_path / ".venv/node-tools/node_modules/.bin"
+    pnpm_bin.mkdir(parents=True)
+    launcher = pnpm_bin / ("pnpm.cmd" if os.name == "nt" else "pnpm")
+    launcher.write_text("@exit /b 0\n" if os.name == "nt" else "#!/bin/sh\nexit 0\n")
+    launcher.chmod(0o755)
     monkeypatch.chdir(tmp_path.parent)
     with pytest.raises(subprocess.CalledProcessError) as error:
         dev.frontend([str(result_path), "argument with spaces", "--host", "127.0.0.1"], tmp_path)
@@ -117,6 +125,7 @@ def test_frontend_runner_preserves_arguments_cwd_and_failure_code(tmp_path, monk
     assert result["args"] == ["argument with spaces", "--host", "127.0.0.1"]
     assert Path(result["cwd"]) == tmp_path / "frontend"
     assert Path(result["path"].split(os.pathsep)[0]) == Path(sys.executable).parent
+    assert Path(result["pnpm"]) == launcher
 
 
 @pytest.mark.parametrize("required", [False, True])

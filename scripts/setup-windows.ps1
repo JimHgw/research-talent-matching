@@ -56,7 +56,7 @@ function Find-Node {
         try {
             $version = & $candidate --version 2>$null
             if ($LASTEXITCODE -eq 0 -and "$version" -match '^v(\d+\.\d+\.\d+)$') {
-                if ([version]$Matches[1] -ge [version]'22.12.0') { return $candidate }
+                if ([version]$Matches[1] -ge [version]'22.13.0') { return $candidate }
             }
         } catch { }
     }
@@ -106,7 +106,7 @@ function Initialize-Project {
         }
         Invoke-Checked $python @('--version')
 
-        Write-Host '[2/6] Preparing Node.js (22.12 or newer)...'
+        Write-Host '[2/6] Preparing Node.js (22.13 or newer)...'
         $node = Find-Node
         if (-not $node) {
             Install-Runtime -Id 'OpenJS.NodeJS.LTS'
@@ -141,6 +141,7 @@ function Initialize-Project {
                 '--ignore-scripts', '--package-lock=false', "pnpm@$pnpmVersion")
         }
         Invoke-Checked $node @($pnpm, '--version')
+        $env:Path = (Join-Path $tools 'node_modules/.bin') + ';' + $env:Path
 
         Write-Host '[5/6] Installing frontend dependencies from the lockfile...'
         $env:CI = 'true'

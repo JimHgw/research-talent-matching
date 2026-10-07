@@ -12,7 +12,7 @@ change. Choose the entry point for your operating system.
 
 ### macOS / Linux
 
-Install Python 3.12+ and Node.js 22.12+ **with npm**, and make `python3`, `node`
+Install Python 3.12+ and Node.js 22.13+ **with npm**, and make `python3`, `node`
 and `npm` available on PATH. On Linux, the Python installation also needs its
 `venv`/`ensurepip` support (some distributions package it separately).
 From the repository root:
@@ -48,7 +48,7 @@ path from another directory. Wait for **Setup complete** before continuing.
 It performs these steps automatically:
 
 1. Reuse Python 3.12+ or install Python 3.13 with WinGet, then create/reuse `.venv/`.
-2. Reuse Node.js 22.12+ with npm, or install Node.js LTS with WinGet.
+2. Reuse Node.js 22.13+ with npm, or install Node.js LTS with WinGet.
 3. Install all backend runtime and test dependencies from `requirements-dev.txt`.
 4. Install the pnpm version pinned in `frontend/package.json` inside `.venv/node-tools/`.
 5. Install frontend runtime and development dependencies using `pnpm-lock.yaml`
