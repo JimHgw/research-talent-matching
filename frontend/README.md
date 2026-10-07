@@ -10,6 +10,18 @@ backend. There is no automatic mock fallback in application code.
 
 ## Run with the Python backend
 
+On Windows, first run the repository-root installer before starting development:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ..\setup.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 dev
+```
+
+These commands run from `frontend/`. Setup installs the Python and JavaScript
+dependencies and verifies both test suites. `run.ps1` uses the saved local
+toolchain, so it works in a fresh terminal without globally installed pnpm.
+See [first-time setup](../backend/README.md#first-step-after-cloning-install-the-development-environment).
+
 Requirements: Node.js 22.12+ and pnpm. Run these commands from `frontend/`:
 
 ```sh
@@ -23,13 +35,18 @@ runtime when available. It does not change shell settings. Normal pnpm commands
 also work when Node and pnpm are on PATH.
 
 Open the URL printed by Vite (normally `http://127.0.0.1:5173`). Start the team's
-Python service separately; backend code is not included here. Requests use
+Python service separately using the [US-01 backend setup](../backend/README.md). Requests use
 `/api/v1`, cookies and `X-CSRF-Token` according to the
 [API contract](../docs/api/sprint-1-api-contract.md). The development proxy forwards
 `/api` to `http://127.0.0.1:8000`; edit `API_PROXY_TARGET` in `.env` and restart Vite
 if the backend uses another address. Never put secrets in public `VITE_*` values.
 Production must also route `/api` to Python or configure a backend origin with
 the appropriate cookie/CORS policy. An unavailable backend shows an error.
+
+The current backend implements sessions, login/logout, tags and manual profile
+reads/saves. Confirmation, privacy and document endpoints belong to other user
+stories and are not yet supplied by that backend. Their existing UI remains for
+those contributions. The US-01 development flow ends after saving the draft.
 
 ## Automated checks
 
@@ -53,9 +70,14 @@ For focused checks, use `./run.sh test:18` for login/navigation,
 - `tests/build.test.js`: production build and styles, with no test helpers,
   synthetic credentials, fixtures, jsdom, opportunity pages or matching pages.
 
-Tests use isolated synthetic responses, never a live API. Shared contract tests
+The standard frontend tests use isolated synthetic responses. Shared contract tests
 and their fixtures cover more API operations than the current pages.
 jsdom interaction tests do not verify CSS layout or the Python backend.
+
+For real HTTP integration, run the repository-root Python test suite after installing
+frontend dependencies. `backend/tests/test_frontend_integration.py` runs frontend's `tests/us01-live.mjs`
+against a temporary Python service and SQLite database. The actual React pages
+exercise login, editing, saving, reload, conflicts, logout and account isolation.
 
 ## Isolated visual checks without Python
 

@@ -8,6 +8,7 @@ export function createApi({
 } = {}) {
   const base = baseUrl.replace(/\/$/, '');
   let csrfToken = '';
+  let pendingSession = null;
   async function request(path, { method = 'GET', body, signal, binary = false } = {}) {
     const multipart = body instanceof FormData;
     const headers = { Accept: binary ? '*/*' : 'application/json' };
@@ -52,7 +53,15 @@ export function createApi({
     return payload;
   }
   return {
-    session: () => request('/auth/session'),
+    // StrictMode can start two effects before the first anonymous cookie arrives.
+    // Share only the in-flight bootstrap so cookie and CSRF state stay paired.
+    session: () => {
+      if (!pendingSession)
+        pendingSession = request('/auth/session').finally(() => {
+          pendingSession = null;
+        });
+      return pendingSession;
+    },
     login: (email, password) =>
       request('/auth/login', { method: 'POST', body: { email, password } }),
     logout: () => request('/auth/logout', { method: 'POST' }),

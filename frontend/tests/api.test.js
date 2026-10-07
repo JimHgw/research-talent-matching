@@ -152,6 +152,28 @@ test('separate API clients do not share session tokens', async () => {
   await second.api.confirm(0);
   assert.equal(second.calls[0].headers['X-CSRF-Token'], '');
 });
+
+test('concurrent session bootstraps share one request and later refreshes fetch again', async () => {
+  let release;
+  let calls = 0;
+  const api = createApi({
+    fetchImpl: () => {
+      calls++;
+      return new Promise((resolve) => {
+        release = () => resolve(new Response(JSON.stringify({ user: null, csrfToken: 'paired' })));
+      });
+    },
+  });
+  const first = api.session();
+  const second = api.session();
+  assert.equal(calls, 1);
+  release();
+  assert.deepEqual(await first, await second);
+  const refresh = api.session();
+  assert.equal(calls, 2);
+  release();
+  await refresh;
+});
 test('revision conflicts preserve server error fields and are never retried automatically', async () => {
   const payload = fixture('error-revision-conflict');
   const { api, calls } = harness(() => new Response(JSON.stringify(payload), { status: 409 }));

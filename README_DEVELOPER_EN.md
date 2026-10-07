@@ -10,11 +10,18 @@ An explainable bidirectional matching system for research talent and research op
 
 ## Change Log
 
+- **2026-10-07**: Implemented US-01 using Flask, SQLite and SQLAlchemy ORM, integrated with the current React frontend. See [backend setup and verification](backend/README.md) for executable commands and the six implemented routes. Other user stories below remain a development specification.
 - **2026-10-06**: Organised the complete Sprint 1 developer specification using the aims, iteration tasks, data design, interfaces, testing and acceptance structure of `README_1531.md`; covers US-01–US-09 and 24 HTTP operations.
 - **2026-10-06**: Confirmed SQLite + SQLAlchemy ORM; added a proposed physical schema, type mappings and concurrent-write rules.
 - This edition follows the Sprint 1 API contract, replacing the previous registration extension with provisioned-account login. Registration endpoints, fixed session lifetimes and account-name synchronisation rules absent from the contract are no longer listed as Sprint 1 requirements.
 
 > **Document status: Development specification, not an implementation completion report.** The corresponding API version is `0.1.0-draft`. Proposed interface defaults still require team review; the testing and acceptance checklists below describe work to be performed, not tests that have already passed.
+
+### Current US-01 Implementation
+
+The current repository provides provisioned-account login, session restoration and logout in `backend/src/features/auth/routes.py`, shared tags and owner-only profile reads/writes in `backend/src/features/profile/routes.py`, and database models/transactions in `backend/src/db/`. Reusable access checks, validation and repository paths live in `backend/src/shared/`. The existing frontend uses these endpoints directly. New talent accounts start with an empty revision-0 profile, no confirmation and private settings. Profile saving uses full replacement, detects stale revisions, preserves no-ops and persists across restarts.
+
+Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, provision accounts and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py` checks the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
 
 ## 🫡 0. Aims — Sprint Goals
 
@@ -97,7 +104,7 @@ All **eight fields of `ProfileContent` are required**:
 | `displayName` | String, at most 100 characters; an empty string is allowed in a draft |
 | `disciplineGroup` | `STEM` / `BUSINESS` / `null` |
 | `education` | Education records: `id`, `institution`, `qualification`, `discipline`, `startYear`, `endYear` |
-| `courses` | Course records: `id`, `name`, `code`, `description` |
+| `courses` | Course records: `id`, `name`, `code`, `description`; `code` allows up to 200 characters, or `null` if unknown |
 | `researchExperience` | Experience records: `id`, `title`, `organisation`, `description` |
 | `skills` | Skill claims: `tagId`, `claim`, `evidenceText`; claim is `HAS` / `DOES_NOT_HAVE` |
 | `researchInterests` | Array of `INTEREST` tag IDs |
@@ -138,7 +145,7 @@ Implement SQLite connection options against the project's pinned Python / SQLAlc
 
 #### 2.2.4 Proposed Tables and ORM Mappings
 
-**The technology choice is confirmed. The following table names, fields and storage layout are proposed Sprint 1 implementation decisions, not running ORM models or migrations.** Internal columns use `snake_case`; response serialisation uses the contract's `camelCase` fields.
+**The technology choice is confirmed. The following table names, fields and storage layout describe the proposed full Sprint 1 design.** The implemented US-01 subset is defined in `backend/src/db/models.py` using typed SQLAlchemy 2.x mappings and child-to-parent relationships. The proposal below is not a migration or an exact inventory of the current schema. Internal columns use `snake_case`; response serialisation uses the contract's `camelCase` fields.
 
 Type conventions: business IDs use `String(64)`; counts, revisions and positions use `Integer`; flags use `Boolean`; ordinary long text uses `Text`; timestamps use `DateTime`. Convert timestamps to UTC before writing, store consistently as timezone-naive UTC values in SQLite, then explicitly restore UTC on reading and serialise as RFC3339. Never interpret them as local time. Only columns marked `?` below are nullable. PK means primary key, FK foreign key, and UQ unique constraint.
 
@@ -332,6 +339,7 @@ The frontend branches on `error.code`, not message wording. `fieldErrors` is alw
 | 401 | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` | Clear expired-session caches and return to login; use a generic message for invalid credentials |
 | 403 | `FORBIDDEN` / `CSRF_INVALID` | Deny unauthorised access; after a CSRF error, reread the session and let the user retry without automatically replaying a mutation |
 | 404 | `NOT_FOUND` | Resource is missing or inaccessible; refresh the list |
+| 405 | `BAD_REQUEST` | HTTP method is unsupported; use a documented method listed in the `Allow` response header |
 | 409 | `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` | Compare revisions, request profile confirmation or wait for extraction, respectively |
 | 413 | `UPLOAD_TOO_LARGE` | Explain the 10 MiB limit |
 | 415 | `UNSUPPORTED_FILE_TYPE` / `UNSUPPORTED_MEDIA_TYPE` | Select a supported file or correct the request media type |
@@ -465,9 +473,9 @@ These are Sprint 1 functional acceptance criteria; COMP1531 grading weights and 
 
 ### 2.10 Dryrun — Pre-Demonstration Checks
 
-The current repository contains documentation, OpenAPI and fixtures, but does not yet provide application source code, dependency manifests, startup scripts or a test runner. Therefore, this document does not present `npm test`, `pytest` or course dryrun commands as currently executable steps.
+The repository contains the runnable US-01 Flask backend, React frontend, dependency manifests, setup scripts and automated tests. Follow the [backend setup and verification guide](backend/README.md) and [frontend README](frontend/README.md) for environment installation, database initialisation, account provisioning, startup and test commands. On Windows, run the repository-root `setup.ps1` first; it installs dependencies and checks both test suites. Do not put real passwords in the README.
 
-Once implementation is integrated, add actual operating instructions: dependencies and versions, an environment-variable template, data initialisation, how to obtain provisioned accounts, frontend and backend startup commands, application URLs, test commands and test-data reset procedures. Do not put real passwords in the README.
+Current real-backend verification covers provisioned login, sessions, tags and manual profile saving. Profile confirmation, privacy endpoints, documents, opportunities and matching remain unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration test.
 
 Before the demonstration, complete these steps:
 
