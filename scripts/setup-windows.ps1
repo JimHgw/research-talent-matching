@@ -155,7 +155,7 @@ function Initialize-Project {
             Set-Content -LiteralPath (Join-Path $venv 'toolchain.json') -Encoding UTF8
 
         Write-Host '[6/6] Verifying backend, frontend and real HTTP integration...'
-        Invoke-Checked $python @('-m', 'pytest', '-q')
+        Invoke-Checked $python @('-m', 'pytest', '-q', '--require-frontend')
         Push-Location -LiteralPath $frontend
         try {
             Invoke-Checked $node @($pnpm, 'test')

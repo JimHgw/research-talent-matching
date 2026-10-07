@@ -86,6 +86,6 @@ try { Initialize-Project -RepoRoot $repo } catch { $failure = $_.Exception.Messa
         assert any("requirements-dev.txt" in event for event in events)
         assert any("pnpm@11.25.0" in event for event in events)
         assert any(event.endswith("install|--frozen-lockfile") for event in events)
-        assert "-m|pytest|-q" in events
+        assert "-m|pytest|-q|--require-frontend" in events
         assert events[-1].endswith("|test")
         assert json.loads(config.read_text(encoding="utf-8-sig"))["node"] == r"C:\Fake Node\node.exe"
