@@ -10,6 +10,7 @@ An explainable bidirectional matching system for research talent and research op
 
 ## Change Log
 
+- **2026-10-08**: Implemented US-02 opportunity management end to end: five Flask endpoints, normalized SQLite tables, team editing/publication, published discovery and explicit conflict comparison in React. See [US-02 implementation and acceptance](docs/us02-implementation.md). Matching remains separate work.
 - **2026-10-07**: Implemented US-01 using Flask, SQLite and SQLAlchemy ORM, integrated with the current React frontend. See [backend setup and verification](backend/README.md) for executable commands and the six implemented routes. Other user stories below remain a development specification.
 - **2026-10-06**: Organised the complete Sprint 1 developer specification using the aims, iteration tasks, data design, interfaces, testing and acceptance structure of `README_1531.md`; covers US-01–US-09 and 24 HTTP operations.
 - **2026-10-06**: Confirmed SQLite + SQLAlchemy ORM; added a proposed physical schema, type mappings and concurrent-write rules.
@@ -22,6 +23,10 @@ An explainable bidirectional matching system for research talent and research op
 The current repository provides provisioned-account login, session restoration and logout in `backend/src/features/auth/routes.py`, shared tags and owner-only profile reads/writes in `backend/src/features/profile/routes.py`, and database models/transactions in `backend/src/db/`. Reusable access checks, validation and repository paths live in `backend/src/shared/`. The existing frontend uses these endpoints directly. New talent accounts start with an empty revision-0 profile, no confirmation and private settings. Profile saving uses full replacement, detects stale revisions, preserves no-ops and persists across restarts.
 
 Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, provision accounts and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py` checks the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
+
+### Current US-02 Implementation
+
+Research teams can create revision-1 drafts, replace complete content, publish and edit their published opportunities. Both roles can browse published opportunities; only owners can read drafts or modify their own opportunities. `backend/src/features/opportunities/` separates HTTP routes, business rules and persistence, backed by three normalized tables in `backend/src/db/models.py`. `frontend/src/features/opportunities/` supplies the list, editor, requirement controls and details. Stale writes return 409 and the UI preserves local input for explicit comparison. No-op saves and repeated publication preserve revisions. Existing installations run `init-db` again to add the new tables. Tests and maintenance notes are in the [US-02 implementation record](docs/us02-implementation.md).
 
 ## 🫡 0. Aims — Sprint Goals
 
@@ -475,7 +480,7 @@ These are Sprint 1 functional acceptance criteria; COMP1531 grading weights and 
 
 The repository contains the runnable US-01 Flask backend, React frontend, dependency manifests, setup scripts and automated tests. Follow the [backend setup and verification guide](backend/README.md) and [frontend README](frontend/README.md) for environment installation, database initialisation, account provisioning, startup and test commands. On Windows, run the repository-root `setup.ps1`; on macOS/Linux, install Python 3.12+ and Node.js 22.13+ with npm, then run `sh setup.sh`. Both entry points install project dependencies and verify both suites with required real HTTP integration (`pytest --require-frontend`). The two Windows installer tests may skip on macOS/Linux; the real HTTP test must pass. Do not put real passwords in the README.
 
-Current real-backend verification covers provisioned login, sessions, tags and manual profile saving. Profile confirmation, privacy endpoints, documents, opportunities and matching remain unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration test.
+Current real-backend verification covers provisioned login, sessions, tags, manual profile saving and US-02 opportunity management. Profile confirmation, privacy endpoints, documents and matching remain unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
 
 Before the demonstration, complete these steps:
 

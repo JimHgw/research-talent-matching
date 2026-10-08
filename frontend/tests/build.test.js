@@ -16,9 +16,13 @@ test('production build includes styles and excludes test helpers, fixtures and t
   for (const chunk of chunks) {
     for (const module of Object.keys(chunk.modules))
       assert.doesNotMatch(module, /\/tests\/|\/docs\/api\/examples\/|\/jsdom\//);
-    if (scoped)
-      for (const module of Object.keys(chunk.modules))
-        assert.doesNotMatch(module, /\/features\/(matching|opportunities)\//);
+    for (const [task, feature] of [
+      ['H18ABANANA-19', 'opportunities'],
+      ['H18ABANANA-20', 'matching'],
+    ])
+      if (scoped && !scoped.includes(task))
+        for (const module of Object.keys(chunk.modules))
+          assert.ok(!module.includes(`/features/${feature}/`), `Unexpected feature: ${feature}`);
     assert.doesNotMatch(
       chunk.code,
       /Demo1234!|talent@example\.test|createMockServer|banana-sprint1-demo-v1/

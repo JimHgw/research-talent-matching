@@ -1,7 +1,7 @@
-# US-01 backend
+# US-01 / US-02 backend
 
 Flask + SQLite + SQLAlchemy ORM implementation for provisioned-account login and
-manual talent profile creation. Requests and responses follow the checked-in
+manual talent profile creation and research opportunity management. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
 ## First step after cloning: install the development environment
@@ -86,10 +86,15 @@ on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 | GET | `/tags` | Either signed-in role; optional `kind=SKILL` or `INTEREST` |
 | GET | `/me/profile` | Talent owner |
 | PUT | `/me/profile` | Talent owner + CSRF + expected revision |
+| GET | `/opportunities` | Signed in; published by default, `scope=mine` for teams |
+| POST | `/opportunities` | Team + CSRF; creates an owned draft |
+| GET | `/opportunities/{id}` | Signed in; drafts restricted to their owner |
+| PUT | `/opportunities/{id}` | Team owner + CSRF + expected revision |
+| POST | `/opportunities/{id}/publish` | Team owner + CSRF + expected revision |
 
-The existing React login, profile editor and team account shell use these routes
+The React login, profile editor and opportunity pages use these routes
 without a mock service. Profile confirmation (US-03), privacy read/write (US-07),
-documents (US-09), opportunities and matching are not implemented by this change.
+documents (US-09) and matching remain outside the implemented scope.
 Their existing frontend controls remain in place for those contributions; their
 API calls currently return 404. Saving an unconfirmed draft is the US-01 endpoint.
 There is no public registration or default password.
@@ -106,6 +111,7 @@ backend/
     features/
       auth/routes.py      # Login, logout, sessions and account provisioning
       profile/routes.py   # Owner profile editing and controlled vocabulary
+      opportunities/      # HTTP routes, lifecycle service and ordered persistence
     db/
       database.py         # Database access and transactions
       models.py           # Shared SQLAlchemy schema
@@ -113,6 +119,7 @@ backend/
       paths.py            # Repository-relative resource paths
       security.py         # Session lookup, role and CSRF checks
       validation.py       # OpenAPI validation and API errors
+      pagination.py       # Strict pagination using OpenAPI defaults and limits
   tests/                  # Backend checks and real frontend integration
   requirements.txt        # Runtime dependencies
   requirements-dev.txt    # Runtime and test dependencies
@@ -238,6 +245,31 @@ as manual. Unchanged section provenance is preserved.
 Coordinate a migration before later modules change this schema. The `data/`
 directory, local environments and credentials are ignored by Git.
 
+### Adding US-02 to an existing US-01 installation
+
+Run `init-db` again using the same database configuration before restarting the
+backend. US-02 only adds `opportunities`, `opportunity_requirements` and
+`requirement_tags`; existing accounts, profiles and tags keep their current schema
+and data. Run `seed-tags` if this installation has not loaded the vocabulary.
+
+Opportunity routes handle session/role/CSRF checks and transaction boundaries.
+`features/opportunities/service.py` owns visibility, tag validation, revision
+checks and draft/publication transitions; `repository.py` owns ordered writes and
+public serialization. Lists batch-load children, filter before counting, then
+sort by update time descending and ID ascending. Owner information stays internal.
+Requirements use stable IDs scoped to an opportunity, with foreign keys to shared
+tags. Drafts may have zero requirements; published opportunities may not.
+
+Writes acquire the existing SQLite writer lock before checking revisions. No-op
+updates and repeated publication at the current revision preserve timestamps and
+revisions. Stale updates/publication return 409 without changing any rows. Changes
+to an already published opportunity remain published. Future matching can use
+`published_opportunities()` and current ordered requirement/tag rows; US-02 does
+not add recommendation endpoints or cached scores.
+
+See [US-02 implementation and acceptance](../docs/us02-implementation.md) for module
+extension points, the UI workflow and test coverage.
+
 Maintenance command:
 
 ```sh
@@ -252,7 +284,7 @@ On Windows:
 
 ## Verification
 
-For full US-01 acceptance, from the repository root on macOS/Linux:
+For full US-01 / US-02 acceptance, from the repository root on macOS/Linux:
 
 ```sh
 .venv/bin/python -m pytest -q -rs --require-frontend
@@ -306,7 +338,10 @@ With frontend dependencies installed and Node located through setup's toolchain,
 `tests/test_frontend_integration.py`: it starts a temporary Python HTTP server and uses
 the actual React app in jsdom against an isolated SQLite file. It verifies login,
 all eight profile fields, reload, conflicting saves, logout, account isolation and
-the team shell. It simulates browser Cookie/Origin transport; it does not test
+the team shell. It also runs the US-02 React flow through draft creation, ordered
+requirements, reload, publication, editing, conflict comparison, talent discovery
+and cross-team access. Shared browser setup lives in `frontend/tests/support/live-app.js`.
+It simulates browser Cookie/Origin transport; it does not test
 browser layout, Vite proxying or HTTPS cookie enforcement. Set `NODE_BINARY` to
 an absolute Node executable to override automatic selection. On a manually
 configured environment, this integration test is explicitly skipped when Node or
@@ -340,3 +375,9 @@ For manual acceptance, provision an account, open the Vite page, sign in, edit
 the profile, save, refresh and check the saved values. Two tabs editing the same
 revision must show a conflict on the second save. Sign out and sign in as another
 account to verify the previous owner's content is no longer shown.
+
+For US-02, sign in as a team, choose **Opportunities**, create a draft, add skill
+or interest requirements, save and publish. Sign in as talent to browse its
+published details. Another team can read the published content but cannot edit
+it. `tests/test_us02.py` covers the lifecycle, permissions, validation, pagination,
+restarts, foreign keys, rollback and simultaneous writers against real SQLite.
