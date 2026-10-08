@@ -1,4 +1,4 @@
-"""Shared SQLite schema for US-01 and its profile/privacy ownership invariants."""
+"""Shared SQLite schema and ownership invariants for implemented features."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, ForeignKey,
-                        Integer, String, UniqueConstraint)
+                        ForeignKeyConstraint, Index, Integer, String, Text, UniqueConstraint)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -181,4 +181,64 @@ class ProfileOrigin(Base):
                         "'skills', 'researchInterests', 'researchOutputs')"),
         CheckConstraint("(source_type = 'MANUAL' AND document_id IS NULL) OR "
                         "(source_type = 'USER_REVIEWED_DOCUMENT' AND document_id IS NOT NULL)"),
+    )
+
+
+class Opportunity(Base):
+    __tablename__ = "opportunities"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="DRAFT")
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    university: Mapped[str] = mapped_column(String(200), nullable=False)
+    discipline_group: Mapped[str] = mapped_column(String, nullable=False)
+    discipline: Mapped[str] = mapped_column(String(200), nullable=False)
+    research_area: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+
+    owner: Mapped[User] = relationship()
+    __table_args__ = (
+        CheckConstraint("revision >= 1"),
+        CheckConstraint("status IN ('DRAFT', 'PUBLISHED')"),
+        CheckConstraint("discipline_group IN ('STEM', 'BUSINESS')"),
+        Index("ix_opportunities_owner_updated", "owner_user_id", "updated_at", "id"),
+        Index("ix_opportunities_status_updated", "status", "updated_at", "id"),
+    )
+
+
+class OpportunityRequirement(Base):
+    __tablename__ = "opportunity_requirements"
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), primary_key=True)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    label: Mapped[str] = mapped_column(String(300), nullable=False)
+    kind: Mapped[str] = mapped_column(String, nullable=False)
+    importance: Mapped[str] = mapped_column(String, nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    opportunity: Mapped[Opportunity] = relationship()
+    __table_args__ = (
+        CheckConstraint("kind IN ('SKILL', 'INTEREST')"),
+        CheckConstraint("importance IN ('REQUIRED', 'PREFERRED')"),
+        CheckConstraint("position >= 0"),
+        UniqueConstraint("opportunity_id", "position"),
+    )
+
+
+class RequirementTag(Base):
+    __tablename__ = "requirement_tags"
+    opportunity_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    requirement_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    tag_id: Mapped[str] = mapped_column(ForeignKey("tags.id"), primary_key=True, index=True)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    requirement: Mapped[OpportunityRequirement] = relationship()
+    tag: Mapped[Tag] = relationship()
+    __table_args__ = (
+        ForeignKeyConstraint(["opportunity_id", "requirement_id"],
+                             ["opportunity_requirements.opportunity_id", "opportunity_requirements.id"]),
+        CheckConstraint("position >= 0"),
+        UniqueConstraint("opportunity_id", "requirement_id", "position"),
     )

@@ -15,6 +15,7 @@
     "check": "npm test && npm run build && npm run format:check",
     "test:ui": "node tests/visual-server.js",
     "test:18": "node scripts/test.js 18",
+    "test:19": "node scripts/test.js 19",
     "test:21": "node scripts/test.js 21",
     "test:22": "node scripts/test.js 22",
     "format": "prettier --write src tests scripts *.json *.js *.html *.md",
@@ -31,6 +32,7 @@
   },
   "contributionTasks": [
     "H18ABANANA-18",
+    "H18ABANANA-19",
     "H18ABANANA-21",
     "H18ABANANA-22"
   ]
