@@ -176,6 +176,9 @@ def test_docker_launchers_handle_paths_failures_and_preserve_volumes(tmp_path, l
     if launcher == "powershell" and os.name == "nt":
         fake_docker = tools_dir / "docker.cmd"
         fake_docker.write_text(f'@echo off\n"{sys.executable}" "{probe}" %*\n', encoding="utf-8")
+        # Match Docker Desktop's native and extensionless launchers on PATH.
+        # Get-Command can return both; the host script must select just one.
+        (tools_dir / "docker").write_text("#!/bin/sh\nexit 99\n", encoding="utf-8")
     else:
         fake_docker = tools_dir / "docker"
         fake_docker.write_text(

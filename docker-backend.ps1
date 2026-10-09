@@ -15,7 +15,10 @@ param(
 $ErrorActionPreference = 'Stop'
 
 try {
-    $dockerCommand = Get-Command docker -CommandType Application -ErrorAction SilentlyContinue
+    # Docker Desktop ships both docker.exe and an extensionless shell launcher.
+    # Select the first executable instead of joining all matching command paths.
+    $dockerCommand = Get-Command docker -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
     if (-not $dockerCommand) {
         throw 'Docker is not installed or is not on PATH. Install Docker Desktop, start it, and reopen your terminal.'
     }
