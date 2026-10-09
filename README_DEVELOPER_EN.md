@@ -10,6 +10,7 @@ An explainable bidirectional matching system for research talent and research op
 
 ## Change Log
 
+- **2026-10-10**: Implemented US-05 team discovery using current consent and confirmed profiles, shared-field matching, deterministic pagination and reduced team evidence. Included the owner privacy endpoints required for the end-to-end flow. See [US-05 implementation and acceptance](docs/us05-implementation.md).
 - **2026-10-08**: Implemented US-02 opportunity management end to end: five Flask endpoints, normalized SQLite tables, team editing/publication, published discovery and explicit conflict comparison in React. See [US-02 implementation and acceptance](docs/us02-implementation.md). Matching remains separate work.
 - **2026-10-07**: Implemented US-01 using Flask, SQLite and SQLAlchemy ORM, integrated with the current React frontend. See [backend setup and verification](backend/README.md) for executable commands and the six implemented routes. Other user stories below remain a development specification.
 - **2026-10-06**: Organised the complete Sprint 1 developer specification using the aims, iteration tasks, data design, interfaces, testing and acceptance structure of `README_1531.md`; covers US-01–US-09 and 24 HTTP operations.
@@ -27,6 +28,10 @@ Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, 
 ### Current US-02 Implementation
 
 Research teams can create revision-1 drafts, replace complete content, publish and edit their published opportunities. Both roles can browse published opportunities; only owners can read drafts or modify their own opportunities. `backend/src/features/opportunities/` separates HTTP routes, business rules and persistence, backed by three normalized tables in `backend/src/db/models.py`. `frontend/src/features/opportunities/` supplies the list, editor, requirement controls and details. Stale writes return 409 and the UI preserves local input for explicit comparison. No-op saves and repeated publication preserve revisions. Existing installations run `init-db` again to add the new tables. Tests and maintenance notes are in the [US-02 implementation record](docs/us02-implementation.md).
+
+### Current US-05 Implementation
+
+Teams can discover talent for their own published opportunities and read requirement-level explanations. `backend/src/features/matching/team_repository.py` filters eligible profiles and selects visible fields before the shared matching engine runs; `team_service.py` returns only team-visible evidence. Consent, profile and opportunity changes take effect on the next request. The existing privacy UI now persists settings through owner-only endpoints, with an independent revision and no change to profile confirmation. The discovery UI refreshes on entry, focus or explicit refresh, supports anonymous results and clears stale details. US-03 confirmation and US-04 owner recommendations were already present and are reused. No database migration or API contract change is required. See [the implementation and test record](docs/us05-implementation.md).
 
 ## 🫡 0. Aims — Sprint Goals
 
@@ -480,7 +485,7 @@ These are Sprint 1 functional acceptance criteria; COMP1531 grading weights and 
 
 The repository contains the runnable US-01 Flask backend, React frontend, dependency manifests, setup scripts and automated tests. Follow the [backend setup and verification guide](backend/README.md) and [frontend README](frontend/README.md) for environment installation, database initialisation, account provisioning, startup and test commands. On Windows, run the repository-root `setup.ps1`; on macOS/Linux, install Python 3.12+ and Node.js 22.13+ with npm, then run `sh setup.sh`. Both entry points install project dependencies and verify both suites with required real HTTP integration (`pytest --require-frontend`). The two Windows installer tests may skip on macOS/Linux; the real HTTP test must pass. Do not put real passwords in the README.
 
-Current real-backend verification covers provisioned login, sessions, tags, manual profile saving and US-02 opportunity management. Profile confirmation, privacy endpoints, documents and matching remain unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
+Current real-backend verification covers provisioned login, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. Document upload/extraction remains unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
 
 Before the demonstration, complete these steps:
 

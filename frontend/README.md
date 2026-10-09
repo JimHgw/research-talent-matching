@@ -88,10 +88,11 @@ Production must also route `/api` to Python or configure a backend origin with
 the appropriate cookie/CORS policy. An unavailable backend shows an error.
 
 The current backend supplies sessions, login/logout, tags, manual profile
-reads/saves, US-03 profile confirmation and all five US-02 opportunity operations.
-Privacy and document endpoints are not yet supplied by that backend. Their UI
-and isolated frontend tests remain ready for those contributions; full HTTP
-acceptance must wait for the corresponding backend implementations.
+reads/saves, US-03 profile confirmation, all five US-02 opportunity operations,
+owner recommendations, privacy settings and US-05 team discovery. The discovery
+page shows only published opportunities owned by the team, backend ranks and
+permitted profile fields/evidence. It refreshes on entry, window focus or
+**Refresh talent**. Document endpoints remain unimplemented.
 
 ## Automated checks
 
@@ -133,7 +134,7 @@ jsdom interaction tests do not verify CSS layout or the Python backend.
 
 For real HTTP integration, run the repository-root Python test suite after installing
 frontend dependencies. `backend/tests/test_frontend_integration.py` runs
-`tests/us01-live.mjs`, `tests/us02-live.mjs`, `tests/us03-live.mjs` and
+`tests/us01-live.mjs`, `tests/us02-live.mjs`, `tests/us03-live.mjs`, `tests/us05-live.mjs` and
 `tests/us19-live.mjs` against a temporary Python service and SQLite database.
 The actual React pages exercise login, complete profile fields, stable record IDs,
 saving, reload, conflicts, logout and account isolation. The US-03 flow checks
@@ -141,6 +142,9 @@ explicit confirmation, edit invalidation and recovery from a stale revision.
 The US-02 flow creates/publishes/edits an opportunity, preserves requirement IDs,
 compares conflicting versions, browses as talent and checks another team's access.
 The US-19 flow covers the alternative team editor and its conflict recovery.
+The US-05 flow uses an independent talent session while the team page is open to
+verify field hiding, anonymous results, revoked consent and unconfirmed edits.
+It also verifies opt-in through the actual privacy page and all four match statuses.
 Use `.venv/bin/python -m pytest -q -rs --require-frontend` on macOS/Linux, or
 `.\.venv\Scripts\python.exe -m pytest -q -rs --require-frontend` on Windows.
 The flag fails if Node/jsdom is missing instead of accepting a skipped integration
