@@ -1,0 +1,255 @@
+.card-grid,
+.talent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.opportunity-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.card-top > div {
+  flex: 1;
+  min-width: 0;
+}
+.card-top small {
+  font-size: 11px;
+  color: #777789;
+}
+.card-category {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0;
+  color: #777789;
+  margin-top: 5px;
+}
+.university-mark {
+  width: 39px;
+  height: 39px;
+  border-radius: 8px;
+  color: #897339;
+  background: #f5efd9;
+  font-weight: 750;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.university-mark.peach {
+  background: #f8e7df;
+  color: #b47961;
+}
+.score-chip {
+  font-size: 17px;
+  color: #5e528c;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.score-chip small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #777789;
+  margin-left: 2px;
+}
+.opportunity-card h3 {
+  font-size: 17px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  letter-spacing: 0;
+}
+.card-description {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #787989;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.talent-card {
+  border-radius: 8px;
+}
+.talent-card h3 {
+  margin: 20px 0 8px;
+  letter-spacing: 0;
+}
+.talent-card > p {
+  font-size: 12px;
+}
+.opportunity-select {
+  max-width: 600px;
+  margin: 26px 0;
+}
+.match-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 22px;
+}
+.match-intro h3 {
+  font-size: 23px;
+  margin: 9px 0;
+  letter-spacing: 0;
+}
+.match-intro p {
+  font-size: 11px;
+  margin: 0;
+}
+.score-large {
+  background: #efebfa;
+  color: #65548d;
+  border-radius: 8px;
+  padding: 20px;
+  font-size: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.score-large small {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.match-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+.match-metrics strong {
+  color: var(--ink);
+}
+.evidence-row {
+  border: 1px solid var(--line);
+  padding: 23px;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 14px;
+}
+.evidence-row h4 {
+  margin: 5px 0 0;
+}
+.evidence-row > p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 15px 0;
+}
+.evidence-row .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0;
+  color: #777386;
+}
+.evidence-box {
+  background: #f5f6f9;
+  color: #797587;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 6px;
+}
+.evidence-box p {
+  font-size: 12px;
+  margin: 0 0 9px;
+  color: #575368;
+}
+.evidence-box p:last-child {
+  margin-bottom: 0;
+}
+.evidence-box small {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+  color: #777386;
+}
+.no-evidence {
+  font-size: 11px;
+  color: #777386;
+  font-style: italic;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding-top: 12px;
+}
+.shared-profile {
+  border: 1px solid var(--line);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  background: #f8f7fb;
+}
+.shared-profile strong {
+  font-size: 11px;
+  color: #777085;
+}
+.shared-profile p {
+  font-size: 12px;
+}
+@media (max-width: 1250px) {
+  .card-grid,
+  .talent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .card-grid,
+  .talent-grid {
+    gap: 13px;
+  }
+  .opportunity-card {
+    padding: 18px;
+  }
+  .match-intro h3 {
+    font-size: 20px;
+  }
+  .score-large {
+    font-size: 28px;
+    padding: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .card-grid,
+  .talent-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .match-intro {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .match-intro h3 {
+    font-size: 18px;
+  }
+  .score-large {
+    font-size: 24px;
+    padding: 12px;
+  }
+  .match-metrics {
+    gap: 15px;
+    font-size: 11px;
+  }
+  .evidence-row {
+    padding: 17px;
+  }
+  .evidence-row .row-between {
+    flex-wrap: wrap;
+  }
+}
