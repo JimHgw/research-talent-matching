@@ -180,7 +180,7 @@ def profile_confirm():
 
         # Organize the returned data
         result = serialize_profile(db, profile)
-    
+
     return jsonify(result)
 
 def seed_tags(items):

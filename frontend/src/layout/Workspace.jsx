@@ -45,6 +45,10 @@ export default function Workspace({ user, onLogout, configuration }) {
       return;
     }
     if (!definition.pages[target]) return;
+    if (target === page && Object.keys(context).length === 0) {
+      setMobileMenu(false);
+      return;
+    }
     setDirty(false);
     setPageContext(context);
     setPage(target);
