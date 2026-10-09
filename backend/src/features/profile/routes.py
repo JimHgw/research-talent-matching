@@ -130,6 +130,58 @@ def profile_put():
             result = serialize_profile(db, profile)
     return jsonify(result)
 
+@profiles.post("/me/profile/confirmation")
+def profile_confirm():
+    with database().transaction(write=True) as db:
+        # Check identity and request security information
+        session, user = require_user(db, "TALENT")
+        require_csrf(session)
+
+        # Read request and current user's information
+        profile = own_profile(db, user)
+        data = body("RevisionRequest")
+
+        # The version checked by the user must be the current version
+        if data["expectedRevision"] != profile.revision:
+            raise ApiError(
+                409,
+                "REVISION_CONFLICT",
+                "Your profile changed. Reload the latest version.",
+                revision=profile.revision,
+            )
+
+        # Check the name and information column
+        current = serialize_profile(db, profile)
+        content = current["content"]
+
+        if not content["displayName"].strip():
+            invalid(
+                "content.displayName",
+                "Enter your name before confirming."
+            )
+
+        if not any(content[section] for section in SECTIONS):
+            invalid(
+                "content",
+                "Add at least one academic or research record before confirming."
+            )
+
+        # Record the status and time during the first confirmation
+        # Record the status and time during the first confirmation
+        if current["confirmation"]["status"] != "CONFIRMED":
+            now = utcnow()
+
+            profile.confirmation_status = "CONFIRMED"
+            profile.confirmed_revision = profile.revision
+            profile.confirmed_at = now
+            profile.updated_at = now
+
+            db.flush()
+
+        # Organize the returned data
+        result = serialize_profile(db, profile)
+    
+    return jsonify(result)
 
 def seed_tags(items):
     """Insert missing controlled vocabulary; never silently redefine an existing tag."""
