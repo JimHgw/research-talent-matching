@@ -4,6 +4,8 @@
 
 An explainable bidirectional matching system for research talent and research opportunities in Australian universities.
 
+For the one-command Docker backend (Flask + SQLite in one container with persistent storage), see [README_DEVELOPER.md](README_DEVELOPER.md). The Docker-only workflow does not require installing the host development environment.
+
 ## Contents
 
 [[_TOC_]]

@@ -4,6 +4,13 @@ Flask + SQLite + SQLAlchemy ORM implementation for provisioned-account login and
 manual talent profile creation and research opportunity management. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
+For a containerized backend, use the [one-command Docker workflow](../README_DEVELOPER.md).
+It keeps Flask and SQLite together, persists data in a named volume, and does not
+require the host setup below. Its container entrypoint explicitly initializes
+missing tables and seeds tags before serving Flask through Gunicorn; no default accounts are created.
+Gunicorn is installed only from `requirements-docker.txt` inside the Linux image,
+so the Windows host development dependencies stay compatible.
+
 ## First step after cloning: install the development environment
 
 **After pulling the repository, run the setup program before writing code,

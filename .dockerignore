@@ -1,0 +1,24 @@
+# Only runtime inputs may enter the backend build context.
+**
+!backend/
+!backend/Dockerfile
+!backend/requirements.txt
+!backend/requirements-docker.txt
+!backend/__init__.py
+!backend/app.py
+!backend/src/
+!backend/src/**
+!backend/docker/
+!backend/docker/**
+!docs/
+!docs/api/
+!docs/api/openapi.json
+!docs/api/examples/
+!docs/api/examples/tags.json
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.env.*
+**/*.db
+**/*.sqlite
+**/*.sqlite3

@@ -10,7 +10,8 @@ from urllib.parse import urlsplit
 import click
 from argon2 import PasswordHasher
 from flask import Flask, g, jsonify
-from sqlalchemy import delete
+from sqlalchemy import delete, select
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 from .db.database import Database
@@ -50,6 +51,16 @@ def create_app(config=None):
     app.register_blueprint(profiles)
     app.register_blueprint(opportunities)
     app.register_blueprint(matching)
+
+    @app.get("/healthz")
+    def health():
+        """Read-only container readiness check; never allocate a user session."""
+        try:
+            with app.extensions["database"].transaction() as db:
+                db.execute(select(1))
+        except SQLAlchemyError:
+            return jsonify(status="unavailable"), 503
+        return jsonify(status="ok")
 
     @app.before_request
     def request_id():
