@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  act,
   mount,
   remount,
   cleanup,
@@ -45,7 +46,19 @@ try {
   await click('Publish');
   await until(() => text().includes('Opportunity published.'));
   assert.equal((await api.opportunity(draft.id)).status, 'PUBLISHED');
-  await click('Edit');
+  // The success notice can appear before the refreshed list is ready.
+  let editButton;
+  await until(() => {
+    const card = [...document.querySelectorAll('.team-opportunity')].find(
+      (item) => item.querySelector('h3')?.textContent === draft.content.title
+    );
+    if (!card?.querySelector('.badge.published')) return false;
+    editButton = [...card.querySelectorAll('button')].find(
+      (item) => item.textContent.trim() === 'Edit'
+    );
+    return editButton && !editButton.disabled;
+  });
+  await act(async () => editButton.click());
   await change('Opportunity title *', 'Local title after conflict');
   const published = await api.opportunity(draft.id);
   await api.saveOpportunity(draft.id, published.revision, {
