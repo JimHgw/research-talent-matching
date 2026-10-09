@@ -29,7 +29,8 @@ def ranking_key(item):
         score is None,
         -score if score is not None else 0,
         unknown if unknown is not None else float("inf"),
-        item["opportunity"]["id"],
+        (item["opportunity"]["id"] if "opportunity" in item
+         else item["talent"]["talentId"]),
     )
 
 
@@ -47,6 +48,10 @@ def recommendations(db, user, page, page_size):
             "summary": summary,
         })
 
+    return ranked_page(items, page, page_size)
+
+
+def ranked_page(items, page, page_size):
     items.sort(key=ranking_key)
     ranked = [
         {"rank": index, **item}

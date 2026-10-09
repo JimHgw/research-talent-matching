@@ -1,7 +1,7 @@
-# US-01 / US-02 backend
+# Research matching backend
 
 Flask + SQLite + SQLAlchemy ORM implementation for provisioned-account login and
-manual talent profile creation and research opportunity management. Requests and responses follow the checked-in
+manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
 ## First step after cloning: install the development environment
@@ -86,17 +86,25 @@ on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 | GET | `/tags` | Either signed-in role; optional `kind=SKILL` or `INTEREST` |
 | GET | `/me/profile` | Talent owner |
 | PUT | `/me/profile` | Talent owner + CSRF + expected revision |
+| POST | `/me/profile/confirmation` | Talent owner + CSRF + current revision |
+| GET | `/me/privacy` | Talent owner |
+| PUT | `/me/privacy` | Talent owner + CSRF + independent privacy revision |
 | GET | `/opportunities` | Signed in; published by default, `scope=mine` for teams |
 | POST | `/opportunities` | Team + CSRF; creates an owned draft |
 | GET | `/opportunities/{id}` | Signed in; drafts restricted to their owner |
 | PUT | `/opportunities/{id}` | Team owner + CSRF + expected revision |
 | POST | `/opportunities/{id}/publish` | Team owner + CSRF + expected revision |
+| GET | `/me/recommendations` | Talent owner with a currently confirmed profile |
+| GET | `/me/opportunity-matches/{id}` | Talent owner; published opportunity and current confirmation |
+| GET | `/opportunities/{id}/talent-matches` | Owner team of a published opportunity |
+| GET | `/opportunities/{id}/talent-matches/{talentId}` | Owner team; currently confirmed, opted-in talent |
 
-The React login, profile editor and opportunity pages use these routes
-without a mock service. Profile confirmation (US-03), privacy read/write (US-07),
-documents (US-09) and matching remain outside the implemented scope.
-Their existing frontend controls remain in place for those contributions; their
-API calls currently return 404. Saving an unconfirmed draft is the US-01 endpoint.
+The React pages use these routes without a mock service. US-05 includes the
+owner privacy endpoints needed to enable discovery through the existing privacy
+page. Team matching filters consent, confirmation and field visibility before
+scoring, ranking and pagination; every request evaluates current data.
+See [US-05 implementation and acceptance](../docs/us05-implementation.md).
+Document upload/extraction endpoints (US-09) remain unimplemented.
 There is no public registration or default password.
 
 ## Files
@@ -341,6 +349,10 @@ all eight profile fields, reload, conflicting saves, logout, account isolation a
 the team shell. It also runs the US-02 React flow through draft creation, ordered
 requirements, reload, publication, editing, conflict comparison, talent discovery
 and cross-team access. Shared browser setup lives in `frontend/tests/support/live-app.js`.
+The US-05 flow exercises privacy opt-in, published-opportunity selection, all four
+statuses, hidden fields, anonymous talent, revocation and profile edit invalidation.
+`tests/test_us05.py` separately checks ownership, pagination, deterministic ranking,
+the team evidence shape and privacy revision/CSRF rules against real SQLite.
 It simulates browser Cookie/Origin transport; it does not test
 browser layout, Vite proxying or HTTPS cookie enforcement. Set `NODE_BINARY` to
 an absolute Node executable to override automatic selection. On a manually
