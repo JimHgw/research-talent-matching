@@ -112,10 +112,10 @@ test('opportunity conflict keeps edits and reload uses the latest revision on th
   await click('Save opportunity');
   assert.equal(field('Opportunity title *').value, 'My first revision');
   await click('Reload latest data');
-  await click('Keep editing');
   assert.equal(field('Opportunity title *').value, 'My first revision');
-  await click('Reload latest data');
-  await click('Discard and reload');
+  assert.match(text(), /A colleague updated this/);
+  assert.equal(state.requests.filter((r) => r.method === 'PUT').length, 1);
+  await click('Use latest version');
   assert.equal(field('Opportunity title *').value, 'A colleague updated this');
   assert.equal(button('Save opportunity').disabled, true);
   conflict = false;
@@ -226,4 +226,43 @@ test('discover talent passes the selected opportunity through workspace page con
       r.path.startsWith('/opportunities/' + opportunity.id + '/talent-matches')
     )
   );
+});
+
+test('modal creation checks saved drafts after a lost response instead of creating twice', async () => {
+  await mount('team@example.test');
+  await click('My opportunities');
+  await click('New opportunity');
+  for (const [label, value] of Object.entries({
+    'Opportunity title *': 'Recovered draft',
+    'University *': 'UNSW',
+    'Discipline *': 'Computer Science',
+    'Research area *': 'Data systems',
+    'Description *': 'Synthetic recovery test.',
+  }))
+    await change(label, value);
+  state.intercept = async (path, options, body) => {
+    if (path === '/opportunities' && options.method === 'POST') {
+      await state.server.dispatch('POST', path, body);
+      throw new TypeError('Response lost after commit');
+    }
+    return null;
+  };
+  await click('Save draft');
+  assert.equal(button('Save draft').disabled, true);
+  await act(async () =>
+    document
+      .querySelector('dialog form')
+      .dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+  );
+  assert.equal(
+    state.requests.filter((r) => r.path === '/opportunities' && r.method === 'POST').length,
+    1
+  );
+  state.intercept = null;
+  await click('Reload latest data');
+  await click('Open saved draft: Recovered draft');
+  assert.equal(field('Opportunity title *').value, 'Recovered draft');
+  assert.equal(button('Save opportunity').disabled, true);
+  const result = await state.server.dispatch('GET', '/opportunities?scope=mine&page=1');
+  assert.equal(result.items.filter((item) => item.content.title === 'Recovered draft').length, 1);
 });

@@ -91,7 +91,7 @@ function OpportunityList({ scope, onSelect }) {
   );
 }
 
-export default function OpportunitiesPage({ user, tags, onDirty, notify }) {
+export default function OpportunitiesPage({ user, tags, onDirty, onPending, notify }) {
   const team = user.role === 'RESEARCH_TEAM';
   const [scope, setScope] = useState(team ? 'mine' : 'published');
   const [selected, setSelected] = useState(null);
@@ -99,7 +99,7 @@ export default function OpportunitiesPage({ user, tags, onDirty, notify }) {
     onDirty(false);
     setSelected(null);
   }
-  const editorProps = { tags, onDirty, notify, onBack: back };
+  const editorProps = { tags, onDirty, onPending, notify, onBack: back };
   if (selected === 'new') return <OpportunityEditor {...editorProps} />;
   if (selected)
     return <SelectedOpportunity id={selected} editable={scope === 'mine'} {...editorProps} />;
