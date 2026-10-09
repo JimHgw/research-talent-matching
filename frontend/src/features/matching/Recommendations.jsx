@@ -13,7 +13,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails }) {
     .join('')
     .slice(0, 3);
   return (
-    <article className="opportunity-card">
+    <article className="recommendation-card">
       <div className="card-top">
         <span
           className={`university-mark ${content.disciplineGroup === 'BUSINESS' ? 'peach' : ''}`}

@@ -1,57 +1,45 @@
 import React from 'react';
-import { api } from '../../api/client.js';
-import { useResource } from '../../shared/hooks.js';
-import { Badge, Button, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
+import { Badge } from '../../shared/ui.jsx';
+import { displayDate } from '../../shared/format.js';
 
-export default function OpportunityDetails({ opportunityId, onClose, onMatch }) {
-  const resource = useResource(() => api.opportunity(opportunityId), [opportunityId], true);
-  const opportunity = resource.data;
+export function OpportunityContent({ content, tags }) {
+  const labels = new Map(tags.map((tag) => [tag.id, tag.label]));
   return (
-    <Modal title="Research opportunity" onClose={onClose}>
-      {resource.loading ? (
-        <Loading />
-      ) : resource.error ? (
-        <ErrorNotice error={resource.error} retry={resource.refresh} />
-      ) : (
-        <div className="opportunity-details">
-          <div className="row-between">
-            <span className="eyebrow">{opportunity.content.university}</span>
-            <Badge status={opportunity.status} />
-          </div>
-          <h3>{opportunity.content.title}</h3>
-          <div className="tag-row">
-            <span>{opportunity.content.disciplineGroup}</span>
-            <span>{opportunity.content.discipline}</span>
-            <span>{opportunity.content.researchArea}</span>
-          </div>
-          <p className="opportunity-description">{opportunity.content.description}</p>
-          <h4>Requirements</h4>
-          {opportunity.content.requirements.length ? (
-            <ul className="requirement-list">
-              {opportunity.content.requirements.map((requirement) => (
-                <li key={requirement.id}>
-                  <strong>{requirement.label}</strong>
-                  <span>
-                    {requirement.importance === 'REQUIRED' ? 'Required' : 'Preferred'} ·{' '}
-                    {requirement.kind === 'SKILL' ? 'Skill' : 'Research interest'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="muted">No requirements provided.</p>
-          )}
-          <div className="actions">
-            <Button variant="secondary" onClick={onClose}>
-              Close
-            </Button>
-            <Button onClick={onMatch}>
-              Why this match?
-              <Icon name="arrow" size={16} />
-            </Button>
-          </div>
-        </div>
-      )}
-    </Modal>
+    <div className="opportunity-content">
+      <h3>{content.title || 'Untitled opportunity'}</h3>
+      <p className="muted">
+        {content.university} · {content.disciplineGroup} · {content.discipline}
+      </p>
+      <h4>Research area</h4>
+      <p>{content.researchArea}</p>
+      <h4>Description</h4>
+      <p className="opportunity-description">{content.description}</p>
+      <h4>Requirements</h4>
+      {!content.requirements.length && <p className="muted">No requirements yet.</p>}
+      <ol className="opportunity-requirement-list">
+        {content.requirements.map((row) => (
+          <li key={row.id}>
+            <strong>{row.label}</strong>
+            <p>
+              {row.importance === 'REQUIRED' ? 'Required' : 'Preferred'} ·{' '}
+              {row.kind === 'SKILL' ? 'Skill' : 'Research interest'}
+            </p>
+            <p>{row.tagIds.map((id) => labels.get(id) || id).join(' + ')}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+export default function OpportunityDetails({ opportunity, tags }) {
+  return (
+    <article className="panel">
+      <div className="opportunity-meta">
+        <Badge status={opportunity.status} />
+        <span className="muted">Updated {displayDate(opportunity.updatedAt)}</span>
+      </div>
+      <OpportunityContent content={opportunity.content} tags={tags} />
+    </article>
   );
 }

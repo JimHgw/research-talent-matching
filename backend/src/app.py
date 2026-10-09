@@ -17,6 +17,7 @@ from .db.database import Database
 from .db.models import AuthSession, LoginAttempt, utcnow
 from .features.auth.routes import auth, provision_user
 from .features.profile.routes import profiles, seed_tags
+from .features.opportunities.routes import opportunities
 from .shared.paths import ROOT
 from .shared.validation import ApiError
 
@@ -46,6 +47,7 @@ def create_app(config=None):
     app.extensions["dummy_hash"] = app.extensions["password_hasher"].hash(secrets.token_urlsafe(32))
     app.register_blueprint(auth)
     app.register_blueprint(profiles)
+    app.register_blueprint(opportunities)
 
     @app.before_request
     def request_id():

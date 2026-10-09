@@ -21,8 +21,8 @@ test('recommendations open full opportunity details and then matching evidence',
   state.intercept = (path, options) =>
     options.method === 'GET' && /^\/opportunities\/[^/?]+$/.test(path) ? json(detail) : null;
   await mount();
-  await click('Opportunities');
-  const card = [...document.querySelectorAll('.opportunity-card')].find((c) =>
+  await click('Recommended opportunities');
+  const card = [...document.querySelectorAll('.recommendation-card')].find((c) =>
     c.textContent.includes('Research assistant in data science')
   );
   await act(async () =>
@@ -55,7 +55,7 @@ test('unavailable opportunity details show an error and retry without stale cont
         : json(detail)
       : null;
   await mount();
-  await click('Opportunities');
+  await click('Recommended opportunities');
   await click('View opportunity');
   assert.match(document.querySelector('dialog').textContent, /no longer available/);
   assert.equal(document.querySelector('.opportunity-details'), null);
@@ -73,7 +73,7 @@ test('unavailable matching percentages display as unavailable rather than a nume
   detail.requirements = [];
   state.intercept = (path) => (path.startsWith('/me/opportunity-matches/') ? json(detail) : null);
   await mount();
-  await click('Opportunities');
+  await click('Recommended opportunities');
   await click('Why this match?');
   assert.match(document.querySelector('.match-metrics').textContent, /Not available/);
   assert.doesNotMatch(
@@ -84,8 +84,8 @@ test('unavailable matching percentages display as unavailable rather than a nume
 
 test('match explanation displays all four statuses without inventing evidence for Unknown', async () => {
   await mount();
-  await click('Opportunities');
-  const card = [...document.querySelectorAll('.opportunity-card')].find((c) =>
+  await click('Recommended opportunities');
+  const card = [...document.querySelectorAll('.recommendation-card')].find((c) =>
     c.textContent.includes('Research assistant in data science')
   );
   assert.ok(card);
@@ -118,7 +118,7 @@ test('recommendation pages replace old results and enforce first and last page b
     return json(data);
   };
   await mount();
-  await click('Opportunities');
+  await click('Recommended opportunities');
   assert.equal(button('Previous').disabled, true);
   await click('Next');
   assert.match(text(), /Research page 2/);
@@ -126,7 +126,7 @@ test('recommendation pages replace old results and enforce first and last page b
   assert.equal(button('Next').disabled, true);
   await click('Previous');
   assert.match(text(), /Research page 1/);
-  assert.equal(document.querySelectorAll('.opportunity-card').length, 1);
+  assert.equal(document.querySelectorAll('.recommendation-card').length, 1);
 });
 
 test('retry recovers a failed recommendation request and handles a valid empty result', async () => {
@@ -143,8 +143,8 @@ test('retry recovers a failed recommendation request and handles a valid empty r
         )
       : null;
   await mount();
-  await click('Opportunities');
-  assert.equal(document.querySelectorAll('.opportunity-card').length, 0);
+  await click('Recommended opportunities');
+  assert.equal(document.querySelectorAll('.recommendation-card').length, 0);
   state.intercept = (path) =>
     path.startsWith('/me/recommendations?')
       ? json({ items: [], page: 1, pageSize: 20, total: 0 })
@@ -208,9 +208,9 @@ test('opening a talent detail after access is revoked shows 404 without profile 
 
 test('unconfirmed profiles see the confirmation gate instead of recommendation results', async () => {
   await mount('new@example.test');
-  await click('Opportunities');
+  await click('Recommended opportunities');
   assert.match(text(), /Your profile needs a review/);
-  assert.equal(document.querySelector('.opportunity-card'), null);
+  assert.equal(document.querySelector('.recommendation-card'), null);
   await click('Review my profile');
   assert.match(text(), /Tell your research story/);
 });
@@ -224,8 +224,8 @@ test('matching API failures are shown without synthetic fallback results', async
         )
       : null;
   await mount();
-  await click('Opportunities');
+  await click('Recommended opportunities');
   assert.match(text(), /Matching endpoint is not implemented/);
-  assert.equal(document.querySelector('.opportunity-card'), null);
+  assert.equal(document.querySelector('.recommendation-card'), null);
   assert.equal(document.querySelector('.talent-card'), null);
 });

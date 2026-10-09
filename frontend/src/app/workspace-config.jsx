@@ -1,21 +1,28 @@
 import { coreWorkspaceConfiguration } from './core-workspace-config.jsx';
 import { withTagVocabulary } from './withTagVocabulary.jsx';
 import TeamOpportunities from '../features/opportunities/TeamOpportunities.jsx';
-import OpportunityDetails from '../features/opportunities/OpportunityDetails.jsx';
+import OpportunityDetails from '../features/opportunities/RecommendedOpportunityDetails.jsx';
+import OpportunitiesPage from '../features/opportunities/OpportunitiesPage.jsx';
 import Recommendations from '../features/matching/Recommendations.jsx';
 import TalentPage from '../features/matching/TalentPage.jsx';
 
 const OpportunityManager = withTagVocabulary(TeamOpportunities);
+const OpportunityBrowser = withTagVocabulary(OpportunitiesPage);
 
 export const workspaceConfiguration = {
   TALENT: {
     ...coreWorkspaceConfiguration.TALENT,
     navigation: [
       ...coreWorkspaceConfiguration.TALENT.navigation.slice(0, 2),
-      ['recommendations', 'compass', 'Opportunities'],
+      ['opportunities', 'briefcase', 'Opportunities'],
+      ['recommendations', 'compass', 'Recommended opportunities'],
       ...coreWorkspaceConfiguration.TALENT.navigation.slice(2),
     ],
-    pages: { ...coreWorkspaceConfiguration.TALENT.pages, recommendations: Recommendations },
+    pages: {
+      ...coreWorkspaceConfiguration.TALENT.pages,
+      opportunities: OpportunityBrowser,
+      recommendations: Recommendations,
+    },
     pageProps: {
       ...coreWorkspaceConfiguration.TALENT.pageProps,
       profile: { canRecommend: true },
@@ -26,12 +33,14 @@ export const workspaceConfiguration = {
     ...coreWorkspaceConfiguration.RESEARCH_TEAM,
     navigation: [
       ...coreWorkspaceConfiguration.RESEARCH_TEAM.navigation,
-      ['opportunities', 'briefcase', 'My opportunities'],
+      ['opportunities', 'briefcase', 'Opportunities'],
+      ['teamOpportunities', 'briefcase', 'My opportunities'],
       ['talent', 'user', 'Discover talent'],
     ],
     pages: {
       ...coreWorkspaceConfiguration.RESEARCH_TEAM.pages,
-      opportunities: OpportunityManager,
+      opportunities: OpportunityBrowser,
+      teamOpportunities: OpportunityManager,
       talent: TalentPage,
     },
   },

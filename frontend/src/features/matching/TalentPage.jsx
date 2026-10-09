@@ -135,7 +135,9 @@ export default function TalentPage({ initialOpportunity, navigate }) {
         <Empty
           icon="briefcase"
           title="Publish an opportunity first"
-          action={<Button onClick={() => navigate('opportunities')}>Manage opportunities</Button>}
+          action={
+            <Button onClick={() => navigate('teamOpportunities')}>Manage opportunities</Button>
+          }
         >
           Talent discovery is available for your published opportunities.
         </Empty>

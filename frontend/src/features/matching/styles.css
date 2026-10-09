@@ -4,7 +4,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
-.opportunity-card {
+.recommendation-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
@@ -63,7 +63,7 @@
   color: #777789;
   margin-left: 2px;
 }
-.opportunity-card h3 {
+.recommendation-card h3 {
   font-size: 17px;
   line-height: 1.4;
   margin-bottom: 12px;
@@ -215,7 +215,7 @@
   .talent-grid {
     gap: 13px;
   }
-  .opportunity-card {
+  .recommendation-card {
     padding: 18px;
   }
   .match-intro h3 {

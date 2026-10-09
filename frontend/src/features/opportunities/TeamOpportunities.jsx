@@ -3,7 +3,7 @@ import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
-import OpportunityEditor from './OpportunityEditor.jsx';
+import OpportunityEditor from './TeamOpportunityEditor.jsx';
 
 export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
   const [page, setPage] = useState(1);
