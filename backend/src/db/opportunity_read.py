@@ -1,0 +1,40 @@
+from collections import defaultdict
+
+from sqlalchemy import select
+
+from .models import OpportunityRequirement, RequirementTag
+
+CONTENT_FIELDS = {
+    "title": "title", "university": "university", "disciplineGroup": "discipline_group",
+    "discipline": "discipline", "researchArea": "research_area", "description": "description",
+}
+
+
+def serialize_many(db, opportunities):
+    """Batch child reads so a list does not query once per requirement/tag."""
+    ids = [row.id for row in opportunities]
+    if not ids:
+        return []
+    tags = defaultdict(list)
+    for row in db.scalars(select(RequirementTag).where(RequirementTag.opportunity_id.in_(ids))
+                         .order_by(RequirementTag.position)):
+        tags[(row.opportunity_id, row.requirement_id)].append(row.tag_id)
+    requirements = defaultdict(list)
+    for row in db.scalars(select(OpportunityRequirement)
+                         .where(OpportunityRequirement.opportunity_id.in_(ids))
+                         .order_by(OpportunityRequirement.position)):
+        requirements[row.opportunity_id].append({
+            "id": row.id, "label": row.label, "kind": row.kind, "importance": row.importance,
+            "tagIds": tags[(row.opportunity_id, row.id)],
+        })
+    return [{
+        "id": row.id, "revision": row.revision, "status": row.status,
+        "content": {**{field: getattr(row, attr) for field, attr in CONTENT_FIELDS.items()},
+                    "requirements": requirements[row.id]},
+        "createdAt": row.created_at.isoformat(timespec="microseconds") + "Z",
+        "updatedAt": row.updated_at.isoformat(timespec="microseconds") + "Z",
+    } for row in opportunities]
+
+
+def serialize(db, opportunity):
+    return serialize_many(db, [opportunity])[0]
