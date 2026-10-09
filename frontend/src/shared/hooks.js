@@ -39,3 +39,15 @@ export function useUnsaved(dirty) {
     return () => window.removeEventListener('beforeunload', handler);
   }, [dirty]);
 }
+
+export function usePageGuard(dirty, busy, onDirty, onPending) {
+  useUnsaved(dirty || busy);
+  useEffect(() => {
+    onDirty?.(dirty || busy);
+    onPending?.(busy);
+    return () => {
+      onDirty?.(false);
+      onPending?.(false);
+    };
+  }, [dirty, busy, onDirty, onPending]);
+}

@@ -87,10 +87,11 @@ if the backend uses another address. Never put secrets in public `VITE_*` values
 Production must also route `/api` to Python or configure a backend origin with
 the appropriate cookie/CORS policy. An unavailable backend shows an error.
 
-The current backend implements sessions, login/logout, tags and manual profile
-reads/saves and all five US-02 opportunity operations. Confirmation, privacy and document endpoints belong to other user
-stories and are not yet supplied by that backend. Their existing UI remains for
-those contributions. The US-01 development flow ends after saving the draft.
+The current backend supplies sessions, login/logout, tags, manual profile
+reads/saves, US-03 profile confirmation and all five US-02 opportunity operations.
+Privacy and document endpoints are not yet supplied by that backend. Their UI
+and isolated frontend tests remain ready for those contributions; full HTTP
+acceptance must wait for the corresponding backend implementations.
 
 ## Automated checks
 
@@ -114,6 +115,10 @@ that use the saved toolchain.
   version comparison, uncertain network outcomes, role-specific controls and lists.
 - `tests/task-21-profile-privacy.test.js`: edits, confirmation, conflicts and privacy.
 - `tests/task-22-documents.test.js`: upload failures, extraction review and import.
+- `tests/task-21-mutations.test.js`: pending profile/privacy writes freeze inputs,
+  reject duplicate submissions, preserve returned revisions and block navigation.
+- `tests/task-22-mutations.test.js`: pending uploads/imports protect controls,
+  navigation and dialog dismissal.
 - `tests/contribution.test.js`: the core workspace configuration works independently
   of opportunity and matching pages; a tag outage does not block privacy or sign out.
 - `tests/architecture.test.js`: import resolution and module dependency boundaries.
@@ -127,11 +132,15 @@ and their fixtures cover more API operations than the current pages.
 jsdom interaction tests do not verify CSS layout or the Python backend.
 
 For real HTTP integration, run the repository-root Python test suite after installing
-frontend dependencies. `backend/tests/test_frontend_integration.py` runs frontend's `tests/us01-live.mjs` and `tests/us02-live.mjs`
-against a temporary Python service and SQLite database. The actual React pages
-exercise login, editing, saving, reload, conflicts, logout and account isolation.
+frontend dependencies. `backend/tests/test_frontend_integration.py` runs
+`tests/us01-live.mjs`, `tests/us02-live.mjs`, `tests/us03-live.mjs` and
+`tests/us19-live.mjs` against a temporary Python service and SQLite database.
+The actual React pages exercise login, complete profile fields, stable record IDs,
+saving, reload, conflicts, logout and account isolation. The US-03 flow checks
+explicit confirmation, edit invalidation and recovery from a stale revision.
 The US-02 flow creates/publishes/edits an opportunity, preserves requirement IDs,
 compares conflicting versions, browses as talent and checks another team's access.
+The US-19 flow covers the alternative team editor and its conflict recovery.
 Use `.venv/bin/python -m pytest -q -rs --require-frontend` on macOS/Linux, or
 `.\.venv\Scripts\python.exe -m pytest -q -rs --require-frontend` on Windows.
 The flag fails if Node/jsdom is missing instead of accepting a skipped integration
@@ -189,8 +198,11 @@ application. A passing frontend test run does not complete those acceptance crit
 
 ## Maintaining opportunity management
 
-`OpportunitiesPage.jsx` handles lists and detail selection; `OpportunityEditor.jsx`
-owns local edits, save/publish actions and explicit conflict recovery.
+`OpportunitiesPage.jsx` handles lists and detail selection. `OpportunityEditor.jsx`
+and `TeamOpportunityEditor.jsx` provide the page and dialog presentations.
+Both use `useOpportunityEditor.js` for edits, save/publish actions and explicit
+conflict recovery, `OpportunityFields.jsx` for the form and
+`OpportunityRecovery.jsx` for comparison and recovery controls.
 `RequirementEditor.jsx` handles stable requirement IDs and kind-specific tag
 selection. `OpportunityDetails.jsx` renders plain text for both read-only details
 and version comparison. `fields.js` holds form labels and limits; change these
@@ -204,6 +216,22 @@ response is never automatically replayed. Creation recovery lists saved
 opportunities before allowing another attempt, avoiding accidental duplicate
 drafts after a lost response. Lists refresh on return/focus; an open editor never
 refreshes over unsaved input. See [US-02 details](../docs/us02-implementation.md).
+
+## Maintaining profile forms and pending writes
+
+`ProfileFields.jsx` composes the identity, record, skills and research-interest
+editors; `features/profile/fields.js` holds their metadata and record defaults.
+Keep API field names, nullable values and stable record IDs aligned with the
+contract when editing these modules. Both manual entry and extraction review
+reuse the profile field entry point.
+
+`shared/useMutation.js` guards duplicate mutations and suppresses completion
+callbacks after a component unmounts. Profile, privacy, opportunity and document
+forms disable editable controls while a write is pending. `usePageGuard` and
+`layout/useWorkspaceNavigation.js` protect page changes and sign out until the
+operation finishes. Errors retain local input for correction or explicit recovery.
+Workspace presentation lives in `WorkspaceChrome.jsx`; navigation and small UI
+hooks remain separate from the page composition in `Workspace.jsx`.
 
 Formatting accepts each file's existing LF/CRLF endings so Windows Git checkouts
 do not require reformatting unrelated files.

@@ -69,7 +69,9 @@ try {
   await until(() => text().includes('This opportunity changed.'));
   assert.equal(field('Opportunity title *').value, 'Local title after conflict');
   await click('Reload latest data');
-  await click('Discard and reload');
+  await until(() => text().includes('Compare before continuing'));
+  assert.equal(field('Opportunity title *').value, 'Local title after conflict');
+  await click('Use latest version');
   await until(() => field('Opportunity title *').value === 'Changed by another teammate');
   await change('Opportunity title *', 'Merged FE19 opportunity');
   await click('Save opportunity');

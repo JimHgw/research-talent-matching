@@ -11,22 +11,23 @@ import {
   Notice,
   Pager,
 } from '../../shared/ui.jsx';
-import { useResource } from '../../shared/hooks.js';
+import { useResource, usePageGuard } from '../../shared/hooks.js';
+import { useMutation } from '../../shared/useMutation.js';
 import { displayDate } from '../../shared/format.js';
 import ExtractionReview from './ExtractionReview.jsx';
 
-export default function DocumentsPage({ tags, notify, navigate }) {
+export default function DocumentsPage({ tags, notify, navigate, onDirty, onPending }) {
   const [page, setPage] = useState(1);
   const resource = useResource(() => api.documents(page), [page]);
   const [file, setFile] = useState(null);
   const [kind, setKind] = useState('CV');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(null);
+  const { busy, error, setError, clearError, run, isPending } = useMutation();
   const [selected, setSelected] = useState(null);
   const [paused, setPaused] = useState(false);
   const input = useRef();
   const started = useRef(Date.now());
   const pending = resource.data?.items.some((d) => ['QUEUED', 'PROCESSING'].includes(d.status));
+  usePageGuard(false, busy, onDirty, onPending);
   useEffect(() => {
     if (!pending || paused) return;
     const timer = setInterval(() => {
@@ -35,24 +36,22 @@ export default function DocumentsPage({ tags, notify, navigate }) {
     }, 2000);
     return () => clearInterval(timer);
   }, [pending, paused, resource.data]);
-  async function upload(e) {
+  function upload(e) {
     e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      await api.upload(file, kind);
-      setFile(null);
-      input.current.value = '';
-      setPage(1);
-      started.current = Date.now();
-      setPaused(false);
-      resource.refresh();
-      notify('Document received. Processing status will update automatically.');
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
+    if (isPending() || !file) return;
+    clearError();
+    run(
+      () => api.upload(file, kind),
+      () => {
+        setFile(null);
+        if (input.current) input.current.value = '';
+        setPage(1);
+        started.current = Date.now();
+        setPaused(false);
+        resource.refresh();
+        notify('Document received. Processing status will update automatically.');
+      }
+    );
   }
   async function download(d) {
     try {
@@ -85,7 +84,7 @@ export default function DocumentsPage({ tags, notify, navigate }) {
         </span>
         <h3>Add your CV or transcript</h3>
         <p className="muted">PDF or DOCX · Up to 10 MiB · Always private</p>
-        <div className="upload-controls">
+        <fieldset className="form-fields upload-controls" disabled={busy}>
           <Field label="Document type">
             <select value={kind} onChange={(e) => setKind(e.target.value)}>
               <option value="CV">CV / Resume</option>
@@ -105,7 +104,7 @@ export default function DocumentsPage({ tags, notify, navigate }) {
             {busy ? 'Uploading…' : 'Upload document'}
             <Icon name="upload" size={16} />
           </Button>
-        </div>
+        </fieldset>
       </form>
       <div className="section-title">
         <h2>Your documents</h2>
@@ -171,6 +170,8 @@ export default function DocumentsPage({ tags, notify, navigate }) {
       <Pager data={resource.data} onPage={setPage} />
       {selected && (
         <ExtractionReview
+          onDirty={onDirty}
+          onPending={onPending}
           document={selected}
           tags={tags}
           onClose={() => setSelected(null)}

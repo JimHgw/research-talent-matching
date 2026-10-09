@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { Badge, Button, ErrorNotice, Icon, Loading, Notice } from '../../shared/ui.jsx';
-import { useResource, useUnsaved } from '../../shared/hooks.js';
+import { useResource, usePageGuard } from '../../shared/hooks.js';
+import { useMutation } from '../../shared/useMutation.js';
 import ProfileFields from '../profile/ProfileFields.jsx';
 
-export default function ProfilePage({ tags, onDirty, notify, navigate, canRecommend = true }) {
+export default function ProfilePage({
+  tags,
+  onDirty,
+  onPending,
+  notify,
+  navigate,
+  canRecommend = true,
+}) {
   const resource = useResource(api.profile);
   const [profile, setProfile] = useState(null);
   const [content, setContent] = useState(null);
-  const [error, setError] = useState(null);
-  const [busy, setBusy] = useState(false);
+  const { error, clearError, busy, run, isPending } = useMutation();
   const [reviewed, setReviewed] = useState(false);
   useEffect(() => {
     if (resource.data) {
@@ -19,39 +26,31 @@ export default function ProfilePage({ tags, onDirty, notify, navigate, canRecomm
     }
   }, [resource.data]);
   const dirty = !!profile && JSON.stringify(profile.content) !== JSON.stringify(content);
-  useEffect(() => {
-    onDirty(dirty);
-    return () => onDirty(false);
-  }, [dirty]);
-  useUnsaved(dirty);
-  async function save(e) {
+  usePageGuard(dirty, busy, onDirty, onPending);
+  function save(e) {
     e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const next = await api.saveProfile(profile.revision, content);
-      setProfile(next);
-      setContent(structuredClone(next.content));
-      setReviewed(false);
-      notify('Profile saved. Review and confirm to use the latest information.');
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
+    if (isPending() || !dirty) return;
+    clearError();
+    run(
+      () => api.saveProfile(profile.revision, content),
+      (next) => {
+        setProfile(next);
+        setContent(structuredClone(next.content));
+        setReviewed(false);
+        notify('Profile saved. Review and confirm to use the latest information.');
+      }
+    );
   }
-  async function confirm() {
-    setBusy(true);
-    setError(null);
-    try {
-      const next = await api.confirm(profile.revision);
-      setProfile(next);
-      notify('Profile confirmed. Your recommendations are ready.');
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
+  function confirm() {
+    if (isPending() || dirty || !reviewed) return;
+    clearError();
+    run(
+      () => api.confirm(profile.revision),
+      (next) => {
+        setProfile(next);
+        notify('Profile confirmed. Your recommendations are ready.');
+      }
+    );
   }
   if (resource.loading || (!content && !resource.error)) return <Loading />;
   if (resource.error) return <ErrorNotice error={resource.error} retry={resource.refresh} />;
@@ -73,15 +72,21 @@ export default function ProfilePage({ tags, onDirty, notify, navigate, canRecomm
           error?.code === 'REVISION_CONFLICT'
             ? () => {
                 if (!dirty || window.confirm('Reload and discard your unsaved edits?')) {
-                  setError(null);
+                  clearError();
                   resource.refresh();
                 }
               }
             : undefined
         }
       />
-      <div className="editor-layout">
-        <ProfileFields content={content} onChange={setContent} tags={tags} />
+      <fieldset className="form-fields editor-layout" disabled={busy}>
+        <ProfileFields
+          content={content}
+          onChange={(next) => {
+            if (!isPending()) setContent(next);
+          }}
+          tags={tags}
+        />
         <aside className="editor-aside">
           <div className="panel sticky-panel">
             <span className="aside-icon">
@@ -130,7 +135,7 @@ export default function ProfilePage({ tags, onDirty, notify, navigate, canRecomm
             </small>
           </div>
         </aside>
-      </div>
+      </fieldset>
     </form>
   );
 }
