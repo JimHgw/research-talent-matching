@@ -8,6 +8,7 @@ import TalentPage from '../features/matching/TalentPage.jsx';
 
 const OpportunityManager = withTagVocabulary(TeamOpportunities);
 const OpportunityBrowser = withTagVocabulary(OpportunitiesPage);
+const TalentDiscovery = withTagVocabulary(TalentPage);
 
 export const workspaceConfiguration = {
   TALENT: {
@@ -41,7 +42,7 @@ export const workspaceConfiguration = {
       ...coreWorkspaceConfiguration.RESEARCH_TEAM.pages,
       opportunities: OpportunityBrowser,
       teamOpportunities: OpportunityManager,
-      talent: TalentPage,
+      talent: TalentDiscovery,
     },
   },
 };

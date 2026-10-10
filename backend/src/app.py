@@ -22,6 +22,7 @@ from .features.opportunities.routes import opportunities
 from .shared.paths import ROOT
 from .shared.validation import ApiError
 from .features.matching.routes import matching
+from .features.privacy.routes import privacy
 
 
 def create_app(config=None):
@@ -51,6 +52,7 @@ def create_app(config=None):
     app.register_blueprint(profiles)
     app.register_blueprint(opportunities)
     app.register_blueprint(matching)
+    app.register_blueprint(privacy)
 
     @app.get("/healthz")
     def health():

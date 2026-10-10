@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import {
@@ -26,14 +26,10 @@ async function loadPublishedOpportunities() {
   return opportunities.filter((opportunity) => opportunity.status === 'PUBLISHED');
 }
 
-function TalentResults({ opportunityId }) {
+function TalentResults({ opportunityId, tags }) {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const resource = useResource(() => api.talents(opportunityId, page), [opportunityId, page], true);
-  useEffect(() => {
-    setPage(1);
-    setSelected(null);
-  }, [opportunityId]);
   return (
     <>
       {resource.loading ? (
@@ -41,7 +37,11 @@ function TalentResults({ opportunityId }) {
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       ) : !resource.data.items.length ? (
-        <Empty icon="user" title="No discoverable talent yet">
+        <Empty
+          icon="user"
+          title={page > 1 ? 'No talent on this page' : 'No discoverable talent yet'}
+          action={page > 1 ? <Button onClick={() => setPage(1)}>Back to first page</Button> : null}
+        >
           Talent appears here after confirming their profile and choosing to be discovered.
         </Empty>
       ) : (
@@ -73,7 +73,9 @@ function TalentResults({ opportunityId }) {
                   ?.filter((s) => s.claim === 'HAS')
                   .slice(0, 4)
                   .map((s) => (
-                    <span key={s.tagId}>{s.tagId.replace('skill_', '').replaceAll('_', ' ')}</span>
+                    <span key={s.tagId}>
+                      {tags.find((tag) => tag.id === s.tagId)?.label || 'Unlabelled skill'}
+                    </span>
                   ))}
               </div>
               <p className="help">
@@ -93,28 +95,30 @@ function TalentResults({ opportunityId }) {
           ))}
         </div>
       )}
-      <Pager data={resource.data} onPage={setPage} />
+      <Pager
+        data={resource.data}
+        onPage={(nextPage) => {
+          setSelected(null);
+          setPage(nextPage);
+        }}
+      />
       {selected && (
         <MatchDetails
           opportunityId={opportunityId}
           talentId={selected}
+          tags={tags}
           onClose={() => setSelected(null)}
         />
       )}
     </>
   );
 }
-export default function TalentPage({ initialOpportunity, navigate }) {
+export default function TalentPage({ initialOpportunity, navigate, tags = [] }) {
   const resource = useResource(loadPublishedOpportunities, [], true);
   const [selected, setSelected] = useState(initialOpportunity || '');
-  useEffect(() => {
-    if (
-      resource.data?.length &&
-      !resource.data.some((opportunity) => opportunity.id === selected)
-    ) {
-      setSelected(resource.data[0].id);
-    }
-  }, [resource.data, selected]);
+  const activeOpportunity = resource.data?.some((opportunity) => opportunity.id === selected)
+    ? selected
+    : resource.data?.[0]?.id;
   return (
     <>
       <div className="section-title">
@@ -122,6 +126,9 @@ export default function TalentPage({ initialOpportunity, navigate }) {
           <h2>Find people for your next idea</h2>
           <p>Confirmed profiles, shared with consent. Every match has an explanation.</p>
         </div>
+        <Button variant="secondary" disabled={resource.loading} onClick={resource.refresh}>
+          Refresh talent
+        </Button>
       </div>
       <Notice>
         Scores and evidence use only the fields each talent has chosen to share. A low score can
@@ -145,7 +152,7 @@ export default function TalentPage({ initialOpportunity, navigate }) {
         <>
           <div className="opportunity-select">
             <Field label="Match talent to this opportunity">
-              <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+              <select value={activeOpportunity} onChange={(e) => setSelected(e.target.value)}>
                 {resource.data.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.content.title}
@@ -154,7 +161,9 @@ export default function TalentPage({ initialOpportunity, navigate }) {
               </select>
             </Field>
           </div>
-          {selected && <TalentResults key={selected} opportunityId={selected} />}
+          {activeOpportunity && (
+            <TalentResults key={activeOpportunity} opportunityId={activeOpportunity} tags={tags} />
+          )}
         </>
       )}
     </>
