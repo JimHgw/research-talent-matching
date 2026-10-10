@@ -96,11 +96,11 @@ permitted profile fields/evidence. It refreshes on entry, window focus or
 
 ## Frontend in Docker
 
-Use [the frontend Docker guide](docker/README.md) to build and serve the frontend
-with Nginx while keeping the Python backend on your host. The container forwards
-`/api/v1` requests to that existing service. This option does not start a backend,
-create accounts or seed a database. Local development and tests remain available
-through the commands below.
+Use [the integrated Docker guide](../docs/docker-integration.md) to start Nginx
+and the Python backend together on their shared Compose network. The browser
+continues to request `/api/v1`; Nginx forwards it to `backend:8000`.
+[The frontend-only guide](docker/README.md) remains available for a backend running
+on the host. Local development and tests remain available through the commands below.
 
 ## Automated checks
 

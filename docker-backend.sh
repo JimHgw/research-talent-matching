@@ -44,15 +44,19 @@ case "$action" in
         fi
         printf '%s\n' 'Backend is healthy. Published address (append /healthz to check):'
         compose port backend 8000
-        printf '%s\n' 'See README_DEVELOPER.md to create accounts and connect the frontend.'
+        printf '%s\n' 'See README_DEVELOPER_EN.md to create accounts and connect the frontend.'
         ;;
     build)
         compose build backend
         printf '%s\n' 'Image built: banana-backend:local. No container was started.'
         ;;
-    stop|down)
-        compose "$action"
+    stop)
+        compose stop backend
         printf '%s\n' 'Backend stopped. The SQLite data volume is preserved.'
+        ;;
+    down)
+        compose down
+        printf '%s\n' 'Compose containers and network removed. The SQLite data volume is preserved.'
         ;;
     logs) compose logs --follow --tail 100 backend ;;
     status) compose ps --all ;;

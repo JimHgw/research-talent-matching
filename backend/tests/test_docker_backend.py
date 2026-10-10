@@ -131,7 +131,7 @@ def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(
 
 @pytest.mark.parametrize("launcher", ["powershell", "shell"])
 @pytest.mark.parametrize("scenario", [
-    "up", "build", "down", "env_override", "startup_failure", "build_failure",
+    "up", "build", "stop", "down", "env_override", "startup_failure", "build_failure",
     "daemon_failure", "compose_failure", "windows_engine",
 ])
 def test_docker_launchers_handle_paths_failures_and_preserve_volumes(tmp_path, launcher, scenario):
@@ -188,7 +188,7 @@ def test_docker_launchers_handle_paths_failures_and_preserve_volumes(tmp_path, l
         fake_docker.chmod(0o755)
     env = {**os.environ, "PATH": str(tools_dir) + os.pathsep + os.environ.get("PATH", ""),
            "DOCKER_TEST_EVENTS": str(events_path), "DOCKER_TEST_SCENARIO": scenario}
-    action = {"build_failure": "build"}.get(scenario, scenario if scenario in ("build", "down") else "up")
+    action = {"build_failure": "build"}.get(scenario, scenario if scenario in ("build", "stop", "down") else "up")
     if launcher == "powershell":
         command = [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                    str(checkout / "docker-backend.ps1")]
@@ -220,6 +220,8 @@ def test_docker_launchers_handle_paths_failures_and_preserve_volumes(tmp_path, l
             env_file = ".env" if scenario == "env_override" else ".env.example"
             assert Path(args[args.index("--env-file") + 1]) == checkout / env_file
         assert action in operations[0]
+        if action in ("up", "build", "stop"):
+            assert operations[0][-1] == "backend"
         if action == "build":
             assert all("up" not in args for args in operations)
     assert all("-v" not in args and "--volumes" not in args for args in events)
