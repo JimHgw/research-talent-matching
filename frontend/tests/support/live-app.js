@@ -87,7 +87,7 @@ export async function click(name) {
 }
 export async function login(email) {
   await until(() => text().includes('Welcome to Banana'));
-  await change('Email address', email);
+  await change('Email address or account ID', email);
   await change('Password', 'Test-password-123!');
   await click('Sign in');
 }

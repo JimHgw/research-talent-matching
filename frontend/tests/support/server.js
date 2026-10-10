@@ -232,7 +232,8 @@ export function createMockServer({ storage, now = () => Date.now(), processingDe
 
     if (route === '/auth/session' && method === 'GET') return session();
     if (route === '/auth/login' && method === 'POST') {
-      user = TEST_ACCOUNTS.find((u) => u.email === body?.email?.trim().toLowerCase());
+      const identifier = (body?.identifier || body?.email || '').trim();
+      user = TEST_ACCOUNTS.find((u) => u.email === identifier.toLowerCase() || u.id === identifier);
       if (!user || body?.password !== TEST_PASSWORD)
         fail(401, 'INVALID_CREDENTIALS', 'The email or password is incorrect.');
       state.sessionUserId = user.id;

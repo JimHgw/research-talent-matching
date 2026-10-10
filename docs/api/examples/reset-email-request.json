@@ -1,0 +1,6 @@
+{
+  "method": "EMAIL_CODE",
+  "email": "talent@example.test",
+  "newPassword": "Example-only-new-password-456!",
+  "confirmPassword": "Example-only-new-password-456!"
+}

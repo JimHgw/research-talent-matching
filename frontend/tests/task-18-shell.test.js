@@ -21,7 +21,7 @@ test('login uses entered credentials and a failed password stays on the sign-in 
   await mount(null);
   assert.match(text(), /Welcome to Banana/);
   assert.doesNotMatch(text(), /Try as talent|Reset demo/);
-  await change('Email address', 'talent@example.test');
+  await change('Email address or account ID', 'talent@example.test');
   await change('Password', 'incorrect');
   await click('Sign in');
   assert.match(text(), /email or password is incorrect/);
