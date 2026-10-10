@@ -23,6 +23,7 @@ from .shared.paths import ROOT
 from .shared.validation import ApiError
 from .features.matching.routes import matching
 from .features.privacy.routes import privacy
+from .features.documents.routes import documents
 
 
 def create_app(config=None):
@@ -53,6 +54,7 @@ def create_app(config=None):
     app.register_blueprint(opportunities)
     app.register_blueprint(matching)
     app.register_blueprint(privacy)
+    app.register_blueprint(documents)
 
     @app.get("/healthz")
     def health():
