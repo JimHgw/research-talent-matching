@@ -242,5 +242,32 @@
       "H18ABANANA-31",
       "H18ABANANA-33"
     ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset/code",
+    "summary": "Send a password reset email code",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset/verify",
+    "summary": "Verify an email before choosing a new password",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset",
+    "summary": "Reset a password using credentials or verified email",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
   }
 ]

@@ -12,6 +12,7 @@ from ...db.models import AuthSession, LoginAttempt, User, utcnow
 from ...shared.security import COOKIE, current_session, digest, require_csrf, require_user
 from ...shared.validation import ApiError, body, validate
 from .accounts import create_account
+from .passwords import validate_new_password
 
 auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
@@ -122,6 +123,7 @@ def provision_user(email, password, display_name, role):
     """Administrative CLI helper, never a public registration endpoint."""
     email = email.strip().casefold()
     validate("LoginRequest", {"email": email, "password": password})
+    validate_new_password(password)
     user_id = "user_" + secrets.token_hex(16)
     validate("User", {"id": user_id, "displayName": display_name, "email": email, "role": role})
     encoded = current_app.extensions["password_hasher"].hash(password)

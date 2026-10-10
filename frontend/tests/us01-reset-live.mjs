@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';
+import { mount, cleanup, until, text, change, click, field } from './support/live-app.js';
+import { createApi } from '../src/api/client.js';
+
+const api = createApi();
+const nextPassword = 'New-password-456!';
+try {
+  await api.session();
+  const talent = await api.login('talent@example.test', 'Test-password-123!');
+  await api.logout();
+  await mount();
+  await until(() => text().includes('Welcome to Banana'));
+  await change('Email address or account ID', talent.user.id);
+  await click('Reset password');
+  await change('Current password', 'Test-password-123!');
+  await change('New password', nextPassword);
+  await change('Confirm new password', 'Mismatch123!');
+  await click('Update password');
+  assert.match(text(), /new passwords must match/);
+  await change('Confirm new password', nextPassword);
+  await click('Update password');
+  await until(() => text().includes('Password updated'));
+  assert.equal(field('Password').value, '');
+  await change('Password', nextPassword);
+  await click('Sign in');
+  await until(() => document.querySelector('.workspace'));
+  await click('Sign out');
+  await until(() => text().includes('Welcome to Banana'));
+  await change('Email address or account ID', 'team@example.test');
+  await click('Reset password');
+  await click('Use an email code');
+  await click('Send code');
+  await until(() => document.querySelector('input[autocomplete="one-time-code"]'));
+  assert.equal(document.querySelector('input[autocomplete="new-password"]'), null);
+  await change('Verification code', '999999');
+  await click('Verify email');
+  await until(() => text().includes('invalid or expired'));
+  await change('Verification code', '012345');
+  await click('Verify email');
+  await until(() => text().includes('Email verified'));
+  await change('New password', 'Test-password-123!');
+  await change('Confirm new password', 'Test-password-123!');
+  await click('Update password');
+  await until(() => text().includes('must be different'));
+  await change('New password', nextPassword);
+  await change('Confirm new password', nextPassword);
+  await click('Update password');
+  await until(() => text().includes('Password updated'));
+  await change('Password', nextPassword);
+  await click('Sign in');
+  await until(() => document.querySelector('.workspace'));
+  assert.match(document.querySelector('.sidebar-user').textContent, /team/);
+  console.log('US-01-reset real HTTP integration passed');
+} finally {
+  await cleanup();
+}

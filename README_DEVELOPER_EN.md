@@ -12,6 +12,8 @@ For the one-command Docker backend (Flask + Gunicorn + SQLite in one container w
 
 ## Change Log
 
+- **2026-10-10**: Added the shared strong-password policy and both US-01 password-reset methods, with a login-screen flow, confirmation and complete session revocation. See [password-reset implementation](docs/us01-password-reset.md).
+
 - **2026-10-10**: Added the US-01 verified-email registration supplement for TALENT and RESEARCH_TEAM, six-digit email codes and email/ID login. See [registration API and SMTP configuration](docs/us01-registration.md).
 
 - **2026-10-10**: Added the complete English Docker backend guide, including setup, one-command builds and startup, account provisioning, frontend integration, configuration, persistent storage, troubleshooting and the dated Docker verification record.
@@ -22,13 +24,13 @@ For the one-command Docker backend (Flask + Gunicorn + SQLite in one container w
 - **2026-10-06**: Confirmed SQLite + SQLAlchemy ORM; added a proposed physical schema, type mappings and concurrent-write rules.
 - **2026-10-06**: The original contract used provisioned-account login. The 2026-10-10 US-01 supplement now adds public email registration; account-name synchronisation remains outside the contract.
 
-> **Document status:** Sections 0–2 are the Sprint 1 development specification, not an implementation completion report. The corresponding API version is `0.1.1-draft`. Proposed interface defaults still require team review; their testing and acceptance checklists describe work to be performed, not tests that have already passed. Section 3 documents the implemented Docker workflow and its explicitly dated verification results.
+> **Document status:** Sections 0–2 are the Sprint 1 development specification, not an implementation completion report. The corresponding API version is `0.1.2-draft`. Proposed interface defaults still require team review; their testing and acceptance checklists describe work to be performed, not tests that have already passed. Section 3 documents the implemented Docker workflow and its explicitly dated verification results.
 
 ### Current US-01 Implementation
 
-The current repository provides verified-email registration for both roles in `backend/src/features/auth/registration.py`, and email/ID login, session restoration and logout in `backend/src/features/auth/routes.py`, shared tags and owner-only profile reads/writes in `backend/src/features/profile/routes.py`, and database models/transactions in `backend/src/db/`. Reusable access checks, validation and repository paths live in `backend/src/shared/`. The existing frontend uses these endpoints directly. New talent accounts start with an empty revision-0 profile, no confirmation and private settings. Profile saving uses full replacement, detects stale revisions, preserves no-ops and persists across restarts.
+The current repository provides verified-email registration for both roles in `backend/src/features/auth/registration.py`, both reset methods in `backend/src/features/auth/reset.py`, and email/ID login, session restoration and logout in `backend/src/features/auth/routes.py`, shared tags and owner-only profile reads/writes in `backend/src/features/profile/routes.py`, and database models/transactions in `backend/src/db/`. Reusable access checks, validation and repository paths live in `backend/src/shared/`. The existing frontend uses these endpoints directly. New talent accounts start with an empty revision-0 profile, no confirmation and private settings. Profile saving uses full replacement, detects stale revisions, preserves no-ops and persists across restarts.
 
-Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, configure SMTP for registration (or provision accounts) and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py` and `backend/tests/test_us01_registration.py` check the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
+Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, configure SMTP for registration/email resets (or provision accounts) and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py`, `backend/tests/test_us01_registration.py` and `backend/tests/test_us01_password_reset.py` check the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
 
 ### Current US-02 Implementation
 
@@ -71,7 +73,7 @@ Read this document first to understand the sprint tasks, then implement individu
 
 This sprint supports provisioned and verified-email `TALENT` and `RESEARCH_TEAM` accounts; one research-team account represents one team. Talent can maintain and confirm profiles, control field visibility and view opportunity recommendations. Research teams can manage their own opportunities and discover talent whose information may be shared.
 
-This sprint excludes password reset, complex identity switching, favourites, semantic vector matching and advanced filters. It also does not add opportunity deletion, unpublishing, team membership management, application or admissions workflows. Implement only US-01–US-09 below; later sprints are not detailed here.
+This sprint excludes complex identity switching, favourites, semantic vector matching and advanced filters. It also does not add opportunity deletion, unpublishing, team membership management, application or admissions workflows. Implement only US-01–US-09 below; later sprints are not detailed here.
 
 **Document extraction remains part of Sprint 1.** The meeting allowed temporary manual entry for Demo 1 if extraction was not ready, but Jira includes US-09 in this sprint. Retain the complete upload, extraction, review and import workflow. An upload button or static extraction fixture alone does not complete US-09. If the demonstration uses the fallback, clearly record the unfinished work.
 
@@ -92,7 +94,7 @@ The screenshot shows Sprint 1 running from **3 October to 15 October**, with **9
 | US-07 Manage Profile Privacy and Field Visibility | [H18ABANANA-15](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-15) | 3 | Talent actively choose whether to be discoverable and which profile fields teams may view and use for matching |
 | US-08 Requirement-Level Matching Results and Evidence | [H18ABANANA-1](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-1) | 5 | Display candidate information, evidence, reasons and Matched / Partial / Gap / Unknown for each requirement |
 | US-09 Resume / Transcript Upload and Information Extraction | [H18ABANANA-2](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-2) | 8 | Upload a CV or transcript, query extraction status, review and correct suggestions, import selected sections, then confirm the profile |
-| **Total** | **US-01–US-09** | **36** | **26 HTTP operations and their corresponding frontend workflows** |
+| **Total** | **US-01–US-09** | **36** | **29 HTTP operations and their corresponding frontend workflows** |
 
 US-04 and US-05 reuse the matching rules from US-08, but scores may differ between directions because viewing permissions differ. US-06 spans all features and adds no public testing or database-reset endpoint.
 
@@ -246,7 +248,7 @@ This table divides responsibilities; it does not assign work to named team membe
 - **Cover success, failure and boundaries.** Test empty profiles and lists, repeated confirmation, revision conflicts, unknown fields, duplicate IDs, incorrect tag types, incorrect roles and unauthorised resource access.
 - **Isolate tests.** Use independent data or controlled setup for each test; resets belong only in the test environment, with no public `/clear` endpoint.
 - **Verify each layer.** Use deterministic unit tests for matching rules, API tests for requests, responses and permissions, and browser integration tests for complete user workflows and cache cleanup.
-- **Fixtures are inputs, not proof of passing tests.** The [34 JSON fixtures](docs/api/examples/index.json) support mocks and protocol checks. Real authentication, persistence, file processing and permissions still require backend integration tests.
+- **Fixtures are inputs, not proof of passing tests.** The [40 JSON fixtures](docs/api/examples/index.json) support mocks and protocol checks. Real authentication, persistence, file processing and permissions still require backend integration tests.
 - **Record reproducible results.** US-06 records must include at least the story ID, initial data, steps, expected result, actual result, pass / fail status, associated defect and retest result.
 
 ### 2.5 Sprint 1 Interface — API Specification
@@ -282,7 +284,7 @@ The following follows README_1531's function, parameter, return and error format
 | [08](docs/api/sprint-1-api-contract.md#api-08) `GET /me/privacy`: read privacy settings | None | **200 Privacy** | TALENT owner |
 | [09](docs/api/sprint-1-api-contract.md#api-09) `PUT /me/privacy`: save privacy settings | **PrivacyWrite**: `{expectedRevision, discoverable, visibleFields}` | **200 Privacy** | TALENT owner; stale revision: 409; invalid / duplicate fields: 422 |
 
-Login `password` accepts 1–200 characters; registration passwords require 8–200. Login takes exactly one of `identifier` (email or ID) and legacy `email`. Registration selects TALENT or RESEARCH_TEAM and issues an independent ID. See the [US-01 supplement](docs/us01-registration.md) for verification limits and SMTP setup. During login, the server reads the role from the account; the login request cannot select it. `visibleFields` accepts only the eight ProfileContent fields in 2.2, with no authorisation for email, original files or individual skill records.
+Login `password` accepts 1–200 characters; registration and reset passwords require 8–200, including uppercase, lowercase and numeric characters. Login takes exactly one of `identifier` (email or ID) and legacy `email`. Registration selects TALENT or RESEARCH_TEAM and issues an independent ID. See the [US-01 supplement](docs/us01-registration.md) for verification limits and SMTP setup. During login, the server reads the role from the account; the login request cannot select it. `visibleFields` accepts only the eight ProfileContent fields in 2.2, with no authorisation for email, original files or individual skill records.
 
 Profile PUT performs **full replacement**: include unedited content, and use `[]` to clear a section. Actually changed academic sections receive `MANUAL` provenance and `documentId=null`; unchanged sections retain their provenance. Do not accept client-supplied confirmation state or fabricated provenance.
 
@@ -494,7 +496,7 @@ The repository contains the runnable US-01 Flask backend, React frontend, depend
 
 For a Docker backend, use [section 3](#3-docker-backend-guide) instead of the host backend installation steps above. The existing host setup is still needed when developing or running the frontend locally.
 
-Current real-backend verification covers both-role email registration, SMTP delivery to a local test server, email/ID login, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. Document upload/extraction remains unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
+Current real-backend verification covers both-role email registration, SMTP delivery to a local test server, email/ID login, both password-reset paths, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. Document upload/extraction remains unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
 
 Before the demonstration, complete these steps:
 
@@ -520,7 +522,7 @@ Useful fixtures:
 ### 2.11 Sprint 1 Delivery — Delivery Checklist
 
 - [ ] Frontend behaviour and corresponding backend endpoints for US-01–US-09 are implemented, with traceable MR, test or demonstration evidence in Jira.
-- [ ] All 26 HTTP operations match the `0.1.1-draft` contract or a version updated jointly by the team.
+- [ ] All 29 HTTP operations match the `0.1.2-draft` contract or a version updated jointly by the team.
 - [ ] Manual talent entry, reviewed document imports, team opportunity management and bidirectional explanations can be demonstrated.
 - [ ] Confirmation, privacy, ownership, revision-conflict and session rules have passed actual tests.
 - [ ] US-06 records cover successful flows, errors, boundaries, permissions and defect retesting.

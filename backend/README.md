@@ -1,6 +1,6 @@
 # Research matching backend
 
-Flask + SQLite + SQLAlchemy ORM implementation for verified-email registration, email/ID login and
+Flask + SQLite + SQLAlchemy ORM implementation for verified-email registration, email/ID login, password reset and
 manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
@@ -93,6 +93,9 @@ on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 | POST | `/auth/login` | Email or account ID + password, session/CSRF |
 | POST | `/auth/register/code` | Anonymous session/CSRF; send six-digit email code |
 | POST | `/auth/register` | Anonymous session/CSRF; verified code, password, name and role |
+| POST | `/auth/login/reset/code` | Session/CSRF; send password-reset email code |
+| POST | `/auth/login/reset/verify` | Session/CSRF; verify email before choosing new password |
+| POST | `/auth/login/reset` | Session/CSRF; original password or verified email, new password and confirmation |
 | POST | `/auth/logout` | Signed in + CSRF |
 | GET | `/tags` | Either signed-in role; optional `kind=SKILL` or `INTEREST` |
 | GET | `/me/profile` | Talent owner |
@@ -311,6 +314,11 @@ and `SMTP_TIMEOUT` before requesting codes. Docker Compose forwards these
 variables; native startup reads the process environment. See the
 [US-01 supplement](../docs/us01-registration.md) for defaults and examples.
 Registration fails with 503 when email delivery is unconfigured.
+
+Password reset adds `password_reset_codes` and `password_reset_attempts` through
+`init-db` and reuses the same SMTP service. New passwords require 8–200
+characters with uppercase, lowercase and numeric characters. The login page
+provides both reset methods. See [US-01 password reset](../docs/us01-password-reset.md).
 
 ## Verification
 

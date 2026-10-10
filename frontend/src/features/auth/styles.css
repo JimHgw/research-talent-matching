@@ -157,6 +157,22 @@
   font-size: 12px;
   line-height: 1.7;
 }
+.reset-methods {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.reset-methods [aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--surface);
+  font-weight: 700;
+}
+.reset-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
 @media (max-width: 1050px) {
   .login-story {
     padding: 36px;

@@ -117,7 +117,7 @@ checks do not replace the full suite, which also covers shared code and contract
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
-- `tests/api.test.js`: the shared client/contract, including all 26 operations,
+- `tests/api.test.js`: the shared client/contract, including all 29 operations,
   request payloads, pagination, CSRF, multipart upload, downloads and errors.
 - `tests/task-18-shell.test.js`: login/logout, unavailable service and mobile navigation.
 - `tests/task-19-opportunities.test.js`: creation, requirement editing, publication,
@@ -256,3 +256,11 @@ with the existing session/CSRF handling. Registration forms can use the
 [US-01 email-registration contract](../docs/us01-registration.md).
 `tests/us01-register-live.mjs` verifies registration through the real backend
 and subsequent ID login through the React screen.
+
+## Password reset
+
+The login screen offers original-password reset and a staged email-code reset.
+New passwords require at least 8 characters, with uppercase, lowercase and
+numeric characters, and matching confirmation. The API enforces the same rules
+and rejects reuse of the current password. See the [US-01 reset contract](../docs/us01-password-reset.md).
+`tests/us01-reset-live.mjs` verifies both paths against the real backend.

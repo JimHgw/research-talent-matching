@@ -1,12 +1,12 @@
 # H18ABANANA — Sprint 1 Frontend and Backend API Contract
 
-Version: `0.1.1-draft`
+Version: `0.1.2-draft`
 
 Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
 
-Scope: **US-01 through US-09 in the current Sprint 1, comprising 26 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
+Scope: **US-01 through US-09 in the current Sprint 1, comprising 29 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
 
 This document can be shared on its own: it contains endpoints, field definitions, request and response examples, permissions, errors and integration requirements. The accompanying `openapi.json` provides the machine-readable definition of the same version.
 
@@ -16,7 +16,7 @@ This document can be shared on its own: it contains endpoints, field definitions
 
 | User story | Jira parent issue | API coverage in this version |
 |---|---|---|
-| US-01 Login, registration and talent profile | H18ABANANA-9 | Verified-email registration, email/ID login, sessions, logout, profile retrieval and storage, shared tags |
+| US-01 Login, registration and talent profile | H18ABANANA-9 | Verified-email registration, both password-reset methods, email/ID login, sessions, logout, profile retrieval and storage, shared tags |
 | US-02 Research opportunity management | H18ABANANA-10 | Create drafts, edit, publish, list and view details |
 | US-03 Review and confirmation | H18ABANANA-11 | Confirm the current profile revision; reconfirm after changes |
 | US-04 Talent discovers opportunities | H18ABANANA-13 | Ranked recommendations and requirement-level explanations |
@@ -26,7 +26,7 @@ This document can be shared on its own: it contains endpoints, field definitions
 | US-08 Requirement-level evidence | H18ABANANA-1 | Matched / Partial / Gap / Unknown, evidence, ranking and scores |
 | US-09 Document upload and extraction | H18ABANANA-2 | PDF/DOCX upload, processing status, extraction drafts and reviewed imports |
 
-“All endpoints” here means all endpoints for **Sprint 1**. Backlog features such as favourites, advanced filters, semantic matching, password reset and complex role switching are outside v0.1. Opportunity deletion, unpublishing and team membership management are also not defined in this version.
+“All endpoints” here means all endpoints for **Sprint 1**. Backlog features such as favourites, advanced filters, semantic matching and complex role switching are outside v0.1. Opportunity deletion, unpublishing and team membership management are also not defined in this version.
 
 The client meeting on 2026-09-30 allowed manual entry for Demo 1 if extraction was not ready. US-09 is now in the Jira Sprint, so its complete interface is retained here. Manual entry must remain available when extraction is unavailable.
 
@@ -159,6 +159,9 @@ Do not automatically retry a POST after a network timeout: the server may alread
 | [24](#api-24) | GET | `/opportunities/{opportunityId}/talent-matches/{talentId}` | Read permitted talent information and matching explanations | Team owner |
 | [25](#api-25) | POST | `/auth/register/code` | Send a six-digit email verification code | Anonymous + CSRF |
 | [26](#api-26) | POST | `/auth/register` | Verify code and register a talent or team account | Anonymous + CSRF |
+| [27](#api-27) | POST | `/auth/login/reset/code` | Send a password-reset email code | Session + CSRF |
+| [28](#api-28) | POST | `/auth/login/reset/verify` | Verify email before choosing a new password | Session + CSRF |
+| [29](#api-29) | POST | `/auth/login/reset` | Reset with current password or verified email | Session + CSRF |
 
 ## 4. Endpoint details
 
@@ -2140,7 +2143,7 @@ Errors: 400, 403, 409 `EMAIL_ALREADY_REGISTERED` or `VERIFICATION_CODE_INVALID`
 `POST /api/v1/auth/register` accepts [RegistrationRequest](#model-registrationrequest):
 `{email, code, password, displayName, role}`. All fields are required; `code`
 is a string of six ASCII digits (including leading zeros), password length
-is 8–200, and displayName is nonblank with at most 100 characters. Role is
+is 8–200 and includes uppercase, lowercase and numeric characters, and displayName is nonblank with at most 100 characters. Role is
 `TALENT` or `RESEARCH_TEAM`. Use the same anonymous session, CSRF token and
 allowed Origin as the code request.
 
@@ -2158,6 +2161,51 @@ Signed-in users must sign out before creating another account.
 See [US-01 registration implementation](../us01-registration.md) for full
 request/response examples, SMTP configuration, schema upgrade and tests.
 These are additions to US-01 (H18ABANANA-9), not a new user story.
+
+
+<a id="api-27"></a>
+
+### 27. Send a password reset code — US-01 supplement
+
+`POST /api/v1/auth/login/reset/code` accepts `PasswordResetCodeRequest`: `{email}`.
+Success: **202 PasswordResetCodeResponse** `{expiresAt, resendAfterSeconds}`.
+A six-digit code is emailed to an active registered account. Unknown/inactive
+addresses return the same response without sending. Requires session, allowed
+Origin and CSRF; signed-in callers can only target their own account. Codes
+expire in 10 minutes, with a 60-second cooldown and 5/email, 20/IP hourly limits.
+Pending/failed email cannot authorize a reset. Errors: 400, 403, 415, 422, 429,
+500, 503. Registration codes cannot be used for this flow.
+
+<a id="api-28"></a>
+
+### 28. Verify a reset email — US-01 supplement
+
+`POST /api/v1/auth/login/reset/verify` accepts `PasswordResetVerifyRequest`:
+`{email, code}`. Success: **200 PasswordResetVerifyResponse** `{verified:true,
+expiresAt}`. Requires the same requesting session, CSRF and Origin. A successful
+verification permits one reset in that session until the original expiry.
+A code has five attempts and cannot be verified twice. Invalid/expired/other
+session codes return 422; exhausted attempts return 429. Errors: 400, 403, 415,
+422, 429, 500. The UI reveals new-password fields after success.
+
+<a id="api-29"></a>
+
+### 29. Reset an account password — US-01 supplement
+
+`POST /api/v1/auth/login/reset` accepts `PasswordResetRequest`. Choose either
+`{method:"PASSWORD", identifier, currentPassword, newPassword, confirmPassword}`
+or `{method:"EMAIL_CODE", email, newPassword, confirmPassword}` after endpoint 28.
+All fields in the selected method are required. New passwords require 8–200
+characters with at least one uppercase letter, lowercase letter and digit;
+confirmation must match and the new password must differ from the current one.
+
+Success: **200 Session** with `user=null`, new anonymous cookie and CSRF token.
+The password change, deletion of reset grants, revocation of all account login
+sessions and session replacement commit atomically. Reauthenticate with the new
+password. The account ID and business data remain intact. Current-password
+checks share the login rate limits. Errors: 400, 401, 403, 409
+`PASSWORD_RESET_INVALID`, 415, 422, 429, 500. See the
+[US-01 password-reset supplement](../us01-password-reset.md) for examples and setup.
 
 
 ## 5. Shared error handling
@@ -2199,6 +2247,7 @@ Use the structure below for every error response. The frontend branches on `erro
 | 409 | EMAIL_ALREADY_REGISTERED | Email already has an account | Sign in instead |
 | 422 / 409 | VERIFICATION_CODE_INVALID | Code invalid/expired, or request superseded during delivery | Request a new code from the same session |
 | 503 | EMAIL_DELIVERY_FAILED | SMTP unavailable, unconfigured or refused | Retry after checking delivery configuration |
+| 409 | PASSWORD_RESET_INVALID | Password changed during reset | Restart verification |
 | 500 | INTERNAL_ERROR | Unexpected server failure | Preserve input and requestId and offer a later retry |
 
 Do not expose stack traces, database errors or filesystem paths in message. `requestId` supports log investigation. `Document.error` uses ErrorDetail without a nested requestId. A document status request may successfully return 200 with status=FAILED; requesting or importing that failed extraction returns 422.
@@ -2207,7 +2256,7 @@ Do not expose stack traces, database errors or filesystem paths in message. `req
 
 Referenced types link to their definitions below. Array entries must match their item type. All objects reject additional fields. Required means the key must exist; nullable required fields must still be sent.
 
-This section defines all 50 public models. The binary upload request is the additional request shape described in endpoint 11.
+This section defines all 56 public models. The binary upload request is the additional request shape described in endpoint 11.
 
 
 <a id="model-id"></a>
@@ -2283,9 +2332,57 @@ Supply exactly one of `identifier` and `email`, together with `password`.
 |---|---|---|---|
 | `email` | string | Yes | Same address used to request the code; at most 254 characters, without whitespace |
 | `code` | string | Yes | Exactly six ASCII digits; preserve leading zeros; request-only |
-| `password` | string | Yes | Chosen password; 8–200 characters; request-only |
+| `password` | string | Yes | Chosen password; 8–200 characters with uppercase, lowercase and numeric characters; request-only |
 | `displayName` | string | Yes | Nonblank name; 1–100 characters; outer whitespace is trimmed |
 | `role` | `TALENT` / `RESEARCH_TEAM` | Yes | Both roles may self-register |
+
+<a id="model-newpassword"></a>
+
+### NewPassword
+
+String, request-only, 8–200 characters, with at least one ASCII uppercase letter,
+lowercase letter and digit. Applies to registration, provisioning and reset;
+existing login passwords remain accepted. Symbols are permitted.
+
+<a id="model-passwordresetcoderequest"></a>
+
+### PasswordResetCodeRequest
+
+Required `email`: same format/length as [RegistrationCodeRequest](#model-registrationcoderequest).
+
+<a id="model-passwordresetcoderesponse"></a>
+
+### PasswordResetCodeResponse
+
+Required `expiresAt` (RFC3339 UTC) and `resendAfterSeconds` (positive integer),
+as in [RegistrationCodeResponse](#model-registrationcoderesponse).
+
+<a id="model-passwordresetverifyrequest"></a>
+
+### PasswordResetVerifyRequest
+
+Required `email` and request-only `code` (six ASCII digits, preserving zeros).
+
+<a id="model-passwordresetverifyresponse"></a>
+
+### PasswordResetVerifyResponse
+
+Required `verified` (boolean, always true) and `expiresAt` (RFC3339 UTC).
+
+<a id="model-passwordresetrequest"></a>
+
+### PasswordResetRequest
+
+Exactly one shape, both rejecting additional fields:
+
+- `method=PASSWORD`: required `identifier` (email or Id), `currentPassword`
+  (1–200 characters), `newPassword` ([NewPassword](#model-newpassword)) and
+  `confirmPassword` (1–200 characters).
+- `method=EMAIL_CODE`: required `email`, `newPassword` and `confirmPassword`.
+  Requires prior successful verification in the same session.
+
+Password inputs are request-only. The new and confirmation values must match;
+the new password must differ from the stored password.
 
 <a id="model-tag"></a>
 
@@ -2489,7 +2586,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` / `VERIFICATION_CODE_INVALID` / `EMAIL_ALREADY_REGISTERED` / `EMAIL_DELIVERY_FAILED` | Yes | Course code; null if unknown. In an error object, this is the error code |
+| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` / `VERIFICATION_CODE_INVALID` / `EMAIL_ALREADY_REGISTERED` / `EMAIL_DELIVERY_FAILED` / `PASSWORD_RESET_INVALID` | Yes | Course code; null if unknown. In an error object, this is the error code |
 | `message` | string | Yes | Displayable explanation; do not branch on its wording |
 | `fieldErrors` | [FieldError](#model-fielderror)[] | Yes | Field validation problems; empty if none |
 | `currentRevision` | integer | No | Server revision on conflict; omitted for other errors; minimum: 0 |
@@ -2974,8 +3071,8 @@ When adding capabilities, update the contract version, field definitions, mock f
 ## 11. Companion files and references
 
 - [openapi.json](openapi.json): the corresponding OpenAPI 3.1.0 definition for tooling and validation.
-- [endpoint-index.json](endpoint-index.json): methods, paths and related Jira tasks for all 26 operations.
-- [examples/](examples/): 34 synthetic request/response fixtures; [index.json](examples/index.json) maps each fixture to its model.
+- [endpoint-index.json](endpoint-index.json): methods, paths and related Jira tasks for all 29 operations.
+- [examples/](examples/): 40 synthetic request/response fixtures; [index.json](examples/index.json) maps each fixture to its model.
 - Business inputs: the Sprint 1 Jira work items provided in the discussion, `Client_Meeting_Minutes_2026-09-30.docx` and the Week 3 meeting minutes in the working folder. No unprovided backend implementation is assumed to exist.
 - Format reference: [OpenAPI 3.1.0 specification](https://spec.openapis.org/oas/v3.1.0.html). Cookie attributes: [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie).
 

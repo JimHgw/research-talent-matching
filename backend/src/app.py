@@ -15,10 +15,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 from .db.database import Database
-from .db.models import AuthSession, LoginAttempt, RegistrationAttempt, RegistrationCode, utcnow
+from .db.models import (AuthSession, LoginAttempt, PasswordResetAttempt, PasswordResetCode,
+                        RegistrationAttempt, RegistrationCode, utcnow)
 from .features.auth.routes import auth, provision_user
 from .features.auth.registration import registration
-from .features.auth.mail import send_registration_code
+from .features.auth.mail import send_password_reset_code, send_registration_code
+from .features.auth.reset import password_reset
 from .features.profile.routes import profiles, seed_tags
 from .features.opportunities.routes import opportunities
 from .shared.paths import ROOT
@@ -40,6 +42,8 @@ def create_app(config=None):
         LOGIN_EMAIL_LIMIT=10, LOGIN_IP_LIMIT=30, MAX_CONTENT_LENGTH=4 * 1024 * 1024,
         REGISTER_CODE_TTL=600, REGISTER_CODE_ATTEMPTS=5, REGISTER_RESEND_INTERVAL=60,
         REGISTER_WINDOW=3600, REGISTER_EMAIL_LIMIT=5, REGISTER_IP_LIMIT=20,
+        RESET_CODE_TTL=600, RESET_CODE_ATTEMPTS=5, RESET_RESEND_INTERVAL=60,
+        RESET_WINDOW=3600, RESET_EMAIL_LIMIT=5, RESET_IP_LIMIT=20,
         SMTP_HOST=os.getenv("SMTP_HOST", ""), SMTP_PORT=os.getenv("SMTP_PORT", "587"),
         SMTP_FROM=os.getenv("SMTP_FROM", ""), SMTP_SECURITY=os.getenv("SMTP_SECURITY", "starttls"),
         SMTP_USERNAME=os.getenv("SMTP_USERNAME", ""), SMTP_PASSWORD=os.getenv("SMTP_PASSWORD", ""),
@@ -57,8 +61,10 @@ def create_app(config=None):
     app.extensions["password_hasher"] = PasswordHasher()
     app.extensions["dummy_hash"] = app.extensions["password_hasher"].hash(secrets.token_urlsafe(32))
     app.extensions["registration_mailer"] = send_registration_code
+    app.extensions["password_reset_mailer"] = send_password_reset_code
     app.register_blueprint(auth)
     app.register_blueprint(registration)
+    app.register_blueprint(password_reset)
     app.register_blueprint(profiles)
     app.register_blueprint(opportunities)
     app.register_blueprint(matching)
@@ -140,7 +146,7 @@ def create_app(config=None):
 
     @app.cli.command("prune-sessions")
     def prune_sessions():
-        """Remove expired/revoked sessions and old login-attempt counters."""
+        """Remove expired session/code data and old authentication attempt counters."""
         now = utcnow()
         with app.extensions["database"].transaction(write=True) as db:
             db.execute(delete(AuthSession).where(
@@ -150,6 +156,9 @@ def create_app(config=None):
             db.execute(delete(RegistrationCode).where(RegistrationCode.expires_at <= now))
             db.execute(delete(RegistrationAttempt).where(
                 RegistrationAttempt.attempted_at < now - timedelta(seconds=app.config["REGISTER_WINDOW"])))
+            db.execute(delete(PasswordResetCode).where(PasswordResetCode.expires_at <= now))
+            db.execute(delete(PasswordResetAttempt).where(
+                PasswordResetAttempt.attempted_at < now - timedelta(seconds=app.config["RESET_WINDOW"])))
         click.echo("Expired session data pruned.")
 
     return app

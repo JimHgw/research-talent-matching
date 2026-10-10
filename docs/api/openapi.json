@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H18ABANANA Sprint 1 API Contract",
-    "version": "0.1.1-draft",
+    "version": "0.1.2-draft",
     "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase. US-01 supplement adds verified-email registration and email/account-ID login."
   },
   "servers": [
@@ -3183,6 +3183,282 @@
           }
         }
       }
+    },
+    "/auth/login/reset/code": {
+      "post": {
+        "operationId": "requestPasswordResetCode",
+        "summary": "Send a password reset email code",
+        "description": "Send a six-digit password reset code to an active registered email. Unknown/inactive emails receive the same 202 shape without an email. Requires session/CSRF/Origin; code expires in 10 minutes, 60-second cooldown, 5 requests per email and 20 per IP per hour. Registration codes cannot be used here.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS",
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-user-story": "US-01",
+        "x-jira-issues": [
+          "H18ABANANA-9",
+          "H18ABANANA-16"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Send a six-digit password reset code to an active registered email.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetCodeResponse"
+                },
+                "examples": {
+                  "talent-session": {
+                    "value": {
+                      "user": {
+                        "id": "user_demo_001",
+                        "displayName": "Demo Talent A",
+                        "email": "talent@example.test",
+                        "role": "TALENT"
+                      },
+                      "csrfToken": "mock-csrf-after-login"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
+    "/auth/login/reset/verify": {
+      "post": {
+        "operationId": "verifyPasswordResetCode",
+        "summary": "Verify an email before choosing a new password",
+        "description": "Verify the latest code in its requesting session and authorize one password reset until expiresAt. Five attempts per code; hashes and limits persist across restarts. The code cannot be verified again or used in another session.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS",
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-user-story": "US-01",
+        "x-jira-issues": [
+          "H18ABANANA-9",
+          "H18ABANANA-16"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verify the latest code in its requesting session and authorize one password reset until expiresAt.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetVerifyResponse"
+                },
+                "examples": {
+                  "talent-session": {
+                    "value": {
+                      "user": {
+                        "id": "user_demo_001",
+                        "displayName": "Demo Talent A",
+                        "email": "talent@example.test",
+                        "role": "TALENT"
+                      },
+                      "csrfToken": "mock-csrf-after-login"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/auth/login/reset": {
+      "post": {
+        "operationId": "resetPassword",
+        "summary": "Reset a password using credentials or verified email",
+        "description": "Set a new password containing at least one uppercase letter, lowercase letter and digit, with 8–200 characters. New and confirmation passwords must match; new password must differ from current password. PASSWORD verifies identifier/currentPassword; EMAIL_CODE requires prior verification in the same session. Atomically update the hash, invalidate all account sessions and reset codes, and return a fresh anonymous Session. Sign in again using the new password. A signed-in caller can only reset their own account. Concurrent credential changes return 409 PASSWORD_RESET_INVALID.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS",
+          "TALENT",
+          "RESEARCH_TEAM"
+        ],
+        "x-user-story": "US-01",
+        "x-jira-issues": [
+          "H18ABANANA-9",
+          "H18ABANANA-16"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Set a new password containing at least one uppercase letter, lowercase letter and digit, with 8–200 characters.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Host-only h18_session cookie; HttpOnly; Secure on HTTPS; SameSite=Lax; Path=/. Never expose its value in JSON."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                },
+                "examples": {
+                  "talent-session": {
+                    "value": {
+                      "user": {
+                        "id": "user_demo_001",
+                        "displayName": "Demo Talent A",
+                        "email": "talent@example.test",
+                        "role": "TALENT"
+                      },
+                      "csrfToken": "mock-csrf-after-login"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3939,7 +4215,8 @@
               "UNSUPPORTED_MEDIA_TYPE",
               "VERIFICATION_CODE_INVALID",
               "EMAIL_ALREADY_REGISTERED",
-              "EMAIL_DELIVERY_FAILED"
+              "EMAIL_DELIVERY_FAILED",
+              "PASSWORD_RESET_INVALID"
             ]
           },
           "message": {
@@ -4924,10 +5201,7 @@
             "writeOnly": true
           },
           "password": {
-            "type": "string",
-            "minLength": 8,
-            "maxLength": 200,
-            "writeOnly": true
+            "$ref": "#/components/schemas/NewPassword"
           },
           "displayName": {
             "type": "string",
@@ -4952,6 +5226,177 @@
         ],
         "additionalProperties": false,
         "description": "A verified email can create either supported account role. Passwords are chosen by the user and stored only as Argon2id hashes."
+      },
+      "NewPassword": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 200,
+        "allOf": [
+          {
+            "pattern": "[A-Z]"
+          },
+          {
+            "pattern": "[a-z]"
+          },
+          {
+            "pattern": "[0-9]"
+          }
+        ],
+        "writeOnly": true,
+        "description": "At least 8 characters, including an ASCII uppercase letter, lowercase letter and digit; maximum 200 characters."
+      },
+      "PasswordResetCodeRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "pattern": "^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetCodeResponse": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resendAfterSeconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "expiresAt",
+          "resendAfterSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetVerifyRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "pattern": "^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "email",
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetVerifyResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "const": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "verified",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "const": "PASSWORD"
+              },
+              "identifier": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                  },
+                  {
+                    "$ref": "#/components/schemas/Id"
+                  }
+                ],
+                "description": "Account email or server-assigned user.id. IDs are case-sensitive."
+              },
+              "currentPassword": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "writeOnly": true
+              },
+              "newPassword": {
+                "$ref": "#/components/schemas/NewPassword"
+              },
+              "confirmPassword": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "writeOnly": true
+              }
+            },
+            "required": [
+              "method",
+              "identifier",
+              "currentPassword",
+              "newPassword",
+              "confirmPassword"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "const": "EMAIL_CODE"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "maxLength": 254,
+                "pattern": "^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$"
+              },
+              "newPassword": {
+                "$ref": "#/components/schemas/NewPassword"
+              },
+              "confirmPassword": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "writeOnly": true
+              }
+            },
+            "required": [
+              "method",
+              "email",
+              "newPassword",
+              "confirmPassword"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "description": "PASSWORD: verify current credentials. EMAIL_CODE: first verify a mailed code in the same session. Both require matching newPassword/confirmPassword and a new password distinct from the current password."
       }
     },
     "parameters": {

@@ -70,6 +70,11 @@ export function createApi({
     requestRegistrationCode: (email) =>
       request('/auth/register/code', { method: 'POST', body: { email } }),
     register: (body) => request('/auth/register', { method: 'POST', body }),
+    requestPasswordResetCode: (email) =>
+      request('/auth/login/reset/code', { method: 'POST', body: { email } }),
+    verifyPasswordResetCode: (email, code) =>
+      request('/auth/login/reset/verify', { method: 'POST', body: { email, code } }),
+    resetPassword: (body) => request('/auth/login/reset', { method: 'POST', body }),
     logout: () => request('/auth/logout', { method: 'POST' }),
     tags: () => request('/tags'),
     profile: () => request('/me/profile'),

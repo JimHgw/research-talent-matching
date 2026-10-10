@@ -3,7 +3,7 @@
 This supplement adds two endpoints under `/api/v1/auth`, within US-01
 (H18ABANANA-9). Both `TALENT` and `RESEARCH_TEAM` may self-register. Existing
 provisioned accounts and legacy `{email, password}` login requests remain supported.
-The OpenAPI version is `0.1.1-draft`, with 26 operations in the overall contract.
+The OpenAPI version is `0.1.2-draft`, with 29 operations in the overall contract.
 
 ## Request flow
 
@@ -49,13 +49,13 @@ the receiving provider places the message in the inbox.
 {
   "email": "new-user@example.test",
   "code": "012345",
-  "password": "EXAMPLE_ONLY_NOT_A_REAL_PASSWORD",
+  "password": "Example-only-password-123!",
   "displayName": "New User",
   "role": "TALENT"
 }
 ```
 
-All fields are required. Passwords contain 8–200 characters; `displayName` contains
+All fields are required. Passwords contain 8–200 characters with at least one uppercase letter, lowercase letter and digit; `displayName` contains
 1–100 characters and must not be blank. `role` is `TALENT` or `RESEARCH_TEAM`.
 The caller cannot choose an account ID. The server generates `user_` plus 32
 random hexadecimal characters, with database primary-key uniqueness. This ID
@@ -86,7 +86,7 @@ a talent profile. Existing email addresses cannot be registered twice.
 `POST /api/v1/auth/login`
 
 ```json
-{"identifier": "user_0123456789abcdef0123456789abcdef", "password": "EXAMPLE_ONLY_NOT_A_REAL_PASSWORD"}
+{"identifier": "user_0123456789abcdef0123456789abcdef", "password": "Example-only-password-123!"}
 ```
 
 The same request accepts an email in `identifier`. Existing callers may continue
@@ -168,3 +168,5 @@ against a local test server; a live provider requires deployment credentials.
 .\.venv\Scripts\python.exe -m pytest backend/tests/test_us01_registration.py -q
 .\.venv\Scripts\python.exe -m pytest -q --require-frontend
 ```
+
+See the [password-reset supplement](us01-password-reset.md) for both reset methods, password confirmation and the shared policy for newly chosen passwords.

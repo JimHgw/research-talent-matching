@@ -1,14 +1,14 @@
 # Sprint 1 API contract
 
 Proposed API contract for the H18ABANANA JavaScript frontend and Python backend.
-Version: `0.1.1-draft`. Covers US-01–US-09 with 26 HTTP operations.
+Version: `0.1.2-draft`. Covers US-01–US-09 with 29 HTTP operations.
 
 ## Start here
 
 - [Complete API contract](sprint-1-api-contract.md): request/response fields, examples, permissions, errors, workflows and integration acceptance cases. All documentation and examples are in English.
-- [OpenAPI 3.1 definition](openapi.json): machine-readable paths and 50 public schemas.
+- [OpenAPI 3.1 definition](openapi.json): machine-readable paths and 56 public schemas.
 - [Endpoint index](endpoint-index.json): HTTP operations and related Jira implementation tasks.
-- [Example index](examples/index.json): maps 34 synthetic JSON fixtures to their schemas.
+- [Example index](examples/index.json): maps 40 synthetic JSON fixtures to their schemas.
 
 ## Review before implementation
 
@@ -23,7 +23,7 @@ scores or producing evidence. Original uploaded documents remain owner-only.
 
 ## Validation
 
-The OpenAPI document and the 34 JSON fixtures were schema-validated during
+The OpenAPI document and the 40 JSON fixtures were schema-validated during
 preparation. The full Markdown contract includes integration cases for backend
 implementation. All example accounts, credentials and profile data are placeholders
 or synthetic data.
@@ -32,3 +32,5 @@ Keep this contract, the OpenAPI definition and the examples aligned when changin
 an endpoint. Backlog features beyond Sprint 1 are not included in this version.
 
 US-01 now includes [verified-email registration and email/ID login](../us01-registration.md). `POST /auth/register/code` sends a six-digit code; `POST /auth/register` creates either supported account role after verification. Existing provisioned accounts remain supported.
+
+US-01 also includes [password rules and both password-reset methods](../us01-password-reset.md): original-password verification or staged email-code verification, confirmation, and session revocation.
