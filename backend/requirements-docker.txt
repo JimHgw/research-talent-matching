@@ -1,0 +1,3 @@
+# Linux container runtime. Keep Gunicorn out of the Windows host dependencies.
+-r requirements.txt
+gunicorn==26.2.0
