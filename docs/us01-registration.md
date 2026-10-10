@@ -139,9 +139,10 @@ $env:SMTP_USERNAME = 'your-mail-provider-username'
 # Set SMTP_PASSWORD through your local environment or secret management.
 ```
 
-For Docker, set the SMTP values in the ignored root `.env` and recreate the
-backend. Compose forwards them to the container. Native Flask does not load
-`backend/.env.example`; export values in the backend process environment.
+For Docker, the SMTP-related variables in the root `.env` file are already 
+configured, and Docker Compose passes them to the container. Since a native Flask
+setup does not load the `backend/.env.example` file, these values ​​must be set within
+the backend process's environment variables.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
