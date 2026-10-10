@@ -353,3 +353,13 @@ def test_password_reset_email_uses_smtp_and_separate_purpose(app, monkeypatch):
     with app.app_context(): send_password_reset_code(EMAIL, "000007")
     assert "password reset" in messages[0]["Subject"]
     assert "000007" in messages[0].get_content() and "10 minutes" in messages[0].get_content()
+
+
+def test_smtp_username_without_password_fails_before_connecting(app, monkeypatch):
+    def unexpected_connection(*args, **kwargs):
+        raise AssertionError("Incomplete credentials must not connect to SMTP")
+    monkeypatch.setattr("backend.src.features.auth.mail.smtplib.SMTP", unexpected_connection)
+    app.config.update(SMTP_HOST="smtp.gmail.com", SMTP_FROM="sender@example.test",
+                      SMTP_USERNAME="sender@example.test", SMTP_PASSWORD="")
+    with app.app_context(), pytest.raises(EmailDeliveryError):
+        send_password_reset_code(EMAIL, "000007")

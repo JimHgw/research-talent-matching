@@ -23,7 +23,8 @@ def send_email_code(email, code, purpose, ttl):
     config = current_app.config
     host, sender = config["SMTP_HOST"], config["SMTP_FROM"]
     security = config["SMTP_SECURITY"]
-    if not host or not sender or security not in {"starttls", "ssl", "plain"}:
+    if (not host or not sender or security not in {"starttls", "ssl", "plain"}
+            or (config["SMTP_USERNAME"] and not config["SMTP_PASSWORD"])):
         raise EmailDeliveryError("Email delivery is not configured.")
     try:
         message = EmailMessage()

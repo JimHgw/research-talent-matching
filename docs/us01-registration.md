@@ -151,6 +151,31 @@ Use `prune-sessions` to remove expired registration codes and old sending counte
 alongside existing session/login data. Tests inject an email sender or use a local
 SMTP test server; they never email real users.
 
+### Gmail during local development
+
+The current local sender is configured in the ignored root `.env`, shared by
+registration and password reset. Gmail settings are `SMTP_HOST=smtp.gmail.com`,
+`SMTP_PORT=587`, `SMTP_SECURITY=starttls`; set `SMTP_FROM` and `SMTP_USERNAME`
+to the chosen Gmail address. Google documents these
+[SMTP settings](https://support.google.com/mail/answer/7104828?hl=en).
+
+Enable two-step verification in the Google account, then generate an
+[app password](https://support.google.com/accounts/answer/185833?hl=en)
+for Banana. Put the generated 16-character value in the local `.env` line
+`SMTP_PASSWORD=`. Keep the file ignored by Git. The sender configuration alone
+cannot authenticate; no email is sent while its authentication password is empty.
+
+Compose reads the root `.env`; recreate the backend after changing credentials:
+
+```powershell
+docker compose up -d --force-recreate backend
+```
+
+For native Flask, export the same SMTP values into its process environment;
+the application does not automatically read `.env`. Restart the backend after
+changing its environment. Do not put credentials in this documentation or
+`.env.example`. Live Gmail delivery requires the account owner's app password.
+
 ## Verification
 
 `backend/tests/test_us01_registration.py` covers both roles, private defaults,
