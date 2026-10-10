@@ -1,0 +1,7 @@
+{
+  "email": "new-talent@example.test",
+  "code": "012345",
+  "password": "EXAMPLE_ONLY_NOT_A_REAL_PASSWORD",
+  "displayName": "Demo Talent",
+  "role": "TALENT"
+}

@@ -62,8 +62,14 @@ export function createApi({
         });
       return pendingSession;
     },
-    login: (email, password) =>
-      request('/auth/login', { method: 'POST', body: { email, password } }),
+    login: (identifier, password) =>
+      request('/auth/login', {
+        method: 'POST',
+        body: identifier.includes('@') ? { email: identifier, password } : { identifier, password },
+      }),
+    requestRegistrationCode: (email) =>
+      request('/auth/register/code', { method: 'POST', body: { email } }),
+    register: (body) => request('/auth/register', { method: 'POST', body }),
     logout: () => request('/auth/logout', { method: 'POST' }),
     tags: () => request('/tags'),
     profile: () => request('/me/profile'),

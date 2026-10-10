@@ -3,7 +3,7 @@ import { api } from '../../api/client.js';
 import { Brand, Button, ErrorNotice, Field, Icon } from '../../shared/ui.jsx';
 
 export default function Login({ onLogin }) {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -12,7 +12,7 @@ export default function Login({ onLogin }) {
     setBusy(true);
     setError(null);
     try {
-      const session = await api.login(email, password);
+      const session = await api.login(identifier, password);
       onLogin(session.user);
     } catch (e) {
       setError(e);
@@ -66,13 +66,14 @@ export default function Login({ onLogin }) {
           <p className="muted">Sign in to find opportunities or discover research talent.</p>
           <ErrorNotice error={error} />
           <form onSubmit={login}>
-            <Field label="Email address">
+            <Field label="Email address or account ID">
               <input
-                type="email"
+                type="text"
                 autoComplete="username"
-                placeholder="you@university.edu.au"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@university.edu.au or user_…"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                maxLength={254}
                 required
               />
             </Field>

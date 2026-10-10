@@ -51,6 +51,27 @@ class LoginAttempt(Base):
     attempted_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
 
 
+class RegistrationCode(Base):
+    __tablename__ = "registration_codes"
+    email: Mapped[str] = mapped_column(String, primary_key=True)
+    challenge_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    session_hash: Mapped[str] = mapped_column(String, nullable=False)
+    code_hash: Mapped[str] = mapped_column(String, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    __table_args__ = (CheckConstraint("attempts >= 0"),)
+
+
+class RegistrationAttempt(Base):
+    __tablename__ = "registration_attempts"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    ip_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    attempted_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+
+
 class TalentProfile(Base):
     __tablename__ = "talent_profiles"
     talent_id: Mapped[str] = mapped_column(String, primary_key=True)

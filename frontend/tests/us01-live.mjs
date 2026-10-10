@@ -18,7 +18,7 @@ try {
   await mount();
   await until(() => text().includes('Welcome to Banana'));
   assert.equal(requests.filter((request) => request.url.endsWith('/auth/session')).length, 1);
-  await change('Email address', 'talent@example.test');
+  await change('Email address or account ID', 'talent@example.test');
   await change('Password', 'incorrect');
   await click('Sign in');
   await until(() => text().includes('email or password is incorrect'));

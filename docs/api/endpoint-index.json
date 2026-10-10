@@ -11,10 +11,28 @@
   {
     "method": "POST",
     "path": "/auth/login",
-    "summary": "Log in with a provisioned account",
+    "summary": "Log in with an email or account ID",
     "jira": [
       "H18ABANANA-16",
       "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/register/code",
+    "summary": "Send an email registration code",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/register",
+    "summary": "Register a verified email account",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
     ]
   },
   {

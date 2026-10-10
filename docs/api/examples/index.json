@@ -118,5 +118,21 @@
   {
     "file": "error-validation.json",
     "schema": "Error"
+  },
+  {
+    "file": "register-code-request.json",
+    "schema": "RegistrationCodeRequest"
+  },
+  {
+    "file": "register-code-response.json",
+    "schema": "RegistrationCodeResponse"
+  },
+  {
+    "file": "register-request.json",
+    "schema": "RegistrationRequest"
+  },
+  {
+    "file": "login-id-request.json",
+    "schema": "LoginRequest"
   }
 ]

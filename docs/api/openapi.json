@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H18ABANANA Sprint 1 API Contract",
-    "version": "0.1.0-draft",
-    "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase."
+    "version": "0.1.1-draft",
+    "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase. US-01 supplement adds verified-email registration and email/account-ID login."
   },
   "servers": [
     {
@@ -92,8 +92,8 @@
     "/auth/login": {
       "post": {
         "operationId": "login",
-        "summary": "Log in with a provisioned account",
-        "description": "Obtain CSRF token from GET /auth/session first. Rotate session and CSRF token after success; the frontend replaces its stored CSRF token. Role comes from the account, never a trusted client role field.",
+        "summary": "Log in with an email or account ID",
+        "description": "Obtain CSRF token from GET /auth/session first. Rotate session and CSRF token after success; the frontend replaces its stored CSRF token. Role comes from the account, never a trusted client role field. Use identifier for either email or user.id; legacy email requests remain supported. Both aliases share login throttling.",
         "tags": [
           "auth"
         ],
@@ -1763,7 +1763,7 @@
                 "mine"
               ]
             },
-            "description": "Default published. mine requires RESEARCH_TEAM and includes only that account’s drafts/published opportunities."
+            "description": "Default published. mine requires RESEARCH_TEAM and includes only that account鈥檚 drafts/published opportunities."
           },
           {
             "$ref": "#/components/parameters/Page"
@@ -3024,6 +3024,165 @@
           }
         ]
       }
+    },
+    "/auth/register/code": {
+      "post": {
+        "operationId": "requestRegistrationCode",
+        "summary": "Send an email registration code",
+        "description": "Send a six-digit registration code through SMTP. Requires an anonymous session, CSRF token and allowed Origin. Code is session-bound, single-use, expires after 10 minutes; resend interval 60 seconds; 5 emails per email and 20 per connecting IP per hour. No code appears in API responses or logs.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS"
+        ],
+        "x-user-story": "US-01",
+        "x-jira-issues": [
+          "H18ABANANA-9",
+          "H18ABANANA-16"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Code sent.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "register",
+        "summary": "Register a verified email account",
+        "description": "Verify the latest six-digit code and create a TALENT or RESEARCH_TEAM account. Requires the same anonymous session that requested the code. Five verification attempts per code. Creates a unique account ID and rotates into an authenticated session; talent profile/privacy defaults are created atomically. Existing email addresses return 409.",
+        "tags": [
+          "auth"
+        ],
+        "x-roles": [
+          "ANONYMOUS"
+        ],
+        "x-user-story": "US-01",
+        "x-jira-issues": [
+          "H18ABANANA-9",
+          "H18ABANANA-16"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created and signed in. user.id is the assigned login ID.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-store",
+                "description": "Personalised responses are not cached."
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Host-only h18_session cookie; HttpOnly; Secure on HTTPS; SameSite=Lax; Path=/. Never expose its value in JSON."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3113,13 +3272,48 @@
             "minLength": 1,
             "maxLength": 200,
             "writeOnly": true
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email",
+                "maxLength": 254
+              },
+              {
+                "$ref": "#/components/schemas/Id"
+              }
+            ],
+            "description": "Account email or server-assigned user.id. IDs are case-sensitive."
           }
         },
         "required": [
-          "email",
           "password"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "email"
+            ],
+            "not": {
+              "required": [
+                "identifier"
+              ]
+            }
+          },
+          {
+            "required": [
+              "identifier"
+            ],
+            "not": {
+              "required": [
+                "email"
+              ]
+            }
+          }
+        ],
+        "description": "Provide exactly one of identifier (email or account ID) and the legacy email field, plus password."
       },
       "Tag": {
         "type": "object",
@@ -3742,7 +3936,10 @@
               "RATE_LIMITED",
               "INTERNAL_ERROR",
               "BAD_REQUEST",
-              "UNSUPPORTED_MEDIA_TYPE"
+              "UNSUPPORTED_MEDIA_TYPE",
+              "VERIFICATION_CODE_INVALID",
+              "EMAIL_ALREADY_REGISTERED",
+              "EMAIL_DELIVERY_FAILED"
             ]
           },
           "message": {
@@ -4678,6 +4875,83 @@
           "total"
         ],
         "additionalProperties": false
+      },
+      "RegistrationCodeRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "pattern": "^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "RegistrationCodeResponse": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resendAfterSeconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "expiresAt",
+          "resendAfterSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "RegistrationRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "pattern": "^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$",
+            "writeOnly": true
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 200,
+            "writeOnly": true
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "TALENT",
+              "RESEARCH_TEAM"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "code",
+          "password",
+          "displayName",
+          "role"
+        ],
+        "additionalProperties": false,
+        "description": "A verified email can create either supported account role. Passwords are chosen by the user and stored only as Argon2id hashes."
       }
     },
     "parameters": {
@@ -4689,7 +4963,7 @@
           "type": "string",
           "minLength": 1
         },
-        "description": "Value returned by GET /auth/session (or login). Required for every mutation, including multipart upload and login. Validate Origin as well."
+        "description": "Value returned by GET /auth/session (or login). Required for every mutation, including multipart upload and login. Validate Origin as well. Registration and code requests also require this token."
       },
       "Page": {
         "name": "page",
@@ -4789,7 +5063,7 @@
         }
       },
       "409": {
-        "description": "Revision conflict, unconfirmed profile, or extraction not ready.",
+        "description": "Revision conflict, unconfirmed profile, or extraction not ready. Also used when the registration email already exists or a code request was superseded.",
         "headers": {
           "Cache-Control": {
             "schema": {
@@ -4885,6 +5159,25 @@
       },
       "500": {
         "description": "Unexpected server error; do not return internal details.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "type": "string"
+            },
+            "example": "no-store",
+            "description": "Personalised responses are not cached."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "503": {
+        "description": "Registration email could not be delivered. No account is created.",
         "headers": {
           "Cache-Control": {
             "schema": {

@@ -1,6 +1,6 @@
 # Research matching backend
 
-Flask + SQLite + SQLAlchemy ORM implementation for provisioned-account login and
+Flask + SQLite + SQLAlchemy ORM implementation for verified-email registration, email/ID login and
 manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
@@ -90,7 +90,9 @@ on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 | Method | Path (under `/api/v1`) | Access |
 | --- | --- | --- |
 | GET | `/auth/session` | Anonymous or signed in; supplies CSRF token |
-| POST | `/auth/login` | Provisioned credentials + anonymous session/CSRF |
+| POST | `/auth/login` | Email or account ID + password, session/CSRF |
+| POST | `/auth/register/code` | Anonymous session/CSRF; send six-digit email code |
+| POST | `/auth/register` | Anonymous session/CSRF; verified code, password, name and role |
 | POST | `/auth/logout` | Signed in + CSRF |
 | GET | `/tags` | Either signed-in role; optional `kind=SKILL` or `INTEREST` |
 | GET | `/me/profile` | Talent owner |
@@ -114,7 +116,8 @@ page. Team matching filters consent, confirmation and field visibility before
 scoring, ranking and pagination; every request evaluates current data.
 See [US-05 implementation and acceptance](../docs/us05-implementation.md).
 Document upload/extraction endpoints (US-09) remain unimplemented.
-There is no public registration or default password.
+Public email registration supports both TALENT and RESEARCH_TEAM. See
+[US-01 registration and SMTP setup](../docs/us01-registration.md). There is no default password.
 
 ## Files
 
@@ -232,14 +235,14 @@ Flask development server is for local use. No session token is returned in JSON:
 
 Implementation defaults are 24-hour signed-in sessions, 1-hour anonymous
 sessions, and a 15-minute login-attempt window with limits of 10 per normalized
-email and 30 per connecting IP. These are implementation choices, not new API
+account (shared between its email and ID) and 30 per connecting IP. These are implementation choices, not new API
 requirements. The factory configuration can override these limits for tests.
 Counters survive restarts and include successful attempts. Forwarded IP headers
 are not trusted; a deployment using a reverse proxy must deliberately configure
 trusted proxy handling before relying on per-client limits.
 
 Passwords use Argon2id; session bearer tokens are stored only as SHA-256 digests.
-Login rotates session and CSRF tokens; logout revokes the current session.
+Login and registration rotate session and CSRF tokens; logout revokes the current session.
 Every mutation requires its session's CSRF token and an allowed Origin. All API
 responses have `Cache-Control: no-store`.
 
@@ -298,6 +301,16 @@ On Windows:
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app backend.app prune-sessions
 ```
+
+### Adding email registration to an existing US-01 installation
+
+Run `init-db` again to add `registration_codes` and `registration_attempts`.
+Existing accounts, IDs and profiles are preserved. Configure `SMTP_HOST`,
+`SMTP_PORT`, `SMTP_FROM`, `SMTP_SECURITY`, `SMTP_USERNAME`, `SMTP_PASSWORD`
+and `SMTP_TIMEOUT` before requesting codes. Docker Compose forwards these
+variables; native startup reads the process environment. See the
+[US-01 supplement](../docs/us01-registration.md) for defaults and examples.
+Registration fails with 503 when email delivery is unconfigured.
 
 ## Verification
 

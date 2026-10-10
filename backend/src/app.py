@@ -15,8 +15,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 from .db.database import Database
-from .db.models import AuthSession, LoginAttempt, utcnow
+from .db.models import AuthSession, LoginAttempt, RegistrationAttempt, RegistrationCode, utcnow
 from .features.auth.routes import auth, provision_user
+from .features.auth.registration import registration
+from .features.auth.mail import send_registration_code
 from .features.profile.routes import profiles, seed_tags
 from .features.opportunities.routes import opportunities
 from .shared.paths import ROOT
@@ -36,6 +38,12 @@ def create_app(config=None):
         COOKIE_SECURE=cookie_secure == "true",
         SESSION_TTL=86400, ANONYMOUS_TTL=3600, LOGIN_WINDOW=900,
         LOGIN_EMAIL_LIMIT=10, LOGIN_IP_LIMIT=30, MAX_CONTENT_LENGTH=4 * 1024 * 1024,
+        REGISTER_CODE_TTL=600, REGISTER_CODE_ATTEMPTS=5, REGISTER_RESEND_INTERVAL=60,
+        REGISTER_WINDOW=3600, REGISTER_EMAIL_LIMIT=5, REGISTER_IP_LIMIT=20,
+        SMTP_HOST=os.getenv("SMTP_HOST", ""), SMTP_PORT=os.getenv("SMTP_PORT", "587"),
+        SMTP_FROM=os.getenv("SMTP_FROM", ""), SMTP_SECURITY=os.getenv("SMTP_SECURITY", "starttls"),
+        SMTP_USERNAME=os.getenv("SMTP_USERNAME", ""), SMTP_PASSWORD=os.getenv("SMTP_PASSWORD", ""),
+        SMTP_TIMEOUT=os.getenv("SMTP_TIMEOUT", "10"),
     )
     app.config.update(config or {})
     origins = {origin.strip() for origin in app.config["ALLOWED_ORIGINS"]}
@@ -48,7 +56,9 @@ def create_app(config=None):
     app.extensions["database"] = Database(app.config["DATABASE_URL"])
     app.extensions["password_hasher"] = PasswordHasher()
     app.extensions["dummy_hash"] = app.extensions["password_hasher"].hash(secrets.token_urlsafe(32))
+    app.extensions["registration_mailer"] = send_registration_code
     app.register_blueprint(auth)
+    app.register_blueprint(registration)
     app.register_blueprint(profiles)
     app.register_blueprint(opportunities)
     app.register_blueprint(matching)
@@ -137,6 +147,9 @@ def create_app(config=None):
                 (AuthSession.expires_at <= now) | AuthSession.revoked_at.is_not(None)))
             db.execute(delete(LoginAttempt).where(
                 LoginAttempt.attempted_at < now - timedelta(seconds=app.config["LOGIN_WINDOW"])))
+            db.execute(delete(RegistrationCode).where(RegistrationCode.expires_at <= now))
+            db.execute(delete(RegistrationAttempt).where(
+                RegistrationAttempt.attempted_at < now - timedelta(seconds=app.config["REGISTER_WINDOW"])))
         click.echo("Expired session data pruned.")
 
     return app

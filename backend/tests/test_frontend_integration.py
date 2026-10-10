@@ -28,12 +28,16 @@ def frontend_node(required=False):
     return node
 
 
-@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19"])
-def test_real_frontend_workflow(app, request, story):
+@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19", "01-register"])
+def test_real_frontend_workflow(app, request, monkeypatch, story):
     node = frontend_node(required=request.config.getoption("--require-frontend"))
     if story == "02":
         with app.app_context():
             provision_user("team2@example.test", PASSWORD, "Second team", "RESEARCH_TEAM")
+    outbox = []
+    if story == "01-register":
+        monkeypatch.setattr("backend.src.features.auth.registration.secrets.randbelow", lambda _: 12345)
+        app.extensions["registration_mailer"] = lambda email, code: outbox.append((email, code))
     server = make_server("127.0.0.1", 0, app, threaded=True)
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
@@ -46,6 +50,8 @@ def test_real_frontend_workflow(app, request, story):
         )
         assert result.returncode == 0, result.stdout + result.stderr
         assert f"US-{story} real HTTP integration passed" in result.stdout
+        if story == "01-register":
+            assert outbox == [("registration@example.test", "012345")]
     finally:
         server.shutdown()
         server.server_close()

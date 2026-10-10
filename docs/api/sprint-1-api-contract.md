@@ -1,12 +1,12 @@
 # H18ABANANA — Sprint 1 Frontend and Backend API Contract
 
-Version: `0.1.0-draft`
+Version: `0.1.1-draft`
 
 Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
 
-Scope: **US-01 through US-09 in the current Sprint 1, comprising 24 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
+Scope: **US-01 through US-09 in the current Sprint 1, comprising 26 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
 
 This document can be shared on its own: it contains endpoints, field definitions, request and response examples, permissions, errors and integration requirements. The accompanying `openapi.json` provides the machine-readable definition of the same version.
 
@@ -16,7 +16,7 @@ This document can be shared on its own: it contains endpoints, field definitions
 
 | User story | Jira parent issue | API coverage in this version |
 |---|---|---|
-| US-01 Login and talent profile | H18ABANANA-9 | Session, login, logout, profile retrieval and storage, shared tags |
+| US-01 Login, registration and talent profile | H18ABANANA-9 | Verified-email registration, email/ID login, sessions, logout, profile retrieval and storage, shared tags |
 | US-02 Research opportunity management | H18ABANANA-10 | Create drafts, edit, publish, list and view details |
 | US-03 Review and confirmation | H18ABANANA-11 | Confirm the current profile revision; reconfirm after changes |
 | US-04 Talent discovers opportunities | H18ABANANA-13 | Ranked recommendations and requirement-level explanations |
@@ -26,7 +26,7 @@ This document can be shared on its own: it contains endpoints, field definitions
 | US-08 Requirement-level evidence | H18ABANANA-1 | Matched / Partial / Gap / Unknown, evidence, ranking and scores |
 | US-09 Document upload and extraction | H18ABANANA-2 | PDF/DOCX upload, processing status, extraction drafts and reviewed imports |
 
-“All endpoints” here means all endpoints for **Sprint 1**. Backlog features such as favourites, advanced filters, semantic matching, full registration/password reset and complex role switching are outside v0.1. Opportunity deletion, unpublishing and team membership management are also not defined in this version.
+“All endpoints” here means all endpoints for **Sprint 1**. Backlog features such as favourites, advanced filters, semantic matching, password reset and complex role switching are outside v0.1. Opportunity deletion, unpublishing and team membership management are also not defined in this version.
 
 The client meeting on 2026-09-30 allowed manual entry for Demo 1 if extraction was not ready. US-09 is now in the Jira Sprint, so its complete interface is retained here. Manual entry must remain available when extraction is unavailable.
 
@@ -49,7 +49,7 @@ These choices make the draft explicit so the two implementations do not make inc
 | Topic | Proposed v0.1 default |
 |---|---|
 | API style | REST + JSON with the `/api/v1` prefix |
-| Login | Provisioned accounts, cookie sessions and server-assigned roles |
+| Login | Provisioned or verified-email accounts, email/ID credentials, cookie sessions and stored roles |
 | Team model | One `RESEARCH_TEAM` account represents one research team |
 | Confirmation granularity | Confirm the entire current profile revision; content changes require reconfirmation |
 | Upload | PDF and DOCX, at most 10 MiB per file; legacy `.doc` is not accepted |
@@ -134,7 +134,7 @@ Do not automatically retry a POST after a network timeout: the server may alread
 | No. | Method | Path (without /api/v1) | Purpose | Permission |
 |---|---|---|---|---|
 | [01](#api-01) | GET | `/auth/session` | Read the current session and obtain a CSRF token | Anonymous |
-| [02](#api-02) | POST | `/auth/login` | Log in with a provisioned account | Anonymous |
+| [02](#api-02) | POST | `/auth/login` | Log in using email or account ID | Anonymous |
 | [03](#api-03) | POST | `/auth/logout` | Log out of the current session | Signed-in |
 | [04](#api-04) | GET | `/tags` | List shared skill and interest tags | Signed-in |
 | [05](#api-05) | GET | `/me/profile` | Read the current talent profile | Talent owner |
@@ -157,6 +157,8 @@ Do not automatically retry a POST after a network timeout: the server may alread
 | [22](#api-22) | GET | `/me/opportunity-matches/{opportunityId}` | Read requirement-level matching explanations for the current talent | Talent owner |
 | [23](#api-23) | GET | `/opportunities/{opportunityId}/talent-matches` | List matching talent for a team-owned opportunity | Team owner |
 | [24](#api-24) | GET | `/opportunities/{opportunityId}/talent-matches/{talentId}` | Read permitted talent information and matching explanations | Team owner |
+| [25](#api-25) | POST | `/auth/register/code` | Send a six-digit email verification code | Anonymous + CSRF |
+| [26](#api-26) | POST | `/auth/register` | Verify code and register a talent or team account | Anonymous + CSRF |
 
 ## 4. Endpoint details
 
@@ -196,13 +198,13 @@ Related Jira subtasks: H18ABANANA-16, H18ABANANA-18.
 
 <a id="api-02"></a>
 
-### 02. Log in with a provisioned account
+### 02. Log in with an email or account ID
 
 `POST /api/v1/auth/login`
 
 Permission: **Anonymous**.
 
-Read the session first and include its CSRF token. The backend validates the provisioned account and rotates the session and CSRF token. The frontend replaces its old token immediately. Role is derived from the account. Invalid credentials return 401 INVALID_CREDENTIALS without identifying which credential failed.
+Read the session first and include its CSRF token. The backend validates the registered or provisioned account and rotates the session and CSRF token. Submit `identifier` (email or `user.id`) and `password`; legacy `{email, password}` requests remain valid. Supply exactly one of `identifier` and `email`. Both aliases share the login-attempt counter. The frontend replaces its old token immediately. Role is derived from the account. Invalid credentials return 401 INVALID_CREDENTIALS without identifying which credential failed.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
@@ -2113,6 +2115,51 @@ Error statuses: `401`, `403`, `404`, `422`, `500`.
 
 Related Jira subtasks: H18ABANANA-20, H18ABANANA-30, H18ABANANA-31, H18ABANANA-33.
 
+
+<a id="api-25"></a>
+
+### 25. Request an email registration code — US-01 supplement
+
+`POST /api/v1/auth/register/code` accepts [RegistrationCodeRequest](#model-registrationcoderequest): `{email}`.
+Call `/auth/session` first and supply the cookie, `X-CSRF-Token` and allowed
+Origin. A successful SMTP submission returns **202 [RegistrationCodeResponse](#model-registrationcoderesponse)**:
+`{expiresAt, resendAfterSeconds}`. The six-digit code is sent only by email.
+It expires in 10 minutes, is tied to the requesting session and has at most
+five verification attempts. Resending requires 60 seconds and invalidates
+the previous code. Limits are 5 messages per email and 20 per connecting IP
+per hour; counters persist across restarts. SMTP must be configured.
+
+Errors: 400, 403, 409 `EMAIL_ALREADY_REGISTERED` or `VERIFICATION_CODE_INVALID`
+(superseded request during delivery), 415, 422, 429 `RATE_LIMITED`,
+503 `EMAIL_DELIVERY_FAILED`, 500. Failed deliveries leave no usable code.
+
+<a id="api-26"></a>
+
+### 26. Register a verified email account — US-01 supplement
+
+`POST /api/v1/auth/register` accepts [RegistrationRequest](#model-registrationrequest):
+`{email, code, password, displayName, role}`. All fields are required; `code`
+is a string of six ASCII digits (including leading zeros), password length
+is 8–200, and displayName is nonblank with at most 100 characters. Role is
+`TALENT` or `RESEARCH_TEAM`. Use the same anonymous session, CSRF token and
+allowed Origin as the code request.
+
+Success: **201 Session** with a unique server-generated `user.id`, new
+session cookie and rotated CSRF token. The code is consumed once. Account,
+session and talent profile/privacy defaults are saved atomically. A talent
+starts with an empty revision-0 unconfirmed profile and private settings;
+a team has no talent profile. Subsequent login accepts either user.id or
+email in `identifier`, with the user's chosen password.
+
+Errors: 400, 403, 409 `EMAIL_ALREADY_REGISTERED`, 415,
+422 `VERIFICATION_CODE_INVALID` or `VALIDATION_ERROR`, 429 `RATE_LIMITED`, 500.
+Signed-in users must sign out before creating another account.
+
+See [US-01 registration implementation](../us01-registration.md) for full
+request/response examples, SMTP configuration, schema upgrade and tests.
+These are additions to US-01 (H18ABANANA-9), not a new user story.
+
+
 ## 5. Shared error handling
 
 Use the structure below for every error response. The frontend branches on `error.code`, not the wording of message. message is suitable for display. Field paths use dot notation and array indices, for example `content.education[0].institution`. Use `fieldErrors=[]` if there are no field errors. Include `currentRevision` only for revision conflicts; otherwise omit it.
@@ -2148,7 +2195,10 @@ Use the structure below for every error response. The frontend branches on `erro
 | 415 | UNSUPPORTED_MEDIA_TYPE | Incorrect request Content-Type | Correct the request adapter |
 | 422 | VALIDATION_ERROR | Invalid fields or unmet publication/confirmation prerequisites | Display fieldErrors beside the relevant inputs |
 | 422 | EXTRACTION_FAILED | Extraction/import requested for a failed document | Offer manual entry and preserve existing profile content |
-| 429 | RATE_LIMITED | Login or upload rate limit exceeded | Ask the user to try later and stop repeated requests |
+| 429 | RATE_LIMITED | Login, registration or upload rate limit exceeded | Ask the user to try later and stop repeated requests |
+| 409 | EMAIL_ALREADY_REGISTERED | Email already has an account | Sign in instead |
+| 422 / 409 | VERIFICATION_CODE_INVALID | Code invalid/expired, or request superseded during delivery | Request a new code from the same session |
+| 503 | EMAIL_DELIVERY_FAILED | SMTP unavailable, unconfigured or refused | Retry after checking delivery configuration |
 | 500 | INTERNAL_ERROR | Unexpected server failure | Preserve input and requestId and offer a later retry |
 
 Do not expose stack traces, database errors or filesystem paths in message. `requestId` supports log investigation. `Document.error` uses ErrorDetail without a nested requestId. A document status request may successfully return 200 with status=FAILED; requesting or importing that failed extraction returns 422.
@@ -2157,7 +2207,7 @@ Do not expose stack traces, database errors or filesystem paths in message. `req
 
 Referenced types link to their definitions below. Array entries must match their item type. All objects reject additional fields. Required means the key must exist; nullable required fields must still be sent.
 
-This section defines all 47 public models. The binary upload request is the additional request shape described in endpoint 11.
+This section defines all 50 public models. The binary upload request is the additional request shape described in endpoint 11.
 
 
 <a id="model-id"></a>
@@ -2185,7 +2235,7 @@ Type: `displayName` / `disciplineGroup` / `education` / `courses` / `researchExp
 | `id` | string | Yes | Object identifier; preserve IDs when editing existing records; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `displayName` | string | Yes | Display name; also subject to visibility controls in team responses; minimum length: 1 |
 | `email` | string | Yes | Login email, visible only to the account owner; format: email |
-| `role` | `TALENT` / `RESEARCH_TEAM` | Yes | Account role assigned by the backend |
+| `role` | `TALENT` / `RESEARCH_TEAM` | Yes | Stored account role, selected during registration or administrative provisioning |
 
 <a id="model-session"></a>
 
@@ -2200,10 +2250,42 @@ Type: `displayName` / `disciplineGroup` / `education` / `courses` / `researchExp
 
 ### LoginRequest
 
+Supply exactly one of `identifier` and `email`, together with `password`.
+
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `email` | string | Yes | Login email, visible only to the account owner; format: email |
+| `identifier` | email or [Id](#model-id) | Conditional | Email address (at most 254 characters) or case-sensitive account ID |
+| `email` | string | Conditional | Legacy login email; format: email; mutually exclusive with identifier |
 | `password` | string | Yes | Request-only; never return or log plaintext passwords; minimum length: 1; maximum length: 200 |
+
+<a id="model-registrationcoderequest"></a>
+
+### RegistrationCodeRequest
+
+| Field | Type / allowed values | Required | Description and constraints |
+|---|---|---|---|
+| `email` | string | Yes | Email address, at most 254 characters, without whitespace; normalized before storage |
+
+<a id="model-registrationcoderesponse"></a>
+
+### RegistrationCodeResponse
+
+| Field | Type / allowed values | Required | Description and constraints |
+|---|---|---|---|
+| `expiresAt` | string, date-time | Yes | Verification-code expiry in UTC (RFC3339) |
+| `resendAfterSeconds` | integer | Yes | Sending cooldown; at least 1; default 60 |
+
+<a id="model-registrationrequest"></a>
+
+### RegistrationRequest
+
+| Field | Type / allowed values | Required | Description and constraints |
+|---|---|---|---|
+| `email` | string | Yes | Same address used to request the code; at most 254 characters, without whitespace |
+| `code` | string | Yes | Exactly six ASCII digits; preserve leading zeros; request-only |
+| `password` | string | Yes | Chosen password; 8–200 characters; request-only |
+| `displayName` | string | Yes | Nonblank name; 1–100 characters; outer whitespace is trimmed |
+| `role` | `TALENT` / `RESEARCH_TEAM` | Yes | Both roles may self-register |
 
 <a id="model-tag"></a>
 
@@ -2407,7 +2489,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` | Yes | Course code; null if unknown. In an error object, this is the error code |
+| `code` | `UNAUTHENTICATED` / `INVALID_CREDENTIALS` / `FORBIDDEN` / `CSRF_INVALID` / `NOT_FOUND` / `VALIDATION_ERROR` / `REVISION_CONFLICT` / `PROFILE_UNCONFIRMED` / `EXTRACTION_NOT_READY` / `EXTRACTION_FAILED` / `UPLOAD_TOO_LARGE` / `UNSUPPORTED_FILE_TYPE` / `RATE_LIMITED` / `INTERNAL_ERROR` / `BAD_REQUEST` / `UNSUPPORTED_MEDIA_TYPE` / `VERIFICATION_CODE_INVALID` / `EMAIL_ALREADY_REGISTERED` / `EMAIL_DELIVERY_FAILED` | Yes | Course code; null if unknown. In an error object, this is the error code |
 | `message` | string | Yes | Displayable explanation; do not branch on its wording |
 | `fieldErrors` | [FieldError](#model-fielderror)[] | Yes | Field validation problems; empty if none |
 | `currentRevision` | integer | No | Server revision on conflict; omitted for other errors; minimum: 0 |
@@ -2885,16 +2967,16 @@ US-06 prepares synthetic/de-identified data and records these test results. No a
 
 ## 10. Later scope
 
-US-10 through US-16 remain in the Backlog: broader file/confirmation protection, systematic quality evaluation, favourites, semantic matching, advanced search, full registration/identity management and whole-project testing. Overlapping privacy and testing foundations are specified for this Sprint without bringing all those later stories into scope.
+US-10 through US-16 remain in the Backlog: broader file/confirmation protection, systematic quality evaluation, favourites, semantic matching, advanced search, broader identity management and whole-project testing. Overlapping privacy and testing foundations are specified for this Sprint without bringing all those later stories into scope.
 
 When adding capabilities, update the contract version, field definitions, mock fixtures and tests before coordinating both implementations. Do not unilaterally change field casing, enums, replacement semantics, confirmation granularity or the use of hidden fields in scoring.
 
 ## 11. Companion files and references
 
 - [openapi.json](openapi.json): the corresponding OpenAPI 3.1.0 definition for tooling and validation.
-- [endpoint-index.json](endpoint-index.json): methods, paths and related Jira tasks for all 24 operations.
-- [examples/](examples/): 30 synthetic request/response fixtures; [index.json](examples/index.json) maps each fixture to its model.
+- [endpoint-index.json](endpoint-index.json): methods, paths and related Jira tasks for all 26 operations.
+- [examples/](examples/): 34 synthetic request/response fixtures; [index.json](examples/index.json) maps each fixture to its model.
 - Business inputs: the Sprint 1 Jira work items provided in the discussion, `Client_Meeting_Minutes_2026-09-30.docx` and the Week 3 meeting minutes in the working folder. No unprovided backend implementation is assumed to exist.
 - Format reference: [OpenAPI 3.1.0 specification](https://spec.openapis.org/oas/v3.1.0.html). Cookie attributes: [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie).
 
-After the team agrees on the defaults in section 1.3, the version can be promoted to `0.1.0` for parallel development. Until then, mock endpoints should follow this draft’s fields rather than introduce inconsistent structures while building pages.
+After the team agrees on the defaults in section 1.3, the version can be promoted to `0.1.1` for parallel development. Until then, mock endpoints should follow this draft’s fields rather than introduce inconsistent structures while building pages.
