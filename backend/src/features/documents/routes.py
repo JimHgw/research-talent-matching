@@ -15,8 +15,8 @@ def serialize_document(document):
     return {
         "id": document.id,
         "kind": document.kind,
-        "fileName": document.filename,
-        "mediaType": document.mediaType,
+        "fileName": document.file_name,
+        "mediaType": document.media_type,
         "sizeBytes": document.size_bytes,
         "status": document.status,
         "createdAt": document.created_at.isoformat(
@@ -61,3 +61,4 @@ def documents_get():
             "total": total,
         }
     return jsonify(result)
+
