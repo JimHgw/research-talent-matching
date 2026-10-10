@@ -1,4 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+// Each workspace callback combines the active guards of its mounted callers.
+const activeGuards = new WeakMap();
+
+function reportGuard(callback, owner, active) {
+  if (!callback) return;
+  const owners = activeGuards.get(callback) || new Set();
+  if (active) owners.add(owner);
+  else owners.delete(owner);
+  if (owners.size) activeGuards.set(callback, owners);
+  else activeGuards.delete(callback);
+  callback(owners.size > 0);
+}
 
 export function useResource(loader, dependencies = [], focusRefresh = false) {
   const [state, setState] = useState({ data: null, loading: true, error: null });
@@ -41,13 +54,14 @@ export function useUnsaved(dirty) {
 }
 
 export function usePageGuard(dirty, busy, onDirty, onPending) {
+  const owner = useRef({}).current;
   useUnsaved(dirty || busy);
   useEffect(() => {
-    onDirty?.(dirty || busy);
-    onPending?.(busy);
+    reportGuard(onDirty, owner, dirty || busy);
+    reportGuard(onPending, owner, busy);
     return () => {
-      onDirty?.(false);
-      onPending?.(false);
+      reportGuard(onDirty, owner, false);
+      reportGuard(onPending, owner, false);
     };
-  }, [dirty, busy, onDirty, onPending]);
+  }, [dirty, busy, onDirty, onPending, owner]);
 }
