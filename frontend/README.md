@@ -251,11 +251,16 @@ do not require reformatting unrelated files.
 ## US-01 registration supplement
 
 The login screen accepts an email address or the server-assigned account ID.
-The shared client exposes `requestRegistrationCode(email)` and `register(body)`
-with the existing session/CSRF handling. Registration forms can use the
+Its **Register** button opens `/register`, including support for direct visits,
+reloads and browser history. The registration form requests an email code,
+offers TALENT and RESEARCH_TEAM account types, and collects a display name,
+password and matching confirmation. It shows resend cooldowns and server errors,
+and opens the appropriate workspace on success. The shared client retains the
+existing session/CSRF handling; see the
 [US-01 email-registration contract](../docs/us01-registration.md).
-`tests/us01-register-live.mjs` verifies registration through the real backend
-and subsequent ID login through the React screen.
+`tests/us01-register-live.mjs` verifies both-role registration through the React
+form and real backend, followed by ID login. `tests/task-18-registration.test.js`
+covers navigation, validation, sending failures, resends and pending requests.
 
 ## Password reset
 

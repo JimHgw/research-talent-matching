@@ -93,8 +93,13 @@ The same request accepts an email in `identifier`. Existing callers may continue
 to use the `email` field. Supply exactly one of `identifier` and `email`, with a
 password. Both login aliases share the existing per-account login-attempt limit;
 alternating email and ID cannot bypass it. The login screen accepts either value.
-The backend supplies registration APIs and the shared JavaScript client exposes
-them; a registration form is not included in this backend supplement.
+The login screen's **Register** button opens `/register`. Direct visits, page
+reloads and browser back/forward navigation also open the corresponding page.
+The form requests an emailed code, then collects the code, account type, display
+name, password and matching password confirmation. It supports both roles,
+enforces the new-password policy, shows a resend countdown and permits changing
+the email address. API errors keep the form available for correction. Successful
+registration updates the session/CSRF token and opens the account's workspace.
 
 ## Limits and errors
 
@@ -153,8 +158,9 @@ SMTP test server; they never email real users.
 
 ### Gmail during local development
 
-The current local sender is configured in the ignored root `.env`, shared by
-registration and password reset. Gmail settings are `SMTP_HOST=smtp.gmail.com`,
+The current local sender is `3900banana@gmail.com`, configured in the ignored
+root `.env` and shared by registration and password reset. Set both `SMTP_FROM`
+and `SMTP_USERNAME` to this address. Gmail settings are `SMTP_HOST=smtp.gmail.com`,
 `SMTP_PORT=587`, `SMTP_SECURITY=starttls`; set `SMTP_FROM` and `SMTP_USERNAME`
 to the chosen Gmail address. Google documents these
 [SMTP settings](https://support.google.com/mail/answer/7104828?hl=en).
@@ -181,13 +187,17 @@ changing its environment. Do not put credentials in this documentation or
 `backend/tests/test_us01_registration.py` covers both roles, private defaults,
 code hashing/expiry/resends/session binding, durable limits, SMTP configuration,
 failed deliveries, replay and transaction rollback. The real HTTP integration in
-`frontend/tests/us01-register-live.mjs` registers through Flask/SQLite and then
-signs in through the actual React login screen using the returned ID.
+`frontend/tests/us01-register-live.mjs` registers both roles through the actual
+React form against Flask/SQLite, rejects an incorrect code, checks fresh talent
+privacy defaults and signs in again with each server-assigned account ID.
+`frontend/tests/task-18-registration.test.js` checks registration navigation,
+browser history, password confirmation/policy, delivery failures, resend
+countdowns, changing email and duplicate-submission protection.
 
-Verified on 2026-10-10: 229 backend tests passed, with the optional Docker runtime
-test skipped; all six real HTTP frontend workflows ran. All 104 frontend tests,
-the production build and the formatting check passed. SMTP delivery was verified
-against a local test server; a live provider requires deployment credentials.
+Frontend registration verified on 2026-10-10: all 121 frontend tests, all seven
+real HTTP frontend/backend workflows, the production build and formatting check
+passed. The HTTP workflows use a test mailer and temporary databases; live Gmail
+delivery requires the configured account credentials.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest backend/tests/test_us01_registration.py -q

@@ -34,8 +34,11 @@ also checks the frontend health endpoint. Build time is separate from the
 
 Open `http://127.0.0.1:5173`. These containers serve the real API without demo
 fixtures or a mock fallback. The backend initializes missing tables and seeds
-tags, but does not create accounts. Provision accounts if the Docker data volume
-does not already contain them:
+tags, but does not create accounts automatically. Configure SMTP in the root
+`.env`, then use **Register** on the login screen or visit `/register` to create
+a TALENT or RESEARCH_TEAM account with an emailed verification code. See the
+[registration guide](us01-registration.md) for SMTP setup and password rules.
+For development accounts, provisioning is also available:
 
 ```sh
 docker compose exec backend python -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT

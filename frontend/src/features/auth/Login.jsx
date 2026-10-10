@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { Brand, Button, ErrorNotice, Field, Icon } from '../../shared/ui.jsx';
 import PasswordReset from './PasswordReset.jsx';
+import Register from './Register.jsx';
 
 export default function Login({ onLogin }) {
   const [identifier, setIdentifier] = useState('');
@@ -10,8 +11,31 @@ export default function Login({ onLogin }) {
   const [busy, setBusy] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
+  const [registering, setRegistering] = useState(() => window.location.pathname === '/register');
+  useEffect(() => {
+    function followHistory() {
+      setRegistering(window.location.pathname === '/register');
+      setResetting(false);
+      setResetComplete(false);
+      setPassword('');
+      setError(null);
+    }
+    window.addEventListener('popstate', followHistory);
+    return () => window.removeEventListener('popstate', followHistory);
+  }, []);
+
+  function showRegistration(next) {
+    window.history.pushState(null, '', next ? '/register' : '/');
+    setRegistering(next);
+    setResetting(false);
+    setResetComplete(false);
+    setPassword('');
+    setError(null);
+  }
+
   async function login(e) {
     e?.preventDefault();
+    if (busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -65,7 +89,16 @@ export default function Login({ onLogin }) {
       <section className="login-form">
         <div className="login-card">
           <div className="eyebrow">YOUR RESEARCH WORKSPACE</div>
-          {resetting ? (
+          {registering ? (
+            <Register
+              initialEmail={identifier.includes('@') ? identifier : ''}
+              onBack={() => showRegistration(false)}
+              onRegister={(user) => {
+                window.history.replaceState(null, '', '/');
+                onLogin(user);
+              }}
+            />
+          ) : resetting ? (
             <PasswordReset
               initialIdentifier={identifier}
               onBack={() => setResetting(false)}
@@ -114,6 +147,14 @@ export default function Login({ onLogin }) {
                   <Icon name="arrow" size={17} />
                 </Button>
               </form>
+              <Button
+                variant="secondary"
+                className="full"
+                disabled={busy}
+                onClick={() => showRegistration(true)}
+              >
+                Register
+              </Button>
               <Button
                 variant="text"
                 className="full"

@@ -167,11 +167,19 @@
   background: var(--surface);
   font-weight: 700;
 }
-.reset-fields {
+.reset-fields,
+.registration-fields {
   border: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
+}
+.registration-code-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: -8px 0 17px;
 }
 @media (max-width: 1050px) {
   .login-story {

@@ -54,7 +54,8 @@ def test_real_frontend_workflow(app, request, monkeypatch, story):
         assert result.returncode == 0, result.stdout + result.stderr
         assert f"US-{story} real HTTP integration passed" in result.stdout
         if story == "01-register":
-            assert outbox == [("registration@example.test", "012345")]
+            assert outbox == [("registration@example.test", "012345"),
+                              ("registration-team@example.test", "012345")]
         if story == "01-reset":
             assert outbox == [("team@example.test", "012345")]
     finally:
