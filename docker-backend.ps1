@@ -57,10 +57,12 @@ try {
         Write-Host 'Backend is healthy. Published address (append /healthz to check):'
         & $dockerPath @composeArgs port backend 8000
         if ($LASTEXITCODE -ne 0) { throw 'Could not read the published backend address.' }
-        Write-Host 'See README_DEVELOPER.md to create accounts and connect the frontend.'
+        Write-Host 'See README_DEVELOPER_EN.md to create accounts and connect the frontend.'
     } elseif ($Action -eq 'build') {
         Write-Host 'Image built: banana-backend:local. No container was started.'
-    } elseif ($Action -eq 'down' -or $Action -eq 'stop') {
+    } elseif ($Action -eq 'down') {
+        Write-Host 'Compose containers and network removed. The SQLite data volume is preserved.'
+    } elseif ($Action -eq 'stop') {
         Write-Host 'Backend stopped. The SQLite data volume is preserved.'
     }
 } catch {

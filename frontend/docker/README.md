@@ -1,5 +1,11 @@
 # Frontend-only Docker
 
+For frontend and backend containers together, use the root `compose.yaml` and
+[the integrated Docker guide](../../docs/docker-integration.md). The root
+configuration connects Nginx directly to `backend:8000` and preserves the existing
+backend data volume. The separate configuration below is only for a backend
+running on the host; do not combine these two Compose files with `-f`.
+
 This configuration builds the JavaScript frontend using Node 24 and pnpm 11.25.0,
 then serves the production bundle with Nginx. The Python backend, virtual
 environment and SQLite database stay on the host. No backend source, credentials,

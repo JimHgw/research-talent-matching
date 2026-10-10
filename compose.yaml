@@ -1,6 +1,26 @@
 name: banana-backend
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+      target: runtime
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:80"
+    environment:
+      # Container traffic always uses the backend's internal service port.
+      API_PROXY_TARGET: http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   backend:
     image: banana-backend:local
     build:
@@ -25,3 +45,7 @@ services:
 
 volumes:
   backend_data:
+
+networks:
+  default:
+    driver: bridge

@@ -4,7 +4,7 @@
 
 An explainable bidirectional matching system for research talent and research opportunities in Australian universities.
 
-For the one-command Docker backend (Flask + Gunicorn + SQLite in one container with persistent storage), see [section 3: Docker Backend Guide](#3-docker-backend-guide). The Docker-only workflow does not require installing the host development environment. The corresponding Chinese guide is [README_DEVELOPER.md](README_DEVELOPER.md).
+For the one-command Docker backend (Flask + Gunicorn + SQLite in one container with persistent storage), see [section 3: Docker Backend Guide](#3-docker-backend-guide). For frontend and backend containers together, use [the integrated Docker guide](docs/docker-integration.md). Docker workflows do not require installing the host development environment.
 
 ## Contents
 
@@ -528,9 +528,16 @@ The Jira screenshot's 15 October date is the sprint end date. Official demonstra
 
 ## 3. Docker Backend Guide
 
+The root Compose configuration can now run frontend and backend containers
+together. See [the integrated Docker guide](docs/docker-integration.md) for the
+shared network, startup, verification and data-volume preservation. The
+`docker-backend.sh` / `docker-backend.ps1` launchers below still start only the
+backend. Their `down` action removes the whole Compose project's containers and
+network, including its frontend if running, while preserving the data volume.
+
 The backend uses **Flask + SQLAlchemy + SQLite**, with **Gunicorn** serving the Flask application inside the container. The launcher builds the backend image and starts the container automatically. The backend accesses SQLite directly; PostgreSQL, MySQL and a separate database container are not required.
 
-Sections 0–2 above contain the sprint requirements, data models and interface specification. For native development without Docker, see [backend/README.md](backend/README.md). This section is the English version of [README_DEVELOPER.md](README_DEVELOPER.md).
+Sections 0–2 above contain the sprint requirements, data models and interface specification. For native development without Docker, see [backend/README.md](backend/README.md).
 
 ### 3.1 Prerequisites
 
