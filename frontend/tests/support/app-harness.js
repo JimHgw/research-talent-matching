@@ -22,6 +22,7 @@ const { createRoot } = await import('react-dom/client');
 const { default: App } = await import('../../src/App.jsx');
 export const state = { root: null, server: null, requests: [], intercept: null };
 beforeEach(() => {
+  window.history.replaceState(null, '', '/');
   window.confirm = () => false;
   document.getElementById('root').replaceChildren();
   state.root = createRoot(document.getElementById('root'));

@@ -1,4 +1,4 @@
-"""US-01: provisioned accounts, server-side sessions and reusable access checks."""
+"""US-01: email/ID login, administrative accounts and server-side sessions."""
 
 from datetime import timedelta
 import secrets
@@ -8,9 +8,11 @@ from flask import Blueprint, current_app, jsonify, request
 from sqlalchemy import delete, func, select
 
 from ...db.database import database
-from ...db.models import AuthSession, LoginAttempt, PrivacySettings, TalentProfile, User, utcnow
+from ...db.models import AuthSession, LoginAttempt, User, utcnow
 from ...shared.security import COOKIE, current_session, digest, require_csrf, require_user
 from ...shared.validation import ApiError, body, validate
+from .accounts import create_account
+from .passwords import validate_new_password
 
 auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
@@ -47,14 +49,23 @@ def session_get():
     return session_response(session, user, raw)
 
 
-def reserve_login_attempt(email):
+def login_user(db, identifier):
+    if "@" in identifier:
+        return db.scalar(select(User).where(User.email == identifier.casefold()))
+    return db.get(User, identifier)
+
+
+def reserve_login_attempt(identifier):
     """Count attempts durably across workers; expensive password work is outside the write lock."""
     now = utcnow()
     cutoff = now - timedelta(seconds=current_app.config["LOGIN_WINDOW"])
-    email_hash, ip_hash = digest(email), digest(request.remote_addr or "unknown")
     with database().transaction(write=True) as db:
         session, _ = current_session(db)
         require_csrf(session)
+        user = login_user(db, identifier)
+        # Both aliases share the email counter, including pre-existing attempts.
+        email_hash = digest(user.email if user else identifier.casefold())
+        ip_hash = digest(request.remote_addr or "unknown")
         db.execute(delete(LoginAttempt).where(LoginAttempt.attempted_at < cutoff))
         for column, value, limit in (
             (LoginAttempt.email_hash, email_hash, current_app.config["LOGIN_EMAIL_LIMIT"]),
@@ -72,10 +83,10 @@ def login():
         session, _ = current_session(db)
         require_csrf(session)
     data = body("LoginRequest")
-    email = data["email"].strip().casefold()
-    reserve_login_attempt(email)
+    identifier = data.get("identifier", data.get("email", "")).strip()
+    reserve_login_attempt(identifier)
     with database().transaction() as db:
-        user = db.scalar(select(User).where(User.email == email))
+        user = login_user(db, identifier)
         encoded = user.password_hash if user else current_app.extensions["dummy_hash"]
         user_id = user.id if user else None
     try:
@@ -112,18 +123,12 @@ def provision_user(email, password, display_name, role):
     """Administrative CLI helper, never a public registration endpoint."""
     email = email.strip().casefold()
     validate("LoginRequest", {"email": email, "password": password})
+    validate_new_password(password)
     user_id = "user_" + secrets.token_hex(16)
     validate("User", {"id": user_id, "displayName": display_name, "email": email, "role": role})
     encoded = current_app.extensions["password_hasher"].hash(password)
     with database().transaction(write=True) as db:
         if db.scalar(select(User.id).where(User.email == email)):
             raise ValueError("An account with this email already exists.")
-        user = User(id=user_id, email=email, display_name=display_name, role=role, password_hash=encoded)
-        db.add(user)
-        db.flush()
-        if role == "TALENT":
-            profile = TalentProfile(talent_id="talent_" + secrets.token_hex(16), user_id=user.id)
-            db.add(profile)
-            db.flush()
-            db.add(PrivacySettings(talent_id=profile.talent_id))
-    return user_id
+        user = create_account(db, email, encoded, display_name, role)
+    return user.id

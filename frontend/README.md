@@ -117,7 +117,7 @@ checks do not replace the full suite, which also covers shared code and contract
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
-- `tests/api.test.js`: the shared client/contract, including all 24 operations,
+- `tests/api.test.js`: the shared client/contract, including all 29 operations,
   request payloads, pagination, CSRF, multipart upload, downloads and errors.
 - `tests/task-18-shell.test.js`: login/logout, unavailable service and mobile navigation.
 - `tests/task-19-opportunities.test.js`: creation, requirement editing, publication,
@@ -247,3 +247,25 @@ hooks remain separate from the page composition in `Workspace.jsx`.
 
 Formatting accepts each file's existing LF/CRLF endings so Windows Git checkouts
 do not require reformatting unrelated files.
+
+## US-01 registration supplement
+
+The login screen accepts an email address or the server-assigned account ID.
+Its **Register** button opens `/register`, including support for direct visits,
+reloads and browser history. The registration form requests an email code,
+offers TALENT and RESEARCH_TEAM account types, and collects a display name,
+password and matching confirmation. It shows resend cooldowns and server errors,
+and opens the appropriate workspace on success. The shared client retains the
+existing session/CSRF handling; see the
+[US-01 email-registration contract](../docs/us01-registration.md).
+`tests/us01-register-live.mjs` verifies both-role registration through the React
+form and real backend, followed by ID login. `tests/task-18-registration.test.js`
+covers navigation, validation, sending failures, resends and pending requests.
+
+## Password reset
+
+The login screen offers original-password reset and a staged email-code reset.
+New passwords require at least 8 characters, with uppercase, lowercase and
+numeric characters, and matching confirmation. The API enforces the same rules
+and rejects reuse of the current password. See the [US-01 reset contract](../docs/us01-password-reset.md).
+`tests/us01-reset-live.mjs` verifies both paths against the real backend.

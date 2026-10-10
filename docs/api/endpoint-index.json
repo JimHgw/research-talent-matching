@@ -11,10 +11,28 @@
   {
     "method": "POST",
     "path": "/auth/login",
-    "summary": "Log in with a provisioned account",
+    "summary": "Log in with an email or account ID",
     "jira": [
       "H18ABANANA-16",
       "H18ABANANA-18"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/register/code",
+    "summary": "Send an email registration code",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/register",
+    "summary": "Register a verified email account",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
     ]
   },
   {
@@ -223,6 +241,33 @@
       "H18ABANANA-30",
       "H18ABANANA-31",
       "H18ABANANA-33"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset/code",
+    "summary": "Send a password reset email code",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset/verify",
+    "summary": "Verify an email before choosing a new password",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login/reset",
+    "summary": "Reset a password using credentials or verified email",
+    "jira": [
+      "H18ABANANA-9",
+      "H18ABANANA-16"
     ]
   }
 ]

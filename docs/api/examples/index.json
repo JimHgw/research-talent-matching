@@ -118,5 +118,45 @@
   {
     "file": "error-validation.json",
     "schema": "Error"
+  },
+  {
+    "file": "register-code-request.json",
+    "schema": "RegistrationCodeRequest"
+  },
+  {
+    "file": "register-code-response.json",
+    "schema": "RegistrationCodeResponse"
+  },
+  {
+    "file": "register-request.json",
+    "schema": "RegistrationRequest"
+  },
+  {
+    "file": "login-id-request.json",
+    "schema": "LoginRequest"
+  },
+  {
+    "file": "reset-code-request.json",
+    "schema": "PasswordResetCodeRequest"
+  },
+  {
+    "file": "reset-code-response.json",
+    "schema": "PasswordResetCodeResponse"
+  },
+  {
+    "file": "reset-verify-request.json",
+    "schema": "PasswordResetVerifyRequest"
+  },
+  {
+    "file": "reset-verify-response.json",
+    "schema": "PasswordResetVerifyResponse"
+  },
+  {
+    "file": "reset-password-request.json",
+    "schema": "PasswordResetRequest"
+  },
+  {
+    "file": "reset-email-request.json",
+    "schema": "PasswordResetRequest"
   }
 ]
