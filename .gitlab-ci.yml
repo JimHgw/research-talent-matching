@@ -1,0 +1,97 @@
+stages:
+  - test
+  - build
+
+
+pipeline_check:
+  stage: test
+  image: python:3.12-slim
+
+  script:
+    - echo "GitLab CI pipeline is working"
+    - python --version
+
+
+api_validation:
+  stage: test
+  image: python:3.12-slim
+
+  script:
+    - echo "Validating API JSON files..."
+
+    - python -m json.tool docs/api/openapi.json > /dev/null
+    - python -m json.tool docs/api/endpoint-index.json > /dev/null
+    - python -m json.tool docs/api/examples/index.json > /dev/null
+
+    - |
+      python - <<'PY'
+      import json
+      from pathlib import Path
+
+      files = list(Path("docs/api/examples").rglob("*.json"))
+
+      print(f"Checking {len(files)} JSON example files...")
+
+      if not files:
+          raise SystemExit("No JSON example files found.")
+
+      for file in files:
+          with file.open(encoding="utf-8") as f:
+              json.load(f)
+
+          print(f"OK: {file}")
+
+      print("All API JSON files are valid.")
+      PY
+
+
+frontend_test:
+  stage: test
+  image: node:22
+
+  before_script:
+    - corepack enable
+    - cd frontend
+    - pnpm install --frozen-lockfile
+
+  script:
+    - pnpm test
+
+
+frontend_format:
+  stage: test
+  image: node:22
+
+  before_script:
+    - corepack enable
+    - cd frontend
+    - pnpm install --frozen-lockfile
+
+  script:
+    - pnpm format:check
+
+
+backend_test:
+  stage: test
+  image: python:3.12-slim
+
+  before_script:
+    - cd backend
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-dev.txt
+
+  script:
+    - python -m pytest
+
+
+frontend_build:
+  stage: build
+  image: node:22
+
+  before_script:
+    - corepack enable
+    - cd frontend
+    - pnpm install --frozen-lockfile
+
+  script:
+    - pnpm build

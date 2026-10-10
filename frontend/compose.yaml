@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - '127.0.0.1:5173:80'
+    environment:
+      API_PROXY_TARGET: ${API_PROXY_TARGET:-http://host.docker.internal:8000}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

@@ -15,6 +15,8 @@ ORIGIN = "http://127.0.0.1:5173"
 def pytest_addoption(parser):
     parser.addoption("--require-frontend", action="store_true",
                      help="Fail instead of skipping real HTTP integration when Node/jsdom is missing.")
+    parser.addoption("--run-docker", action="store_true",
+                     help="Build and test the real Docker stack in an isolated disposable project.")
 
 
 @pytest.hookimpl(tryfirst=True)

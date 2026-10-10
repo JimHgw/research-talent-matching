@@ -5,7 +5,7 @@ import { displayDate } from '../../shared/format.js';
 import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
 import { labels } from '../../shared/profile-labels.js';
 
-export default function MatchDetails({ opportunityId, talentId, onClose }) {
+export default function MatchDetails({ opportunityId, talentId, onClose, tags = [] }) {
   const resource = useResource(
     () => (talentId ? api.talentMatch(opportunityId, talentId) : api.match(opportunityId)),
     [opportunityId, talentId],
@@ -54,7 +54,7 @@ export default function MatchDetails({ opportunityId, talentId, onClose }) {
             Coverage reflects the available evidence, not the probability of being selected. Missing
             information is shown as Unknown.
           </p>
-          {result.talent && <VisibleTalent talent={result.talent} />}
+          {result.talent && <VisibleTalent talent={result.talent} tags={tags} />}
           <div className="evidence-list">
             {result.requirements.map((item) => (
               <article className="evidence-row" key={item.requirement.id}>
@@ -99,19 +99,19 @@ export default function MatchDetails({ opportunityId, talentId, onClose }) {
     </Modal>
   );
 }
-function VisibleTalent({ talent }) {
+function VisibleTalent({ talent, tags }) {
   const fields = talent.fields;
 
   function formatItem(item) {
     if (typeof item === 'string') {
-      return item.replace(/^(interest|skill)_/, '').replaceAll('_', ' ');
+      return tags.find((tag) => tag.id === item)?.label || 'Unlabelled interest';
     }
     if (item.institution) {
       return `${item.qualification}, ${item.institution}`;
     }
     if (item.tagId) {
-      const skill = item.tagId.replace('skill_', '');
-      const experience = item.claim === 'HAS' ? 'experienced' : 'not yet';
+      const skill = tags.find((tag) => tag.id === item.tagId)?.label || 'Unlabelled skill';
+      const experience = item.claim === 'HAS' ? 'has skill' : 'does not have skill';
       let text = `${skill}: ${experience}`;
       if (item.evidenceText) {
         text += ` — ${item.evidenceText}`;

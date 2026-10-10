@@ -50,7 +50,12 @@ def owner_evidence(profile, field, tag_id, value_summary):
     }
 
 
-def evaluate_requirement(requirement, profile):
+def team_evidence(profile, field, tag_id, value_summary):
+    # Construct the smaller audience-specific shape; never load owner provenance.
+    return {"field": field, "recordId": tag_id, "valueSummary": value_summary}
+
+
+def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
     positive = []
     negative = []
 
@@ -70,7 +75,7 @@ def evaluate_requirement(requirement, profile):
                 ).strip()
 
                 positive.append(
-                    owner_evidence(profile, "skills", tag_id, summary)
+                    evidence_factory(profile, "skills", tag_id, summary)
                 )
 
             elif skill["claim"] == "DOES_NOT_HAVE":
@@ -80,7 +85,7 @@ def evaluate_requirement(requirement, profile):
                 ).strip()
 
                 negative.append(
-                    owner_evidence(profile, "skills", tag_id, summary)
+                    evidence_factory(profile, "skills", tag_id, summary)
                 )
 
     else:
@@ -89,7 +94,7 @@ def evaluate_requirement(requirement, profile):
 
             if label is not None:
                 positive.append(
-                    owner_evidence(
+                    evidence_factory(
                         profile,
                         "researchInterests",
                         tag_id,
@@ -178,9 +183,9 @@ def summarize(results):
         "algorithmVersion": "tag-coverage-v1",
     }
 
-def evaluate_opportunity(opportunity, profile):
+def evaluate_opportunity(opportunity, profile, evidence_factory=owner_evidence):
     results = [
-        evaluate_requirement(requirement, profile)
+        evaluate_requirement(requirement, profile, evidence_factory)
         for requirement in opportunity["content"]["requirements"]
     ]
 

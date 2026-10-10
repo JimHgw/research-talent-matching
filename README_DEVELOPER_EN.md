@@ -1,8 +1,10 @@
 # COMP3900 / COMP9900 — H18ABANANA
 
-**🍌 Explainable Two-Sided Research Matching · Sprint 1 Developer Specification**
+**🍌 Explainable Two-Sided Research Matching · Sprint 1 Developer Specification and Docker Guide**
 
 An explainable bidirectional matching system for research talent and research opportunities in Australian universities.
+
+For the one-command Docker backend (Flask + Gunicorn + SQLite in one container with persistent storage), see [section 3: Docker Backend Guide](#3-docker-backend-guide). For frontend and backend containers together, use [the integrated Docker guide](docs/docker-integration.md). Docker workflows do not require installing the host development environment.
 
 ## Contents
 
@@ -10,13 +12,15 @@ An explainable bidirectional matching system for research talent and research op
 
 ## Change Log
 
+- **2026-10-10**: Added the complete English Docker backend guide, including setup, one-command builds and startup, account provisioning, frontend integration, configuration, persistent storage, troubleshooting and the dated Docker verification record.
+- **2026-10-10**: Implemented US-05 team discovery using current consent and confirmed profiles, shared-field matching, deterministic pagination and reduced team evidence. Included the owner privacy endpoints required for the end-to-end flow. See [US-05 implementation and acceptance](docs/us05-implementation.md).
 - **2026-10-08**: Implemented US-02 opportunity management end to end: five Flask endpoints, normalized SQLite tables, team editing/publication, published discovery and explicit conflict comparison in React. See [US-02 implementation and acceptance](docs/us02-implementation.md). Matching remains separate work.
 - **2026-10-07**: Implemented US-01 using Flask, SQLite and SQLAlchemy ORM, integrated with the current React frontend. See [backend setup and verification](backend/README.md) for executable commands and the six implemented routes. Other user stories below remain a development specification.
 - **2026-10-06**: Organised the complete Sprint 1 developer specification using the aims, iteration tasks, data design, interfaces, testing and acceptance structure of `README_1531.md`; covers US-01–US-09 and 24 HTTP operations.
 - **2026-10-06**: Confirmed SQLite + SQLAlchemy ORM; added a proposed physical schema, type mappings and concurrent-write rules.
 - This edition follows the Sprint 1 API contract, replacing the previous registration extension with provisioned-account login. Registration endpoints, fixed session lifetimes and account-name synchronisation rules absent from the contract are no longer listed as Sprint 1 requirements.
 
-> **Document status: Development specification, not an implementation completion report.** The corresponding API version is `0.1.0-draft`. Proposed interface defaults still require team review; the testing and acceptance checklists below describe work to be performed, not tests that have already passed.
+> **Document status:** Sections 0–2 are the Sprint 1 development specification, not an implementation completion report. The corresponding API version is `0.1.0-draft`. Proposed interface defaults still require team review; their testing and acceptance checklists describe work to be performed, not tests that have already passed. Section 3 documents the implemented Docker workflow and its explicitly dated verification results.
 
 ### Current US-01 Implementation
 
@@ -27,6 +31,10 @@ Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, 
 ### Current US-02 Implementation
 
 Research teams can create revision-1 drafts, replace complete content, publish and edit their published opportunities. Both roles can browse published opportunities; only owners can read drafts or modify their own opportunities. `backend/src/features/opportunities/` separates HTTP routes, business rules and persistence, backed by three normalized tables in `backend/src/db/models.py`. `frontend/src/features/opportunities/` supplies the list, editor, requirement controls and details. Stale writes return 409 and the UI preserves local input for explicit comparison. No-op saves and repeated publication preserve revisions. Existing installations run `init-db` again to add the new tables. Tests and maintenance notes are in the [US-02 implementation record](docs/us02-implementation.md).
+
+### Current US-05 Implementation
+
+Teams can discover talent for their own published opportunities and read requirement-level explanations. `backend/src/features/matching/team_repository.py` filters eligible profiles and selects visible fields before the shared matching engine runs; `team_service.py` returns only team-visible evidence. Consent, profile and opportunity changes take effect on the next request. The existing privacy UI now persists settings through owner-only endpoints, with an independent revision and no change to profile confirmation. The discovery UI refreshes on entry, focus or explicit refresh, supports anonymous results and clears stale details. US-03 confirmation and US-04 owner recommendations were already present and are reused. No database migration or API contract change is required. See [the implementation and test record](docs/us05-implementation.md).
 
 ## 🫡 0. Aims — Sprint Goals
 
@@ -480,7 +488,9 @@ These are Sprint 1 functional acceptance criteria; COMP1531 grading weights and 
 
 The repository contains the runnable US-01 Flask backend, React frontend, dependency manifests, setup scripts and automated tests. Follow the [backend setup and verification guide](backend/README.md) and [frontend README](frontend/README.md) for environment installation, database initialisation, account provisioning, startup and test commands. On Windows, run the repository-root `setup.ps1`; on macOS/Linux, install Python 3.12+ and Node.js 22.13+ with npm, then run `sh setup.sh`. Both entry points install project dependencies and verify both suites with required real HTTP integration (`pytest --require-frontend`). The two Windows installer tests may skip on macOS/Linux; the real HTTP test must pass. Do not put real passwords in the README.
 
-Current real-backend verification covers provisioned login, sessions, tags, manual profile saving and US-02 opportunity management. Profile confirmation, privacy endpoints, documents and matching remain unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
+For a Docker backend, use [section 3](#3-docker-backend-guide) instead of the host backend installation steps above. The existing host setup is still needed when developing or running the frontend locally.
+
+Current real-backend verification covers provisioned login, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. Document upload/extraction remains unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
 
 Before the demonstration, complete these steps:
 
@@ -515,3 +525,212 @@ Useful fixtures:
 - [ ] Documentation clearly identifies completed work, known limitations, mocks and manual fallbacks without marking planned features as complete.
 
 The Jira screenshot's 15 October date is the sprint end date. Official demonstration dates, submission channels and course deadlines follow course and team announcements; this document does not infer additional deadlines.
+
+## 3. Docker Backend Guide
+
+The root Compose configuration can now run frontend and backend containers
+together. See [the integrated Docker guide](docs/docker-integration.md) for the
+shared network, startup, verification and data-volume preservation. The
+`docker-backend.sh` / `docker-backend.ps1` launchers below still start only the
+backend. Their `down` action removes the whole Compose project's containers and
+network, including its frontend if running, while preserving the data volume.
+
+The backend uses **Flask + SQLAlchemy + SQLite**, with **Gunicorn** serving the Flask application inside the container. The launcher builds the backend image and starts the container automatically. The backend accesses SQLite directly; PostgreSQL, MySQL and a separate database container are not required.
+
+Sections 0–2 above contain the sprint requirements, data models and interface specification. For native development without Docker, see [backend/README.md](backend/README.md).
+
+### 3.1 Prerequisites
+
+- **Windows / macOS:** Install and start [Docker Desktop](https://docs.docker.com/desktop/). On Windows, use **Linux containers** mode.
+- **Linux:** Install and start Docker Engine, install the Docker Compose plugin, and ensure your user can access Docker.
+- Use a recent Compose version that supports `docker compose up --wait --wait-timeout`.
+- The first build requires internet access to download the Python base image and backend dependencies.
+- The default host port is `8000`. Stop any existing native Flask server using that port, or change the port as described in section 3.5.
+
+To run only the Docker backend, you do not need to run `setup.ps1` / `setup.sh` first or install Python, Node.js or Python dependencies on the host. Frontend development still uses the existing host setup process.
+
+### 3.2 Build and Start with One Command
+
+Run the appropriate command from the repository root.
+
+**Windows PowerShell:**
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\docker-backend.ps1
+```
+
+**macOS / Linux:**
+
+```sh
+sh docker-backend.sh
+```
+
+You can also invoke the script by its absolute path from another directory. The launcher locates the repository relative to its own location and supports paths containing spaces.
+
+The default action is `up`. The launcher performs these steps:
+
+1. Checks Docker, Compose and the Linux container environment.
+2. Builds the `banana-backend:local` image using `backend/Dockerfile`.
+3. Creates or reuses the named SQLite data volume and starts one `backend` container.
+4. Runs `init-db` and `seed-tags` through the Flask CLI during container startup, then serves the Flask application through Gunicorn.
+5. Waits up to 120 seconds for the health check to pass. Image build time is separate from this readiness timeout.
+
+After a successful start, the launcher displays the published address. The default health check URL is:
+
+```text
+http://127.0.0.1:8000/healthz
+```
+
+The normal response is `{"status":"ok"}`. This endpoint checks the service and database connection without creating accounts or sessions; database access failures return HTTP 503. A 404 response from `/` is expected: this image serves the backend API and does not include frontend pages.
+
+If the build, initialisation or health check fails, the launcher returns a nonzero exit status and does not report a successful start. A failed health check can leave the container running or restarting. Use the `logs` action to investigate and `stop` if necessary.
+
+The published port binds only to the host's `127.0.0.1` address. Inside the container, Gunicorn listens on `0.0.0.0:8000` and loads `backend.app:create_app()`, with no development debugger or automatic reload. The default HTTP and port settings are intended for **local development and demonstrations**. Production deployment also requires HTTPS and trusted reverse-proxy configuration.
+
+Flask handles routes, business logic and database access. Gunicorn receives HTTP requests, serves the application and manages worker processes. The Docker build automatically installs a pinned Gunicorn version from `backend/requirements-docker.txt`; no manual installation is needed. Gunicorn runs only inside the Linux container and is not added to the Windows host development dependencies. Native development can continue to use `flask run`. See [Flask's Gunicorn deployment guide](https://flask.palletsprojects.com/en/stable/deploying/gunicorn/).
+
+The initial configuration uses **1 worker and 4 threads** in a single container to keep resource usage modest. SQLite write transactions retain the existing serialised write lock; adding threads does not allow multiple simultaneous SQLite write transactions. Gunicorn sends access and error logs to the container logs. When stopping the container, Compose allows 35 seconds for the default graceful shutdown process to finish.
+
+### 3.3 Create Login Accounts
+
+Initialisation creates missing tables and controlled vocabulary tags. **It does not create default accounts or passwords.** A new data volume starts with a fresh database and does not automatically import accounts from the host's `data/h18abanana.db` file. An existing volume is reused when the container is recreated.
+
+After startup succeeds, run the following commands from the repository root. They are the same in PowerShell and macOS / Linux terminals:
+
+```sh
+docker compose exec backend python -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT
+docker compose exec backend python -m flask --app backend.app provision-user --email team@example.test --display-name "Demo Team" --role RESEARCH_TEAM
+```
+
+Each command prompts for a password twice without displaying the input. Duplicate email addresses are rejected. Accounts remain in the data volume after stopping or recreating the container, so you do not need to provision them again.
+
+### 3.4 Connect the Existing Frontend
+
+The backend image does not include the frontend. For first-time native development, follow the existing setup instructions and run `setup.ps1` on Windows or `sh setup.sh` on macOS / Linux. Then start the frontend in another terminal.
+
+**Windows:**
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\frontend\run.ps1 dev
+```
+
+**macOS / Linux:**
+
+```sh
+sh frontend/run.sh dev
+```
+
+Open `http://127.0.0.1:5173` and sign in using an account created in section 3.3. By default, Vite forwards `/api` to `http://127.0.0.1:8000`, which works with the Docker backend. Keep the same browser hostname throughout a session rather than switching between `localhost` and `127.0.0.1`.
+
+### 3.5 Customise Ports and Environment Variables
+
+No environment file is required for the defaults. To customise the configuration, copy the repository-root `.env.example` to `.env` in the same directory:
+
+```powershell
+# Windows
+Copy-Item .env.example .env
+```
+
+```sh
+# macOS / Linux
+cp .env.example .env
+```
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `BACKEND_PORT` | `8000` | Host port; the container still listens on port 8000 |
+| `COOKIE_SECURE` | `false` | Use false for local HTTP and true for HTTPS deployments |
+| `ALLOWED_ORIGINS` | `http://127.0.0.1:5173,http://localhost:5173` | Comma-separated allowed frontend origins, without trailing slashes |
+
+Run the launcher again after changing the configuration. For example, with `BACKEND_PORT=8001`, the health check URL becomes `http://127.0.0.1:8001/healthz`. Also set `API_PROXY_TARGET=http://127.0.0.1:8001` in `frontend/.env.local` and restart the frontend.
+
+The launcher explicitly reads `.env` from the **repository root** if it exists, otherwise `.env.example`. It does not read an unrelated `.env` from the terminal's current directory. Environment variables already exported in the terminal take precedence. `backend/.env.example` remains a reference for native backend startup and is not loaded automatically by this launcher.
+
+Compose fixes `DATABASE_URL` to `sqlite:////app/data/h18abanana.db` so that the database is stored in the persistent volume. Do not supply a host Windows database path in the container configuration. `ALLOWED_ORIGINS` controls CSRF validation; it does not enable cross-origin CORS. The frontend continues to access the API through Vite's same-origin proxy.
+
+### 3.6 Build, Stop and Inspect Logs
+
+| Action | Windows: arguments to `docker-backend.ps1` | macOS / Linux: arguments to `docker-backend.sh` |
+| --- | --- | --- |
+| Build and start / update | No arguments, or `-Action up` | No arguments, or `up` |
+| Build the image without starting a container | `-Action build` | `build` |
+| Show status | `-Action status` | `status` |
+| Follow recent logs | `-Action logs` | `logs` |
+| Stop the container | `-Action stop` | `stop` |
+| Remove containers and networks while keeping the data volume | `-Action down` | `down` |
+
+For example, to build only the image:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\docker-backend.ps1 -Action build
+```
+
+```sh
+sh docker-backend.sh build
+```
+
+To share the built image with another person, export it:
+
+```sh
+docker image save --output banana-backend.tar banana-backend:local
+```
+
+The recipient can import the image and start it using the Compose configuration from the same project version, without rebuilding:
+
+```sh
+docker image load --input banana-backend.tar
+docker compose up --no-build --detach --wait --wait-timeout 120 backend
+```
+
+The exported image contains backend code and Python dependencies. It does not contain database records, accounts or host environment files. Back up the data separately.
+
+### 3.7 Persistence and Updates
+
+- There is one backend service. SQLite has no separate server process or database container.
+- The default Compose project name is `banana-backend`. Its default data volume is `banana-backend_backend_data`, mounted at `/app/data`. Keep the same project name to reuse the data. Multiple checkouts on the same Docker engine also operate on this same project by default.
+- Running the launcher again reuses the volume. `init-db` creates only missing tables, and loading identical tags again does not overwrite existing data.
+- Changes to existing table structures still require explicit migrations. If existing tags conflict with the seed definitions, startup fails; review the differences instead of trying to fix the conflict by recreating the container.
+- `stop`, the launcher's `down` action and image rebuilds preserve the data. **Do not run `docker compose down -v` or delete the volume unless you intentionally want to erase the database.**
+- The volume survives container replacement, but it is not a backup. Stop the backend before backing up the volume, or use the SQLite backup API. Avoid copying a database file while it is being written.
+- The host's `data/`, virtual environment, frontend dependencies and environment files are excluded from the image. Existing host data is not automatically copied or overwritten.
+- Source code is copied into the image rather than mounted live. After backend code changes, run the launcher again to rebuild the image. Keep a single backend instance by default.
+
+If you customise the project name with `COMPOSE_PROJECT_NAME`, use the same value for startup, account management, logs and shutdown. A new project name creates a separate data volume.
+
+### 3.8 Troubleshooting and Verification
+
+| Symptom | Action |
+| --- | --- |
+| Docker command not found | Install Docker Desktop / Engine, ensure `docker` is on PATH, and reopen the terminal |
+| Docker reports that WSL is not installed | Run `wsl --install --no-distribution` in an administrator PowerShell terminal; after installation, save your work, restart Windows and open Docker Desktop |
+| Cannot connect to Docker | Start Docker Desktop / Engine; on Linux, check the current user's Docker access permissions |
+| Linux containers are required | Switch Docker Desktop to Linux containers mode |
+| Compose does not support `--wait` | Update Docker Desktop or the Compose plugin |
+| Port 8000 is already in use | Stop the existing native backend or change the port as described in section 3.5 |
+| Image or dependency downloads fail | Check Docker networking, proxy settings and registry access, then retry |
+| Health check times out or initialisation fails | Use `logs` to inspect the failure; do not delete the data volume as a default troubleshooting step |
+| Frontend login fails | Confirm that an account has been provisioned, the proxy port matches, the frontend Origin is allowed, and local HTTP uses `COOKIE_SECURE=false` |
+
+The code-level regression tests continue to use isolated temporary SQLite files and do not modify host or container application data. These commands use the host development environment installed by the existing setup scripts:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+```sh
+.venv/bin/python -m pytest -q
+```
+
+`backend/tests/test_docker_backend.py` checks launcher failure handling, path resolution, repeatable initialisation and the health endpoint. Its Docker commands use test doubles, so these tests alone do not prove that a real image can be built. Actual Docker acceptance should include running the launcher, provisioning and signing in to an account, saving a profile, running `down`, and starting again to confirm that the account and profile persist.
+
+#### Docker Verification Record: 2026-10-10
+
+The following checks were completed on Windows with Docker Desktop running Linux containers:
+
+- The launcher built `banana-backend:local` successfully. Gunicorn started, the container became `healthy`, and a host request to `/healthz` returned `{"status":"ok"}`.
+- An account was provisioned in a separate temporary Compose project. Real HTTP requests verified login, profile saving and HTTP 409 for stale writes.
+- After removing the temporary project's container and network while retaining its data volume, startup restored the original account, session and saved profile. Signing out and signing in again also succeeded.
+- Cleanup removed only that temporary project and its test volume. No test accounts were written into the default project's data volume.
+- The Windows launcher was corrected to select one command when both `docker.exe` and `docker` are found. All 9 related PowerShell launcher regression tests passed.
+
+This verification covered the backend image and SQLite persistence. It did not include a containerised frontend or a production HTTPS deployment.

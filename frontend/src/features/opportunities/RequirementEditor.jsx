@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Field } from '../../shared/ui.jsx';
 import { limits, newRequirement } from './fields.js';
 
-export default function RequirementEditor({ value, onChange, tags }) {
+export default function RequirementEditor({ value, onChange, tags, numberedLabels = true }) {
   function update(id, patch) {
     onChange(value.map((row) => (row.id === id ? { ...row, ...patch } : row)));
   }
@@ -15,7 +15,7 @@ export default function RequirementEditor({ value, onChange, tags }) {
       {value.map((row, index) => (
         <fieldset className="requirement-card" key={row.id}>
           <legend>Requirement {index + 1}</legend>
-          <Field label={`Requirement ${index + 1} label`}>
+          <Field label={numberedLabels ? `Requirement ${index + 1} label` : 'Requirement label *'}>
             <input
               required
               maxLength={limits.requirementLabel}
@@ -24,7 +24,7 @@ export default function RequirementEditor({ value, onChange, tags }) {
             />
           </Field>
           <div className="opportunity-fields">
-            <Field label={`Requirement ${index + 1} kind`}>
+            <Field label={numberedLabels ? `Requirement ${index + 1} kind` : 'Kind'}>
               <select
                 value={row.kind}
                 onChange={(e) => update(row.id, { kind: e.target.value, tagIds: [] })}
@@ -33,7 +33,7 @@ export default function RequirementEditor({ value, onChange, tags }) {
                 <option value="INTEREST">Research interest</option>
               </select>
             </Field>
-            <Field label={`Requirement ${index + 1} importance`}>
+            <Field label={numberedLabels ? `Requirement ${index + 1} importance` : 'Importance'}>
               <select
                 value={row.importance}
                 onChange={(e) => update(row.id, { importance: e.target.value })}
@@ -73,6 +73,7 @@ export default function RequirementEditor({ value, onChange, tags }) {
           <div className="actions">
             <Button
               variant="text"
+              aria-label={`Remove requirement ${index + 1}`}
               onClick={() => onChange(value.filter((item) => item.id !== row.id))}
             >
               Remove requirement {index + 1}

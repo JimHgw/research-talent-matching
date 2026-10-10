@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
-import { useResource } from '../../shared/hooks.js';
+import { useResource, usePageGuard } from '../../shared/hooks.js';
+import { useMutation } from '../../shared/useMutation.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import OpportunityEditor from './TeamOpportunityEditor.jsx';
 
-export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
+export default function TeamOpportunities({ tags, notify, navigate, onDirty, onPending }) {
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState(null);
-  const [error, setError] = useState(null);
-  const [busy, setBusy] = useState(null);
+  const { error, clearError, busy, run, isPending } = useMutation();
   const resource = useResource(() => api.opportunities('mine', page), [page], true);
-  async function publish(opportunity) {
-    setBusy(opportunity.id);
-    setError(null);
-    try {
-      await api.publish(opportunity.id, opportunity.revision);
-      resource.refresh();
-      notify('Opportunity published. Talent can now discover it.');
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(null);
-    }
+  usePageGuard(false, busy, onDirty, onPending);
+  function publish(opportunity) {
+    if (isPending()) return;
+    clearError();
+    run(
+      () => api.publish(opportunity.id, opportunity.revision),
+      () => {
+        resource.refresh();
+        notify('Opportunity published. Talent can now discover it.');
+      }
+    );
   }
   return (
     <>
@@ -31,7 +30,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
           <h2>Your research opportunities</h2>
           <p>Manage drafts and publish the work you want to move forward.</p>
         </div>
-        <Button onClick={() => setEditor({})}>
+        <Button disabled={busy} onClick={() => setEditor({})}>
           <Icon name="plus" size={16} />
           New opportunity
         </Button>
@@ -76,12 +75,16 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
                   )}
                 </small>
                 <div className="actions compact">
-                  <Button variant="secondary" onClick={() => setEditor(opportunity)}>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => setEditor(opportunity)}
+                  >
                     Edit
                   </Button>
                   {opportunity.status === 'DRAFT' ? (
                     <Button
-                      disabled={busy === opportunity.id || !opportunity.content.requirements.length}
+                      disabled={busy || !opportunity.content.requirements.length}
                       title={
                         !opportunity.content.requirements.length
                           ? 'Add at least one requirement before publishing'
@@ -89,7 +92,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
                       }
                       onClick={() => publish(opportunity)}
                     >
-                      {busy === opportunity.id ? 'Publishing…' : 'Publish'}
+                      {busy ? 'Publishing…' : 'Publish'}
                     </Button>
                   ) : (
                     <Button
@@ -109,6 +112,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty }) {
       {editor && (
         <OpportunityEditor
           onDirty={onDirty}
+          onPending={onPending}
           opportunity={editor.id ? editor : null}
           tags={tags}
           onClose={() => setEditor(null)}

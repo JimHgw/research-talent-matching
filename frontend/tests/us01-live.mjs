@@ -30,6 +30,8 @@ try {
   await change('Institution *', 'UNSW');
   await change('Qualification *', 'Master of IT');
   await change('Start year', '2025');
+  await click('Add education');
+  await click('Remove Education record 2');
   await click('Add courses');
   await change('Course name *', 'Research methods');
   const courseCode = 'COMP'.repeat(50);
@@ -39,7 +41,8 @@ try {
   await change('Project / role title *', 'Synthetic research project');
   await click('Add research outputs');
   await change('Output title *', 'Sample output');
-  await change('Link (optional)', 'https://example.test/research');
+  const outputUrl = `https://example.test/research/${'x'.repeat(220)}`;
+  await change('Link (optional)', outputUrl);
   await click('Add skill');
   await change('Skill', 'skill_python');
   await change('Supporting evidence', 'Built the test project.');
@@ -55,6 +58,24 @@ try {
   assert.equal(saved.revision, 1);
   assert.equal(saved.content.displayName, 'Live integration talent');
   assert.equal(saved.content.courses[0].code, courseCode);
+  assert.equal(saved.content.education[0].startYear, 2025);
+  assert.equal(saved.content.education[0].endYear, null);
+  assert.equal(saved.content.researchOutputs[0].url, outputUrl);
+  assert.equal(saved.content.researchOutputs[0].type, 'PROJECT');
+  assert.equal(saved.content.skills[0].claim, 'HAS');
+  assert.deepEqual(saved.content.researchInterests, ['interest_ml']);
+  assert.deepEqual(Object.keys(saved.content).sort(), [
+    'courses',
+    'disciplineGroup',
+    'displayName',
+    'education',
+    'researchExperience',
+    'researchInterests',
+    'researchOutputs',
+    'skills',
+  ]);
+  for (const section of ['education', 'courses', 'researchExperience', 'researchOutputs'])
+    assert.match(saved.content[section][0].id, /^record_/);
   for (const section of [
     'education',
     'courses',
@@ -71,6 +92,7 @@ try {
   assert.equal(field('Display name').value, 'Live integration talent');
   assert.equal(field('Institution *').value, 'UNSW');
   assert.equal(field('Course code').value, courseCode);
+  assert.equal(field('Link (optional)').value, outputUrl);
 
   await api.saveProfile(1, { ...saved.content, displayName: 'Saved by another tab' });
   await change('Display name', 'Keep my draft');
