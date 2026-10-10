@@ -30,11 +30,15 @@ api_validation:
 
       files = list(Path("docs/api/examples").rglob("*.json"))
 
-      print(f"Checking {len(files)} JSON files...")
+      print(f"Checking {len(files)} JSON example files...")
+
+      if not files:
+          raise SystemExit("No JSON example files found.")
 
       for file in files:
           with file.open(encoding="utf-8") as f:
               json.load(f)
+
           print(f"OK: {file}")
 
       print("All API JSON files are valid.")
