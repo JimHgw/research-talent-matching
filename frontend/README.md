@@ -94,6 +94,14 @@ page shows only published opportunities owned by the team, backend ranks and
 permitted profile fields/evidence. It refreshes on entry, window focus or
 **Refresh talent**. Document endpoints remain unimplemented.
 
+## Frontend in Docker
+
+Use [the frontend Docker guide](docker/README.md) to build and serve the frontend
+with Nginx while keeping the Python backend on your host. The container forwards
+`/api/v1` requests to that existing service. This option does not start a backend,
+create accounts or seed a database. Local development and tests remain available
+through the commands below.
+
 ## Automated checks
 
 From `frontend/`, use these commands on macOS, Linux or Windows:
