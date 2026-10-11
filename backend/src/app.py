@@ -49,6 +49,7 @@ def create_app(config=None):
         SMTP_FROM=os.getenv("SMTP_FROM", ""), SMTP_SECURITY=os.getenv("SMTP_SECURITY", "starttls"),
         SMTP_USERNAME=os.getenv("SMTP_USERNAME", ""), SMTP_PASSWORD=os.getenv("SMTP_PASSWORD", ""),
         SMTP_TIMEOUT=os.getenv("SMTP_TIMEOUT", "10"),
+        DOCUMENT_STORAGE_DIR=os.getenv("DOCUMENT_STORAGE_DIR", str(ROOT / "data" / "documents"),),
     )
     app.config.update(config or {})
     origins = {origin.strip() for origin in app.config["ALLOWED_ORIGINS"]}
