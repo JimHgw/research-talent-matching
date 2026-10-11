@@ -51,12 +51,17 @@ def documents_get():
             select(func.count()).select_from(query.subquery())
         )
 
-        rows = db.scalars(
-            query
-            .order_by(Document.created_at.desc(), Document.id.asc())
-            .offset((page - 1) * page_size)
-            .limit(page_size)
-        ).all()
+        offset = (page - 1) * page_size
+
+        if offset >= total:
+            rows = []
+        else:
+            rows = db.scalars(
+                query
+                .order_by(Document.created_at.desc(), Document.id.asc())
+                .offset(offset)
+                .limit(page_size)
+            ).all()
 
         result = {
             "items": [serialize_document(document) for document in rows],
