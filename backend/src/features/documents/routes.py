@@ -5,14 +5,15 @@ from sqlalchemy import func, select
 from uuid import uuid4
 
 from ...db.database import database
-from ...db.models import Document, DocumentExtraction, TalentProfile
+from ...db.models import Document, DocumentExtraction, TalentProfile, utcnow
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
-from ...shared.validation import ApiError, invalid, validator
+from ...shared.validation import ApiError, body, invalid, validator
 
-from ..profile.routes import own_profile
+from ..profile.routes import own_profile, serialize_profile
 from .storage import save_upload, stored_file_path
 from .uploads import read_upload, validate_file
+from .review import check_reviewed_sections, save_reviewed_sections
 
 documents = Blueprint("documents", __name__, url_prefix="/api/v1")
 
@@ -201,5 +202,55 @@ def document_extraction_get(document_id):
             )
 
         result = extraction.result
+
+    return jsonify(result)
+
+@documents.post("/me/documents/<document_id>/apply")
+def document_apply_post(document_id):
+    with database().transaction(write=True) as db:
+        session, user = require_user(db, "TALENT")
+        require_csrf(session)
+
+        document = own_document(db, user, document_id)
+        data = body("ApplyExtractionRequest")
+        if document.status in ("QUEUED", "PROCESSING"):
+            raise ApiError(
+                409,
+                "EXTRACTION_NOT_READY",
+                "The document is still being processed.",
+            )
+
+        if document.status == "FAILED":
+            raise ApiError(
+                422,
+                "EXTRACTION_FAILED",
+                "The document could not be processed.",
+            )
+
+        profile = own_profile(db, user)
+
+        if data["expectedProfileRevision"] != profile.revision:
+            raise ApiError(
+                409,
+                "REVISION_CONFLICT",
+                "Your profile changed. Reload the latest version.",
+                revision=profile.revision,
+            )
+
+        sections = data["sections"]
+        check_reviewed_sections(db, sections)
+
+        profile.revision += 1
+        profile.confirmation_status = "UNCONFIRMED"
+        profile.confirmed_revision = None
+        profile.confirmed_at = None
+        profile.updated_at = utcnow()
+
+        save_reviewed_sections(
+            db, profile, sections, document.id
+        )
+
+        db.flush()
+        result = serialize_profile(db, profile)
 
     return jsonify(result)

@@ -826,3 +826,138 @@ def test_extraction_rejects_unavailable_results(
     response = client.get("/api/v1/me/profile")
     assert response.status_code == 200, response.get_json()
     assert response.get_json() == before
+
+@pytest.fixture
+def ready_document(app, signed, tmp_path):
+    client, csrf = signed
+
+    app.config["DOCUMENT_STORAGE_DIR"] = str(
+        tmp_path / "documents"
+    )
+
+    buffer = BytesIO()
+    document = DocxDocument()
+    document.add_paragraph("Skills: Python, SQL")
+    document.add_paragraph(
+        "Research interests: Machine learning"
+    )
+    document.save(buffer)
+
+    response = client.post(
+        "/api/v1/me/documents",
+        data={
+            "kind": "CV",
+            "file": (BytesIO(buffer.getvalue()), "review-test.docx"),
+        },
+        content_type="multipart/form-data",
+        headers=headers(csrf),
+    )
+    assert response.status_code == 202, response.get_json()
+    document_id = response.get_json()["id"]
+
+    command = app.test_cli_runner().invoke(
+        args=["process-documents", "--once"]
+    )
+    assert command.exit_code == 0, command.output
+
+    response = client.get(
+        f"/api/v1/me/documents/{document_id}"
+    )
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json()["status"] == "READY"
+
+    return document_id
+
+def test_apply_replaces_skills_and_resets_confirmation(
+    signed, ready_document
+):
+    client, csrf = signed
+    response = client.get(
+        "/api/v1/me/profile"
+    )
+    assert response.status_code == 200, response.get_json()
+
+    current = response.get_json()
+    content = current["content"]
+    content["displayName"] = "Test Talent"
+    content["skills"] = [
+        {
+            "tagId": "skill_python",
+            "claim": "HAS",
+            "evidenceText": "Original Python evidence.",
+        }
+    ]
+    content["researchInterests"] = ["interest_ml"]
+
+    response = client.put(
+        "/api/v1/me/profile",
+        json={
+            "expectedRevision": current["revision"],
+            "content": content,
+        },
+        headers=headers(csrf),
+    )
+    assert response.status_code == 200, response.get_json()
+    saved = response.get_json()
+
+    response = client.post(
+        "/api/v1/me/profile/confirmation",
+        json={"expectedRevision": saved["revision"]},
+        headers=headers(csrf),
+    )
+    assert response.status_code == 200, response.get_json()
+    before = response.get_json()
+    assert before["confirmation"]["status"] == "CONFIRMED"
+
+    reviewed_skills = [
+        {
+            "tagId": "skill_sql",
+            "claim": "HAS",
+            "evidenceText": "User-reviewed SQL evidence.",
+        }
+    ]
+
+    response = client.post(
+        f"/api/v1/me/documents/{ready_document}/apply",
+        json={
+            "expectedProfileRevision": before["revision"],
+            "sections": {"skills": reviewed_skills},
+        },
+        headers=headers(csrf),
+    )
+    assert response.status_code == 200, response.get_json()
+    result = response.get_json()
+    validator("Profile").validate(result)
+
+    assert result["revision"] == before["revision"] + 1
+    assert result["content"]["skills"] == reviewed_skills
+    assert result["confirmation"] == {
+        "status": "UNCONFIRMED",
+        "confirmedRevision": None,
+        "confirmedAt": None,
+    }
+
+    # Omitted fields must keep their existing values.
+    for field in before["content"]:
+        if field != "skills":
+            assert result["content"][field] == before["content"][field]
+    origins = {
+        item["field"]: item
+        for item in result["origins"]
+    }
+    assert origins["skills"] == {
+        "field": "skills",
+        "sourceType": "USER_REVIEWED_DOCUMENT",
+        "documentId": ready_document,
+    }
+    assert origins["researchInterests"] == {
+        "field": "researchInterests",
+        "sourceType": "MANUAL",
+        "documentId": None,
+    }
+
+    # Confirm that the changes were persisted.
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json() == result
+
