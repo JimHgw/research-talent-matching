@@ -510,6 +510,7 @@ def test_document_status_returns_current_state(
     assert response.status_code == 200, response.get_json()
     assert response.get_json() == before
 
+@pytest.mark.parametrize("suffix", ["", "/extraction"])
 @pytest.mark.parametrize(
     "email, status, code",
     [
@@ -518,8 +519,8 @@ def test_document_status_returns_current_state(
         ("other@example.test", 404, "NOT_FOUND"),
     ],
 )
-def test_document_status_rejects_unauthorized_access(
-    app, signed, email, status, code
+def test_document_read_endpoints_reject_unauthorized_access(
+    app, signed, email, status, code, suffix
 ):
     owner_client, _ = signed
 
@@ -548,7 +549,9 @@ def test_document_status_rejects_unauthorized_access(
     if email is not None:
         sign_in(requester, email)
 
-    response = requester.get("/api/v1/me/documents/doc_private")
+    response = requester.get(
+        f"/api/v1/me/documents/doc_private{suffix}"
+    )
 
     assert response.status_code == status, response.get_json()
 
@@ -561,7 +564,9 @@ def test_document_status_rejects_unauthorized_access(
     assert response.status_code == 200, response.get_json()
     assert response.get_json()["status"] == "QUEUED"
 
-@pytest.mark.parametrize("suffix", ["", "/file"])
+@pytest.mark.parametrize(
+    "suffix", ["", "/file", "/extraction"]
+)
 @pytest.mark.parametrize(
     "document_id, status, code",
     [
@@ -689,3 +694,135 @@ def test_document_download_returns_404_when_file_is_missing(
         data = response.get_json()
         validator("Error").validate(data)
         assert data["error"]["code"] == "NOT_FOUND"
+
+def test_extraction_is_ready_after_worker_processes_docx(
+    app, signed, tmp_path
+):
+    client, csrf = signed
+    app.config["DOCUMENT_STORAGE_DIR"] = str(
+        tmp_path / "documents"
+    )
+
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    before = response.get_json()
+
+    # Create a Word document containing supported text.
+    buffer = BytesIO()
+    document = DocxDocument()
+    document.add_paragraph("Skills: Python, SQL")
+    document.add_paragraph(
+        "Research interests: Machine learning"
+    )
+    document.save(buffer)
+
+    response = client.post(
+        "/api/v1/me/documents",
+        data={
+            "kind": "CV",
+            "file": (BytesIO(buffer.getvalue()), "test-cv.docx"),
+        },
+        content_type="multipart/form-data",
+        headers=headers(csrf),
+    )
+    assert response.status_code == 202, response.get_json()
+    document_id = response.get_json()["id"]
+    url = f"/api/v1/me/documents/{document_id}/extraction"
+
+    # The queued document has no extraction result yet.
+    response = client.get(url)
+    assert response.status_code == 409, response.get_json()
+    error = response.get_json()
+    validator("Error").validate(error)
+    assert error["error"]["code"] == "EXTRACTION_NOT_READY"
+
+    # Run the real worker command against the test database.
+    command = app.test_cli_runner().invoke(
+        args=["process-documents", "--once"]
+    )
+    assert command.exit_code == 0, command.output
+
+    # The extraction result should now be available.
+    response = client.get(url)
+    assert response.status_code == 200, response.get_json()
+    result = response.get_json()
+    validator("Extraction").validate(result)
+
+    assert result["documentId"] == document_id
+    assert result["status"] == "READY"
+    assert result["reviewRequired"] is True
+
+    skills = result["suggestedSections"]["skills"]
+    assert {skill["tagId"] for skill in skills} == {
+        "skill_python",
+        "skill_sql",
+    }
+    assert all(skill["claim"] == "HAS" for skill in skills)
+    assert all(
+        skill["evidenceText"] == "Skills: Python, SQL"
+        for skill in skills
+    )
+
+    assert result["suggestedSections"]["researchInterests"] == [
+        "interest_ml"
+    ]
+
+    # Extraction must not modify the profile.
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json() == before
+
+@pytest.mark.parametrize(
+    "document_status, http_status, code",
+    [
+        ("QUEUED", 409, "EXTRACTION_NOT_READY"),
+        ("PROCESSING", 409, "EXTRACTION_NOT_READY"),
+        ("FAILED", 422, "EXTRACTION_FAILED"),
+    ],
+)
+def test_extraction_rejects_unavailable_results(
+    app, signed, document_status, http_status, code
+):
+    client, _ = signed
+
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    before = response.get_json()
+
+    error = None
+
+    if document_status == "FAILED":
+        error = {
+            "code": "EXTRACTION_FAILED",
+            "message": "The document could not be processed.",
+            "fieldErrors": [],
+        }
+
+    with app.extensions["database"].transaction(write=True) as db:
+        db.add(
+            Document(
+                id="doc_extraction_state",
+                talent_id=before["talentId"],
+                kind="CV",
+                file_name="state-test.pdf",
+                media_type="application/pdf",
+                storage_key="state-test-key",
+                size_bytes=128,
+                status=document_status,
+                error=error,
+            )
+        )
+
+    response = client.get(
+        "/api/v1/me/documents/doc_extraction_state/extraction"
+    )
+    assert response.status_code == http_status, response.get_json()
+
+    data = response.get_json()
+    validator("Error").validate(data)
+    assert data["error"]["code"] == code
+
+    # A rejected request must leave the profile unchanged.
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json() == before

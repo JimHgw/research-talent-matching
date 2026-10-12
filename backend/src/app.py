@@ -28,6 +28,10 @@ from .shared.validation import ApiError
 from .features.matching.routes import matching
 from .features.privacy.routes import privacy
 from .features.documents.routes import documents
+from .features.documents.worker import process_next_document
+
+from time import sleep
+
 
 
 def create_app(config=None):
@@ -163,5 +167,30 @@ def create_app(config=None):
             db.execute(delete(PasswordResetAttempt).where(
                 PasswordResetAttempt.attempted_at < now - timedelta(seconds=app.config["RESET_WINDOW"])))
         click.echo("Expired session data pruned.")
+
+    @app.cli.command("process-documents")
+    @click.option(
+        "--once",
+        is_flag=True,
+        help="Attempt one queued document and exit.",
+    )
+    def process_documents(once):
+        if once:
+            processed = process_next_document()
+
+            if processed:
+                click.echo("Document processing attempt finished.")
+            else:
+                click.echo("No queued document.")
+
+            return
+
+        click.echo("Document worker started. Press Ctrl+C to stop.")
+
+        while True:
+            processed = process_next_document()
+
+            if not processed:
+                sleep(1)
 
     return app

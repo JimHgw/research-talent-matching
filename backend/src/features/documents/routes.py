@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from uuid import uuid4
 
 from ...db.database import database
-from ...db.models import Document, TalentProfile
+from ...db.models import Document, DocumentExtraction, TalentProfile
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
 from ...shared.validation import ApiError, invalid, validator
@@ -170,3 +170,36 @@ def document_file_get(document_id):
         conditional=False,
         etag=False,
     )
+
+@documents.get("/me/documents/<document_id>/extraction")
+def document_extraction_get(document_id):
+    with database().transaction() as db:
+        _, user = require_user(db, "TALENT")
+        document = own_document(db, user, document_id)
+
+        if document.status in ("QUEUED", "PROCESSING"):
+            raise ApiError(
+                409,
+                "EXTRACTION_NOT_READY",
+                "The document is still being processed.",
+            )
+
+        if document.status == "FAILED":
+            raise ApiError(
+                422,
+                "EXTRACTION_FAILED",
+                "The document could not be processed.",
+            )
+
+        extraction = db.get(DocumentExtraction, document_id)
+
+        if extraction is None:
+            raise ApiError(
+                500,
+                "INTERNAL_ERROR",
+                "The extraction result is unavailable.",
+            )
+
+        result = extraction.result
+
+    return jsonify(result)
