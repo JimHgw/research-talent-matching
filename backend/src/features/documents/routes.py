@@ -1,6 +1,6 @@
 """US-09: owner-only document endpoints."""
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, send_file
 from sqlalchemy import func, select
 from uuid import uuid4
 
@@ -8,9 +8,10 @@ from ...db.database import database
 from ...db.models import Document, TalentProfile
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
+from ...shared.validation import ApiError, invalid, validator
 
 from ..profile.routes import own_profile
-from .storage import save_upload
+from .storage import save_upload, stored_file_path
 from .uploads import read_upload, validate_file
 
 documents = Blueprint("documents", __name__, url_prefix="/api/v1")
@@ -31,6 +32,33 @@ def serialize_document(document):
         ) + "Z",
         "error": document.error
     }
+
+def own_document(db, user, document_id):
+    # Validate the document ID against the API contract.
+    if not validator("Id").is_valid(document_id):
+        invalid(
+            "documentId",
+            "Use an ID of 1–64 letters, digits, underscores or hyphens.",
+        )
+
+    document = db.scalar(
+        select(Document)
+        .join(TalentProfile)
+        .where(
+            Document.id == document_id,
+            TalentProfile.user_id == user.id,
+        )
+    )
+
+    if document is None:
+        raise ApiError(
+            404,
+            "NOT_FOUND",
+            "Document not found.",
+        )
+
+    return document
+
 
 @documents.get("/me/documents")
 def documents_get():
@@ -113,3 +141,32 @@ def documents_post():
 
     return jsonify(result), 202
 
+@documents.get("/me/documents/<document_id>")
+def document_get(document_id):
+    with database().transaction() as db:
+        _, user = require_user(db, "TALENT")
+
+        document = own_document(db, user, document_id)
+        result = serialize_document(document)
+
+    return jsonify(result)
+
+@documents.get("/me/documents/<document_id>/file")
+def document_file_get(document_id):
+    with database().transaction() as db:
+        _, user = require_user(db, "TALENT")
+
+        document = own_document(db, user, document_id)
+
+        path = stored_file_path(document.storage_key)
+        media_type = document.media_type
+        file_name = document.file_name
+
+    return send_file(
+        path,
+        mimetype=media_type,
+        as_attachment=True,
+        download_name=file_name,
+        conditional=False,
+        etag=False,
+    )

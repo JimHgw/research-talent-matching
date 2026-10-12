@@ -237,6 +237,25 @@ def test_upload_pdf_saves_file_without_changing_profile(
     assert response.status_code == 200, response.get_json()
     assert response.get_json() == before
 
+    # Download the original PDF through the API.
+    document_id = data["id"]
+
+    with client.get(
+        f"/api/v1/me/documents/{document_id}/file"
+    ) as download:
+        assert download.status_code == 200, download.get_json()
+
+        # The downloaded bytes must match the uploaded file.
+        assert download.data == content
+        assert download.mimetype == "application/pdf"
+
+        disposition = download.headers["Content-Disposition"]
+        assert disposition.startswith("attachment;")
+        assert "test-cv.pdf" in disposition
+
+        assert download.headers["Cache-Control"] == "no-store"
+        assert download.headers["X-Content-Type-Options"] == "nosniff"
+
 def test_upload_docx_saves_file_without_changing_profile(
     app, signed, tmp_path
 ):
@@ -289,6 +308,27 @@ def test_upload_docx_saves_file_without_changing_profile(
 
         saved_path = storage_dir / document.storage_key
         assert saved_path.read_bytes() == content
+
+    # Download the original Word document through the API.
+    document_id = data["id"]
+
+    with client.get(
+        f"/api/v1/me/documents/{document_id}/file"
+    ) as download:
+        assert download.status_code == 200, download.get_json()
+
+        assert download.data == content
+        assert download.mimetype == (
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        )
+
+        disposition = download.headers["Content-Disposition"]
+        assert disposition.startswith("attachment;")
+        assert "test-transcript.docx" in disposition
+
+        assert download.headers["Cache-Control"] == "no-store"
+        assert download.headers["X-Content-Type-Options"] == "nosniff"
 
     response = client.get("/api/v1/me/profile")
     assert response.status_code == 200, response.get_json()
@@ -413,3 +453,239 @@ def test_upload_rejects_invalid_content(
     response = client.get("/api/v1/me/profile")
     assert response.status_code == 200, response.get_json()
     assert response.get_json() == before
+
+@pytest.mark.parametrize(
+    "document_status",
+    ["QUEUED", "PROCESSING", "READY", "FAILED"],
+)
+def test_document_status_returns_current_state(
+    app, signed, document_status
+):
+    client, _ = signed
+
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    before = response.get_json()
+
+    # Only a failed document has error information.
+    error = None
+
+    if document_status == "FAILED":
+        error = {
+            "code": "EXTRACTION_FAILED",
+            "message": "The document could not be processed.",
+            "fieldErrors": [],
+        }
+
+    # Prepare a document in the state being tested.
+    with app.extensions["database"].transaction(write=True) as db:
+        db.add(
+            Document(
+                id="doc_status",
+                talent_id=before["talentId"],
+                kind="CV",
+                file_name="status-test.pdf",
+                media_type="application/pdf",
+                storage_key="test/status-test.pdf",
+                size_bytes=128,
+                status=document_status,
+                error=error,
+            )
+        )
+
+    response = client.get("/api/v1/me/documents/doc_status")
+
+    assert response.status_code == 200, response.get_json()
+
+    data = response.get_json()
+    validator("Document").validate(data)
+
+    assert data["id"] == "doc_status"
+    assert data["fileName"] == "status-test.pdf"
+    assert data["status"] == document_status
+    assert data["error"] == error
+
+    # Reading document status must not change the profile.
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json() == before
+
+@pytest.mark.parametrize(
+    "email, status, code",
+    [
+        (None, 401, "UNAUTHENTICATED"),
+        ("team@example.test", 403, "FORBIDDEN"),
+        ("other@example.test", 404, "NOT_FOUND"),
+    ],
+)
+def test_document_status_rejects_unauthorized_access(
+    app, signed, email, status, code
+):
+    owner_client, _ = signed
+
+    response = owner_client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    profile = response.get_json()
+
+    # Prepare a document owned by the first talent.
+    with app.extensions["database"].transaction(write=True) as db:
+        db.add(
+            Document(
+                id="doc_private",
+                talent_id=profile["talentId"],
+                kind="CV",
+                file_name="private-cv.pdf",
+                media_type="application/pdf",
+                storage_key="test/private-cv.pdf",
+                size_bytes=128,
+                status="QUEUED",
+            )
+        )
+
+    # Use a separate client for the person requesting access.
+    requester = app.test_client()
+
+    if email is not None:
+        sign_in(requester, email)
+
+    response = requester.get("/api/v1/me/documents/doc_private")
+
+    assert response.status_code == status, response.get_json()
+
+    data = response.get_json()
+    validator("Error").validate(data)
+    assert data["error"]["code"] == code
+
+    # The owner should still be able to read the document.
+    response = owner_client.get("/api/v1/me/documents/doc_private")
+    assert response.status_code == 200, response.get_json()
+    assert response.get_json()["status"] == "QUEUED"
+
+@pytest.mark.parametrize("suffix", ["", "/file"])
+@pytest.mark.parametrize(
+    "document_id, status, code",
+    [
+        ("doc_missing", 404, "NOT_FOUND"),
+        ("bad.id", 422, "VALIDATION_ERROR"),
+        ("x" * 65, 422, "VALIDATION_ERROR"),
+    ],
+)
+def test_document_endpoints_reject_missing_or_invalid_id(
+    signed, document_id, status, code, suffix
+):
+    client, _ = signed
+
+    response = client.get(
+        f"/api/v1/me/documents/{document_id}{suffix}"
+    )
+
+    assert response.status_code == status, response.get_json()
+
+    data = response.get_json()
+    validator("Error").validate(data)
+    assert data["error"]["code"] == code
+
+    if status == 422:
+        assert data["error"]["fieldErrors"][0]["field"] == "documentId"
+
+
+@pytest.mark.parametrize(
+    "email, status, code",
+    [
+        (None, 401, "UNAUTHENTICATED"),
+        ("team@example.test", 403, "FORBIDDEN"),
+        ("other@example.test", 404, "NOT_FOUND"),
+    ],
+)
+def test_document_download_rejects_unauthorized_access(
+    app, signed, tmp_path, email, status, code
+):
+    owner_client, csrf = signed
+    app.config["DOCUMENT_STORAGE_DIR"] = str(
+        tmp_path / "documents"
+    )
+
+    # Prepare a real PDF.
+    buffer = BytesIO()
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    writer.write(buffer)
+    content = buffer.getvalue()
+
+    # Upload as the document owner.
+    response = owner_client.post(
+        "/api/v1/me/documents",
+        data={
+            "kind": "CV",
+            "file": (BytesIO(content), "private-cv.pdf"),
+        },
+        content_type="multipart/form-data",
+        headers=headers(csrf),
+    )
+    assert response.status_code == 202, response.get_json()
+    document_id = response.get_json()["id"]
+
+    # A separate client has its own login session.
+    requester = app.test_client()
+
+    if email is not None:
+        sign_in(requester, email)
+
+    with requester.get(
+        f"/api/v1/me/documents/{document_id}/file"
+    ) as response:
+        assert response.status_code == status, response.get_json()
+
+        data = response.get_json()
+        validator("Error").validate(data)
+        assert data["error"]["code"] == code
+
+    # The owner can still download the original file.
+    with owner_client.get(
+        f"/api/v1/me/documents/{document_id}/file"
+    ) as response:
+        assert response.status_code == 200, response.get_json()
+        assert response.data == content
+
+def test_document_download_returns_404_when_file_is_missing(
+    app, signed, tmp_path
+):
+    client, _ = signed
+    app.config["DOCUMENT_STORAGE_DIR"] = str(
+        tmp_path / "documents"
+    )
+
+    response = client.get("/api/v1/me/profile")
+    assert response.status_code == 200, response.get_json()
+    profile = response.get_json()
+
+    # Create metadata without creating the actual file.
+    with app.extensions["database"].transaction(write=True) as db:
+        db.add(
+            Document(
+                id="doc_missing_file",
+                talent_id=profile["talentId"],
+                kind="CV",
+                file_name="missing-cv.pdf",
+                media_type="application/pdf",
+                storage_key="missing-file-key",
+                size_bytes=128,
+                status="QUEUED",
+            )
+        )
+
+    # The document record exists.
+    response = client.get(
+        "/api/v1/me/documents/doc_missing_file"
+    )
+    assert response.status_code == 200, response.get_json()
+
+    # The original file does not exist.
+    with client.get(
+        "/api/v1/me/documents/doc_missing_file/file"
+    ) as response:
+        assert response.status_code == 404, response.get_json()
+
+        data = response.get_json()
+        validator("Error").validate(data)
+        assert data["error"]["code"] == "NOT_FOUND"

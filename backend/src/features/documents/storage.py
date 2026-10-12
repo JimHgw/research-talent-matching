@@ -6,6 +6,7 @@ from uuid import uuid4
 from flask import current_app
 
 from ...shared.paths import ROOT
+from ...shared.validation import ApiError
 
 def storage_directory():
     directory = Path(current_app.config["DOCUMENT_STORAGE_DIR"])
@@ -34,3 +35,17 @@ def save_upload(content):
         raise
 
     return storage_key, path
+
+def stored_file_path(storage_key):
+    directory = storage_directory()
+    path = (directory / storage_key).resolve()
+
+    # The file must be directly inside the configured storage directory.
+    if path.parent != directory or not path.is_file():
+        raise ApiError(
+            404,
+            "NOT_FOUND",
+            "Document file not found.",
+        )
+
+    return path
