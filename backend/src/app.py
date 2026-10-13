@@ -29,6 +29,7 @@ from .features.matching.routes import matching
 from .features.privacy.routes import privacy
 from .features.documents.routes import documents
 from .features.documents.worker import process_next_document
+from .features.collections import collections
 
 from time import sleep
 
@@ -85,6 +86,7 @@ def create_app(config=None):
     app.register_blueprint(matching)
     app.register_blueprint(privacy)
     app.register_blueprint(documents)
+    app.register_blueprint(collections)
 
     @app.get("/healthz")
     def health():
