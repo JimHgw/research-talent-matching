@@ -1,5 +1,8 @@
 # Frontend and backend in Docker
 
+To let people on other networks access this computer through a temporary HTTPS
+URL, use `share.ps1` and [the public sharing guide](public-sharing.md).
+
 The root `compose.yaml` runs three containers in the existing
 `banana-backend` project: Nginx serves the frontend, Gunicorn serves the Python
 API, and a document worker processes uploads. They join `banana-backend_default`; Docker resolves the backend service name

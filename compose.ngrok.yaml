@@ -1,0 +1,22 @@
+# Start through share-ngrok.ps1; the agent joins the application's own network.
+services:
+  backend:
+    environment:
+      COOKIE_SECURE: "true"
+      ALLOWED_ORIGINS: "${PUBLIC_ORIGINS:?Use share-ngrok.ps1 to configure the public origins},http://127.0.0.1:${FRONTEND_PORT:-5173},http://localhost:${FRONTEND_PORT:-5173}"
+
+  ngrok:
+    image: ngrok/ngrok:3-alpine
+    init: true
+    restart: unless-stopped
+    env_file:
+      - "${NGROK_AGENT_ENV_FILE:-./data/public-sharing/ngrok-agent.env}"
+    command: ["http", "--url", "${NGROK_URL:?Set the assigned ngrok URL}", "http://frontend:80"]
+    depends_on:
+      frontend:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
