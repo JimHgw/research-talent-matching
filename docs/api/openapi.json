@@ -31,6 +31,502 @@
     }
   ],
   "paths": {
+    "/me/saved-opportunities": {
+      "get": {
+        "operationId": "listSavedOpportunities",
+        "summary": "List my saved published opportunities",
+        "description": "Session owner only. Sort saved time descending then opportunity ID. Inaccessible opportunities are excluded before pagination and total.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/opportunities/{opportunityId}/shortlist": {
+      "get": {
+        "operationId": "listShortlistedTalent",
+        "summary": "List currently eligible shortlisted candidates",
+        "description": "Published opportunity owner only. Every read rechecks current opt-in, active account, profile confirmation and field visibility. Score and rank use only currently visible fields. Opted-out candidates are excluded before total and pagination. ID-only relationships remain stored and reappear if eligibility is restored; no copied profile data or documents are returned.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TalentMatchPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/me/saved-opportunities/{opportunityId}": {
+      "get": {
+        "operationId": "getSavedOpportunity",
+        "summary": "Read state of SavedOpportunity",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putSavedOpportunity",
+        "summary": "Add SavedOpportunity",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteSavedOpportunity",
+        "summary": "Remove SavedOpportunity",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "TALENT"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/opportunities/{opportunityId}/shortlist/{talentId}": {
+      "get": {
+        "operationId": "getShortlistedTalent",
+        "summary": "Read state of ShortlistedTalent",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "talentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putShortlistedTalent",
+        "summary": "Add ShortlistedTalent",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "talentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteShortlistedTalent",
+        "summary": "Remove ShortlistedTalent",
+        "description": "Authenticated owner-scoped resource. PUT and DELETE are idempotent and require valid CSRF and Origin; no request body. GET/PUT require current resource visibility and shortlist eligibility. DELETE permits removing an existing stale association without revealing whether a candidate exists. Opportunity ownership remains mandatory for every shortlist operation.",
+        "tags": [
+          "collections"
+        ],
+        "x-roles": [
+          "RESEARCH_TEAM"
+        ],
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "talentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current state after an idempotent operation.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/auth/session": {
       "get": {
         "operationId": "getSession",
@@ -3463,6 +3959,18 @@
   },
   "components": {
     "schemas": {
+      "CollectionState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "saved"
+        ],
+        "properties": {
+          "saved": {
+            "type": "boolean"
+          }
+        }
+      },
       "Id": {
         "type": "string",
         "pattern": "^[A-Za-z0-9_-]{1,64}$"

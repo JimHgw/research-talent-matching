@@ -29,6 +29,7 @@ beforeEach(() => {
   state.server = createMockServer();
   state.requests = [];
   state.intercept = null;
+  const collections = new Set();
   globalThis.fetch = async (url, options) => {
     const path = url.replace('/api/v1', '');
     const body =
@@ -41,6 +42,16 @@ beforeEach(() => {
     if (state.intercept) {
       const response = await state.intercept(path, options, body);
       if (response) return response;
+    }
+    // Collection state for synthetic cards, including IDs supplied by individual tests.
+    // Authorization and persistence are exercised against the real API in live tests.
+    if (
+      /^\/me\/saved-opportunities\/[^/?]+$/.test(path) ||
+      /^\/opportunities\/[^/]+\/shortlist\/[^/?]+$/.test(path)
+    ) {
+      if (options.method === 'PUT') collections.add(path);
+      if (options.method === 'DELETE') collections.delete(path);
+      return json({ saved: collections.has(path) });
     }
     try {
       const value = await state.server.dispatch(options.method, path, body);

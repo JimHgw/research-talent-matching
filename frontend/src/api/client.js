@@ -112,6 +112,22 @@ export function createApi({
         method: 'POST',
         body: { expectedRevision },
       }),
+    savedOpportunities: (page = 1) => request(`/me/saved-opportunities?page=${page}`),
+    collectionState: (opportunityId, talentId) =>
+      request(
+        talentId
+          ? `/opportunities/${encodeURIComponent(opportunityId)}/shortlist/${encodeURIComponent(talentId)}`
+          : `/me/saved-opportunities/${encodeURIComponent(opportunityId)}`
+      ),
+    setCollection: (opportunityId, talentId, saved) =>
+      request(
+        talentId
+          ? `/opportunities/${encodeURIComponent(opportunityId)}/shortlist/${encodeURIComponent(talentId)}`
+          : `/me/saved-opportunities/${encodeURIComponent(opportunityId)}`,
+        { method: saved ? 'PUT' : 'DELETE' }
+      ),
+    shortlist: (id, page = 1) =>
+      request(`/opportunities/${encodeURIComponent(id)}/shortlist?page=${page}`),
     recommendations: (page = 1) => request(`/me/recommendations?page=${page}`),
     match: (id) => request(`/me/opportunity-matches/${encodeURIComponent(id)}`),
     talents: (id, page = 1) =>

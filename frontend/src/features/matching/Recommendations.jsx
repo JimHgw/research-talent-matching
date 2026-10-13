@@ -4,7 +4,7 @@ import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
 
-function OpportunityCard({ opportunity, summary, rank, onView, onDetails }) {
+function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const content = opportunity.content;
   const universityInitials = content.university
     .split(' ')
@@ -37,6 +37,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails }) {
         <span>{content.discipline}</span>
         <span>{content.researchArea}</span>
       </div>
+      {CollectionButton && <CollectionButton opportunityId={opportunity.id} />}
       <div className="card-bottom">
         <span className="muted">
           {rank ? `#${rank} recommendation` : `${content.requirements.length} requirements`}
@@ -56,7 +57,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails }) {
   );
 }
 
-export default function Recommendations({ navigate, OpportunityDetails }) {
+export default function Recommendations({ navigate, OpportunityDetails, CollectionButton }) {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState(null);
@@ -95,6 +96,7 @@ export default function Recommendations({ navigate, OpportunityDetails }) {
               opportunity={item.opportunity}
               summary={item.summary}
               rank={item.rank}
+              CollectionButton={CollectionButton}
               onView={() => setSelected(item.opportunity.id)}
               onDetails={() => setDetails(item.opportunity.id)}
             />

@@ -21,7 +21,7 @@ const owner = createApi({
     return response;
   },
 });
-const { mount, cleanup, until, text, click, login, checkbox, act } = await import(
+const { mount, cleanup, until, text, click, login, checkbox, act, remount } = await import(
   './support/live-app.js'
 );
 const fixture = async (name) =>
@@ -71,6 +71,19 @@ try {
   await until(() => !!document.querySelector('.talent-card'));
   assert.equal(document.querySelectorAll('.opportunity-select option').length, 1);
   assert.match(document.querySelector('.talent-card').textContent, /Demo Talent A/);
+  await until(() => text().includes('Add to Shortlist'));
+  await click('Add to Shortlist');
+  await until(() => text().includes('Remove from Shortlist'));
+  assert.equal((await api.shortlist(opportunity.id)).total, 1);
+  await click('Shortlisted candidates');
+  await until(() => text().includes('Remove from Shortlist'));
+  await click('Remove from Shortlist');
+  await until(() => text().includes('No currently discoverable shortlisted candidates'));
+  assert.equal((await api.shortlist(opportunity.id)).total, 0);
+  await click('Discover talent');
+  await until(() => text().includes('Add to Shortlist'));
+  await click('Add to Shortlist');
+  await until(() => text().includes('Remove from Shortlist'));
   await click('View evidence');
   await until(() => document.querySelectorAll('.evidence-row').length === 4);
   assert.deepEqual(
@@ -103,11 +116,17 @@ try {
   await click('View evidence');
   await until(() => !!document.querySelector('.shared-profile'));
   assert.match(text(), /has not shared any profile fields/);
+  assert.deepEqual((await api.shortlist(opportunity.id)).items[0].talent.fields, {});
   await share([], false);
   await act(async () => window.dispatchEvent(new window.Event('focus')));
   await until(() => text().includes('No discoverable talent yet'));
   assert.equal(document.querySelector('.shared-profile'), null);
   assert.equal(document.querySelector('dialog'), null);
+  assert.equal((await api.shortlist(opportunity.id)).total, 0);
+  await assert.rejects(
+    api.collectionState(opportunity.id, profile.talentId),
+    (e) => e.status === 404
+  );
   await assert.rejects(api.talentMatch(opportunity.id, profile.talentId), (e) => e.status === 404);
 
   await share(['displayName']);
@@ -124,6 +143,32 @@ try {
   await login('other@example.test');
   await until(() => text().includes('Tell your research story'));
   assert.equal(document.querySelector('.talent-card'), null);
+  await click('Sign out');
+  await login('talent@example.test');
+  await until(() => text().includes('Tell your research story'));
+  await api.session();
+  const latest = await api.profile();
+  await api.confirm(latest.revision);
+  await click('Recommended opportunities');
+  await until(() => text().includes('Save Opportunity'));
+  await click('Save Opportunity');
+  await until(() => text().includes('Remove from Saved'));
+  assert.equal((await api.savedOpportunities()).total, 1);
+  await click('Saved opportunities');
+  await until(() => text().includes('Remove from Saved'));
+  await remount();
+  await until(() => text().includes('Tell your research story'));
+  await click('Saved opportunities');
+  await until(() => text().includes('Remove from Saved'));
+  await click('Sign out');
+  await login('talent@example.test');
+  await until(() => text().includes('Tell your research story'));
+  await click('Saved opportunities');
+  await until(() => text().includes('Remove from Saved'));
+  await click('Remove from Saved');
+  await until(() => text().includes('No saved opportunities here'));
+  await api.session();
+  assert.equal((await api.savedOpportunities()).total, 0);
   console.log('US-05 real HTTP integration passed');
 } finally {
   await cleanup();

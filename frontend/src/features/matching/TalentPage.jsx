@@ -26,10 +26,14 @@ async function loadPublishedOpportunities() {
   return opportunities.filter((opportunity) => opportunity.status === 'PUBLISHED');
 }
 
-function TalentResults({ opportunityId, tags }) {
+function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
-  const resource = useResource(() => api.talents(opportunityId, page), [opportunityId, page], true);
+  const resource = useResource(
+    () => (shortlist ? api.shortlist(opportunityId, page) : api.talents(opportunityId, page)),
+    [opportunityId, page, shortlist],
+    true
+  );
   return (
     <>
       {resource.loading ? (
@@ -39,7 +43,13 @@ function TalentResults({ opportunityId, tags }) {
       ) : !resource.data.items.length ? (
         <Empty
           icon="user"
-          title={page > 1 ? 'No talent on this page' : 'No discoverable talent yet'}
+          title={
+            shortlist
+              ? 'No currently discoverable shortlisted candidates'
+              : page > 1
+                ? 'No talent on this page'
+                : 'No discoverable talent yet'
+          }
           action={page > 1 ? <Button onClick={() => setPage(1)}>Back to first page</Button> : null}
         >
           Talent appears here after confirming their profile and choosing to be discovered.
@@ -84,6 +94,13 @@ function TalentResults({ opportunityId, tags }) {
                   : `${item.summary.unknownWeightPercent}%`}{' '}
                 unknown evidence · {item.summary.requiredGapCount} required gaps
               </p>
+              {CollectionButton && (
+                <CollectionButton
+                  opportunityId={opportunityId}
+                  talentId={item.talent.talentId}
+                  onChange={shortlist ? resource.refresh : undefined}
+                />
+              )}
               <div className="card-bottom">
                 <small className="muted">#{item.rank} match</small>
                 <Button variant="text" onClick={() => setSelected(item.talent.talentId)}>
@@ -113,9 +130,16 @@ function TalentResults({ opportunityId, tags }) {
     </>
   );
 }
-export default function TalentPage({ initialOpportunity, navigate, tags = [] }) {
+export default function TalentPage({
+  initialOpportunity,
+  navigate,
+  tags = [],
+  initialShortlist = false,
+  CollectionButton,
+}) {
   const resource = useResource(loadPublishedOpportunities, [], true);
   const [selected, setSelected] = useState(initialOpportunity || '');
+  const [shortlist, setShortlist] = useState(initialShortlist);
   const activeOpportunity = resource.data?.some((opportunity) => opportunity.id === selected)
     ? selected
     : resource.data?.[0]?.id;
@@ -123,13 +147,16 @@ export default function TalentPage({ initialOpportunity, navigate, tags = [] }) 
     <>
       <div className="section-title">
         <div>
-          <h2>Find people for your next idea</h2>
+          <h2>{shortlist ? 'Shortlisted Candidates' : 'Find people for your next idea'}</h2>
           <p>Confirmed profiles, shared with consent. Every match has an explanation.</p>
         </div>
         <Button variant="secondary" disabled={resource.loading} onClick={resource.refresh}>
           Refresh talent
         </Button>
       </div>
+      <Button variant="secondary" onClick={() => setShortlist(!shortlist)}>
+        {shortlist ? 'Discover talent' : 'View Shortlisted Candidates'}
+      </Button>
       <Notice>
         Scores and evidence use only the fields each talent has chosen to share. A low score can
         mean limited shared information.
@@ -162,7 +189,13 @@ export default function TalentPage({ initialOpportunity, navigate, tags = [] }) 
             </Field>
           </div>
           {activeOpportunity && (
-            <TalentResults key={activeOpportunity} opportunityId={activeOpportunity} tags={tags} />
+            <TalentResults
+              key={activeOpportunity + shortlist}
+              opportunityId={activeOpportunity}
+              tags={tags}
+              shortlist={shortlist}
+              CollectionButton={CollectionButton}
+            />
           )}
         </>
       )}
