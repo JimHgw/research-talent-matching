@@ -133,7 +133,12 @@ const cases = [
   ['shortlist', ['opp_1', 2], 'GET', '/opportunities/opp_1/shortlist?page=2'],
   ['collectionState', ['opp_1', 'talent_1'], 'GET', '/opportunities/opp_1/shortlist/talent_1'],
   ['setCollection', ['opp_1', 'talent_1', true], 'PUT', '/opportunities/opp_1/shortlist/talent_1'],
-  ['setCollection', ['opp_1', 'talent_1', false], 'DELETE', '/opportunities/opp_1/shortlist/talent_1'],
+  [
+    'setCollection',
+    ['opp_1', 'talent_1', false],
+    'DELETE',
+    '/opportunities/opp_1/shortlist/talent_1',
+  ],
 ];
 for (const [name, args, method, path, body] of cases) {
   test(`${method} ${path}: request matches API contract`, async () => {
