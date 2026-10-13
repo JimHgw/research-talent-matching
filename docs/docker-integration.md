@@ -1,8 +1,8 @@
 # Frontend and backend in Docker
 
-The root `compose.yaml` runs two separate containers in the existing
-`banana-backend` project: Nginx serves the frontend and Gunicorn serves the Python
-API. Both join `banana-backend_default`; Docker resolves the backend service name
+The root `compose.yaml` runs three containers in the existing
+`banana-backend` project: Nginx serves the frontend, Gunicorn serves the Python
+API, and a document worker processes uploads. They join `banana-backend_default`; Docker resolves the backend service name
 without a host gateway or fixed container IP.
 
 The browser opens `http://127.0.0.1:5173` and sends relative `/api/v1` requests.
@@ -60,8 +60,8 @@ curl -i http://127.0.0.1:5173/api/v1/auth/session
 The first endpoint checks Nginx; the second checks the backend/database. The third
 must return the API session JSON and cookie through Nginx. Then verify sign-in,
 profile saving, page reload, privacy and opportunity flows using provisioned
-accounts. Unsupported document endpoints still report errors: containerization
-does not implement US-09.
+accounts. Upload a PDF/DOCX and wait for review suggestions without invoking a
+worker manually. See [US-09 extraction rules and recovery](us09-documents.md).
 
 For native regression tests, run the existing frontend and Python checks after
 host setup. The Docker configuration tests also run without a Docker daemon when
@@ -78,8 +78,8 @@ smoke test is opt-in and requires a working Linux Docker engine:
 .venv/bin/python -m pytest backend/tests/test_docker_stack.py -q -rs --run-docker
 ```
 
-It creates a unique Compose project and test data volume, checks both containers,
-API proxying, login, profile writes and restart persistence, then removes only
+It creates a unique Compose project and test data volume, checks all three containers,
+API proxying, login, profile writes, automatic document processing and restart persistence, then removes only
 that temporary project's containers, network and volume. It does not use the
 default project's accounts or database. Configuration tests alone do not prove
 that images build or containers communicate.
@@ -134,8 +134,7 @@ new container address:
 docker compose up --build --detach --wait --wait-timeout 120 --force-recreate
 ```
 
-Document upload remains separate backend work. Nginx currently allows 11 MiB
-request bodies for the contract's 10 MiB files plus multipart overhead, whereas
-the current backend limits request bodies to 4 MiB. Align the backend's limits
-and actual file-size validation when implementing US-09; no upload-limit change
-or document endpoint is supplied by this Docker integration.
+Nginx and the upload endpoint allow 11 MiB request bodies for 10 MiB files plus
+multipart overhead. The backend also validates the actual file size and format.
+Other endpoints retain their 4 MiB request limit. Private originals and the
+worker's persistent claims share the backend data volume.

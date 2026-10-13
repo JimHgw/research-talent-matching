@@ -42,11 +42,11 @@ try {
     $composeArgs = @('compose', '--project-directory', $PSScriptRoot,
                      '--env-file', $envFile, '--file', (Join-Path $PSScriptRoot 'compose.yaml'))
     [string[]]$actionArgs = switch ($Action) {
-        'up'     { @('up', '--build', '--detach', '--wait', '--wait-timeout', '120', 'backend') }
+        'up'     { @('up', '--build', '--detach', '--wait', '--wait-timeout', '120', 'backend', 'document-worker') }
         'build'  { @('build', 'backend') }
-        'stop'   { @('stop', 'backend') }
+        'stop'   { @('stop', 'backend', 'document-worker') }
         'down'   { @('down') }
-        'logs'   { @('logs', '--follow', '--tail', '100', 'backend') }
+        'logs'   { @('logs', '--follow', '--tail', '100', 'backend', 'document-worker') }
         'status' { @('ps', '--all') }
     }
     & $dockerPath @composeArgs @actionArgs
@@ -63,7 +63,7 @@ try {
     } elseif ($Action -eq 'down') {
         Write-Host 'Compose containers and network removed. The SQLite data volume is preserved.'
     } elseif ($Action -eq 'stop') {
-        Write-Host 'Backend stopped. The SQLite data volume is preserved.'
+        Write-Host 'Backend and document worker stopped. The SQLite data volume is preserved.'
     }
 } catch {
     Write-Host "Backend Docker command failed: $($_.Exception.Message)" -ForegroundColor Red

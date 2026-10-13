@@ -1,9 +1,12 @@
 """Background processing for uploaded documents."""
 
-from sqlalchemy import select
+from datetime import timedelta
+from secrets import token_hex
+
+from sqlalchemy import and_, or_, select
 
 from ...db.database import database
-from ...db.models import Document, DocumentExtraction, Tag, utcnow
+from ...db.models import Document, DocumentExtraction, DocumentProcessingLease, Tag, utcnow
 from ...shared.validation import validator
 
 from flask import current_app
@@ -14,10 +17,20 @@ from .suggestions import build_extraction_result
 
 
 def claim_next_document():
+    timeout = timedelta(seconds=current_app.config["DOCUMENT_PROCESSING_TIMEOUT"])
     with database().transaction(write=True) as db:
+        now = utcnow()
+        # BEGIN IMMEDIATE serialises claim/reclaim with all result writes.
         document = db.scalar(
             select(Document)
-            .where(Document.status == "QUEUED")
+            .outerjoin(DocumentProcessingLease, DocumentProcessingLease.document_id == Document.id)
+            .where(or_(
+                Document.status == "QUEUED",
+                and_(Document.status == "PROCESSING", or_(
+                    DocumentProcessingLease.expires_at <= now,
+                    and_(DocumentProcessingLease.document_id.is_(None), Document.updated_at <= now - timeout),
+                )),
+            ))
             .order_by(Document.created_at.asc(), Document.id.asc())
             .limit(1)
         )
@@ -25,8 +38,20 @@ def claim_next_document():
         if document is None:
             return None
 
+        lease = db.get(DocumentProcessingLease, document.id)
+        if lease is not None and lease.attempts >= current_app.config["DOCUMENT_PROCESSING_MAX_ATTEMPTS"]:
+            _fail(document, "Processing repeatedly timed out. Try another file or enter your information manually.")
+            return None
+        if lease is None:
+            lease = DocumentProcessingLease(document_id=document.id, attempts=1,
+                                            token=token_hex(16), expires_at=now + timeout)
+            db.add(lease)
+        else:
+            lease.attempts += 1
+            lease.token = token_hex(16)
+            lease.expires_at = now + timeout
         document.status = "PROCESSING"
-        document.updated_at = utcnow()
+        document.updated_at = now
         db.flush()
 
         return {
@@ -34,9 +59,23 @@ def claim_next_document():
             "storage_key": document.storage_key,
             "media_type": document.media_type,
             "kind": document.kind,
+            "lease_token": lease.token,
         }
 
-def save_extraction_result(document_id, result):
+def _owns_lease(db, document, token):
+    if document is None or document.status != "PROCESSING":
+        return False
+    lease = db.get(DocumentProcessingLease, document.id)
+    return lease is not None and lease.token == token and lease.expires_at > utcnow()
+
+
+def _fail(document, message):
+    document.status = "FAILED"
+    document.error = {"code": "EXTRACTION_FAILED", "message": message, "fieldErrors": []}
+    document.updated_at = utcnow()
+
+
+def save_extraction_result(document_id, result, lease_token):
     validator("Extraction").validate(result)
 
     if result["documentId"] != document_id:
@@ -45,7 +84,7 @@ def save_extraction_result(document_id, result):
     with database().transaction(write=True) as db:
         document = db.get(Document, document_id)
 
-        if document is None or document.status != "PROCESSING":
+        if not _owns_lease(db, document, lease_token):
             return False
 
         db.add(
@@ -62,23 +101,14 @@ def save_extraction_result(document_id, result):
 
     return True
 
-def save_extraction_failure(document_id):
+def save_extraction_failure(document_id, lease_token):
     with database().transaction(write=True) as db:
         document = db.get(Document, document_id)
 
-        if document is None or document.status != "PROCESSING":
+        if not _owns_lease(db, document, lease_token):
             return False
 
-        document.status = "FAILED"
-        document.error = {
-            "code": "EXTRACTION_FAILED",
-            "message": (
-                "The document could not be processed. "
-                "Try another file or enter your information manually."
-            ),
-            "fieldErrors": [],
-        }
-        document.updated_at = utcnow()
+        _fail(document, "The document could not be processed. Try another file or enter your information manually.")
         db.flush()
 
     return True
@@ -114,15 +144,13 @@ def process_next_document():
             document_id, text, tags
         )
 
-        saved = save_extraction_result(document_id, result)
+        saved = save_extraction_result(document_id, result, job["lease_token"])
 
         if not saved:
-            raise RuntimeError(
-                "Document state changed before saving."
-            )
+            current_app.logger.info("Document %s claim expired; discarded stale result.", document_id)
 
     except Exception as error:
-        save_extraction_failure(document_id)
+        save_extraction_failure(document_id, job["lease_token"])
 
         current_app.logger.error(
             "Document %s extraction failed (%s).",

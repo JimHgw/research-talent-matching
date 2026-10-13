@@ -220,7 +220,9 @@ def test_docker_launchers_handle_paths_failures_and_preserve_volumes(tmp_path, l
             env_file = ".env" if scenario == "env_override" else ".env.example"
             assert Path(args[args.index("--env-file") + 1]) == checkout / env_file
         assert action in operations[0]
-        if action in ("up", "build", "stop"):
+        if action in ("up", "stop"):
+            assert operations[0][-2:] == ["backend", "document-worker"]
+        if action == "build":
             assert operations[0][-1] == "backend"
         if action == "build":
             assert all("up" not in args for args in operations)
