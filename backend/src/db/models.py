@@ -211,6 +211,16 @@ class Document(Base):
                         "(status != 'FAILED' AND error IS NULL)"),
     )
 
+class DocumentProcessingLease(Base):
+    """Persist claims separately so existing document tables need no ALTER."""
+    __tablename__ = "document_processing_leases"
+    document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), primary_key=True)
+    token: Mapped[str] = mapped_column(String, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+    __table_args__ = (CheckConstraint("attempts >= 1"),)
+
+
 class DocumentExtraction(Base):
     """Extraction suggestions awaiting user review."""
 

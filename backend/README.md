@@ -10,6 +10,8 @@ For a containerized backend alone, use the [one-command Docker workflow](../READ
 It keeps Flask and SQLite together, persists data in a named volume, and does not
 require the host setup below. Its container entrypoint explicitly initializes
 missing tables and seeds tags before serving Flask through Gunicorn; no default accounts are created.
+The document worker starts alongside the API and shares its private storage.
+See [US-09 rules, startup and recovery](../docs/us09-documents.md).
 Gunicorn is installed only from `requirements-docker.txt` inside the Linux image,
 so the Windows host development dependencies stay compatible.
 
@@ -101,6 +103,10 @@ on the destination machine. Shell scripts use LF endings via `.gitattributes`.
 | GET | `/me/profile` | Talent owner |
 | PUT | `/me/profile` | Talent owner + CSRF + expected revision |
 | POST | `/me/profile/confirmation` | Talent owner + CSRF + current revision |
+| POST | `/me/documents` | Talent owner + CSRF; private PDF/DOCX upload |
+| GET | `/me/documents` and `/me/documents/{id}` | Talent owner; list and processing status |
+| GET | `/me/documents/{id}/file` and `/me/documents/{id}/extraction` | Talent owner; original and review suggestions |
+| POST | `/me/documents/{id}/apply` | Talent owner + CSRF + expected profile revision; reviewed sections |
 | GET | `/me/privacy` | Talent owner |
 | PUT | `/me/privacy` | Talent owner + CSRF + independent privacy revision |
 | GET | `/opportunities` | Signed in; published by default, `scope=mine` for teams |
@@ -118,7 +124,7 @@ owner privacy endpoints needed to enable discovery through the existing privacy
 page. Team matching filters consent, confirmation and field visibility before
 scoring, ranking and pagination; every request evaluates current data.
 See [US-05 implementation and acceptance](../docs/us05-implementation.md).
-Document upload/extraction endpoints (US-09) remain unimplemented.
+US-09 provides private document uploads, review suggestions and selected-section imports.
 Public email registration supports both TALENT and RESEARCH_TEAM. See
 [US-01 registration and SMTP setup](../docs/us01-registration.md). There is no default password.
 
@@ -155,6 +161,12 @@ feature blueprints in `src/app.py`. The repository's `docs/api/` remains the sha
 contract and fixture source; existing SQLite files remain in the root `data/`.
 
 ## Start the services
+
+Native development also needs a document worker in a third terminal:
+`.venv/bin/python -m flask --app backend.app process-documents` (macOS/Linux),
+or `.\.venv\Scripts\python.exe -m flask --app backend.app process-documents`
+(Windows). Keep its database/storage settings identical to the API.
+The [US-09 guide](../docs/us09-documents.md) documents extraction limits and recovery.
 
 ### macOS / Linux
 
@@ -255,7 +267,9 @@ These mappings retain the existing tables, columns, indexes and constraints;
 no schema migration is needed for this mapping update. Relationships do not
 enable cascading deletion of accounts or other independent resources.
 Four academic arrays use JSON; skills/interests use ordered FK rows.
-Document metadata is included only as the FK target for profile provenance.
+Document metadata, extraction results and processing leases support US-09;
+private originals are stored separately. New tables are added by `init-db` or
+the worker CLI on an existing installation.
 Each connection enables SQLite foreign keys. Short write transactions acquire
 `BEGIN IMMEDIATE` before reading revisions; expensive password hashing and
 verification happen outside those locks. Session cookies are emitted only after

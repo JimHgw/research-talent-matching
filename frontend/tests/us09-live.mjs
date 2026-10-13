@@ -81,6 +81,20 @@ try {
   const uploaded = documents.items.find((item) => item.fileName === 'review-cv.docx');
   assert.ok(uploaded);
   assert.equal(uploaded.status, 'READY');
+  const extraction = await api.extraction(uploaded.id);
+  assert.deepEqual(Object.keys(extraction.suggestedSections).sort(), [
+    'courses',
+    'education',
+    'researchExperience',
+    'researchInterests',
+    'researchOutputs',
+    'skills',
+  ]);
+  assert.ok(
+    extraction.uncertainFields.some(
+      (item) => item.field === 'skills' && item.reason.includes('COBOL')
+    )
+  );
 
   // Check the frontend download client against the real backend.
   const downloaded = await api.download(uploaded.id);
@@ -90,6 +104,11 @@ try {
   await click('Review suggestions');
   await until(() => !!button('Apply reviewed sections'));
   assert.equal(button('Apply reviewed sections').disabled, true);
+  assert.ok(text().includes('COBOL'));
+
+  for (const label of ['Education', 'Courses', 'Research experience', 'Research outputs']) {
+    await checkbox(label);
+  }
 
   await change('Supporting evidence', 'Reviewed through the React page.');
   await click('Remove skill 2');

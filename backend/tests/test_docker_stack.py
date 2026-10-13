@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import socket
 import subprocess
+from time import monotonic, sleep
 from urllib.error import HTTPError
 from urllib.request import HTTPCookieProcessor, Request, build_opener
 from uuid import uuid4
@@ -15,6 +16,7 @@ from uuid import uuid4
 import pytest
 
 from backend.src.shared.paths import ROOT
+from backend.tests.test_us09_extraction import CV_TEXT, SECTIONS, text_docx
 
 
 @pytest.fixture
@@ -58,6 +60,17 @@ def test_compose_preserves_storage_and_routes_over_the_shared_network(compose_cl
     assert result.returncode == 0, result.stdout + result.stderr
     config = json.loads(result.stdout)
     frontend, backend = (config["services"][name] for name in ("frontend", "backend"))
+    worker = config["services"]["document-worker"]
+    assert worker["image"] == backend["image"]
+    assert worker["build"] == backend["build"]
+    assert worker["command"] == ["python", "-m", "flask", "--app", "backend.app", "process-documents"]
+    assert worker["depends_on"]["backend"]["condition"] == "service_healthy"
+    assert worker["healthcheck"]["disable"] is True
+    assert not worker.get("ports")
+    assert worker["restart"] == "unless-stopped"
+    assert worker["volumes"] == backend["volumes"]
+    assert worker["environment"]["DATABASE_URL"] == backend["environment"]["DATABASE_URL"]
+    assert worker["environment"]["DOCUMENT_STORAGE_DIR"] == backend["environment"]["DOCUMENT_STORAGE_DIR"]
     assert Path(frontend["build"]["context"]) == ROOT / "frontend"
     assert frontend["build"]["target"] == "runtime"
     assert Path(backend["build"]["context"]) == ROOT
@@ -108,7 +121,8 @@ def test_real_stack_login_profile_and_restart_persistence(compose_cli, request, 
     images = [f"{project}-{service}:test" for service in ("frontend", "backend")]
     override = tmp_path / "images.json"
     override.write_text(json.dumps({"services": {
-        name: {"image": image} for name, image in zip(("frontend", "backend"), images)
+        **{name: {"image": image} for name, image in zip(("frontend", "backend"), images)},
+        "document-worker": {"image": images[1]},
     }}), encoding="utf-8")
     command = [*compose_args(compose_cli), "--file", str(override), "--project-name", project]
 
@@ -167,12 +181,39 @@ def test_real_stack_login_profile_and_restart_persistence(compose_cli, request, 
         api("/me/profile", "PUT", write, session["csrfToken"], status=409)
         api("/me/profile", "PUT", {**write, "expectedRevision": saved["revision"]}, session["csrfToken"],
             status=403, allowed_origin="https://untrusted.example")
-        # Replace both containers/network while preserving only this test project's volume.
+        # Only Compose starts the worker: no in-test loop or manual processing command.
+        file_bytes = text_docx(CV_TEXT)
+        boundary = "banana-" + uuid4().hex
+        multipart = (
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"kind\"\r\n\r\nCV\r\n"
+            f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"cv.docx\"\r\n"
+            "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n\r\n"
+        ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
+        upload = Request(origin + "/api/v1/me/documents", data=multipart, method="POST", headers={
+            "Origin": origin, "X-CSRF-Token": session["csrfToken"],
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        })
+        with browser.open(upload, timeout=20) as response:
+            assert response.status == 202
+            document_id = json.load(response)["id"]
+        deadline = monotonic() + 30
+        while api(f"/me/documents/{document_id}")["status"] in ("QUEUED", "PROCESSING"):
+            assert monotonic() < deadline, "Compose's worker did not process the upload."
+            sleep(0.2)
+        extraction = api(f"/me/documents/{document_id}/extraction")
+        assert set(extraction["suggestedSections"]) == SECTIONS
+        assert api("/me/profile") == saved
+        with browser.open(origin + f"/api/v1/me/documents/{document_id}/file", timeout=20) as response:
+            assert response.read() == file_bytes
+        # Replace all containers/network while preserving only this test project's volume.
         compose("down")
         compose("up", "--no-build", "--detach", "--wait", "--wait-timeout", "120")
         restored = api("/auth/session")
         assert restored["user"]["id"] == session["user"]["id"]
         assert api("/me/profile")["content"] == content
+        assert api(f"/me/documents/{document_id}/extraction") == extraction
+        with browser.open(origin + f"/api/v1/me/documents/{document_id}/file", timeout=20) as response:
+            assert response.read() == file_bytes
         api("/auth/logout", "POST", csrf=restored["csrfToken"], status=204)
         api("/me/profile", status=401)
         fresh = api("/auth/session")

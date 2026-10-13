@@ -54,8 +54,17 @@ def create_app(config=None):
         SMTP_USERNAME=os.getenv("SMTP_USERNAME", ""), SMTP_PASSWORD=os.getenv("SMTP_PASSWORD", ""),
         SMTP_TIMEOUT=os.getenv("SMTP_TIMEOUT", "10"),
         DOCUMENT_STORAGE_DIR=os.getenv("DOCUMENT_STORAGE_DIR", str(ROOT / "data" / "documents"),),
+        DOCUMENT_PROCESSING_TIMEOUT=os.getenv("DOCUMENT_PROCESSING_TIMEOUT", "300"),
+        DOCUMENT_PROCESSING_MAX_ATTEMPTS=os.getenv("DOCUMENT_PROCESSING_MAX_ATTEMPTS", "3"),
     )
     app.config.update(config or {})
+    for name in ("DOCUMENT_PROCESSING_TIMEOUT", "DOCUMENT_PROCESSING_MAX_ATTEMPTS"):
+        try:
+            app.config[name] = int(app.config[name])
+        except (ValueError, TypeError):
+            raise ValueError(f"{name} must be a positive integer.") from None
+        if app.config[name] < 1:
+            raise ValueError(f"{name} must be a positive integer.")
     origins = {origin.strip() for origin in app.config["ALLOWED_ORIGINS"]}
     for origin in origins:
         parsed = urlsplit(origin)
@@ -175,6 +184,8 @@ def create_app(config=None):
         help="Attempt one queued document and exit.",
     )
     def process_documents(once):
+        # Add the lease table when upgrading an existing native installation.
+        app.extensions["database"].initialise()
         if once:
             processed = process_next_document()
 

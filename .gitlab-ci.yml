@@ -71,6 +71,28 @@ frontend_format:
     - pnpm format:check
 
 
+frontend_backend_integration:
+  stage: test
+  image: python:3.12-bookworm
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends curl xz-utils
+    - |
+      case "$(uname -m)" in
+        x86_64) node_arch=x64 ;;
+        aarch64) node_arch=arm64 ;;
+        *) echo "Unsupported Node architecture"; exit 1 ;;
+      esac
+      node_archive="node-v22.13.0-linux-${node_arch}.tar.xz"
+      curl -fsSLO "https://nodejs.org/dist/v22.13.0/${node_archive}"
+      curl -fsSLo node-shasums.txt https://nodejs.org/dist/v22.13.0/SHASUMS256.txt
+      grep " ${node_archive}$" node-shasums.txt | sha256sum -c -
+      tar -xJf "$node_archive" --strip-components=1 --directory=/usr/local
+    - npm install --global --ignore-scripts pnpm@11.25.0
+    - python -m pip install -r backend/requirements-dev.txt
+    - pnpm --dir frontend install --frozen-lockfile
+  script:
+    - python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py --require-frontend
+
 backend_test:
   stage: test
   image: python:3.12-slim

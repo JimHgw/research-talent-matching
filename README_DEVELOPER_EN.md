@@ -496,7 +496,7 @@ The repository contains the runnable US-01 Flask backend, React frontend, depend
 
 For a Docker backend, use [section 3](#3-docker-backend-guide) instead of the host backend installation steps above. The existing host setup is still needed when developing or running the frontend locally.
 
-Current real-backend verification covers both-role email registration, SMTP delivery to a local test server, email/ID login, both password-reset paths, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. Document upload/extraction remains unimplemented. The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
+Current real-backend verification covers both-role email registration, SMTP delivery to a local test server, email/ID login, both password-reset paths, sessions, tags, manual profiles, confirmation, opportunity management, owner recommendations, privacy and US-05 team discovery. US-09 also includes private PDF/DOCX uploads, six-section extraction attempts, reviewed imports and crash recovery; see [its supported rules and worker startup](docs/us09-documents.md). The full Sprint 1 checks below are acceptance targets; passing the current suites does not complete those targets. Frontend tests using synthetic responses must be distinguished from the real HTTP integration tests.
 
 Before the demonstration, complete these steps:
 
@@ -537,8 +537,8 @@ The Jira screenshot's 15 October date is the sprint end date. Official demonstra
 The root Compose configuration can now run frontend and backend containers
 together. See [the integrated Docker guide](docs/docker-integration.md) for the
 shared network, startup, verification and data-volume preservation. The
-`docker-backend.sh` / `docker-backend.ps1` launchers below still start only the
-backend. Their `down` action removes the whole Compose project's containers and
+`docker-backend.sh` / `docker-backend.ps1` launchers below start the API and
+document worker. Their `down` action removes the whole Compose project's containers and
 network, including its frontend if running, while preserving the data volume.
 
 The backend uses **Flask + SQLAlchemy + SQLite**, with **Gunicorn** serving the Flask application inside the container. The launcher builds the backend image and starts the container automatically. The backend accesses SQLite directly; PostgreSQL, MySQL and a separate database container are not required.
@@ -577,7 +577,7 @@ The default action is `up`. The launcher performs these steps:
 
 1. Checks Docker, Compose and the Linux container environment.
 2. Builds the `banana-backend:local` image using `backend/Dockerfile`.
-3. Creates or reuses the named SQLite data volume and starts one `backend` container.
+3. Creates or reuses the named SQLite data volume and starts `backend` and `document-worker` containers.
 4. Runs `init-db` and `seed-tags` through the Flask CLI during container startup, then serves the Flask application through Gunicorn.
 5. Waits up to 120 seconds for the health check to pass. Image build time is separate from this readiness timeout.
 

@@ -2,14 +2,15 @@
 
 import os
 import subprocess
-from threading import Event, Thread
+import sys
+from threading import Thread
 
 from docx import Document as DocxDocument
 from werkzeug.serving import make_server
 
-from backend.src.features.documents.worker import process_next_document
 from backend.src.shared.paths import ROOT
 from backend.tests.test_frontend_integration import frontend_node
+from backend.tests.test_us09_extraction import CV_TEXT
 
 
 def test_us09_real_frontend_workflow(app, request, tmp_path):
@@ -24,10 +25,8 @@ def test_us09_real_frontend_workflow(app, request, tmp_path):
     # Prepare a real Word document for the React upload form.
     document_path = tmp_path / "review-cv.docx"
     document = DocxDocument()
-    document.add_paragraph("Skills: Python, SQL")
-    document.add_paragraph(
-        "Research interests: Machine learning"
-    )
+    for line in CV_TEXT.replace("Python, SQL", "Python, SQL, COBOL").splitlines():
+        document.add_paragraph(line)
     document.save(document_path)
 
     # Start the real HTTP server on an available local port.
@@ -37,22 +36,16 @@ def test_us09_real_frontend_workflow(app, request, tmp_path):
         daemon=True,
     )
 
-    # Process uploaded documents while the React test runs.
-    stop = Event()
-
-    def process_documents():
-        with app.app_context():
-            while not stop.is_set():
-                if not process_next_document():
-                    stop.wait(0.05)
-
-    document_thread = Thread(
-        target=process_documents,
-        daemon=True,
-    )
-
     http_thread.start()
-    document_thread.start()
+    # Use the actual deployable CLI process rather than an in-test worker loop.
+    worker_log = (tmp_path / "worker.log").open("w+", encoding="utf-8")
+    worker = subprocess.Popen(
+        [sys.executable, "-m", "flask", "--app", "backend.app", "process-documents"],
+        cwd=ROOT, stdout=worker_log, stderr=subprocess.STDOUT,
+        env={**os.environ, "FLASK_SKIP_DOTENV": "1", "COOKIE_SECURE": "false",
+             "DATABASE_URL": app.config["DATABASE_URL"],
+             "DOCUMENT_STORAGE_DIR": app.config["DOCUMENT_STORAGE_DIR"]},
+    )
 
     try:
         result = subprocess.run(
@@ -77,12 +70,19 @@ def test_us09_real_frontend_workflow(app, request, tmp_path):
             },
         )
 
-        assert result.returncode == 0, result.stdout + result.stderr
+        worker_log.flush()
+        worker_log.seek(0)
+        assert result.returncode == 0, result.stdout + result.stderr + worker_log.read()
         assert "US-09 real HTTP integration passed" in result.stdout
 
     finally:
-        stop.set()
-        document_thread.join(timeout=5)
+        worker.terminate()
+        try:
+            worker.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            worker.kill()
+            worker.wait(timeout=5)
+        worker_log.close()
         server.shutdown()
         server.server_close()
         http_thread.join(timeout=5)
