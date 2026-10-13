@@ -32,10 +32,12 @@ try {
     if (-not $Url -and (Test-Path -LiteralPath $urlFile)) {
         $Url = (Get-Content -LiteralPath $urlFile -Raw).Trim()
     }
-    # Restrict the saved URL to ngrok's assigned development domains.
-    if ($Url -notmatch '^https://[a-z0-9-]+\.ngrok-free\.(dev|app)$') {
-        throw 'Provide the assigned HTTPS URL using -Url https://your-name.ngrok-free.dev (or .app).'
+    # Accept a copied root URL, then store its origin without a trailing slash.
+    $Url = ([string]$Url).Trim()
+    if ($Url -notmatch '^https://[a-z0-9-]+\.ngrok-free\.(dev|app)/?$') {
+        throw 'Provide the assigned HTTPS root URL using -Url https://your-name.ngrok-free.dev (or .app), without a path or query.'
     }
+    $Url = $Url.TrimEnd('/')
     $env:NGROK_URL = $Url
     $env:NGROK_AGENT_ENV_FILE = $agentFile
     $origins = @($Url)

@@ -19,6 +19,8 @@
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Url https://your-name.ngrok-free.dev
 ```
 
+网址末尾带 `/` 也可以，脚本会自动移除。请使用网站根网址，不要附带页面路径或查询参数。
+
 首次启动会下载官方代理镜像，并重新创建前后端容器以更新允许来源和 HTTPS
 cookie。已有数据库和上传文件保留。脚本保留已记录的 Cloudflare 临时网址
 作为另一个允许来源，也保留本机 `http://127.0.0.1:5173` 和
