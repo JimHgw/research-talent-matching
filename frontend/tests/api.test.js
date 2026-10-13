@@ -126,6 +126,14 @@ const cases = [
   ['match', ['opp_1'], 'GET', '/me/opportunity-matches/opp_1'],
   ['talents', ['opp_1', 2], 'GET', '/opportunities/opp_1/talent-matches?page=2'],
   ['talentMatch', ['opp_1', 'talent_1'], 'GET', '/opportunities/opp_1/talent-matches/talent_1'],
+  ['savedOpportunities', [2], 'GET', '/me/saved-opportunities?page=2'],
+  ['collectionState', ['opp_1'], 'GET', '/me/saved-opportunities/opp_1'],
+  ['setCollection', ['opp_1', undefined, true], 'PUT', '/me/saved-opportunities/opp_1'],
+  ['setCollection', ['opp_1', undefined, false], 'DELETE', '/me/saved-opportunities/opp_1'],
+  ['shortlist', ['opp_1', 2], 'GET', '/opportunities/opp_1/shortlist?page=2'],
+  ['collectionState', ['opp_1', 'talent_1'], 'GET', '/opportunities/opp_1/shortlist/talent_1'],
+  ['setCollection', ['opp_1', 'talent_1', true], 'PUT', '/opportunities/opp_1/shortlist/talent_1'],
+  ['setCollection', ['opp_1', 'talent_1', false], 'DELETE', '/opportunities/opp_1/shortlist/talent_1'],
 ];
 for (const [name, args, method, path, body] of cases) {
   test(`${method} ${path}: request matches API contract`, async () => {

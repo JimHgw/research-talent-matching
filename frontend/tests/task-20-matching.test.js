@@ -89,7 +89,11 @@ test('match explanation displays all four statuses without inventing evidence fo
     c.textContent.includes('Research assistant in data science')
   );
   assert.ok(card);
-  await act(async () => card.querySelector('button').click());
+  await act(async () =>
+    [...card.querySelectorAll('button')]
+      .find((b) => b.textContent.startsWith('Why this match?'))
+      .click()
+  );
   const rows = [...document.querySelectorAll('.evidence-row')];
   assert.deepEqual(rows.map((r) => r.querySelector('.badge').textContent).sort(), [
     'GAP',

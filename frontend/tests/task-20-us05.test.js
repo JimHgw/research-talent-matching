@@ -133,5 +133,6 @@ test('an emptied later talent page offers a return to the first page', async () 
   assert.match(text(), /No talent on this page/);
   await click('Back to first page');
   assert.ok(document.querySelector('.talent-card'));
-  assert.match(state.requests.at(-1).path, /page=1/);
+  const lastDiscovery = state.requests.filter((r) => r.path.includes('/talent-matches?')).at(-1);
+  assert.match(lastDiscovery.path, /page=1/);
 });
