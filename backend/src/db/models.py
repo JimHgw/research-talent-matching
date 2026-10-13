@@ -211,6 +211,28 @@ class Document(Base):
                         "(status != 'FAILED' AND error IS NULL)"),
     )
 
+class DocumentExtraction(Base):
+    """Extraction suggestions awaiting user review."""
+
+    __tablename__ = "document_extractions"
+
+    document_id: Mapped[str] = mapped_column(
+        ForeignKey("documents.id"),
+        primary_key=True,
+    )
+
+    result: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=utcnow,
+    )
+
+    document: Mapped[Document] = relationship()
 
 class ProfileOrigin(Base):
     __tablename__ = "profile_origins"
