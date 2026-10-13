@@ -1,0 +1,20 @@
+# Used by share.ps1 together with compose.yaml. Never exposes a host port.
+services:
+  backend:
+    environment:
+      COOKIE_SECURE: "true"
+      # Keep the original local entry points alongside the discovered public origin.
+      ALLOWED_ORIGINS: "${PUBLIC_ORIGIN:?Use share.ps1 to discover the public URL},http://127.0.0.1:${FRONTEND_PORT:-5173},http://localhost:${FRONTEND_PORT:-5173}"
+
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.0
+    init: true
+    # A restarted Quick Tunnel gets a new hostname. Restart via share.ps1 so
+    # the API's allowed origin is updated at the same time.
+    restart: "no"
+    command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "--url", "http://frontend:80"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

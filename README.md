@@ -1,5 +1,9 @@
 # project
 
+在自己的 Windows 电脑运行，并让其他网络的人通过临时网址访问：
+见[公网访问指南](docs/public-sharing.md)，或在 Docker Desktop 启动后运行
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\share.ps1`。
+
 
 
 ## Getting started
