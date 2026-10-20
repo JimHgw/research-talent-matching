@@ -16,7 +16,7 @@ from backend.src.db.models import (Base, Document, DocumentExtraction, LoginAtte
                                    Opportunity, OpportunityRequirement, ProfileSkill,
                                    RequirementTag, Tag, TalentProfile, User)
 from backend.src.db.collections import SavedOpportunity, ShortlistedTalent
-from backend.tests.conftest import PASSWORD, sign_in
+from backend.tests.conftest import PASSWORD, clear_mysql_data, sign_in
 
 
 def test_all_tables_compile_for_mysql_and_preserve_timestamp_precision():
@@ -55,8 +55,7 @@ def mysql_target(app):
     target = app.extensions["database"]
     if target.engine.dialect.name != "mysql":
         pytest.skip("Use --run-mysql and a disposable MYSQL_TEST_DATABASE_URL.")
-    Base.metadata.drop_all(target.engine)
-    target.initialise()
+    clear_mysql_data(target)
     return target
 
 
@@ -166,3 +165,24 @@ def test_mysql_enforces_lengths_and_case_sensitive_ids(mysql_target):
         assert db.get(Tag, "skill").label == "B"
     with pytest.raises(DataError), mysql_target.transaction(write=True) as db:
         db.add(User(id="u", email="x" * 255, display_name="A", password_hash="hash", role="TALENT"))
+
+
+def test_mysql_cleanup_removes_related_rows_without_rebuilding_tables(app):
+    database = app.extensions["database"]
+    if database.engine.dialect.name != "mysql":
+        pytest.skip("Use --run-mysql and a disposable MYSQL_TEST_DATABASE_URL.")
+    statements = []
+    def record(connection, cursor, statement, parameters, context, executemany):
+        statements.append(statement.upper())
+    event.listen(database.engine, "before_cursor_execute", record)
+    try:
+        clear_mysql_data(database)
+    finally:
+        event.remove(database.engine, "before_cursor_execute", record)
+    assert not any(sql.startswith(("CREATE", "DROP", "TRUNCATE", "ALTER")) for sql in statements)
+    with database.transaction() as db:
+        for table in Base.metadata.sorted_tables:
+            expected = 1 if table.name == "database_write_lock" else 0
+            assert db.scalar(select(func.count()).select_from(table)) == expected
+    with database.transaction(write=True) as db:
+        db.add(Tag(id="after_cleanup", label="Still writable", kind="SKILL"))

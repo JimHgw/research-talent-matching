@@ -121,7 +121,13 @@ $env:MYSQL_TEST_DATABASE_URL='mysql+pymysql://banana:测试密码@127.0.0.1:3306
 .\.venv\Scripts\python.exe -m pytest backend/tests --run-mysql -q
 ```
 
-CI 的 `backend_mysql_test` 在独立 MySQL 8.4 服务上执行同一套测试，包含迁移成功、
+CI 的 `backend_mysql_test` 分为三个独立任务，每个任务使用自己的 MySQL 8.4 服务。
+按测试 ID 稳定分配，合计仍执行完整测试集，不遗漏或重复用例，避免单任务触及 Runner 的 10 分钟时限。
+本地不传分组参数时仍运行全部测试；可用 `--shard-index 1 --shard-total 3` 单独复现第一个任务。
+每个测试进程只在开始和结束时重建表，用例之间按外键顺序删除记录并保留事务锁行，
+兼顾数据隔离和测试速度。CI 同时保存 JUnit 报告及最慢的十项耗时，方便定位后续性能问题。
+分组使用 [GitLab parallel jobs](https://docs.gitlab.com/ci/yaml/#parallel)。
+测试包含迁移成功、
 逐值校验、失败回滚、拒绝覆盖、原密码登录，以及现有业务并发/权限回归。
 `--run-docker` 另行验证完整容器栈、自动文档处理和容器重建后的持久化。
 

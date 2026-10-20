@@ -109,6 +109,7 @@ backend_test:
 backend_mysql_test:
   stage: test
   image: python:3.12-slim
+  parallel: 3
   services:
     - name: mysql:8.4
       alias: mysql
@@ -137,7 +138,14 @@ backend_mysql_test:
       engine.dispose()
       PY
   script:
-    - python -m pytest backend/tests --run-mysql -q
+    - python -m pytest backend/tests --run-mysql --shard-index "$CI_NODE_INDEX" --shard-total "$CI_NODE_TOTAL" -q --durations=10 --junitxml=reports/mysql-tests.xml
+  artifacts:
+    when: always
+    reports:
+      junit: reports/mysql-tests.xml
+    paths:
+      - reports/mysql-tests.xml
+    expire_in: 1 week
 
 frontend_build:
   stage: build
