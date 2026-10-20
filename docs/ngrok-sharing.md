@@ -21,8 +21,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Url https
 
 网址末尾带 `/` 也可以，脚本会自动移除。请使用网站根网址，不要附带页面路径或查询参数。
 
-首次启动会下载官方代理镜像，并重新创建前后端容器以更新允许来源和 HTTPS
-cookie。已有数据库和上传文件保留。脚本保留已记录的 Cloudflare 临时网址
+启动时会构建最新应用镜像，自动启动 MySQL 8.4，等待数据库就绪，然后初始化表和标签、
+启动 API、文档 worker 及前端，并更新允许来源和 HTTPS cookie。无需先运行另一条 Compose 启动命令。
+不需要旧数据时，直接运行本脚本即可；首次创建的 MySQL 业务库为空，需要重新注册账号。
+旧 SQLite 不会自动导入或删除；如需保留其中的数据，应先按 [迁移指南](mysql-migration.md) 导入。
+已有 MySQL 数据和上传文件会保留，后续启动不会清空数据。脚本保留已记录的 Cloudflare 临时网址
 作为另一个允许来源，也保留本机 `http://127.0.0.1:5173` 和
 `http://localhost:5173` 的访问及登录配置（端口会跟随 `FRONTEND_PORT`）。
 不同网址使用各自的浏览器会话，需要分别登录。

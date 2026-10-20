@@ -1,5 +1,8 @@
 # project
 
+数据库已切换为 **MySQL 8.4 + SQLAlchemy**。新环境可用 `docker compose up --build --detach --wait --wait-timeout 180` 启动。
+不需要旧数据时可直接启动；**需要保留 SQLite 数据时，请先按 [MySQL 迁移指南](docs/mysql-migration.md) 备份和导入，再启动新版服务。**
+
 在自己的 Windows 电脑运行，并让其他网络的人通过临时网址访问：
 见[公网访问指南](docs/public-sharing.md)，或在 Docker Desktop 启动后运行
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\share.ps1`。

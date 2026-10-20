@@ -11,10 +11,12 @@ import click
 from argon2 import PasswordHasher
 from flask import Flask, g, jsonify
 from sqlalchemy import delete, select
+from sqlalchemy.engine import URL
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 from .db.database import Database
+from .db.migration import register_migration_command
 from .db.models import (AuthSession, LoginAttempt, PasswordResetAttempt, PasswordResetCode,
                         RegistrationAttempt, RegistrationCode, utcnow)
 from .features.auth.routes import auth, provision_user
@@ -41,7 +43,12 @@ def create_app(config=None):
     if cookie_secure not in ("true", "false"):
         raise ValueError("COOKIE_SECURE must be true or false.")
     app.config.from_mapping(
-        DATABASE_URL=os.getenv("DATABASE_URL", "sqlite:///data/h18abanana.db"),
+        DATABASE_URL=os.getenv("DATABASE_URL") or URL.create(
+            "mysql+pymysql", username=os.getenv("MYSQL_USER", "banana"),
+            password=os.getenv("MYSQL_PASSWORD", "banana_local_password"),
+            host=os.getenv("MYSQL_HOST", "127.0.0.1"), port=int(os.getenv("MYSQL_PORT", "3306")),
+            database=os.getenv("MYSQL_DATABASE", "h18abanana"),
+        ),
         ALLOWED_ORIGINS=os.getenv("ALLOWED_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173").split(","),
         COOKIE_SECURE=cookie_secure == "true",
         SESSION_TTL=86400, ANONYMOUS_TTL=3600, LOGIN_WINDOW=900,
@@ -74,6 +81,7 @@ def create_app(config=None):
             raise ValueError("ALLOWED_ORIGINS must contain exact HTTP(S) origins without paths.")
     app.config["ALLOWED_ORIGINS"] = origins
     app.extensions["database"] = Database(app.config["DATABASE_URL"])
+    register_migration_command(app)
     app.extensions["password_hasher"] = PasswordHasher()
     app.extensions["dummy_hash"] = app.extensions["password_hasher"].hash(secrets.token_urlsafe(32))
     app.extensions["registration_mailer"] = send_registration_code

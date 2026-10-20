@@ -37,6 +37,13 @@ def test_public_compose_preserves_local_origins_and_existing_storage(frontend_po
     ]
     assert backend["environment"]["COOKIE_SECURE"] == "true"
     assert config["volumes"]["backend_data"]["name"] == "banana-backend_backend_data"
+
+    # The HTTPS overlay must retain the MySQL startup dependency and shared settings.
+    assert config["services"]["mysql"]["image"] == "mysql:8.4"
+    assert backend["depends_on"]["mysql"]["condition"] == "service_healthy"
+    worker = config["services"]["document-worker"]
+    for name in ("MYSQL_HOST", "MYSQL_DATABASE", "MYSQL_USER", "MYSQL_PASSWORD"):
+        assert backend["environment"][name] == worker["environment"][name]
     assert any(mount["source"] == "backend_data" and mount["target"] == "/app/data"
                for mount in backend["volumes"])
     assert not tunnel.get("ports") and not tunnel.get("volumes")

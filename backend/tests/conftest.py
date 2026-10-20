@@ -7,6 +7,8 @@ from backend.src.app import create_app
 from backend.src.features.auth.routes import provision_user
 from backend.src.features.profile.routes import seed_tags
 from backend.src.shared.paths import ROOT
+from sqlalchemy.engine import make_url
+from backend.src.db.models import Base
 
 PASSWORD = "Test-password-123!"
 ORIGIN = "http://127.0.0.1:5173"
@@ -17,6 +19,8 @@ def pytest_addoption(parser):
                      help="Fail instead of skipping real HTTP integration when Node/jsdom is missing.")
     parser.addoption("--run-docker", action="store_true",
                      help="Build and test the real Docker stack in an isolated disposable project.")
+    parser.addoption("--run-mysql", action="store_true",
+                     help="Run app fixtures against MYSQL_TEST_DATABASE_URL (database name must end in _test; tables are cleared).")
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -43,18 +47,30 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def app(tmp_path):
-    app = create_app({"TESTING": True, "DATABASE_URL": f"sqlite:///{(tmp_path / 'test.db').as_posix()}",
+def app(tmp_path, request):
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    if request.config.getoption("--run-mysql"):
+        url = os.getenv("MYSQL_TEST_DATABASE_URL", "")
+        parsed = make_url(url) if url else None
+        if not parsed or parsed.drivername != "mysql+pymysql" or not (parsed.database or "").endswith("_test"):
+            pytest.fail("--run-mysql requires MYSQL_TEST_DATABASE_URL naming a disposable MySQL database ending in _test.")
+    app = create_app({"TESTING": True, "DATABASE_URL": url,
                       "COOKIE_SECURE": False, "LOGIN_EMAIL_LIMIT": 100, "LOGIN_IP_LIMIT": 100})
     database = app.extensions["database"]
+    if request.config.getoption("--run-mysql"):
+        Base.metadata.drop_all(database.engine)
     database.initialise()
     with app.app_context():
         seed_tags(json.loads((ROOT / "docs/api/examples/tags.json").read_text())["items"])
         for email, role in (("talent@example.test", "TALENT"), ("other@example.test", "TALENT"),
                             ("team@example.test", "RESEARCH_TEAM")):
             provision_user(email, PASSWORD, email.split("@")[0], role)
-    yield app
-    database.engine.dispose()
+    try:
+        yield app
+    finally:
+        if request.config.getoption("--run-mysql"):
+            Base.metadata.drop_all(database.engine)
+        database.engine.dispose()
 
 
 def sign_in(client, email="talent@example.test", password=PASSWORD):

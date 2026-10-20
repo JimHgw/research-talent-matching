@@ -5,7 +5,7 @@ from threading import Barrier
 
 import pytest
 from sqlalchemy import event, func, select, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from backend.src.app import create_app
 from backend.src.db.models import (AuthSession, Document, LoginAttempt, PrivacySettings, PrivacyVisibleField,
@@ -334,12 +334,17 @@ def test_failed_save_rolls_back_all_changes(app, signed):
 def test_database_constraints_and_foreign_keys(app):
     database = app.extensions["database"]
     with database.engine.connect() as first, database.engine.connect() as second:
-        assert first.scalar(text("PRAGMA foreign_keys")) == second.scalar(text("PRAGMA foreign_keys")) == 1
+        check = "PRAGMA foreign_keys" if database.engine.dialect.name == "sqlite" else "SELECT @@foreign_key_checks"
+        assert first.scalar(text(check)) == second.scalar(text(check)) == 1
     with pytest.raises(IntegrityError), database.transaction(write=True) as db:
         db.add(ProfileSkill(talent_id="missing", tag_id="skill_sql", claim="HAS", evidence_text="", position=0))
-    with pytest.raises(IntegrityError), database.transaction(write=True) as db:
+    # PyMySQL reports MySQL CHECK violations (3819) as OperationalError.
+    check_error = OperationalError if database.engine.dialect.name == "mysql" else IntegrityError
+    with pytest.raises(check_error) as rejected, database.transaction(write=True) as db:
         profile = db.scalar(select(TalentProfile))
         profile.confirmation_status = "CONFIRMED"
+    if database.engine.dialect.name == "mysql":
+        assert rejected.value.orig.args[0] == 3819
     with app.app_context(), pytest.raises(ValueError):
         provision_user("TALENT@example.test", PASSWORD, "Duplicate", "TALENT")
 

@@ -4,7 +4,7 @@
 
 An explainable bidirectional matching system for research talent and research opportunities in Australian universities.
 
-For the one-command Docker backend (Flask + Gunicorn + SQLite in one container with persistent storage), see [section 3: Docker Backend Guide](#3-docker-backend-guide). For frontend and backend containers together, use [the integrated Docker guide](docs/docker-integration.md). Docker workflows do not require installing the host development environment.
+For the one-command Docker backend (Flask + Gunicorn with a separate MySQL 8.4 service), see [section 3: Docker Backend Guide](#3-docker-backend-guide). For frontend and backend containers together, use [the integrated Docker guide](docs/docker-integration.md). Docker workflows do not require installing the host development environment.
 
 ## Contents
 
@@ -30,7 +30,7 @@ For the one-command Docker backend (Flask + Gunicorn + SQLite in one container w
 
 The current repository provides verified-email registration for both roles in `backend/src/features/auth/registration.py`, both reset methods in `backend/src/features/auth/reset.py`, and email/ID login, session restoration and logout in `backend/src/features/auth/routes.py`, shared tags and owner-only profile reads/writes in `backend/src/features/profile/routes.py`, and database models/transactions in `backend/src/db/`. Reusable access checks, validation and repository paths live in `backend/src/shared/`. The existing frontend uses these endpoints directly. New talent accounts start with an empty revision-0 profile, no confirmation and private settings. Profile saving uses full replacement, detects stale revisions, preserves no-ops and persists across restarts.
 
-Follow [the backend README](backend/README.md) to initialise SQLite, seed tags, configure SMTP for registration/email resets (or provision accounts) and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py`, `backend/tests/test_us01_registration.py` and `backend/tests/test_us01_password_reset.py` check the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
+Follow [the backend README](backend/README.md) to start MySQL, initialise tables and seed tags, configure SMTP for registration/email resets (or provision accounts) and start port 8000 alongside Vite on port 5173. `backend/tests/test_us01.py`, `backend/tests/test_us01_registration.py` and `backend/tests/test_us01_password_reset.py` check the backend; `backend/tests/test_frontend_integration.py` exercises the current React pages against a real HTTP service when Node and frontend dependencies are installed. Backend dependency manifests and the environment example are also under `backend/`. Profile confirmation, privacy endpoints, documents and matching are separate contributions and are not supplied by US-01.
 
 ### Current US-02 Implementation
 
@@ -102,7 +102,7 @@ US-04 and US-05 reuse the matching rules from US-08, but scores may differ betwe
 
 #### 2.2.1 Logical Models
 
-The following describes data responsibilities, not existing database tables or directories. **This project has selected SQLite + SQLAlchemy ORM**; the HTTP contract retains its existing structure. Section 2.2.4 proposes the physical schema. Saved data must be retrievable, with revision checks and updates handled transactionally.
+The following describes data responsibilities, not existing database tables or directories. **This project uses MySQL 8.4 + PyMySQL + SQLAlchemy ORM**; the HTTP contract retains its existing structure. Section 2.2.4 proposes the physical schema. Saved data must be retrievable, with revision checks and updates handled transactionally.
 
 | Data | Public structure or key fields | Internal responsibility |
 |---|---|---|
@@ -150,21 +150,21 @@ Revision conflicts return `409 REVISION_CONFLICT` with the current revision, wit
 
 #### 2.2.3 Confirmed Database Technology and Configuration
 
-**SQLite is the database; SQLAlchemy ORM maps Python models to tables and generates parameterised SQL.** Using an ORM still requires explicit columns, primary and foreign keys, unique constraints, relationships and transactions. API JSON models do not replace database design.
+**MySQL 8.4 is the database; SQLAlchemy ORM maps Python models to tables and generates parameterised SQL.** Using an ORM still requires explicit columns, primary and foreign keys, unique constraints, relationships and transactions. API JSON models do not replace database design.
 
-- Persist runtime data in a SQLite file on disk. The suggested development URL is `sqlite+pysqlite:///./data/h18abanana.db`, read from environment configuration with relative paths resolved against the project root. Do not commit database files or uploaded originals to Git.
+- Persist runtime data in MySQL using InnoDB and utf8mb4. Configure `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` and `MYSQL_PASSWORD`, or an explicit `mysql+pymysql://...` URL. Do not commit credentials, database backups or uploaded originals to Git. Existing SQLite installations must follow [the migration guide](docs/mysql-migration.md) before startup.
 - Use SQLAlchemy 2.x-style `DeclarativeBase`, `Mapped`, `mapped_column` and `relationship`; pin the actual dependency version in the backend dependency manifest.
 - Each HTTP request and background extraction task creates its own ORM Session. Do not share it across requests, threads or tasks. An ORM Session is a database unit of work, distinct from the login-session table.
-- Enable `PRAGMA foreign_keys=ON` on every database connection, including schema-initialisation connections, and verify that it returns 1 at startup. Declaring SQLite foreign keys alone does not guarantee runtime enforcement; see the [SQLite foreign-key documentation](https://www.sqlite.org/foreignkeys.html).
-- Configure real transaction BEGIN behaviour rather than relying on Python sqlite3's legacy transaction mode. Set a bounded lock wait, suggested at five seconds. A busy database is not a revision conflict and must not always return 409. Follow the [SQLAlchemy SQLite documentation](https://docs.sqlalchemy.org/en/20/dialects/sqlite.html) for connection and transaction configuration.
+- Use InnoDB foreign keys, CHECK and unique constraints. The legacy SQLite adapter still enables `PRAGMA foreign_keys=ON` for explicitly configured SQLite sources and tests.
+- MySQL write transactions lock a shared mutex row before application reads, preserving the existing serialized revision/lease checks. Read transactions use repeatable-read snapshots. A database failure is not a revision conflict. See [SQLAlchemy MySQL documentation](https://docs.sqlalchemy.org/en/20/dialects/mysql.html).
 
-Implement SQLite connection options against the project's pinned Python / SQLAlchemy versions. Perform extraction and other slow operations outside write transactions, opening a short transaction to commit results.
+Use the project's pinned PyMySQL / SQLAlchemy versions. Perform extraction and other slow operations outside write transactions, opening a short transaction to commit results.
 
 #### 2.2.4 Proposed Tables and ORM Mappings
 
 **The technology choice is confirmed. The following table names, fields and storage layout describe the proposed full Sprint 1 design.** The implemented US-01 subset is defined in `backend/src/db/models.py` using typed SQLAlchemy 2.x mappings and child-to-parent relationships. The proposal below is not a migration or an exact inventory of the current schema. Internal columns use `snake_case`; response serialisation uses the contract's `camelCase` fields.
 
-Type conventions: business IDs use `String(64)`; counts, revisions and positions use `Integer`; flags use `Boolean`; ordinary long text uses `Text`; timestamps use `DateTime`. Convert timestamps to UTC before writing, store consistently as timezone-naive UTC values in SQLite, then explicitly restore UTC on reading and serialise as RFC3339. Never interpret them as local time. Only columns marked `?` below are nullable. PK means primary key, FK foreign key, and UQ unique constraint.
+Type conventions: business IDs use `String(64)`; counts, revisions and positions use `Integer`; flags use `Boolean`; ordinary long text uses `Text`; timestamps use `DateTime`. Convert timestamps to UTC before writing, store consistently as timezone-naive UTC values (`DATETIME(6)` on MySQL), then explicitly restore UTC on reading and serialise as RFC3339. Never interpret them as local time. Only columns marked `?` below are nullable. PK means primary key, FK foreign key, and UQ unique constraint.
 
 | Table / ORM class | Columns and types | Relationships, constraints and purpose |
 |---|---|---|
@@ -184,7 +184,7 @@ Type conventions: business IDs use `String(64)`; counts, revisions and positions
 | `opportunity_requirements` / `OpportunityRequirement` | `opportunity_id` ID FK; `id` ID; `label`, `kind`, `importance` text; `position` integer | Composite PK `(opportunity_id, id)`; opportunity_id → opportunities.id; kind limited to SKILL/INTEREST, importance to REQUIRED/PREFERRED; position non-negative, preserving requirement order |
 | `requirement_tags` / `RequirementTag` | `opportunity_id`, `requirement_id`, `tag_id` IDs; `position` integer | Composite PK `(opportunity_id, requirement_id, tag_id)`; composite FK to opportunity_requirements; tag_id FK → tags.id; position non-negative, preserving tagIds order |
 
-All business columns are NOT NULL unless marked `?`. SQLite's `String(n)` does not replace length validation. Declare `CheckConstraint`, `UniqueConstraint` and `ForeignKeyConstraint`, and enforce contract lengths, ID formats, nested JSON structures, array limits and duplicate-record rules in request validation.
+All business columns are NOT NULL unless marked `?`. Database field lengths do not replace request validation. Declare `CheckConstraint`, `UniqueConstraint` and `ForeignKeyConstraint`, and enforce contract lengths, ID formats, nested JSON structures, array limits and duplicate-record rules in request validation.
 
 Use CHECK constraints for confirmation consistency: UNCONFIRMED requires null confirmation revision and time; CONFIRMED requires both non-null and confirmed_revision=revision. A FAILED Document requires error; other states require error=null. The service layer checks cross-table business rules inside the transaction, including tag kinds, talent / team roles, source-document ownership and at least one requirement before publication.
 
@@ -198,7 +198,7 @@ Do not create a permanent match-result / score table in this sprint; calculate f
 
 Profile content, related arrays, provenance, revision and confirmation state must commit or roll back together. Provision a talent's User, TalentProfile and PrivacySettings in one transaction; a provisioned team account does not receive a talent profile. Background extraction must also save Extraction and change Document to READY in one transaction.
 
-Use short, service-controlled write transactions, acquiring the SQLite write transaction (`BEGIN IMMEDIATE`) before reads, authorisation and revision comparison. This prevents ordinary no-op saves, confirmation and publication from interleaving with another write. Only the database transaction adapter should begin the transaction, once; do not issue BEGIN inside an already active ORM transaction. Implement the integration for the pinned driver version. All write paths follow the same convention, while read transactions maintain a consistent data snapshot.
+Use short, service-controlled write transactions, acquiring the MySQL mutex row (`SELECT ... FOR UPDATE`) before reads, authorisation and revision comparison (legacy SQLite uses `BEGIN IMMEDIATE`). This prevents ordinary no-op saves, confirmation and publication from interleaving with another write. Only the database transaction adapter should begin the transaction, once; do not issue BEGIN inside an already active ORM transaction. Implement the integration for the pinned driver version. All write paths follow the same convention, while read transactions maintain a consistent data snapshot.
 
 The following parameterised SQL illustrates updating the profile revision **after determining that the current content actually changes**. It is not a complete save function; other field, child-table and provenance updates belong in the same transaction:
 
@@ -534,6 +534,8 @@ The Jira screenshot's 15 October date is the sprint end date. Official demonstra
 
 ## 3. Docker Backend Guide
 
+The current database is MySQL 8.4. For first startup, configuration, SQLite data transfer and rollback, follow [the migration guide](docs/mysql-migration.md). The dated SQLite verification record below describes the earlier deployment.
+
 The root Compose configuration can now run frontend and backend containers
 together. See [the integrated Docker guide](docs/docker-integration.md) for the
 shared network, startup, verification and data-volume preservation. The
@@ -541,7 +543,7 @@ shared network, startup, verification and data-volume preservation. The
 document worker. Their `down` action removes the whole Compose project's containers and
 network, including its frontend if running, while preserving the data volume.
 
-The backend uses **Flask + SQLAlchemy + SQLite**, with **Gunicorn** serving the Flask application inside the container. The launcher builds the backend image and starts the container automatically. The backend accesses SQLite directly; PostgreSQL, MySQL and a separate database container are not required.
+The backend uses **Flask + SQLAlchemy + MySQL 8.4**, with **Gunicorn** serving Flask. The launcher builds the backend image and starts a separate MySQL service automatically. **Existing SQLite data must be migrated before startup:** see [the migration guide](docs/mysql-migration.md).
 
 Sections 0–2 above contain the sprint requirements, data models and interface specification. For native development without Docker, see [backend/README.md](backend/README.md).
 
@@ -577,9 +579,9 @@ The default action is `up`. The launcher performs these steps:
 
 1. Checks Docker, Compose and the Linux container environment.
 2. Builds the `banana-backend:local` image using `backend/Dockerfile`.
-3. Creates or reuses the named SQLite data volume and starts `backend` and `document-worker` containers.
+3. Creates or reuses the MySQL and document data volumes, waits for MySQL, and starts `backend` and `document-worker` containers.
 4. Runs `init-db` and `seed-tags` through the Flask CLI during container startup, then serves the Flask application through Gunicorn.
-5. Waits up to 120 seconds for the health check to pass. Image build time is separate from this readiness timeout.
+5. Waits up to 180 seconds for the health check to pass. Image build time is separate from this readiness timeout.
 
 After a successful start, the launcher displays the published address. The default health check URL is:
 
@@ -595,7 +597,7 @@ The published port binds only to the host's `127.0.0.1` address. Inside the cont
 
 Flask handles routes, business logic and database access. Gunicorn receives HTTP requests, serves the application and manages worker processes. The Docker build automatically installs a pinned Gunicorn version from `backend/requirements-docker.txt`; no manual installation is needed. Gunicorn runs only inside the Linux container and is not added to the Windows host development dependencies. Native development can continue to use `flask run`. See [Flask's Gunicorn deployment guide](https://flask.palletsprojects.com/en/stable/deploying/gunicorn/).
 
-The initial configuration uses **1 worker and 4 threads** in a single container to keep resource usage modest. SQLite write transactions retain the existing serialised write lock; adding threads does not allow multiple simultaneous SQLite write transactions. Gunicorn sends access and error logs to the container logs. When stopping the container, Compose allows 35 seconds for the default graceful shutdown process to finish.
+The initial configuration uses **1 worker and 4 threads** in a single container to keep resource usage modest. MySQL write transactions currently use a shared mutex row to preserve the existing serialized revision/lease semantics; adding threads does not remove that lock. Gunicorn sends access and error logs to the container logs. When stopping the container, Compose allows 35 seconds for the default graceful shutdown process to finish.
 
 ### 3.3 Create Login Accounts
 
@@ -652,7 +654,7 @@ Run the launcher again after changing the configuration. For example, with `BACK
 
 The launcher explicitly reads `.env` from the **repository root** if it exists, otherwise `.env.example`. It does not read an unrelated `.env` from the terminal's current directory. Environment variables already exported in the terminal take precedence. `backend/.env.example` remains a reference for native backend startup and is not loaded automatically by this launcher.
 
-Compose fixes `DATABASE_URL` to `sqlite:////app/data/h18abanana.db` so that the database is stored in the persistent volume. Do not supply a host Windows database path in the container configuration. `ALLOWED_ORIGINS` controls CSRF validation; it does not enable cross-origin CORS. The frontend continues to access the API through Vite's same-origin proxy.
+Compose supplies shared `MYSQL_*` settings to API and worker, with the database at `mysql:3306`. An optional `DATABASE_URL` overrides them. Records persist in `mysql_data`; documents and legacy SQLite remain in `backend_data`. Do not supply host Windows paths in container database configuration. `ALLOWED_ORIGINS` controls CSRF validation; it does not enable cross-origin CORS. The frontend continues to access the API through Vite's same-origin proxy.
 
 ### 3.6 Build, Stop and Inspect Logs
 
@@ -685,19 +687,19 @@ The recipient can import the image and start it using the Compose configuration 
 
 ```sh
 docker image load --input banana-backend.tar
-docker compose up --no-build --detach --wait --wait-timeout 120 backend
+docker compose up --no-build --detach --wait --wait-timeout 180 backend
 ```
 
 The exported image contains backend code and Python dependencies. It does not contain database records, accounts or host environment files. Back up the data separately.
 
 ### 3.7 Persistence and Updates
 
-- There is one backend service. SQLite has no separate server process or database container.
-- The default Compose project name is `banana-backend`. Its default data volume is `banana-backend_backend_data`, mounted at `/app/data`. Keep the same project name to reuse the data. Multiple checkouts on the same Docker engine also operate on this same project by default.
+- MySQL runs as a separate service with its own `mysql_data` volume. Its port is internal by default.
+- The default Compose project name is `banana-backend`. MySQL uses `banana-backend_mysql_data`; documents and legacy SQLite use `banana-backend_backend_data` at `/app/data`. Keep the same project name to reuse both volumes. Multiple checkouts on the same Docker engine operate on this same project by default.
 - Running the launcher again reuses the volume. `init-db` creates only missing tables, and loading identical tags again does not overwrite existing data.
 - Changes to existing table structures still require explicit migrations. If existing tags conflict with the seed definitions, startup fails; review the differences instead of trying to fix the conflict by recreating the container.
 - `stop`, the launcher's `down` action and image rebuilds preserve the data. **Do not run `docker compose down -v` or delete the volume unless you intentionally want to erase the database.**
-- The volume survives container replacement, but it is not a backup. Stop the backend before backing up the volume, or use the SQLite backup API. Avoid copying a database file while it is being written.
+- Volumes survive container replacement but are not backups. Use MySQL logical/consistent backups and separately back up private uploaded files. For a legacy SQLite migration, stop writers and follow the migration guide.
 - The host's `data/`, virtual environment, frontend dependencies and environment files are excluded from the image. Existing host data is not automatically copied or overwritten.
 - Source code is copied into the image rather than mounted live. After backend code changes, run the launcher again to rebuild the image. Keep a single backend instance by default.
 
