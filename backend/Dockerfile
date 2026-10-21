@@ -3,8 +3,7 @@ FROM python:3.13-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     FLASK_SKIP_DOTENV=1 \
-    FLASK_DEBUG=0 \
-    DATABASE_URL=sqlite:////app/data/h18abanana.db
+    FLASK_DEBUG=0
 
 WORKDIR /app
 

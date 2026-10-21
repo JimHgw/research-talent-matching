@@ -3,9 +3,9 @@
 To let people on other networks access this computer through a temporary HTTPS
 URL, use `share.ps1` and [the public sharing guide](public-sharing.md).
 
-The root `compose.yaml` runs three containers in the existing
+The root `compose.yaml` runs four containers in the existing
 `banana-backend` project: Nginx serves the frontend, Gunicorn serves the Python
-API, and a document worker processes uploads. They join `banana-backend_default`; Docker resolves the backend service name
+API, a document worker processes uploads, and MySQL stores database records. They join `banana-backend_default`; Docker resolves the backend service name
 without a host gateway or fixed container IP.
 
 The browser opens `http://127.0.0.1:5173` and sends relative `/api/v1` requests.
@@ -14,7 +14,11 @@ Origin and the CSRF header. The backend's host port can change without changing
 this internal address. The frontend builds from `./frontend`; the backend builds
 from the repository root with its own Dockerfile and build-context exclusions.
 
-## Start both services
+## Start the stack
+
+The database is MySQL 8.4 in its own service. **Existing SQLite installations must
+follow the [migration guide](mysql-migration.md) before starting the new stack.**
+MySQL uses `mysql_data`; `backend_data` retains uploaded files and the original SQLite database.
 
 Install and start Docker Desktop with Linux containers on macOS/Windows, or Docker
 Engine with Compose on Linux. Use Compose with `up --wait` support. Host Python,
@@ -25,14 +29,14 @@ From the repository root, on macOS, Linux or PowerShell:
 
 ```sh
 docker compose config --quiet
-docker compose up --build --detach --wait --wait-timeout 120
+docker compose up --build --detach --wait --wait-timeout 180
 docker compose ps
 ```
 
 Stop existing Vite/Flask processes or other containers using ports 5173/8000
 before startup. The frontend starts after the backend reports healthy; the wait
 also checks the frontend health endpoint. Build time is separate from the
-120-second startup wait. A failed wait is not a successful deployment; inspect
+180-second startup wait. A failed wait is not a successful deployment; inspect
 `docker compose logs --tail=100` before retrying.
 
 Open `http://127.0.0.1:5173`. These containers serve the real API without demo
@@ -81,7 +85,7 @@ smoke test is opt-in and requires a working Linux Docker engine:
 .venv/bin/python -m pytest backend/tests/test_docker_stack.py -q -rs --run-docker
 ```
 
-It creates a unique Compose project and test data volume, checks all three containers,
+It creates a unique Compose project and test data volumes, checks all four containers,
 API proxying, login, profile writes, automatic document processing and restart persistence, then removes only
 that temporary project's containers, network and volume. It does not use the
 default project's accounts or database. Configuration tests alone do not prove
@@ -108,9 +112,14 @@ Production also requires HTTPS and deliberate trusted-proxy configuration.
 
 The existing project name `banana-backend`, volume key `backend_data`, and mount
 `/app/data` are unchanged. With the default project name, the existing volume is
-`banana-backend_backend_data`; account and profile data survive container
+`banana-backend_backend_data`; uploaded files survive container
 replacement. Continue using the same `COMPOSE_PROJECT_NAME` if you previously
 overrode it. Different checkouts on one engine can address the same project.
+
+MySQL records persist in `banana-backend_mysql_data`. Both API and document worker
+use the same MySQL settings. Configure `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`
+and `MYSQL_ROOT_PASSWORD` in the root `.env`; defaults are for local development.
+MySQL has no host port unless you add `compose.mysql-local.yaml` for native development.
 
 ```sh
 docker compose stop
@@ -134,7 +143,7 @@ the backend container, also recreate the frontend so Nginx resolves the backend'
 new container address:
 
 ```sh
-docker compose up --build --detach --wait --wait-timeout 120 --force-recreate
+docker compose up --build --detach --wait --wait-timeout 180 --force-recreate
 ```
 
 Nginx and the upload endpoint allow 11 MiB request bodies for 10 MiB files plus

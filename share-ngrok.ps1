@@ -75,8 +75,8 @@ try {
         }
         & $dockerPath @composeArgs config --quiet
         if ($LASTEXITCODE -ne 0) { throw 'The ngrok deployment configuration is invalid.' }
-        Write-Host 'Updating public login origins and refreshing frontend/API containers...'
-        & $dockerPath @composeArgs up --detach --wait --wait-timeout 120 --force-recreate backend document-worker frontend
+        Write-Host 'Building the application and starting MySQL, the API, document worker and frontend...'
+        & $dockerPath @composeArgs up --build --detach --wait --wait-timeout 180 --force-recreate backend document-worker frontend
         if ($LASTEXITCODE -ne 0) { throw 'Application startup failed.' }
         Write-Host 'Connecting ngrok directly to the frontend container...'
         & $dockerPath @composeArgs up --detach --no-deps ngrok

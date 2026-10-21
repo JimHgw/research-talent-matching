@@ -1,0 +1,6 @@
+# Native Flask development: expose MySQL only on host loopback.
+# docker compose -f compose.yaml -f compose.mysql-local.yaml up -d --wait mysql
+services:
+  mysql:
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"

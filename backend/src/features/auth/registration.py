@@ -71,7 +71,7 @@ def registration_code():
                                 session_hash=session.token_hash, code_hash=encoded,
                                 expires_at=expires, created_at=now))
     try:
-        # SMTP must not hold SQLite's writer lock; undelivered codes stay unusable.
+        # SMTP must not hold the database write lock; undelivered codes stay unusable.
         current_app.extensions["registration_mailer"](email, code)
     except EmailDeliveryError:
         with database().transaction(write=True) as db:

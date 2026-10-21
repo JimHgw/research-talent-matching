@@ -11,7 +11,7 @@ and requires a separate profile confirmation before matching uses the new data.
 
 The root Compose stack and both `docker-backend` launchers start
 `document-worker` automatically alongside the API. They use the same application
-image, SQLite volume and private `/app/data/documents` directory. The worker has
+image, MySQL database and private `/app/data/documents` directory. The worker has
 no published port; Compose restarts it if its process exits.
 
 For native development, after the usual setup, `init-db` and `seed-tags`,

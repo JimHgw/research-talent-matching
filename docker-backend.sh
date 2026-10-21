@@ -38,7 +38,7 @@ compose() {
 
 case "$action" in
     up)
-        if ! compose up --build --detach --wait --wait-timeout 120 backend document-worker; then
+        if ! compose up --build --detach --wait --wait-timeout 180 backend document-worker; then
             printf '%s\n' 'Docker Compose failed. Check the output above; run sh docker-backend.sh logs for startup errors. Database volumes were not deleted.' >&2
             exit 1
         fi
@@ -52,12 +52,12 @@ case "$action" in
         ;;
     stop)
         compose stop backend document-worker
-        printf '%s\n' 'Backend and document worker stopped. The SQLite data volume is preserved.'
+        printf '%s\n' 'Backend and document worker stopped. The MySQL and document data volumes are preserved.'
         ;;
     down)
         compose down
-        printf '%s\n' 'Compose containers and network removed. The SQLite data volume is preserved.'
+        printf '%s\n' 'Compose containers and network removed. The MySQL and document data volumes are preserved.'
         ;;
-    logs) compose logs --follow --tail 100 backend document-worker ;;
+    logs) compose logs --follow --tail 100 mysql backend document-worker ;;
     status) compose ps --all ;;
 esac

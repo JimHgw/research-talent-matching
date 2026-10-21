@@ -106,6 +106,47 @@ backend_test:
     - python -m pytest
 
 
+backend_mysql_test:
+  stage: test
+  image: python:3.12-slim
+  parallel: 3
+  services:
+    - name: mysql:8.4
+      alias: mysql
+  variables:
+    MYSQL_DATABASE: banana_test
+    MYSQL_USER: banana
+    MYSQL_PASSWORD: ci_test_password
+    MYSQL_ROOT_PASSWORD: ci_test_root_password
+    MYSQL_TEST_DATABASE_URL: mysql+pymysql://banana:ci_test_password@mysql:3306/banana_test
+  before_script:
+    - python -m pip install -r backend/requirements-dev.txt
+    - |
+      python - <<'PY'
+      import os, time
+      from sqlalchemy import create_engine
+      engine = create_engine(os.environ['MYSQL_TEST_DATABASE_URL'])
+      for attempt in range(60):
+          try:
+              with engine.connect() as connection:
+                  connection.exec_driver_sql('SELECT 1')
+              break
+          except Exception:
+              if attempt == 59:
+                  raise
+              time.sleep(2)
+      engine.dispose()
+      PY
+  script:
+    - python -m pytest backend/tests --run-mysql --shard-index "$CI_NODE_INDEX" --shard-total "$CI_NODE_TOTAL" -q --durations=10 --junitxml=reports/mysql-tests.xml
+  artifacts:
+    when: always
+    reports:
+      junit: reports/mysql-tests.xml
+    paths:
+      - reports/mysql-tests.xml
+    expire_in: 1 week
+
 frontend_build:
   stage: build
   image: node:22

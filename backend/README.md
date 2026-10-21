@@ -1,13 +1,13 @@
 # Research matching backend
 
-Flask + SQLite + SQLAlchemy ORM implementation for verified-email registration, email/ID login, password reset and
+Flask + MySQL 8.4 + SQLAlchemy ORM implementation for verified-email registration, email/ID login, password reset and
 manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
 For frontend and backend containers together, use the
 [integrated Docker workflow](../docs/docker-integration.md).
 For a containerized backend alone, use the [one-command Docker workflow](../README_DEVELOPER_EN.md#3-docker-backend-guide).
-It keeps Flask and SQLite together, persists data in a named volume, and does not
+It starts a separate MySQL service, persists data in named volumes, and does not
 require the host setup below. Its container entrypoint explicitly initializes
 missing tables and seeds tags before serving Flask through Gunicorn; no default accounts are created.
 The document worker starts alongside the API and shares its private storage.
@@ -162,6 +162,16 @@ contract and fixture source; existing SQLite files remain in the root `data/`.
 
 ## Start the services
 
+Start MySQL before running native Flask commands:
+
+```sh
+docker compose -f compose.yaml -f compose.mysql-local.yaml up --detach --wait --wait-timeout 180 mysql
+```
+
+The defaults match `.env.example`; export `MYSQL_*` settings from `backend/.env.example`
+when customized. Existing SQLite installations must follow the
+[migration guide](../docs/mysql-migration.md) **before** running `seed-tags` or starting the updated stack.
+
 Native development also needs a document worker in a third terminal:
 `.venv/bin/python -m flask --app backend.app process-documents` (macOS/Linux),
 or `.\.venv\Scripts\python.exe -m flask --app backend.app process-documents`
@@ -239,7 +249,10 @@ These are process environment variables; the backend does not automatically load
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `DATABASE_URL` | `sqlite:///data/h18abanana.db` | File-backed SQLite; relative paths resolve from the repository root |
+| `DATABASE_URL` | Built from `MYSQL_*` | Optional `mysql+pymysql://...` override; explicit SQLite URLs remain supported for legacy data/tests |
+| `MYSQL_HOST` / `MYSQL_PORT` | `127.0.0.1` / `3306` | MySQL server; Compose sets the internal hostname to `mysql` |
+| `MYSQL_DATABASE` / `MYSQL_USER` | `h18abanana` / `banana` | Database and application account |
+| `MYSQL_PASSWORD` | `banana_local_password` | Local development default; configure your own for deployment |
 | `COOKIE_SECURE` | `true` | Set exactly `false` only for local HTTP development; keep `true` for HTTPS |
 | `ALLOWED_ORIGINS` | `http://127.0.0.1:5173,http://localhost:5173` | Comma-separated exact frontend origins, with no trailing slash |
 
@@ -270,8 +283,9 @@ Four academic arrays use JSON; skills/interests use ordered FK rows.
 Document metadata, extraction results and processing leases support US-09;
 private originals are stored separately. New tables are added by `init-db` or
 the worker CLI on an existing installation.
-Each connection enables SQLite foreign keys. Short write transactions acquire
-`BEGIN IMMEDIATE` before reading revisions; expensive password hashing and
+MySQL uses InnoDB foreign keys, binary utf8mb4 collation and UTC `DATETIME(6)`.
+Short write transactions acquire a shared database mutex row before reading revisions
+(legacy SQLite uses `BEGIN IMMEDIATE`); expensive password hashing and
 verification happen outside those locks. Session cookies are emitted only after
 successful commit. Profile writes replace all eight content fields, reject stale
 revisions with 409 and preserve the full response on a no-op. Actual changes
@@ -297,7 +311,7 @@ sort by update time descending and ID ascending. Owner information stays interna
 Requirements use stable IDs scoped to an opportunity, with foreign keys to shared
 tags. Drafts may have zero requirements; published opportunities may not.
 
-Writes acquire the existing SQLite writer lock before checking revisions. No-op
+Writes acquire the database write lock before checking revisions. No-op
 updates and repeated publication at the current revision preserve timestamps and
 revisions. Stale updates/publication return 409 without changing any rows. Changes
 to an already published opportunity remain published. Future matching can use

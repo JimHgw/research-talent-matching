@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-Build and start the Flask + SQLite backend in Docker.
+Build and start the Flask + MySQL backend in Docker.
 .EXAMPLE
 powershell -NoProfile -ExecutionPolicy Bypass -File .\docker-backend.ps1
 .EXAMPLE
@@ -42,11 +42,11 @@ try {
     $composeArgs = @('compose', '--project-directory', $PSScriptRoot,
                      '--env-file', $envFile, '--file', (Join-Path $PSScriptRoot 'compose.yaml'))
     [string[]]$actionArgs = switch ($Action) {
-        'up'     { @('up', '--build', '--detach', '--wait', '--wait-timeout', '120', 'backend', 'document-worker') }
+        'up'     { @('up', '--build', '--detach', '--wait', '--wait-timeout', '180', 'backend', 'document-worker') }
         'build'  { @('build', 'backend') }
         'stop'   { @('stop', 'backend', 'document-worker') }
         'down'   { @('down') }
-        'logs'   { @('logs', '--follow', '--tail', '100', 'backend', 'document-worker') }
+        'logs'   { @('logs', '--follow', '--tail', '100', 'mysql', 'backend', 'document-worker') }
         'status' { @('ps', '--all') }
     }
     & $dockerPath @composeArgs @actionArgs
@@ -61,9 +61,9 @@ try {
     } elseif ($Action -eq 'build') {
         Write-Host 'Image built: banana-backend:local. No container was started.'
     } elseif ($Action -eq 'down') {
-        Write-Host 'Compose containers and network removed. The SQLite data volume is preserved.'
+        Write-Host 'Compose containers and network removed. The MySQL and document data volumes are preserved.'
     } elseif ($Action -eq 'stop') {
-        Write-Host 'Backend and document worker stopped. The SQLite data volume is preserved.'
+        Write-Host 'Backend and document worker stopped. The MySQL and document data volumes are preserved.'
     }
 } catch {
     Write-Host "Backend Docker command failed: $($_.Exception.Message)" -ForegroundColor Red

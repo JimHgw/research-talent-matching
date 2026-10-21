@@ -38,7 +38,8 @@ def compose_cli(request):
 def stack_environment(overrides=None):
     env = os.environ.copy()
     for name in ("COMPOSE_PROJECT_NAME", "COMPOSE_FILE", "COMPOSE_PROFILES",
-                 "BACKEND_PORT", "FRONTEND_PORT", "COOKIE_SECURE", "ALLOWED_ORIGINS"):
+                 "BACKEND_PORT", "FRONTEND_PORT", "COOKIE_SECURE", "ALLOWED_ORIGINS",
+                 "DATABASE_URL", "MYSQL_DATABASE", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_ROOT_PASSWORD"):
         env.pop(name, None)
     return {**env, **(overrides or {})}
 
@@ -84,7 +85,15 @@ def test_compose_preserves_storage_and_routes_over_the_shared_network(compose_cl
     assert config["volumes"]["backend_data"]["name"] == "banana-backend_backend_data"
     mount = next(item for item in backend["volumes"] if item["target"] == "/app/data")
     assert mount["type"] == "volume" and mount["source"] == "backend_data"
-    assert backend["environment"]["DATABASE_URL"] == "sqlite:////app/data/h18abanana.db"
+    mysql = config["services"]["mysql"]
+    assert mysql["image"] == "mysql:8.4"
+    assert not mysql.get("ports")
+    assert mysql["volumes"][0]["source"] == "mysql_data"
+    assert backend["depends_on"]["mysql"]["condition"] == "service_healthy"
+    assert backend["environment"]["DATABASE_URL"] == ""
+    for name in ("MYSQL_HOST", "MYSQL_PORT", "MYSQL_DATABASE", "MYSQL_USER", "MYSQL_PASSWORD"):
+        assert backend["environment"][name] == worker["environment"][name]
+    assert backend["environment"]["MYSQL_HOST"] == "mysql"
     assert backend["environment"]["COOKIE_SECURE"] == "false"
     backend_port, frontend_port = ports or (8000, 5173)
     for service, published, target in ((backend, backend_port, 8000), (frontend, frontend_port, 80)):

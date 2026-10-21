@@ -20,7 +20,7 @@ def claim_next_document():
     timeout = timedelta(seconds=current_app.config["DOCUMENT_PROCESSING_TIMEOUT"])
     with database().transaction(write=True) as db:
         now = utcnow()
-        # BEGIN IMMEDIATE serialises claim/reclaim with all result writes.
+        # The database write lock serialises claim/reclaim with all result writes.
         document = db.scalar(
             select(Document)
             .outerjoin(DocumentProcessingLease, DocumentProcessingLease.document_id == Document.id)
