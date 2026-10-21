@@ -249,6 +249,45 @@ test('revision conflicts preserve server error fields and are never retried auto
   );
   assert.equal(calls.length, 1);
 });
+
+test('session changes detach pending checks and late responses cannot overwrite the new CSRF token', async () => {
+  const waiting = [];
+  const writes = [];
+  const api = createApi({
+    fetchImpl: async (url, options) => {
+      if (url.endsWith('/auth/session')) return new Promise((resolve) => waiting.push(resolve));
+      writes.push(options.headers['X-CSRF-Token']);
+      if (url.endsWith('/auth/login'))
+        return new Response(JSON.stringify({ user: { id: 'new-user' }, csrfToken: 'new-token' }));
+      if (url.endsWith('/auth/logout')) return new Response(null, { status: 204 });
+      return new Response('{}');
+    },
+  });
+  const old = api.session();
+  await api.login('user-id', 'password');
+  const current = api.session();
+  assert.equal(waiting.length, 2);
+  waiting[0](new Response(JSON.stringify({ user: null, csrfToken: 'stale-token' })));
+  await old;
+  // Resolving the earlier promise must not clear the new in-flight bootstrap.
+  assert.equal(api.session(), current);
+  await api.confirm(0);
+  assert.equal(writes.at(-1), 'new-token');
+  waiting[1](
+    new Response(JSON.stringify({ user: { id: 'new-user' }, csrfToken: 'current-token' }))
+  );
+  await current;
+  const beforeLogout = api.session();
+  await api.logout();
+  const anonymous = api.session();
+  assert.equal(waiting.length, 4);
+  waiting[2](new Response(JSON.stringify({ user: { id: 'new-user' }, csrfToken: 'late-token' })));
+  await beforeLogout;
+  await api.confirm(0);
+  assert.equal(writes.at(-1), '');
+  waiting[3](new Response(JSON.stringify({ user: null, csrfToken: 'anonymous-token' })));
+  await anonymous;
+});
 test('validation errors expose field messages to forms', async () => {
   const payload = fixture('error-validation');
   const { api } = harness(() => new Response(JSON.stringify(payload), { status: 422 }));

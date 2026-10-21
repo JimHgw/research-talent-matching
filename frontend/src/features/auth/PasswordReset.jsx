@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { Button, ErrorNotice, Field } from '../../shared/ui.jsx';
+import PasswordInput from '../../shared/PasswordInput.jsx';
+import { useLanguage } from '../../shared/i18n.jsx';
 
 const passwordHint =
   'At least 8 characters, including an uppercase letter, a lowercase letter and a digit.';
 
 export default function PasswordReset({ initialIdentifier, onBack, onComplete }) {
+  const { t } = useLanguage();
   const [method, setMethod] = useState('PASSWORD');
   const [identifier, setIdentifier] = useState(initialIdentifier);
   const [email, setEmail] = useState(initialIdentifier.includes('@') ? initialIdentifier : '');
@@ -103,16 +106,16 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
   const choosingPassword = method === 'PASSWORD' || stage === 'new';
   return (
     <>
-      <h2>Reset your password.</h2>
-      <p className="muted">Choose how to verify your account.</p>
-      <div className="reset-methods" role="group" aria-label="Password reset method">
+      <h2>{t('Reset your password.')}</h2>
+      <p className="muted">{t('Choose how to verify your account.')}</p>
+      <div className="reset-methods" role="group" aria-label={t('Password reset method')}>
         <Button
           variant="secondary"
           aria-pressed={method === 'PASSWORD'}
           disabled={busy}
           onClick={() => selectMethod('PASSWORD')}
         >
-          I remember my password
+          {t('I remember my password')}
         </Button>
         <Button
           variant="secondary"
@@ -120,7 +123,7 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
           disabled={busy}
           onClick={() => selectMethod('EMAIL_CODE')}
         >
-          Use an email code
+          {t('Use an email code')}
         </Button>
       </div>
       <ErrorNotice error={error} />
@@ -128,8 +131,9 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
         <fieldset className="reset-fields" disabled={busy}>
           {method === 'PASSWORD' ? (
             <>
-              <Field label="Email address or account ID">
+              <Field label={t('Email address or account ID')}>
                 <input
+                  dir="ltr"
                   value={identifier}
                   onChange={(event) => setIdentifier(event.target.value)}
                   autoComplete="username"
@@ -137,9 +141,9 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
                   maxLength={254}
                 />
               </Field>
-              <Field label="Current password">
-                <input
-                  type="password"
+              <Field label={t('Current password')}>
+                <PasswordInput
+                  label="Current password"
                   autoComplete="current-password"
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
@@ -150,9 +154,10 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
             </>
           ) : (
             <>
-              <Field label="Email address">
+              <Field label={t('Email address')}>
                 <input
                   type="email"
+                  dir="ltr"
                   autoComplete="email"
                   value={email}
                   readOnly={stage !== 'email'}
@@ -164,12 +169,14 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
               {stage === 'code' && (
                 <>
                   <p className="muted" role="status">
-                    If this email has an account, a six-digit code has been sent. It expires in 10
-                    minutes.
+                    {t(
+                      'If this email has an account, a six-digit code has been sent. It expires in 10 minutes.'
+                    )}
                   </p>
-                  <Field label="Verification code">
+                  <Field label={t('Verification code')}>
                     <input
                       inputMode="numeric"
+                      dir="ltr"
                       autoComplete="one-time-code"
                       value={code}
                       onChange={(event) => setCode(event.target.value)}
@@ -181,22 +188,24 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
                     />
                   </Field>
                   <Button variant="text" disabled={remaining > 0} onClick={resend}>
-                    {remaining > 0 ? `Resend in ${remaining}s` : 'Resend code'}
+                    {remaining > 0
+                      ? t('Resend in {seconds}s', { seconds: remaining })
+                      : t('Resend code')}
                   </Button>
                 </>
               )}
               {stage === 'new' && (
                 <p role="status" className="muted">
-                  Email verified. Choose your new password.
+                  {t('Email verified. Choose your new password.')}
                 </p>
               )}
             </>
           )}
           {choosingPassword && (
             <>
-              <Field label="New password" hint={passwordHint}>
-                <input
-                  type="password"
+              <Field label={t('New password')} hint={t(passwordHint)}>
+                <PasswordInput
+                  label="New password"
                   autoComplete="new-password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
@@ -204,9 +213,9 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
                   maxLength={200}
                 />
               </Field>
-              <Field label="Confirm new password">
-                <input
-                  type="password"
+              <Field label={t('Confirm new password')}>
+                <PasswordInput
+                  label="Confirm new password"
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
@@ -218,17 +227,17 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
           )}
           <Button type="submit" className="full">
             {busy
-              ? 'Please wait…'
+              ? t('Please wait…')
               : choosingPassword
-                ? 'Update password'
+                ? t('Update password')
                 : stage === 'email'
-                  ? 'Send code'
-                  : 'Verify email'}
+                  ? t('Send code')
+                  : t('Verify email')}
           </Button>
         </fieldset>
       </form>
       <Button variant="text" className="full" disabled={busy} onClick={onBack}>
-        Back to sign in
+        {t('Back to sign in')}
       </Button>
     </>
   );

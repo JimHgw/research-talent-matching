@@ -1,6 +1,7 @@
 .sidebar {
   position: fixed;
-  inset: 0 auto 0 0;
+  inset-block: 0;
+  inset-inline-start: 0;
   width: 246px;
   border-right: 1px solid var(--line);
   background: #fff;
@@ -67,7 +68,7 @@
   padding: 13px;
   border-radius: 7px;
   font-size: 13px;
-  text-align: left;
+  text-align: start;
 }
 .sidebar nav button:hover {
   background: #f6f5fb;
@@ -82,7 +83,7 @@
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -132,17 +133,19 @@
   font-size: 10px;
 }
 .workspace-body {
-  margin-left: 246px;
+  margin-inline-start: 246px;
   min-width: 0;
 }
 .topbar {
-  height: 76px;
+  min-height: 76px;
   border-bottom: 1px solid var(--line);
   background: #ffffffed;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 39px;
+  padding: 12px 39px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .breadcrumb {
   display: flex;
@@ -155,10 +158,37 @@
   color: #59596e;
   font-weight: 500;
 }
+[dir='rtl'] .breadcrumb > svg {
+  transform: scaleX(-1);
+}
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.account-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  font-size: 11px;
+  min-width: 0;
+  max-width: 100%;
+}
+.account-entry code,
+.account-details dd {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.account-details dt {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.account-details dd {
+  margin: 4px 0 0;
 }
 .main-content {
   max-width: 1430px;
@@ -194,7 +224,7 @@
 }
 .toast {
   position: fixed;
-  right: 30px;
+  inset-inline-end: 30px;
   bottom: 24px;
   max-width: min(520px, calc(100vw - 32px));
   z-index: 40;
@@ -218,7 +248,7 @@
     padding: 30px 27px 0;
   }
   .topbar {
-    padding: 0 27px;
+    padding: 12px 27px;
   }
 }
 @media (max-width: 1050px) {
@@ -228,7 +258,7 @@
     padding-right: 12px;
   }
   .workspace-body {
-    margin-left: 220px;
+    margin-inline-start: 220px;
   }
 }
 @media (max-width: 760px) {
@@ -246,6 +276,12 @@
     visibility: visible;
     transform: translateX(0);
   }
+  [dir='rtl'] .sidebar {
+    transform: translateX(100%);
+  }
+  [dir='rtl'] .sidebar.mobile-open {
+    transform: translateX(0);
+  }
   .menu-backdrop {
     display: block;
     position: fixed;
@@ -255,11 +291,11 @@
     border: 0;
   }
   .workspace-body {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
   .topbar {
-    height: 64px;
-    padding: 0 15px;
+    min-height: 64px;
+    padding: 12px 15px;
   }
   .breadcrumb {
     gap: 10px;
@@ -282,10 +318,16 @@
   }
   .toast {
     bottom: 15px;
-    right: 16px;
+    inset-inline-end: 16px;
   }
 }
 @media (max-width: 480px) {
+  .topbar-right {
+    width: 100%;
+  }
+  .language-select span {
+    font-size: 11px;
+  }
   .page-footer {
     flex-direction: column;
     gap: 8px;

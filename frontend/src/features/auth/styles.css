@@ -133,6 +133,10 @@
   width: 100%;
   max-width: 385px;
 }
+.login-card > .language-select {
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
 .login-card h2 {
   font-size: 31px;
   margin: 14px 0 12px;
@@ -168,6 +172,7 @@
   font-weight: 700;
 }
 .reset-fields,
+.login-fields,
 .registration-fields {
   border: 0;
   padding: 0;
@@ -180,6 +185,13 @@
   flex-wrap: wrap;
   gap: 8px 20px;
   margin: -8px 0 17px;
+}
+[dir='rtl'] .login-story h1,
+[dir='rtl'] .login-card h2 {
+  letter-spacing: normal;
+}
+[dir='rtl'] .login-fields .button > svg {
+  transform: scaleX(-1);
 }
 @media (max-width: 1050px) {
   .login-story {

@@ -1,7 +1,10 @@
 import React from 'react';
 import { Brand, Button, Icon } from '../shared/ui.jsx';
+import LanguageSelect from '../shared/LanguageSelect.jsx';
+import { useLanguage } from '../shared/i18n.jsx';
 
 export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, setMobileMenu }) {
+  const { t } = useLanguage();
   return (
     <>
       <aside id="workspace-navigation" className={`sidebar ${mobileMenu ? 'mobile-open' : ''}`}>
@@ -10,7 +13,7 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
           <Button
             variant="icon"
             className="mobile-only"
-            aria-label="Close navigation"
+            aria-label={t('Close navigation')}
             onClick={() => setMobileMenu(false)}
           >
             <Icon name="close" />
@@ -21,12 +24,12 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
             <Icon name={team ? 'briefcase' : 'user'} size={18} />
           </span>
           <div>
-            <strong>{team ? 'Research team' : 'Talent workspace'}</strong>
-            <small>University research</small>
+            <strong>{t(team ? 'Research team' : 'Talent workspace')}</strong>
+            <small>{t('University research')}</small>
           </div>
         </div>
-        <span className="nav-caption">WORKSPACE</span>
-        <nav aria-label="Main navigation">
+        <span className="nav-caption">{t('WORKSPACE')}</span>
+        <nav aria-label={t('Main navigation')}>
           {nav.map(([key, icon, label]) => (
             <button
               key={key}
@@ -35,7 +38,7 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
               onClick={() => navigate(key)}
             >
               <Icon name={icon} />
-              <span>{label}</span>
+              <span>{t(label)}</span>
               {page === key && <i />}
             </button>
           ))}
@@ -43,11 +46,11 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
         <div className="sidebar-bottom">
           <div className="sidebar-note">
             <Icon name="spark" />
-            <strong>Make discovery meaningful.</strong>
+            <strong>{t('Make discovery meaningful.')}</strong>
             <p>
-              Clear evidence.
+              {t('Clear evidence.')}
               <br />
-              Better connections.
+              {t('Better connections.')}
             </p>
           </div>
           <div className="sidebar-user">
@@ -59,10 +62,12 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
                 .slice(0, 2)}
             </span>
             <div>
-              <strong>{user.displayName}</strong>
-              <small>{team ? 'Research team' : 'Research talent'}</small>
+              <strong>
+                <bdi>{user.displayName}</bdi>
+              </strong>
+              <small>{t(team ? 'Research team' : 'Research talent')}</small>
             </div>
-            <Button variant="icon" aria-label="Sign out" onClick={() => navigate('logout')}>
+            <Button variant="icon" aria-label={t('Sign out')} onClick={() => navigate('logout')}>
               <Icon name="logout" size={18} />
             </Button>
           </div>
@@ -71,7 +76,7 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
       {mobileMenu && (
         <button
           className="menu-backdrop"
-          aria-label="Close navigation"
+          aria-label={t('Close navigation')}
           onClick={() => setMobileMenu(false)}
         />
       )}
@@ -79,39 +84,54 @@ export function WorkspaceSidebar({ user, team, nav, page, navigate, mobileMenu, 
   );
 }
 
-export function WorkspaceHeader({ user, nav, page, mobileMenu, setMobileMenu }) {
+export function WorkspaceHeader({ user, nav, page, mobileMenu, setMobileMenu, onAccount }) {
+  const { t } = useLanguage();
   return (
     <header className="topbar">
       <div className="breadcrumb">
         <Button
           variant="icon"
           className="mobile-only"
-          aria-label="Open navigation"
+          aria-label={t('Open navigation')}
           aria-controls="workspace-navigation"
           aria-expanded={mobileMenu}
           onClick={() => setMobileMenu(true)}
         >
           <Icon name="menu" />
         </Button>
-        <span>Workspace</span>
+        <span>{t('Workspace')}</span>
         <Icon name="chevron" size={13} />
-        <strong>{nav.find((n) => n[0] === page)?.[2]}</strong>
+        <strong>{t(nav.find((n) => n[0] === page)?.[2] || '')}</strong>
       </div>
       <div className="topbar-right">
-        <span className="avatar small">{user.displayName[0]}</span>
+        <LanguageSelect />
+        <Button
+          variant="text"
+          className="account-entry"
+          aria-label={t('Account details')}
+          onClick={onAccount}
+        >
+          <span>{t('Account ID')}</span>
+          <code dir="ltr">{user.id}</code>
+        </Button>
       </div>
     </header>
   );
 }
 
 export function WorkspaceToast({ toast, setToast }) {
+  const { t } = useLanguage();
   return (
     <>
       {toast && (
         <div className="toast" role="status">
           <Icon name="check" />
           <span>{toast}</span>
-          <Button variant="icon" aria-label="Dismiss notification" onClick={() => setToast('')}>
+          <Button
+            variant="icon"
+            aria-label={t('Dismiss notification')}
+            onClick={() => setToast('')}
+          >
             <Icon name="close" size={16} />
           </Button>
         </div>

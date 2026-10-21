@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { api } from '../../api/client.js';
 import { Button, ErrorNotice, Field } from '../../shared/ui.jsx';
+import PasswordInput from '../../shared/PasswordInput.jsx';
+import { useLanguage } from '../../shared/i18n.jsx';
 
 const passwordHint =
   'At least 8 characters, including an uppercase letter, a lowercase letter and a digit.';
 
 export default function Register({ initialEmail = '', onBack, onRegister }) {
+  const { t } = useLanguage();
+  const mounted = useRef(false);
   const [email, setEmail] = useState(initialEmail);
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState('');
@@ -20,6 +24,13 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
   const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const tick = () => setRemaining(Math.max(0, Math.ceil((resendAt - Date.now()) / 1000)));
     tick();
     const timer = setInterval(tick, 1000);
@@ -29,6 +40,7 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
   async function sendCode() {
     const address = email.trim().toLowerCase();
     const response = await api.requestRegistrationCode(address);
+    if (!mounted.current) return;
     setEmail(address);
     setResendAt(Date.now() + response.resendAfterSeconds * 1000);
     setCode('');
@@ -43,10 +55,10 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
     try {
       await operation();
     } catch (failure) {
-      setError(failure);
+      if (mounted.current) setError(failure);
     } finally {
       pending.current = false;
-      setBusy(false);
+      if (mounted.current) setBusy(false);
     }
   }
 
@@ -77,7 +89,7 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
         displayName: displayName.trim(),
         role,
       });
-      onRegister(session.user);
+      if (mounted.current) onRegister(session.user);
     });
   }
 
@@ -91,16 +103,17 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
 
   return (
     <>
-      <h2>Create your Banana account.</h2>
+      <h2>{t('Create your Banana account.')}</h2>
       <p className="muted">
-        Join as research talent or a research team. Start by verifying your email.
+        {t('Join as research talent or a research team. Start by verifying your email.')}
       </p>
       <ErrorNotice error={error} />
       <form onSubmit={submit}>
         <fieldset className="registration-fields" disabled={busy}>
-          <Field label="Email address">
+          <Field label={t('Email address')}>
             <input
               type="email"
+              dir="ltr"
               autoComplete="email"
               placeholder="you@university.edu.au"
               value={email}
@@ -113,12 +126,14 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
           {sent && (
             <>
               <p className="muted" role="status">
-                A six-digit code has been sent to your email. It expires in 10 minutes. Use the most
-                recent code to create your account.
+                {t(
+                  'A six-digit code has been sent to your email. It expires in 10 minutes. Use the most recent code to create your account.'
+                )}
               </p>
-              <Field label="Verification code">
+              <Field label={t('Verification code')}>
                 <input
                   inputMode="numeric"
+                  dir="ltr"
                   autoComplete="one-time-code"
                   placeholder="012345"
                   value={code}
@@ -135,19 +150,21 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
                   disabled={remaining > 0}
                   onClick={() => remaining === 0 && run(sendCode)}
                 >
-                  {remaining > 0 ? `Resend in ${remaining}s` : 'Resend code'}
+                  {remaining > 0
+                    ? t('Resend in {seconds}s', { seconds: remaining })
+                    : t('Resend code')}
                 </Button>
                 <Button variant="text" onClick={changeEmail}>
-                  Change email
+                  {t('Change email')}
                 </Button>
               </div>
-              <Field label="Account type">
+              <Field label={t('Account type')}>
                 <select value={role} onChange={(event) => setRole(event.target.value)}>
-                  <option value="TALENT">Research talent</option>
-                  <option value="RESEARCH_TEAM">Research team</option>
+                  <option value="TALENT">{t('Research talent')}</option>
+                  <option value="RESEARCH_TEAM">{t('Research team')}</option>
                 </select>
               </Field>
-              <Field label="Display name" hint="Your name or your research team's name.">
+              <Field label={t('Display name')} hint={t("Your name or your research team's name.")}>
                 <input
                   autoComplete="nickname"
                   value={displayName}
@@ -156,9 +173,8 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
                   required
                 />
               </Field>
-              <Field label="Password" hint={passwordHint}>
-                <input
-                  type="password"
+              <Field label={t('Password')} hint={t(passwordHint)}>
+                <PasswordInput
                   autoComplete="new-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -166,9 +182,9 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
                   required
                 />
               </Field>
-              <Field label="Confirm password">
-                <input
-                  type="password"
+              <Field label={t('Confirm password')}>
+                <PasswordInput
+                  label="Confirm password"
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
@@ -180,17 +196,17 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
           )}
           <Button type="submit" className="full" disabled={!sent && remaining > 0}>
             {busy
-              ? 'Please wait…'
+              ? t('Please wait…')
               : sent
-                ? 'Create account'
+                ? t('Create account')
                 : remaining > 0
-                  ? `Send code in ${remaining}s`
-                  : 'Send verification code'}
+                  ? t('Send code in {seconds}s', { seconds: remaining })
+                  : t('Send verification code')}
           </Button>
         </fieldset>
       </form>
       <Button variant="text" className="full" disabled={busy} onClick={onBack}>
-        Back to sign in
+        {t('Back to sign in')}
       </Button>
     </>
   );

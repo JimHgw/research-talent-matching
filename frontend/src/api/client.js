@@ -9,7 +9,16 @@ export function createApi({
   const base = baseUrl.replace(/\/$/, '');
   let csrfToken = '';
   let pendingSession = null;
+  let sessionVersion = 0;
+  function changedSession() {
+    sessionVersion++;
+    pendingSession = null;
+  }
   async function request(path, { method = 'GET', body, signal, binary = false } = {}) {
+    const startedVersion = sessionVersion;
+    const changesSession =
+      method === 'POST' &&
+      ['/auth/login', '/auth/register', '/auth/logout', '/auth/login/reset'].includes(path);
     const multipart = body instanceof FormData;
     const headers = { Accept: binary ? '*/*' : 'application/json' };
     if (body !== undefined && !multipart) headers['Content-Type'] = 'application/json';
@@ -33,6 +42,7 @@ export function createApi({
       });
     }
     if (response.status === 204) {
+      if (changesSession) changedSession();
       if (path === '/auth/logout') csrfToken = '';
       return undefined;
     }
@@ -49,17 +59,24 @@ export function createApi({
       });
     }
     if (!response.ok) throw new ApiError(response.status, payload);
-    if (typeof payload?.csrfToken === 'string') csrfToken = payload.csrfToken;
+    if (changesSession) changedSession();
+    if (
+      typeof payload?.csrfToken === 'string' &&
+      (changesSession || startedVersion === sessionVersion)
+    )
+      csrfToken = payload.csrfToken;
     return payload;
   }
   return {
     // StrictMode can start two effects before the first anonymous cookie arrives.
     // Share only the in-flight bootstrap so cookie and CSRF state stay paired.
     session: () => {
-      if (!pendingSession)
-        pendingSession = request('/auth/session').finally(() => {
-          pendingSession = null;
+      if (!pendingSession) {
+        const bootstrap = request('/auth/session').finally(() => {
+          if (pendingSession === bootstrap) pendingSession = null;
         });
+        pendingSession = bootstrap;
+      }
       return pendingSession;
     },
     login: (identifier, password) =>

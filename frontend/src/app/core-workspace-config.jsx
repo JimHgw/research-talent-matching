@@ -3,16 +3,21 @@ import ProfilePage from '../features/profile/ProfilePage.jsx';
 import PrivacyPage from '../features/privacy/PrivacyPage.jsx';
 import DocumentsPage from '../features/documents/DocumentsPage.jsx';
 import { withTagVocabulary } from './withTagVocabulary.jsx';
+import { useLanguage } from '../shared/i18n.jsx';
 
 const ProfileEditor = withTagVocabulary(ProfilePage);
 const DocumentEditor = withTagVocabulary(DocumentsPage);
 
 function AccountOverview({ user }) {
+  const { t } = useLanguage();
   return (
     <section className="panel">
-      <h2>Your account</h2>
-      <p>Signed in as {user.displayName}.</p>
-      <p className="muted">Research team workspace</p>
+      <h2>{t('Your account')}</h2>
+      <p>{t('Signed in as {name}.', { name: user.displayName })}</p>
+      <p>
+        {t('Account ID')}: <code dir="ltr">{user.id}</code>
+      </p>
+      <p className="muted">{t('Research team workspace')}</p>
     </section>
   );
 }
