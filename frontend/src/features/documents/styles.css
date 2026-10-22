@@ -54,6 +54,10 @@
 .document-name h3 {
   font-size: 14px;
   margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+.review-document {
+  overflow-wrap: anywhere;
 }
 .document-name p {
   margin: 0;

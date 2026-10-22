@@ -120,6 +120,8 @@ equivalent is `sh frontend/run.sh test:49`.
 Use `npm run test:41` / `sh frontend/run.sh test:41` for Sprint 2 confirmation
 and privacy safeguards. This reuses the existing profile, document and matching
 regressions alongside the new task 41 cases.
+Use `npm run test:61` / `sh frontend/run.sh test:61` for extraction-review recovery,
+reusing the document/pending-write tests and the profile-confirmation safeguards.
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
@@ -212,6 +214,41 @@ revocation and owner-only document access. Run it after normal setup:
 
 ```sh
 .venv/bin/python -m pytest backend/tests/test_frontend_integration.py -q --require-frontend -k "[41]"
+```
+
+## Sprint 2 document review recovery (task 61)
+
+`DocumentsPage` retains the existing upload, status polling and private-download
+workflow. `ExtractionReview` binds its result to the selected document ID and READY
+state, identifies the file being reviewed and reuses `ProfileFields` for corrections.
+Changing suggestions, changing selected sections or reloading them resets the
+import acknowledgement. Closing or reloading corrected suggestions asks before
+discarding them; browser reload/leave is also guarded. Pending imports continue
+to block duplicate submissions, closing and navigation alongside other uploads.
+
+`ReviewRecovery` handles not-ready, failed, unavailable and empty results without
+an editable stale import form. Users can check again, refresh document status,
+upload another file or continue to the existing manual profile editor as appropriate.
+A profile revision conflict preserves corrections but disables repeated stale
+imports until suggestions are explicitly reloaded/reviewed or the user returns
+to the profile. Successful imports still require separate profile confirmation.
+No recording state, microphone access or new backend endpoints are involved.
+
+The reported `not-recording` message has not reproduced in the current supported
+PDF/Word review flow; its original cause is unverified. The tests record the actual
+READY → review → correction → selected import → confirmation behavior, rather
+than hiding that message or attributing it to an unverified cause.
+
+`tests/task-61-document-review.test.js` covers recovery, document/account identity,
+acknowledgement, conflict and draft protection. The existing pending-write tests
+are reused by `npm run test:61`. The real HTTP suite runs the same upload/review
+workflow for both PDF and DOCX with the actual CLI worker. A separate case checks
+real queued, damaged-file failure and empty-extraction results, cross-tab conflicts,
+original-file hashes and account isolation. Reuse the existing synthetic CV and
+contract examples; no extra runtime demo data is introduced. After normal setup:
+
+```sh
+.venv/bin/python -m pytest backend/tests/test_us09_frontend_integration.py -q --require-frontend
 ```
 
 - `tests/contribution.test.js`: the core workspace configuration works independently

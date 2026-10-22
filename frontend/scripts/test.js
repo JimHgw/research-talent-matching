@@ -1,8 +1,8 @@
 import { readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 const tasks = process.argv.slice(2).filter((value) => value !== '--');
-if (tasks.some((value) => !['18', '19', '20', '21', '22', '41', '49'].includes(value)))
-  throw new Error('Choose task 18, 19, 20, 21, 22, 41 or 49; omit tasks to run all checks.');
+if (tasks.some((value) => !['18', '19', '20', '21', '22', '41', '49', '61'].includes(value)))
+  throw new Error('Choose task 18, 19, 20, 21, 22, 41, 49 or 61; omit tasks to run all checks.');
 const files = readdirSync(new URL('../tests/', import.meta.url))
   .filter(
     (name) =>

@@ -17,6 +17,10 @@ import {
 import { createApi } from '../src/api/client.js';
 
 const originalBytes = readFileSync(process.env.TEST_DOCUMENT_PATH);
+const documentName = process.env.TEST_DOCUMENT_NAME || 'review-cv.docx';
+const documentType =
+  process.env.TEST_DOCUMENT_MEDIA_TYPE ||
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 try {
   // Prepare and confirm a profile through the React page.
@@ -50,9 +54,7 @@ try {
   await until(() => text().includes('Add your CV or transcript'));
 
   const input = field('Choose a document');
-  const file = new File([originalBytes], 'review-cv.docx', {
-    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  });
+  const file = new File([originalBytes], documentName, { type: documentType });
 
   await act(async () => {
     Object.defineProperty(input, 'files', {
@@ -78,7 +80,7 @@ try {
   assert.deepEqual(await api.profile(), before);
 
   const documents = await api.documents();
-  const uploaded = documents.items.find((item) => item.fileName === 'review-cv.docx');
+  const uploaded = documents.items.find((item) => item.fileName === documentName);
   assert.ok(uploaded);
   assert.equal(uploaded.status, 'READY');
   const extraction = await api.extraction(uploaded.id);
@@ -103,6 +105,8 @@ try {
   // Edit the suggestions and import only the skills section.
   await click('Review suggestions');
   await until(() => !!button('Apply reviewed sections'));
+  assert.ok(document.querySelector('dialog').textContent.includes(documentName));
+  assert.doesNotMatch(document.querySelector('dialog').textContent, /not-recording/);
   assert.equal(button('Apply reviewed sections').disabled, true);
   assert.ok(text().includes('COBOL'));
 
