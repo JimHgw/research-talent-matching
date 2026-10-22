@@ -2,9 +2,11 @@
 
 **🍌 Explainable Two-Sided Research Matching · Sprint 2 Backend Developer Specification**
 
-Prepared: **2026-10-22**. Document version: **`0.2.0-draft`**.
+Prepared: **2026-10-22**. Document version: **`0.2.1-draft`**.
 
 This README follows the structure of the [Sprint 1 developer README](README_DEVELOPER_EN.md) and gives the Python backend team a Sprint 2 implementation and acceptance guide. Continue using **Flask, MySQL 8.4, PyMySQL and SQLAlchemy**, the existing document worker and the `/api/v1` API.
+
+**API scope: no new HTTP endpoints.** Sprint 2 reuses existing method/path combinations, extending their fields, query parameters, validation and business logic where needed. Explicit reopening uses the existing opportunity update endpoint. Evaluation and test-data preparation use local tooling, not additional public APIs.
 
 > **Document status:** Jira requirements and backend subtasks were read on 22 October 2026. Repository observations refer to local `main` at `f064daa`. This is a development specification, not a completion or test report. Items labelled **proposed** are integration decisions for review, not already implemented endpoints or Jira-mandated field names. The document version does not change the running API or the checked-in OpenAPI version.
 
@@ -14,6 +16,7 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 
 ## Change Log
 
+- **2026-10-22:** Confirmed the no-new-endpoints constraint. Explicit reopening is an optional, deliberate operation within the existing opportunity update request.
 - **2026-10-22:** Created the Sprint 2 backend guide from all 12 sprint work items and their 12 backend subtasks. Added scope, existing-code gaps, data and API proposals, permissions, evaluation methods, integration cases and delivery requirements.
 
 ## 🫡 0. Aims — Sprint Goals
@@ -120,9 +123,9 @@ These names and storage choices are **proposed**, to be agreed with FE before im
 
 **Backward-compatible writes:** keep existing required content fields and full-replacement semantics. On create, omitted new optional fields default to `null`. On update, omitted new optional fields preserve their stored values; explicit `null` clears them. Document this limited compatibility exception so older clients cannot accidentally erase a newly stored source URL or deadline. Responses include the new nullable fields after the coordinated contract update. Update strict response validators and frontend consumers at the same time.
 
-**Deadline semantics:** capture one server UTC time for each operation. A published opportunity is active only when it has no retained expiry marker and `deadlineAt == null` or `now < deadlineAt`. At `now == deadlineAt` it is expired. Drafts never become active through a deadline change. An expired opportunity remains readable, with an expired label, to users already entitled to its published details; drafts remain owner-only.
+**Deadline semantics:** capture one server UTC time for each operation. A published opportunity is active only when it has no retained expiry marker and either `deadlineAt == null` or `now < deadlineAt`. At `now == deadlineAt` it is expired. Drafts never become active through a deadline change. An expired opportunity remains readable, with an expired label, to users already entitled to its published details; drafts remain owner-only.
 
-The proposed expiry marker prevents this incorrect sequence: deadline passes → owner edits deadline into the future → opportunity silently becomes active. Before saving edits, atomically check the **old** deadline against the same server time and retain expiry if it has already occurred, even if no scheduler has visited the record. Saving a future/no deadline alone must not reopen it. Explicit reopening clears the marker only after ownership, revision, publication, requirements and deadline validation succeed.
+The proposed expiry marker prevents this incorrect sequence: deadline passes → owner edits deadline into the future → opportunity silently becomes active. Before saving edits, atomically check the **old** deadline against the same server time and retain expiry if it has already occurred, even if no scheduler has visited the record. Saving a future/no deadline alone must not reopen it. An explicit `reopen: true` in the existing update request clears the marker only after ownership, revision, publication, requirements and deadline validation succeed. Updating the deadline and explicitly reopening may happen in the same transaction; no separate endpoint or preliminary save is required.
 
 Reads must enforce the time predicate even if a worker or scheduled task has not updated the marker. A background expiry sweep is optional; availability must not depend on its timing. Do not permanently delete expired records.
 
@@ -215,7 +218,7 @@ Only current confirmed, permitted information may enter team-facing evaluation. 
 
 #### 2.5.2 Reused and Extended Operations
 
-All paths below are relative to `/api/v1`. **Only the reopening operation is a proposed new public endpoint in this guide.** The table groups existing operations; it is not a claim that all extensions have been implemented.
+All paths below are relative to `/api/v1`. **Every operation in this table already exists; Sprint 2 adds no HTTP method/path combinations.** The changes are extensions to their contracts and behaviour, not a claim that those extensions have been implemented.
 
 | Method and path | Sprint 2 responsibility | Access |
 |---|---|---|
@@ -228,10 +231,9 @@ All paths below are relative to `/api/v1`. **Only the reopening operation is a p
 | `GET /me/documents/{id}`, `GET /me/documents/{id}/extraction`, `GET /me/documents/{id}/file` | Correct owned-document state, suggestions and private file | Talent owner |
 | `POST /me/documents/{id}/apply` | Atomic reviewed import, then separate confirmation | Talent owner + CSRF |
 | `GET /opportunities` | Active published browsing and combined filters; retain owner-only `scope=mine` | Signed in; team for mine |
-| `POST /opportunities`, `PUT /opportunities/{id}` | Optional source URL, deadline and type; revision/lifecycle checks | Owner team + CSRF |
+| `POST /opportunities`, `PUT /opportunities/{id}` | Optional source URL, deadline and type; revision/lifecycle checks; PUT also accepts an explicit reopening request | Owner team + CSRF |
 | `GET /opportunities/{id}` | New metadata and labelled expired details without new disclosure | Existing detail permissions |
 | `POST /opportunities/{id}/publish` | Existing publication plus deadline validation; cannot bypass explicit reopening | Owner team + CSRF |
-| **Proposed** `POST /opportunities/{id}/reopen` | Explicit reopening after a valid saved deadline change | Owner team + CSRF + revision |
 | `GET /me/recommendations` | Filtered active opportunities; current confirmed profile | Talent owner |
 | `GET /me/opportunity-matches/{id}` | Current explanation; reject expired opportunity matching | Talent owner |
 | `GET /opportunities/{id}/talent-matches` | Combined talent filters and permitted evidence/ranking for an active owned opportunity | Owner team |
@@ -285,25 +287,50 @@ The following is a **complete proposed create body**, extending the existing con
 }
 ```
 
-Create still returns 201 and an owned draft. For an update, place the complete content in the existing `{expectedRevision, content}` envelope. Detail/create/update responses retain their existing metadata and return the extended `content` plus proposed `availabilityStatus`.
+Create still returns 201 and an owned draft. For an update, place the complete content in the existing `{expectedRevision, content}` envelope; the optional proposed `reopen` flag is described below. Detail/create/update responses retain their existing metadata and return the extended `content` plus proposed `availabilityStatus`.
 
 Validate `sourceUrl` as an absolute HTTP/HTTPS URL with a valid host; reject malformed values and schemes such as `javascript:`, `data:` and `file:`. Do not require the URL to be publicly fetchable, limit it to university domains or fetch it to check its content. Google and LinkedIn links are supported within the same validation rules. A missing/null URL produces no source-link UI. FE opens the saved destination separately while preserving the opportunity page.
 
 Reject dates without an offset and invalid calendar/time values. Serialize accepted times as UTC RFC3339. FE must show the deadline with an explicit zone; do not interpret a date-only input silently in the API server's local zone. Keep test clocks fixed so the sample's deadline does not make a future test nondeterministic.
 
-#### 2.5.5 Proposed Explicit Reopening
+#### 2.5.5 Explicit Reopening Through the Existing Update Endpoint
 
-`POST /api/v1/opportunities/{id}/reopen` accepts the existing revision-request shape:
+Reuse **`PUT /api/v1/opportunities/{id}`**. The proposed request extension adds optional boolean `reopen` beside `expectedRevision` and `content`; omitted or `false` means ordinary editing. This flag records an explicit owner action, is not stored as opportunity content and is not accepted on create. The frontend sends it only when the owner chooses to reopen, not whenever a deadline is edited.
+
+Complete synthetic example, assuming the owner has read revision 4 and the test clock is before the submitted deadline:
 
 ```json
 {
-  "expectedRevision": 4
+  "expectedRevision": 4,
+  "reopen": true,
+  "content": {
+    "title": "Research assistant in data analysis",
+    "university": "UNSW",
+    "disciplineGroup": "STEM",
+    "discipline": "Computer Science",
+    "researchArea": "Research data analysis",
+    "description": "Synthetic Sprint 2 opportunity for integration testing.",
+    "requirements": [
+      {
+        "id": "req_python",
+        "label": "Python experience",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": ["skill_python"]
+      }
+    ],
+    "sourceUrl": "https://example.org/research/opportunity",
+    "deadlineAt": "2026-10-29T06:00:00Z",
+    "opportunityType": "RESEARCH_ASSISTANT"
+  }
 }
 ```
 
-After the owner saves a valid future deadline or removes the deadline, the opportunity remains expired until this action. Return 200 with the complete updated opportunity; increment the revision once when reopening changes state. A request with a stale revision returns `409 REVISION_CONFLICT`. A draft cannot be reopened; a deadline still at/before now cannot be reopened. Proposed errors are `409 OPPORTUNITY_NOT_PUBLISHED` and `422 VALIDATION_ERROR` on `content.deadlineAt`. Repeating the request on an already active opportunity with its **current** revision is a no-op.
+Check ownership and revision, validate the complete proposed content and evaluate expiry using one server time. With `reopen: true`, require an already published opportunity, valid publication requirements and a resulting deadline in the future or `null`. Apply the content changes and reopening atomically; if any check fails, neither change is saved. Return the existing 200 opportunity response and increment the revision once for the combined change. With no reopening flag, a previously expired opportunity stays expired even if its saved deadline becomes valid.
 
-The owner must still satisfy the existing publication requirements. `/publish` on an expired published record must not silently clear its expiry marker. Apply these rules transactionally, including concurrent edit/reopen requests.
+A stale revision returns `409 REVISION_CONFLICT`. Proposed errors are `409 OPPORTUNITY_NOT_PUBLISHED` for reopening a draft and `422 VALIDATION_ERROR` on `content.deadlineAt` for a deadline at/before now. An already active opportunity with unchanged content and its **current** revision is a no-op, including when `reopen: true`; real content changes still increment its revision. `/publish` on an expired published record must not silently clear its expiry marker. Test concurrent updates and reopen requests through the same PUT route.
+
+Extend `OpportunityWrite` and its examples/validation without changing the endpoint path or HTTP method. Existing `{expectedRevision, content}` requests remain ordinary edits.
 
 #### 2.5.6 Errors and Localisation
 
@@ -413,7 +440,7 @@ Several original FE/QA child items are marked merged into these shared tasks. Do
 
 **Document review sequence:** upload → poll owned document → once READY, read its extraction → review/correct/select sections → apply using the current profile revision → read the unconfirmed profile → explicit confirmation → refresh matching. No step requires voice recording. For BUG-35, capture the request/status/response and worker/document IDs before assigning a cause. If the APIs behave correctly, provide that evidence to FE rather than adding speculative recording-state logic.
 
-**Opportunity sequence:** create/edit metadata → publish with valid requirements/deadline → active browsing and both matching directions → deadline boundary → excluded from active results, detail visibly expired → owner saves valid new deadline → explicit reopen → visible in active results again.
+**Opportunity sequence:** create/edit metadata → publish with valid requirements/deadline → active browsing and both matching directions → deadline boundary → excluded from active results, detail visibly expired → owner explicitly reopens through the existing PUT with valid deadline/content and `reopen: true` → visible in active results again. Saving a deadline without the flag remains an ordinary edit.
 
 **Evidence/consent sequence:** confirm → opt in and select fields → team filters and reads evidence → talent hides a field or revokes consent → next list/detail reflects the new permission state.
 
@@ -432,7 +459,7 @@ These are acceptance targets, not passed test results. Record the actual result 
 | URL independence | US-19 | Saving a URL makes no external fetch and adds no evidence or confirmation |
 | Deadline boundaries | US-20 | Fixed-clock tests before, exactly at and after deadline agree across browsing, search and both matching directions |
 | Optional deadline and details | US-20 | No deadline remains supported; expired published detail is labelled; owner record persists; private drafts stay private |
-| Reopen and concurrency | US-20 | Deadline edit alone cannot reopen; explicit owner request with a valid deadline succeeds; stale/non-owner requests fail |
+| Reopen and concurrency | US-20 | Ordinary deadline PUT cannot reopen; PUT with `reopen: true` and valid content reopens atomically; stale/non-owner/invalid requests save no changes |
 | Combined opportunity filters | US-14 | University, discipline/area, type and date filters compose; clear restores authorised active results |
 | Talent filters | US-14 | Requirements and supported skill/interest queries use only confirmed visible fields; hidden fields do not become search side channels |
 | Empty results and pagination | US-14 | 200 empty list, correct permitted total, stable ordering/rank; invalid queries fail clearly |
@@ -465,6 +492,7 @@ US-16 case records must include case/story ID, environment, starting state, step
 ### 2.11 Sprint 2 Delivery — Delivery Checklist
 
 - [ ] All 12 parent items have backend evidence or an explicitly recorded remaining limitation, linked through their existing BE subtasks.
+- [ ] All Sprint 2 behaviour reuses existing HTTP method/path combinations; reopening extends the existing opportunity PUT, and evaluation/data tooling adds no public endpoints.
 - [ ] New schemas, queries, errors, evidence mappings and reopening semantics are agreed with FE and reflected in OpenAPI, examples, endpoint index and tests.
 - [ ] Source URLs, deadlines, type data and lifecycle markers have reviewed migrations and preserve existing records.
 - [ ] Confirmation, consent, visibility, ownership and independent sessions are tested on list and direct-request paths.
@@ -525,7 +553,7 @@ Add focused Sprint 2 tests for changed behaviour; existing suites alone do not c
 | Opportunity field names and compatibility | Nullable source URL/deadline/type; omission preservation on legacy updates | BE-56/58/48 + FE-4 |
 | Type vocabulary | Proposed five codes in 2.2.2; confirm supported types | BE-48 + FE-4 |
 | Date-range meaning and display zone | Deadline-based half-open ranges; UTC API, explicitly zoned UI | BE-48/58 + FE-4 |
-| Expiry/reopening | Shared read-time predicate plus retained closure; explicit revision-checked reopen | BE-58 + FE-4/5 |
+| Expiry/reopening | Shared read-time predicate plus retained closure; explicit revision-checked `reopen` flag on the existing PUT | BE-58 + FE-4/5 |
 | Expanded requirements and evidence | Explicit structured criteria and supported education/experience/output mappings | BE-54 + FE-4/5 |
 | Semantic adoption | Decide after recorded same-dataset comparison; preserve baseline | BE-46/44/54 |
 | Localised validation mapping | Reuse error/reason codes and field paths; add compatible codes only where needed | BE-60 + FE-1 |
