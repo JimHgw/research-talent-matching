@@ -28,8 +28,8 @@ def frontend_node(required=False):
     return node
 
 
-@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19", "01-register", "01-reset", "49"])
-def test_real_frontend_workflow(app, request, monkeypatch, story):
+@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19", "01-register", "01-reset", "41", "49"])
+def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
     node = frontend_node(required=request.config.getoption("--require-frontend"))
     if story == "02":
         with app.app_context():
@@ -41,6 +41,33 @@ def test_real_frontend_workflow(app, request, monkeypatch, story):
     if story == "01-reset":
         monkeypatch.setattr("backend.src.features.auth.reset.secrets.randbelow", lambda _: 12345)
         app.extensions["password_reset_mailer"] = lambda email, code: outbox.append((email, code))
+    extra_env = {}
+    if story == "41":
+        from io import BytesIO
+        from docx import Document
+        from backend.tests.conftest import sign_in, headers
+        from backend.tests.test_us09_extraction import CV_TEXT
+        from backend.src.features.documents.worker import process_next_document
+
+        app.config["DOCUMENT_STORAGE_DIR"] = str(tmp_path / "documents")
+        content = BytesIO()
+        document = Document()
+        for line in CV_TEXT.splitlines():
+            document.add_paragraph(line)
+        document.save(content)
+        content.seek(0)
+        client = app.test_client()
+        csrf = sign_in(client)
+        uploaded = client.post(
+            "/api/v1/me/documents", data={"kind": "CV", "file": (content, "review-cv.docx")},
+            headers=headers(csrf),
+        )
+        assert uploaded.status_code == 202, uploaded.get_json()
+        document_id = uploaded.get_json()["id"]
+        with app.app_context():
+            assert process_next_document()
+        assert client.get(f"/api/v1/me/documents/{document_id}").get_json()["status"] == "READY"
+        extra_env["TEST_REVIEW_DOCUMENT_ID"] = document_id
     server = make_server("127.0.0.1", 0, app, threaded=True)
     worker = Thread(target=server.serve_forever, daemon=True)
     worker.start()
@@ -48,7 +75,7 @@ def test_real_frontend_workflow(app, request, monkeypatch, story):
         result = subprocess.run(
             [node, "--import", "./tests/setup-jsx.js", f"tests/us{story}-live.mjs"],
             cwd=ROOT / "frontend", capture_output=True, text=True, timeout=90,
-            env={**os.environ, "TEST_API_BASE_URL": f"http://127.0.0.1:{server.server_port}"},
+            env={**os.environ, **extra_env, "TEST_API_BASE_URL": f"http://127.0.0.1:{server.server_port}"},
             encoding="utf-8", errors="replace",
         )
         assert result.returncode == 0, result.stdout + result.stderr

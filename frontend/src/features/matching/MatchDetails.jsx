@@ -4,8 +4,9 @@ import { useResource } from '../../shared/hooks.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
 import { labels } from '../../shared/profile-labels.js';
+import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 
-export default function MatchDetails({ opportunityId, talentId, onClose, tags = [] }) {
+export default function MatchDetails({ opportunityId, talentId, onClose, navigate, tags = [] }) {
   const resource = useResource(
     () => (talentId ? api.talentMatch(opportunityId, talentId) : api.match(opportunityId)),
     [opportunityId, talentId],
@@ -16,6 +17,16 @@ export default function MatchDetails({ opportunityId, talentId, onClose, tags = 
     <Modal title="Why this match?" onClose={onClose}>
       {resource.loading ? (
         <Loading />
+      ) : !talentId && resource.error?.code === 'PROFILE_UNCONFIRMED' ? (
+        <ProfileConfirmationRequired
+          onReview={
+            navigate &&
+            (() => {
+              onClose();
+              navigate('profile');
+            })
+          }
+        />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       ) : (

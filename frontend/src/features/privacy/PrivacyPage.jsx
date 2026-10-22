@@ -6,20 +6,27 @@ import { useMutation } from '../../shared/useMutation.js';
 import { labels } from '../../shared/profile-labels.js';
 
 export default function PrivacyPage({ onDirty, onPending, notify }) {
-  const resource = useResource(api.privacy);
   const [value, setValue] = useState(null);
   const { error, clearError, busy, run, isPending } = useMutation();
   const [baseline, setBaseline] = useState(null);
+  const dirty = !!value && JSON.stringify(value) !== JSON.stringify(baseline);
+  const resource = useResource(api.privacy, [], !dirty && !busy);
   useEffect(() => {
     if (resource.data) {
       setValue(structuredClone(resource.data));
       setBaseline(resource.data);
+      clearError();
     }
-  }, [resource.data]);
-  const dirty = !!value && JSON.stringify(value) !== JSON.stringify(baseline);
+  }, [resource.data, clearError]);
   usePageGuard(dirty, busy, onDirty, onPending);
+  function refresh() {
+    if (isPending()) return;
+    if (dirty && !window.confirm('Reload and discard your unsaved privacy changes?')) return;
+    clearError();
+    resource.refresh();
+  }
   if (resource.loading || (!value && !resource.error)) return <Loading />;
-  if (resource.error) return <ErrorNotice error={resource.error} retry={resource.refresh} />;
+  if (resource.error) return <ErrorNotice error={resource.error} retry={refresh} />;
   function save() {
     if (isPending() || !dirty) return;
     clearError();
@@ -44,19 +51,26 @@ export default function PrivacyPage({ onDirty, onPending, notify }) {
           <h2>Your profile. Your choice.</h2>
           <p>Choose whether research teams can discover you and what they can see.</p>
         </div>
+        <Button variant="text" disabled={busy} onClick={refresh}>
+          Refresh privacy settings
+        </Button>
       </div>
+      <Notice>
+        <strong>Saved discovery status: {baseline.discoverable ? 'On' : 'Off'}</strong>
+        <p>
+          {baseline.discoverable
+            ? 'Teams can discover your current confirmed profile using only the saved visible fields.'
+            : 'Your profile is excluded from team discovery. Your own recommendations remain available after confirmation.'}
+        </p>
+      </Notice>
+      {dirty && (
+        <Notice>
+          Unsaved privacy changes do not affect team access. Save privacy settings to apply them.
+        </Notice>
+      )}
       <ErrorNotice
         error={error}
-        retry={
-          error?.code === 'REVISION_CONFLICT'
-            ? () => {
-                if (window.confirm('Reload and discard your unsaved privacy changes?')) {
-                  clearError();
-                  resource.refresh();
-                }
-              }
-            : undefined
-        }
+        retry={error?.code === 'REVISION_CONFLICT' ? refresh : undefined}
       />
       <fieldset className="form-fields" disabled={busy}>
         <section className="panel privacy-hero">
