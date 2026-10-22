@@ -114,12 +114,17 @@ To run just one stage, use `npm test`, `npm run build`, or `npm run format:check
 For focused checks, use `npm run test:18` for login/navigation,
 `npm run test:19` for opportunities, `npm run test:21` for profile/privacy, or `npm run test:22` for documents. Focused
 checks do not replace the full suite, which also covers shared code and contracts.
+Use `npm run test:49` for Sprint 2 account, password visibility, language and
+session-isolation regressions. With the saved setup toolchain, the repository-root
+equivalent is `sh frontend/run.sh test:49`.
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
 - `tests/api.test.js`: the shared client/contract, including all 29 operations,
   request payloads, pagination, CSRF, multipart upload, downloads and errors.
 - `tests/task-18-shell.test.js`: login/logout, unavailable service and mobile navigation.
+- `tests/task-49-account-language.test.js`: password visibility, persisted language
+  preference, account IDs, safe account switching and stale-session response guards.
 - `tests/task-19-opportunities.test.js`: creation, requirement editing, publication,
   version comparison, uncertain network outcomes, role-specific controls and lists.
 - `tests/task-21-profile-privacy.test.js`: edits, confirmation, conflicts and privacy.
@@ -128,6 +133,51 @@ that use the saved toolchain.
   reject duplicate submissions, preserve returned revisions and block navigation.
 - `tests/task-22-mutations.test.js`: pending uploads/imports protect controls,
   navigation and dialog dismissal.
+
+## Sprint 2 account and language module (task 49)
+
+The login, registration and password-reset forms share an accessible password
+visibility control. It starts hidden; changing visibility preserves the password
+and never submits the form. The workspace header displays the server-issued
+account ID after registration/login and refresh. **Account details** shows the
+current ID, email and role. **Switch account** uses the existing sign-out flow,
+including unsaved/pending-write guards. A different role requires signing in with
+an account registered for that role; there is no client-side permission switch.
+Returning to a tab revalidates the server session and removes the previous
+account's mounted workspace if identity or role changed.
+
+Auth pages, workspace navigation/account screens and shared loading/error/dialog
+controls support English, Simplified/Traditional Chinese, Spanish, French, German,
+Portuguese, Japanese, Korean, Arabic, Hindi and Russian. English is the default and
+fallback. The choice is stored under `banana.language` in browser local storage;
+storage restrictions do not prevent use. Language changes preserve current input.
+Feature-page content can adopt `useLanguage().t(message, values)` from
+`src/shared/i18n.jsx` and add English-source-message keys to the independently
+maintained dictionaries in `src/shared/locales/`. Register further languages in
+`src/shared/locales/index.js` with their native name and writing direction.
+Arabic sets the document direction to right-to-left; the workspace/mobile
+navigation follows that direction while account IDs, email and password inputs
+remain left-to-right. Returning to another language restores left-to-right layout.
+`tests/task-49-locales.test.js` checks dictionary completeness, interpolation,
+errors, input preservation and direction for every supported language. Translation
+wording should be reviewed by native speakers before public release.
+Task 49 supplies this shared framework; profile,
+document, opportunity and matching page copy remains with its owning module.
+Names, profile records, vocabulary/API values and generated matching explanations
+are preserved verbatim. API status/error codes stay unchanged; known errors are
+translated at display time and unknown messages fall back to the server text.
+
+After normal project setup, run the full real-HTTP regression from the repository
+root (the test creates temporary databases and a test mailbox, never sends real mail):
+
+```sh
+.venv/bin/python -m pytest backend/tests/test_frontend_integration.py -q --require-frontend
+```
+
+The `49` case uses independent cookie jars to verify account isolation, role
+enforcement, account-ID login, tab-session changes and language persistence.
+The registration case also checks the ID displayed after creating both roles.
+
 - `tests/contribution.test.js`: the core workspace configuration works independently
   of opportunity and matching pages; a tag outage does not block privacy or sign out.
 - `tests/architecture.test.js`: import resolution and module dependency boundaries.

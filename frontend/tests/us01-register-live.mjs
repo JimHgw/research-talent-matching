@@ -35,6 +35,11 @@ try {
     assert.equal(registered.user.email, email);
     assert.equal(registered.user.role, role);
     assert.match(registered.user.id, /^user_[a-f0-9]{32}$/);
+    assert.equal(document.querySelector('.account-entry code').textContent, registered.user.id);
+    await click('Account details');
+    assert.match(document.querySelector('dialog').textContent, new RegExp(registered.user.id));
+    assert.match(document.querySelector('dialog').textContent, new RegExp(email));
+    await click('Close dialog');
     if (role === 'TALENT') {
       assert.equal((await api.profile()).revision, 0);
       assert.equal((await api.privacy()).discoverable, false);
@@ -46,6 +51,7 @@ try {
     await click('Sign in');
     await until(() => text().includes(heading));
     assert.match(text(), new RegExp(name));
+    assert.equal(document.querySelector('.account-entry code').textContent, registered.user.id);
     await click('Sign out');
     await until(() => text().includes('Welcome to Banana'));
   }

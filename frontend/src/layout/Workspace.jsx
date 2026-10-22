@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, ErrorNotice, Modal } from '../shared/ui.jsx';
 import { WorkspaceSidebar, WorkspaceHeader, WorkspaceToast } from './WorkspaceChrome.jsx';
 import { useMobileMenu, useToast } from './hooks.js';
 import { useWorkspaceNavigation } from './useWorkspaceNavigation.js';
+import AccountDetails from './AccountDetails.jsx';
+import { useLanguage } from '../shared/i18n.jsx';
 
 export default function Workspace({ user, onLogout, configuration }) {
+  const { t } = useLanguage();
+  const [accountOpen, setAccountOpen] = useState(false);
   const team = user.role === 'RESEARCH_TEAM';
   const definition = configuration[user.role];
   const nav = definition.navigation;
@@ -37,16 +41,18 @@ export default function Workspace({ user, onLogout, configuration }) {
     <div className="workspace">
       <WorkspaceSidebar {...chrome} />
       <div className="workspace-body" inert={menu.open}>
-        <WorkspaceHeader {...chrome} />
+        <WorkspaceHeader {...chrome} onAccount={() => setAccountOpen(true)} />
         <main className="main-content" id="main">
           <div className="page-heading">
-            <div className="eyebrow">{team ? 'RESEARCH TEAM' : 'RESEARCH TALENT'}</div>
+            <div className="eyebrow">{t(team ? 'RESEARCH TEAM' : 'RESEARCH TALENT')}</div>
             <h1>
               {page === 'overview'
-                ? `Good to see you, ${user.displayName.split(' ')[0]}.`
-                : nav.find((n) => n[0] === page)?.[2]}
+                ? t('Good to see you, {name}.', { name: user.displayName.split(' ')[0] })
+                : t(nav.find((n) => n[0] === page)?.[2] || '')}
             </h1>
-            {page === 'overview' && <p>Make your next research connection a meaningful one.</p>}
+            {page === 'overview' && (
+              <p>{t('Make your next research connection a meaningful one.')}</p>
+            )}
           </div>
           <ErrorNotice error={logoutError} />
           <Page
@@ -61,25 +67,37 @@ export default function Workspace({ user, onLogout, configuration }) {
             overview={page === 'overview'}
           />
           <footer className="page-footer">
-            <span>Banana · Research, connected.</span>
-            <span>Sprint 1 prototype</span>
+            <span>{t('Banana · Research, connected.')}</span>
+            <span>{t('Sprint 1 prototype')}</span>
           </footer>
         </main>
       </div>
       <WorkspaceToast toast={toast} setToast={setToast} />
+      {accountOpen && (
+        <AccountDetails
+          user={user}
+          onClose={() => setAccountOpen(false)}
+          onSwitch={() => {
+            setAccountOpen(false);
+            navigate('logout');
+          }}
+        />
+      )}
       {pending && (
-        <Modal title={busy ? 'Please wait' : 'Leave without saving?'} onClose={cancel}>
+        <Modal title={t(busy ? 'Please wait' : 'Leave without saving?')} onClose={cancel}>
           <p>
-            {busy
-              ? 'Wait for the current operation to finish before leaving this page.'
-              : 'Your unsaved edits will be discarded. Save your changes first if you want to keep them.'}
+            {t(
+              busy
+                ? 'Wait for the current operation to finish before leaving this page.'
+                : 'Your unsaved edits will be discarded. Save your changes first if you want to keep them.'
+            )}
           </p>
           <div className="actions">
             <Button variant="secondary" onClick={cancel}>
-              Keep editing
+              {t('Keep editing')}
             </Button>
             <Button disabled={busy} onClick={discard}>
-              Discard changes
+              {t('Discard changes')}
             </Button>
           </div>
         </Modal>

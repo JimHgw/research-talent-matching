@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useLanguage } from './i18n.jsx';
 
 const paths = {
   grid: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
@@ -38,7 +39,7 @@ export function Icon({ name, size = 20 }) {
 }
 export function Brand() {
   return (
-    <span className="brand">
+    <span className="brand" dir="ltr">
       <span className="brand-mark">
         b<span>·</span>
       </span>
@@ -72,20 +73,21 @@ export function Field({ label, hint, children }) {
   );
 }
 export function ErrorNotice({ error, retry }) {
+  const { t, errorMessage } = useLanguage();
   if (!error) return null;
   return (
     <div className="notice error" role="alert">
       <Icon name="info" />
       <div>
-        <strong>{error.message || String(error)}</strong>
+        <strong>{errorMessage(error)}</strong>
         {error.fields?.map((f, i) => (
           <p key={i}>
-            {f.field}: {f.message}
+            {f.field}: {t(f.message)}
           </p>
         ))}
         {retry && (
           <Button variant="text" onClick={retry}>
-            Reload latest data
+            {t('Reload latest data')}
           </Button>
         )}
       </div>
@@ -101,10 +103,11 @@ export function Notice({ children, tone = 'info' }) {
   );
 }
 export function Loading() {
+  const { t } = useLanguage();
   return (
     <div className="loading" role="status">
       <span className="spinner" />
-      Loading your workspace…
+      {t('Loading your workspace…')}
     </div>
   );
 }
@@ -121,26 +124,31 @@ export function Empty({ icon = 'compass', title, children, action }) {
   );
 }
 export function Pager({ data, onPage }) {
+  const { t } = useLanguage();
   if (!data || data.total <= data.pageSize) return null;
   return (
     <div className="pager">
       <Button variant="secondary" disabled={data.page === 1} onClick={() => onPage(data.page - 1)}>
-        Previous
+        {t('Previous')}
       </Button>
       <span>
-        Page {data.page} of {Math.ceil(data.total / data.pageSize)}
+        {t('Page {page} of {pages}', {
+          page: data.page,
+          pages: Math.ceil(data.total / data.pageSize),
+        })}
       </span>
       <Button
         variant="secondary"
         disabled={data.page * data.pageSize >= data.total}
         onClick={() => onPage(data.page + 1)}
       >
-        Next
+        {t('Next')}
       </Button>
     </div>
   );
 }
 export function Modal({ title, children, onClose }) {
+  const { t } = useLanguage();
   const ref = useRef();
   useEffect(() => {
     ref.current.showModal();
@@ -157,7 +165,7 @@ export function Modal({ title, children, onClose }) {
     >
       <header>
         <h2>{title}</h2>
-        <Button variant="icon" aria-label="Close dialog" onClick={onClose}>
+        <Button variant="icon" aria-label={t('Close dialog')} onClick={onClose}>
           <Icon name="close" />
         </Button>
       </header>

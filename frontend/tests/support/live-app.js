@@ -5,7 +5,7 @@ import { JSDOM, CookieJar } from 'jsdom';
 
 const backend = process.env.TEST_API_BASE_URL;
 assert.ok(backend, 'Run this integration through pytest.');
-const origin = 'http://127.0.0.1:5173';
+const origin = process.env.TEST_FRONTEND_ORIGIN || 'http://127.0.0.1:5173';
 const jar = new CookieJar();
 const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: origin, cookieJar: jar });
 globalThis.window = dom.window;
@@ -19,15 +19,19 @@ window.HTMLDialogElement.prototype.showModal = function () {
 };
 const nativeFetch = globalThis.fetch;
 export const requests = [];
-globalThis.fetch = async (url, options = {}) => {
-  const requestHeaders = new Headers(options.headers);
-  requestHeaders.set('Cookie', await jar.getCookieString(origin));
-  if (options.method && options.method !== 'GET') requestHeaders.set('Origin', origin);
-  requests.push({ url, method: options.method || 'GET' });
-  const response = await nativeFetch(backend + url, { ...options, headers: requestHeaders });
-  for (const cookie of response.headers.getSetCookie()) await jar.setCookie(cookie, origin);
-  return response;
-};
+function browserFetch(cookieJar, recorded = false) {
+  return async (url, options = {}) => {
+    const requestHeaders = new Headers(options.headers);
+    requestHeaders.set('Cookie', await cookieJar.getCookieString(origin));
+    if (options.method && options.method !== 'GET') requestHeaders.set('Origin', origin);
+    if (recorded) requests.push({ url, method: options.method || 'GET' });
+    const response = await nativeFetch(backend + url, { ...options, headers: requestHeaders });
+    for (const cookie of response.headers.getSetCookie()) await cookieJar.setCookie(cookie, origin);
+    return response;
+  };
+}
+globalThis.fetch = browserFetch(jar, true);
+export const independentBrowserFetch = () => browserFetch(new CookieJar());
 
 const { default: React, act } = await import('react');
 const { createRoot } = await import('react-dom/client');
