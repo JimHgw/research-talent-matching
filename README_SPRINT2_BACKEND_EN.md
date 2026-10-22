@@ -2,13 +2,13 @@
 
 **🍌 Explainable Two-Sided Research Matching · Sprint 2 Backend Developer Specification**
 
-Prepared: **2026-10-22**. Document version: **`0.2.1-draft`**.
+Prepared: **2026-10-22**. Document version: **`0.2.2-draft`**.
 
 This README follows the structure of the [Sprint 1 developer README](README_DEVELOPER_EN.md) and gives the Python backend team a Sprint 2 implementation and acceptance guide. Continue using **Flask, MySQL 8.4, PyMySQL and SQLAlchemy**, the existing document worker and the `/api/v1` API.
 
 **API scope: no new HTTP endpoints.** Sprint 2 reuses existing method/path combinations, extending their fields, query parameters, validation and business logic where needed. Explicit reopening uses the existing opportunity update endpoint. Evaluation and test-data preparation use local tooling, not additional public APIs.
 
-> **Document status:** Jira requirements and backend subtasks were read on 22 October 2026. Repository observations refer to local `main` at `f064daa`. This is a development specification, not a completion or test report. Items labelled **proposed** are integration decisions for review, not already implemented endpoints or Jira-mandated field names. The document version does not change the running API or the checked-in OpenAPI version.
+> **Document status:** Jira requirements and backend subtasks were read on 22 October 2026. The initial backend baseline refers to `f064daa`; the frontend responsibility review uses the updated README and shared integration tests at `883f554`. This is a development specification, not a completion or test report. Items labelled **proposed** are integration decisions for review, not already implemented endpoints or Jira-mandated field names. The document version does not change the running API or the checked-in OpenAPI version.
 
 ## Contents
 
@@ -16,6 +16,7 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 
 ## Change Log
 
+- **2026-10-22:** Aligned responsibilities with the updated frontend task 49/41/61 documentation. Reuse its UI workflows and shared integration tests; backend owns server guarantees and contributes evidence to QA's shared workflow report.
 - **2026-10-22:** Confirmed the no-new-endpoints constraint. Explicit reopening is an optional, deliberate operation within the existing opportunity update request.
 - **2026-10-22:** Created the Sprint 2 backend guide from all 12 sprint work items and their 12 backend subtasks. Added scope, existing-code gaps, data and API proposals, permissions, evaluation methods, integration cases and delivery requirements.
 
@@ -25,8 +26,8 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 2. Support authorised combined search, optional opportunity source URLs, deadlines, automatic expiry and explicit reopening.
 3. Explain research-team recommendations using specific permitted, confirmed profile evidence, including supported education, experience and research-output evidence.
 4. Verify registration, user-ID login and independent sessions, and provide stable API codes for interface localisation.
-5. Resolve the reported document-review failure using a reproduced cause and regression evidence.
-6. Deliver versioned test inputs, a reproducible extraction/matching quality evaluation, a semantic-similarity comparison and a separate end-to-end test report.
+5. Verify the server side of the existing document-review flow, fix only demonstrated backend defects and record regression evidence, including an explicit not-reproduced outcome where appropriate.
+6. Deliver versioned test inputs, a reproducible extraction/matching quality evaluation and a semantic-similarity comparison; contribute backend results to the shared end-to-end test report coordinated by QA-1.
 
 ## 🌈 1. Overview — Project and Scope
 
@@ -37,6 +38,7 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 | [Jira backlog](https://unsw-comp3900-comp9900-26t3.atlassian.net/jira/software/projects/H18ABANANA/boards/103/backlog) and the supplied screenshot | Sprint membership, displayed dates and parent estimates |
 | Jira parent descriptions and backend subtasks linked in section 2.1 | Required behaviour, acceptance criteria, dependencies and scope boundaries; read live on 2026-10-22 |
 | [Sprint 1 developer README](README_DEVELOPER_EN.md) | Document structure and existing development conventions |
+| [Frontend README: Sprint 2 task 49](frontend/README.md#sprint-2-account-and-language-module-task-49), [task 41](frontend/README.md#sprint-2-profile-and-privacy-safeguards-task-41) and [task 61](frontend/README.md#sprint-2-document-review-recovery-task-61) at `883f554` | Updated UI responsibilities and reusable integration coverage; this review does not rerun or certify their tests |
 | [Sprint 1 API contract](docs/api/sprint-1-api-contract.md), [OpenAPI](docs/api/openapi.json), [endpoint index](docs/api/endpoint-index.json), [examples](docs/api/examples/index.json) | Current request/response baseline; unchanged operations retain their existing contract |
 | [Backend README](backend/README.md), [document guide](docs/us09-documents.md), [MySQL migration guide](docs/mysql-migration.md) | Existing setup, worker, persistence and migration procedures |
 | Local source and tests at `f064daa` | Evidence of existing implementation and specific gaps; source inspection does not prove runtime acceptance |
@@ -63,7 +65,7 @@ The supplied board shows **21–29 October 2026**, **12 parent work items** and 
 |---|---|---|
 | Accounts | Verified-email registration, both roles, email/ID login, sessions, logout and password reset | Audit atomicity, returned ID/role, cross-account isolation and permission failures |
 | Confirmation/privacy | Whole-profile revisions, confirmation, opt-in, visible-field filtering and owner-only documents | Harden all new search/evidence paths and prove revocation and persistence |
-| Documents | PDF/DOCX upload, worker, extraction state, review result and selected-section import | Reproduce BUG-35; correct a backend cause only if demonstrated; add regressions |
+| Documents | PDF/DOCX upload, worker, extraction state, review result and selected-section import; frontend task 61 now documents recovery and regression coverage | Reuse the existing reproduction/tests; audit server results, record not-reproduced outcomes and correct only demonstrated backend defects |
 | Opportunities | Draft/create/edit/publish/list/detail and revision checks | Add optional source URL, deadline, type/filter support and explicit reopening with migrations |
 | Matching | `tag-coverage-v1`, four statuses and per-requirement evidence based on skills/interests | Add supported education/experience/output mappings and preserve evidence permissions |
 | Search | Opportunity routes currently consume `scope`, `page`, `pageSize`; matching routes consume pagination | Define, validate and apply combined filters before ranking/pagination |
@@ -71,6 +73,24 @@ The supplied board shows **21–29 October 2026**, **12 parent work items** and 
 | Localisation | Frontend language catalogue; backend error codes, field paths and English messages | Fill any code/mapping gaps while preserving domain values and API compatibility |
 
 The current opportunity model has no `sourceUrl`, deadline or opportunity-type field. Its persisted status is `DRAFT` or `PUBLISHED`. Requirement kinds are currently only `SKILL` and `INTEREST`. These are concrete schema gaps, not merely missing frontend labels.
+
+### 1.4 Frontend Ownership and Shared Coverage
+
+The same user story appears in both READMEs because it crosses the UI/API boundary. It is not a second implementation assignment. The updated frontend README explicitly documents tasks 49, 41 and 61; it is not a completion report for every Sprint 2 frontend task.
+
+| Work | Frontend / QA responsibility to reuse | Backend responsibility retained here |
+|---|---|---|
+| FE-49 with BE-50: accounts | Password visibility, account-ID display, account details, switch-account controls, unsaved/pending guards and stale-workspace cleanup | Registration atomicity, stable returned ID/role, authenticated ownership, independent server sessions and session revocation |
+| FE-49 with BE-60: language | Language selector, `banana.language` storage, dictionaries, translated UI/error display, fallback and layout/direction; each FE module owns its page copy | Preserve machine-readable codes/field paths and domain values; add a missing API code only when an agreed frontend case needs it. No second language framework or translation workstream |
+| FE-41 with BE-42: confirmation/privacy | Focus/explicit refresh, draft preservation, stale-confirmation recovery, saved-state display and removal of stale UI results/dialogs | Current-confirmed-revision checks, opt-in/visible-field enforcement, private-document access and checks for new search/evidence paths; existing passing behaviour may need only audit evidence |
+| FE-61 with BE-62: document review | Selected-document binding, review editor, acknowledgement, discard/pending guards, recovery actions and manual-entry navigation | Owned-document API responses, worker state, atomic import/revision handling and private storage; fix only an identified server failure |
+| QA-51 with BE-52/64: test evidence | Browser acceptance, shared scenario/label review, UI observations, consolidated workflow defects and retests | Reusable fixtures/seed-restore tooling, API/database/worker checks and backend result sections in the same workflow report |
+
+**BUG-35 status:** frontend task 61 states that the original `not-recording` message has not reproduced in the current supported PDF/Word flow and its cause remains unverified. It documents recovery improvements and successful/failure-path test coverage. BE-62 must not assume an unresolved server defect or reimplement `DocumentsPage`, `ExtractionReview` or `ReviewRecovery`; reproduce the sequence through existing tests, record the actual outcome and investigate only evidenced server failures. Do not claim the original cause is fixed solely because the flow passes.
+
+**Reuse existing tests:** `backend/tests/test_frontend_integration.py` already includes task `41` and `49` and registration cases. `backend/tests/test_us09_frontend_integration.py` already exercises PDF/DOCX review with the real worker and task `61` state/account cases. Their UI drivers are under `frontend/tests/`. A Python test harness in `backend/tests/` does not make its UI scenario a new backend-owned feature. BE-42/50/52/62 should run/link these cases and add only missing server assertions or coverage for new behaviour, rather than copying the same workflows and fixtures into another suite.
+
+BE-44/46 still own extraction/matching metrics and the semantic comparison; those are distinct from browser workflow testing. BE-64 packages the shared examples and independently reviewed labels for repeatable use instead of creating a competing dataset. Shared acceptance requirements below provide integration context and do not transfer frontend implementation to the backend team.
 
 ## 🐶 2. Sprint 2 — Backend Functionality and Tests
 
@@ -144,7 +164,7 @@ The existing `TeamEvidence` shape is `{field, recordId, valueSummary}`. It can i
 ### 2.3 Implementing Features — Sequence and Responsibilities
 
 1. **Agree the contract deltas and test manifest:** BE-64 supplies starting-state data; agree filters, type codes, dates, reopening and evidence mappings.
-2. **Verify shared foundations:** BE-42 and BE-50 cover confirmation, privacy, roles and sessions. BE-62 reproduces the review defect early because it blocks document workflows.
+2. **Verify shared foundations:** BE-42 and BE-50 audit confirmation, privacy, roles and sessions using the existing task 41/49 integration cases. BE-62 reuses task 61's review sequence and checks actual API/worker outcomes; the original reported error is not assumed to reproduce.
 3. **Extend opportunity persistence/lifecycle:** BE-56 and BE-58 coordinate one migration and compatible create/update/detail responses.
 4. **Implement authorised queries and evidence:** BE-48 uses the shared active-opportunity rule; BE-54 extends the evidence engine after permission filtering.
 5. **Complete stable localisation contracts:** BE-60 checks new and existing errors with FE-1, including filter/expiry errors.
@@ -177,6 +197,8 @@ Each dataset/run manifest must identify:
 - An isolated seed/restore procedure: repeated preparation must not duplicate data; restoring the dataset must leave unrelated users unchanged.
 
 Test fixtures belong in an explicitly scoped test database or dataset. No public seed/reset endpoint is required. Do not use the application's normal database as an evaluation reset target. Record actual sample counts; Jira does not supply an agreed minimum in the inspected descriptions.
+
+Start from the synthetic CV, tags, contract examples and isolated setup already used by tasks 41/61 and the existing backend tests. QA-1 coordinates the shared examples and manual labels; BE-64 supplies versioning and machine-repeatable preparation/restore. Extend the shared dataset only for missing scenarios or evaluation coverage rather than duplicating the existing browser fixtures.
 
 #### 2.4.2 US-11: Quality Evaluation
 
@@ -364,7 +386,7 @@ Preserve the current envelope and readable English fallback messages:
 | Invalid URL, deadline, type, query or field | 422 `VALIDATION_ERROR` with field paths |
 | Expired opportunity passed to a matching endpoint | **Proposed:** 409 `OPPORTUNITY_EXPIRED`, after ordinary authorisation checks |
 
-US-21 uses stable error codes, field paths, enum values and existing `reasonCode` values to translate interface messages. Retain English fallback text. If different validation reasons on one field need separate translations, propose an additive field-level code and update schemas/clients together; do not parse unstable English prose as a permanent protocol.
+FE-49 and the owning frontend feature modules translate interface messages using stable error codes, field paths, enum values and existing `reasonCode` values. BE-60 preserves that contract and readable English server fallback text; it does not implement dictionaries, language persistence or display-time translation. If different validation reasons on one field need separate translations, propose an additive field-level code only for an identified gap and update schemas/clients together. Reuse the current frontend mappings instead of replacing its language framework.
 
 Language changes must not mutate sessions, roles, profile/opportunity content, revisions, confirmation, privacy or scores. Do not translate stored user content or generated evidence summaries as part of this backend task. Backend tests verify stable codes/data; browser tests verify language persistence, fallback and readable layouts.
 
@@ -387,7 +409,7 @@ Talent owners may match their own confirmed profiles without opting into reverse
 
 Use the stored account role, not a login-form role or query parameter. Registration returns a stable `user.id` and `user.role`; `/auth/session` exposes them for the account page. A single-role account changes workflows by signing into an appropriately authorised account; no client role toggle can grant new privileges.
 
-Verify two independent browser contexts/cookie jars. User A's logout or profile change must not change user B's session or data. A same-browser account change must clear private frontend caches; server requests always resolve their owner from the current session. A submitted previous user's ID cannot restore access.
+Verify two independent cookie jars using the shared integration tests. User A's logout or profile change must not change user B's session or data. FE-49 owns clearing the mounted workspace and private frontend caches on account changes; backend requests always resolve their owner from the current session. A submitted previous user's ID cannot restore access.
 
 Keep personalised responses `Cache-Control: no-store`. Any application-side match cache must account for profile, privacy and opportunity revisions, algorithm version **and deadline passage**; expiry can occur without a content edit. Recompute eligibility on each request rather than serving an expired or revoked result from a stale cache.
 
@@ -434,9 +456,11 @@ Use the **current Sprint 2 Jira groupings**, which differ from the old Sprint 1 
 | [FE-3 / H18ABANANA-61](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-61) Document review | BE-62 | Owned document ID, processing state, extraction/apply requests and actual failing response |
 | [FE-4 / H18ABANANA-47](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-47) Opportunity search/link/deadline UI | BE-48, BE-56, BE-58 | Query semantics, type vocabulary, source URL, zoned deadline, expired details and explicit reopen |
 | [FE-5 / H18ABANANA-53](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-53) Talent filters/explanations | BE-48, BE-54 | Permitted filters, requirement model, evidence shape, status/score consistency |
-| [QA-1 / H18ABANANA-51](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-51) Browser acceptance and shared examples | BE-44, BE-46, BE-52, BE-64 | One versioned dataset, separate workflow/quality reports, actual outcomes and linked retests |
+| [QA-1 / H18ABANANA-51](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-51) Browser acceptance and shared examples | BE-44, BE-46, BE-52, BE-64 | QA coordinates one workflow report; BE contributes API/worker/data results and separately owns quality/semantic reports using the shared dataset |
 
 Several original FE/QA child items are marked merged into these shared tasks. Do not count a merged child as evidence that its corresponding backend feature is complete.
+
+For FE-4/5, frontend owns filter controls, forms, source-link opening, deadline/expired labels, reopen controls and evidence presentation. Backend owns filtering, persistence, expiry decisions, permissions and evidence computation. The response/query proposals in section 2.5 are shared contract inputs, not backend assignments to build those screens.
 
 **Document review sequence:** upload → poll owned document → once READY, read its extraction → review/correct/select sections → apply using the current profile revision → read the unconfirmed profile → explicit confirmation → refresh matching. No step requires voice recording. For BUG-35, capture the request/status/response and worker/document IDs before assigning a cause. If the APIs behave correctly, provide that evidence to FE rather than adding speculative recording-state logic.
 
@@ -446,7 +470,7 @@ Several original FE/QA child items are marked merged into these shared tasks. Do
 
 ### 2.9 Acceptance Criteria — Required Outcomes
 
-These are acceptance targets, not passed test results. Record the actual result for each relevant case.
+These are shared acceptance targets, not passed test results or a list of frontend features to implement in BE. Backend records API/database/worker outcomes; FE/QA records controls, rendering, navigation and browser observations. Reuse the existing task 41/49/61 tests for covered cases and add coverage only for an identified gap or new behaviour.
 
 | Case | Related work | Required observable result |
 |---|---|---|
@@ -468,8 +492,8 @@ These are acceptance targets, not passed test results. Record the actual result 
 | Account return flow | US-15 | Both roles register, receive IDs, log out and sign in with ID/password to saved data |
 | Invalid/duplicate registration | US-15 | Clear structured error; no partial account or duplicate profile/privacy records |
 | Session/role isolation | US-15 | Two independent users remain isolated; forged role denied; account switch cannot retain access to prior private data |
-| Language independence | US-21 | Interface language changes preserve auth/domain values; API code/field mapping and English fallback work |
-| Review success | BUG-35, US-16 | Correct READY document opens review, corrections import to its owner and later confirmation enables matching without recording |
+| Language independence | US-21 | Backend preserves codes, field paths, fallback server text and domain values; FE/QA verifies selector, persistence, translation and layout |
+| Review success | BUG-35, US-16 | Backend returns the owned READY result, imports corrections atomically and requires later confirmation; FE-61 owns opening/recovery/editor behaviour and its existing regressions |
 | Review failure and conflict | BUG-35, US-16 | Pending/failed/missing/cross-user requests have defined errors; stale import cannot overwrite newer profile data |
 | Data preparation/reset | DATA-40 | Manifest identifies starting state; repeatable setup has no duplicates; restore preserves unrelated records |
 | Quality evaluation | US-11 | Versioned labels, raw counts, defined denominators, unsupported outputs and reproducible results/limitations |
@@ -478,9 +502,11 @@ These are acceptance targets, not passed test results. Record the actual result 
 
 ### 2.10 Dryrun — Pre-Demonstration Checks
 
+This is a **joint FE/QA/BE walkthrough**, not an additional backend UI work package. FE/QA drives the browser steps and consolidates the US-16 report; BE prepares isolated data, runs the shared integration/API/worker checks and supplies server evidence. BE owns the quality/semantic evaluation in step 8. Do not duplicate the existing task 41/49/61 walkthroughs as a separate acceptance suite.
+
 1. Record the build, database/worker configuration, dataset version and test clock. Prepare two talent and two team accounts in an isolated test environment as a proposed minimum for access-isolation checks.
 2. Exercise registration and ID re-login for both roles, plus independent sessions, invalid input and duplicate registration.
-3. Save a manual profile, upload a supported test document, review/correct/import its suggestions and explicitly confirm. Reproduce and retest the reported BUG-35 sequence and a not-ready/failure path.
+3. Reuse FE-41/61's manual-profile, upload, review/correct/import and explicit-confirmation flow. Record the actual result of the reported BUG-35 sequence and a not-ready/failure path; retain a not-reproduced result when the original error does not occur.
 4. Create/publish an opportunity with source URL, type and deadline. Check URL removal, no-deadline records, combined filters and empty results.
 5. Demonstrate team evidence for supported education, experience and outputs. Hide a field, then revoke discovery; verify lists, scores and direct details update.
 6. Use controlled tests for before/exactly-at/after expiry. Demonstrate expired detail and explicit reopen; do not change the host clock or real users' records for the demonstration.
@@ -497,14 +523,15 @@ US-16 case records must include case/story ID, environment, starting state, step
 - [ ] Source URLs, deadlines, type data and lifecycle markers have reviewed migrations and preserve existing records.
 - [ ] Confirmation, consent, visibility, ownership and independent sessions are tested on list and direct-request paths.
 - [ ] US-18 evaluates supported education/experience/output evidence, with no fabricated qualifications or document leakage.
-- [ ] BUG-35 has a reproduced result, confirmed cause where found, successful/failure regressions and a linked retest record.
+- [ ] BE-62 links the existing FE-61/shared regression evidence and records actual API/worker outcomes, any demonstrated server fix and retest, or an explicit not-reproduced outcome with the original cause still unverified.
 - [ ] DATA-40 delivers a versioned manifest and demonstrated isolated seed/restore procedure.
 - [ ] US-11 delivers an actual extraction/matching quality report with counts, denominators, errors and limitations.
 - [ ] US-13 delivers a reproducible comparison and adopt/omit decision with structured fallback.
-- [ ] US-16 delivers a separate real integration/browser report, defects and retests; skips and mocks are clearly labelled.
+- [ ] BE-52 contributes API/database/worker results and links reused integration cases in the single US-16 report coordinated by QA-1; FE/QA supplies browser observations. Quality/semantic reports remain separate, and skips/mocks are clearly labelled.
+- [ ] Frontend-owned controls, translation dictionaries, refresh/draft guards and review recovery remain with their FE tasks; backend changes address server guarantees or demonstrated gaps without duplicating those implementations or tests.
 - [ ] Startup, migration, test and evaluation commands are documented and reproducible; no secrets or private originals enter shared reports.
 
-Suggested new artifact names for implementation are `docs/testing/sprint-2-dataset-manifest.json`, `docs/testing/sprint-2-quality-report.md`, `docs/testing/sprint-2-semantic-comparison.md` and `docs/testing/sprint-2-e2e-report.md`. These are **planned deliverables, not files created or evaluations executed by this README**. The manifest's exact schema and runner/seed command names must be supplied by BE-64/44/46 when implemented.
+Suggested artifact names are `docs/testing/sprint-2-dataset-manifest.json` (BE-64 with QA's shared inputs), `docs/testing/sprint-2-quality-report.md` (BE-44), `docs/testing/sprint-2-semantic-comparison.md` (BE-46) and `docs/testing/sprint-2-e2e-report.md` (QA-1 coordination with BE-52 result sections). These are **planned deliverables, not files created or evaluations executed by this README**. Reuse an equivalent existing shared report rather than creating a second one. The manifest's exact schema and runner/seed command names must be supplied by BE-64/44/46 when implemented.
 
 ## 3. Backend Setup, Verification and Handover
 
