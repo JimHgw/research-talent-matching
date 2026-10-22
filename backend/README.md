@@ -4,6 +4,11 @@ Flask + MySQL 8.4 + SQLAlchemy ORM implementation for verified-email registratio
 manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
+For current sprint requirements, backend subtasks, proposed API/data changes and
+acceptance criteria, see the [Sprint 2 backend developer README](../README_SPRINT2_BACKEND_EN.md).
+It is a development specification; proposed extensions are not yet part of the
+implemented Sprint 1 contract.
+
 For frontend and backend containers together, use the
 [integrated Docker workflow](../docs/docker-integration.md).
 For a containerized backend alone, use the [one-command Docker workflow](../README_DEVELOPER_EN.md#3-docker-backend-guide).
