@@ -3,6 +3,7 @@ import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
+import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const content = opportunity.content;
@@ -74,18 +75,7 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
       {resource.loading ? (
         <Loading />
       ) : resource.error?.code === 'PROFILE_UNCONFIRMED' ? (
-        <Empty
-          icon="user"
-          title="Your profile needs a review"
-          action={
-            <Button onClick={() => navigate('profile')}>
-              Review my profile
-              <Icon name="arrow" size={16} />
-            </Button>
-          }
-        >
-          Save and confirm your academic information before we compare it with opportunities.
-        </Empty>
+        <ProfileConfirmationRequired onReview={() => navigate('profile')} />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       ) : resource.data.items.length ? (
@@ -109,8 +99,14 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
       )}
       <Pager data={resource.data} onPage={setPage} />
 
-      {selected && <MatchDetails opportunityId={selected} onClose={() => setSelected(null)} />}
-      {details && OpportunityDetails && (
+      {resource.data && selected && (
+        <MatchDetails
+          opportunityId={selected}
+          navigate={navigate}
+          onClose={() => setSelected(null)}
+        />
+      )}
+      {resource.data && details && OpportunityDetails && (
         <OpportunityDetails
           opportunityId={details}
           onClose={() => setDetails(null)}

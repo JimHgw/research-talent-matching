@@ -117,6 +117,9 @@ checks do not replace the full suite, which also covers shared code and contract
 Use `npm run test:49` for Sprint 2 account, password visibility, language and
 session-isolation regressions. With the saved setup toolchain, the repository-root
 equivalent is `sh frontend/run.sh test:49`.
+Use `npm run test:41` / `sh frontend/run.sh test:41` for Sprint 2 confirmation
+and privacy safeguards. This reuses the existing profile, document and matching
+regressions alongside the new task 41 cases.
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
@@ -177,6 +180,39 @@ root (the test creates temporary databases and a test mailbox, never sends real 
 The `49` case uses independent cookie jars to verify account isolation, role
 enforcement, account-ID login, tab-session changes and language persistence.
 The registration case also checks the ID displayed after creating both roles.
+
+## Sprint 2 profile and privacy safeguards (task 41)
+
+The existing profile and privacy editors revalidate saved state when a clean,
+idle page regains focus. Unsaved input and pending writes are preserved. Use
+**Refresh profile** or **Refresh privacy settings** to reload explicitly; a dirty
+form requires confirmation before its draft is discarded. A revision conflict
+keeps the local input and blocks repeated confirmation until the latest saved
+profile has been loaded and reviewed.
+
+The profile shows its saved revision and considers it confirmed only when the
+server's confirmed revision matches. Saving content or importing reviewed document
+sections requires a separate confirmation before matching uses the new revision.
+Both recommended and saved-opportunity match dialogs return an unconfirmed user
+to the same profile editor; they never confirm on the user's behalf.
+
+Privacy distinguishes the saved discovery status from unsaved switch/field
+choices. Saving consent does not confirm a profile. Current server consent and
+field permissions remain authoritative; team discovery refreshes remove revoked
+profiles, fields and open evidence dialogs. Original documents remain owner-only.
+No new endpoints or backend enforcement rules are introduced.
+
+`tests/task-41-profile-privacy.test.js` covers focus/explicit refresh, draft and
+pending-write guards, stale confirmation and both owner matching entry points.
+The existing task 20/21/22 suites retain their discovery revocation and import
+checks. The `41` real HTTP case reuses the synthetic CV text, tags and opportunity
+examples already used by the existing regression dataset. It checks confirmation
+after a real document import, consent persistence, two independent sessions,
+revocation and owner-only document access. Run it after normal setup:
+
+```sh
+.venv/bin/python -m pytest backend/tests/test_frontend_integration.py -q --require-frontend -k "[41]"
+```
 
 - `tests/contribution.test.js`: the core workspace configuration works independently
   of opportunity and matching pages; a tag outage does not block privacy or sign out.

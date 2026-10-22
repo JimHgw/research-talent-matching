@@ -7,6 +7,13 @@
 .profile-fields .panel {
   margin-bottom: 20px;
 }
+.profile-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
 .skill-grid {
   grid-template-columns: 1fr 1fr 35px;
   align-items: center;

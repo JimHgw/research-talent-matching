@@ -4,7 +4,7 @@ import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Loading, Pager } from '../../shared/ui.jsx';
 import CollectionButton, { collectionChanged } from './CollectionButton.jsx';
 
-export default function SavedOpportunities({ OpportunityDetails, MatchDetails }) {
+export default function SavedOpportunities({ OpportunityDetails, MatchDetails, navigate }) {
   const [page, setPage] = useState(1);
   const [details, setDetails] = useState(null);
   const [match, setMatch] = useState(null);
@@ -56,7 +56,9 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails })
           }}
         />
       )}
-      {match && <MatchDetails opportunityId={match} onClose={() => setMatch(null)} />}
+      {match && (
+        <MatchDetails opportunityId={match} navigate={navigate} onClose={() => setMatch(null)} />
+      )}
     </>
   );
 }
