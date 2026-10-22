@@ -146,6 +146,13 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
                   {d.kind} · {(d.sizeBytes / 1024).toFixed(1)} KB · {displayDate(d.createdAt)}
                 </p>
                 {d.error && <p className="error-text">{d.error.message}</p>}
+                {['QUEUED', 'PROCESSING'].includes(d.status) && (
+                  <p className="help" role="status">
+                    {d.status === 'QUEUED'
+                      ? 'Waiting for document processing.'
+                      : 'Extracting suggestions. Review will be available when processing finishes.'}
+                  </p>
+                )}
               </div>
               <Badge status={d.status} />
               <div className="document-actions">
@@ -170,11 +177,19 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
       <Pager data={resource.data} onPage={setPage} />
       {selected && (
         <ExtractionReview
+          key={selected.id}
           onDirty={onDirty}
           onPending={onPending}
           document={selected}
           tags={tags}
           onClose={() => setSelected(null)}
+          onManual={() => navigate('profile')}
+          onRefresh={() => {
+            setSelected(null);
+            started.current = Date.now();
+            setPaused(false);
+            resource.refresh();
+          }}
           onApplied={() => {
             setSelected(null);
             notify('Reviewed sections imported. Confirm the updated profile before matching.');
