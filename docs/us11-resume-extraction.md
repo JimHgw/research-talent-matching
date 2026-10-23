@@ -47,6 +47,37 @@ elsewhere. Unmatched information remains in free text and uncertainty warnings.
 Short list labels can become personal-interest proposals; long sentences remain
 descriptive text.
 
+### Academic Statements and transcripts
+
+Academic records are recognised by their content, even when uploaded with the CV
+document type. `Academic Statement`, academic-transcript headings and course-table
+headers activate academic parsing; a CV does not need to contain those headings
+for the existing section parser to work.
+
+- Repeated university headers, `Academic Career`, `Program`, `Plan` and term lines
+  produce deduplicated education suggestions. A career header without an actual
+  programme creates no education entry. Student names/IDs and print dates are not
+  used as education or course fields.
+- A programme title is retained as written when the actual degree title is absent.
+  The earliest recorded term supplies a reviewable `startYear`; it may differ from
+  enrolment. `endYear` stays null because the last recorded term does not establish
+  graduation. The review warning explains these limits.
+- Rows such as `COMP 1511 Programming Fundamentals 6.00 6.00 72 CR` become course
+  code `COMP1511` and name `Programming Fundamentals`. Decimal credit columns,
+  marks and grades stay in the source description alongside the term. Wrapped
+  titles/result columns and current subjects with only attempted credit are
+  supported. Course names keep digits, commas and other title punctuation.
+- Repeated course codes create one suggestion with all recorded attempts in its
+  description, including failed attempts and subsequent results. No arbitrary
+  attempt is silently selected as the final grade.
+- Subjects do not establish programming proficiency, research interests, research
+  experience or research outputs. Those sections still require explicit evidence.
+
+Existing READY extractions are stored results. After updating/rebuilding the API
+and worker, upload the statement again to create new suggestions. **Reload
+suggestions** reloads the stored result; it does not reprocess the original file.
+Previously saved profiles are not changed by this parser update.
+
 ## Existing API workflow
 
 All paths are under `/api/v1`; this change adds no endpoint.
@@ -144,6 +175,7 @@ Focused functional tests:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest backend/tests/test_us11.py -q
+.\.venv\Scripts\python.exe -m pytest backend/tests/test_us11_academic.py -q
 ```
 
 The tests cover actual PDF/DOCX upload/worker/import/reload, descriptions without
@@ -158,7 +190,7 @@ Use the normal full regression command with `--require-frontend`. Real MySQL and
 container tests remain available through `--run-mysql` and `--run-docker`; only
 report those environments as verified when actually executed.
 
-Recorded verification on 23 October 2026 (Windows, Python 3.12.14):
+Initial implementation verification on 23 October 2026 (Windows, Python 3.12.14):
 
 - Full backend regression with `--require-frontend`: **450 passed, 6 skipped**,
   including the real HTTP frontend and actual document-worker workflows.
@@ -173,3 +205,23 @@ Text-layer PDFs and DOCX paragraphs/tables are supported. Scanned PDFs require
 OCR elsewhere or manual entry. Arbitrary layouts and unsupported vocabulary can
 still require correction; the unified description preserves readable source text
 even when structured recognition fails.
+
+The Academic Statement regression cases use synthetic student data and cover
+repeated page headers, programme/career deduplication, decimal result columns,
+wrapped rows, repeated attempts, current subjects, limits, and real PDF/DOCX
+upload/review/import for both CV and TRANSCRIPT document types. A read-only check
+against the user-reported statement's extracted source yielded one education
+record and 25 distinct courses, preserving both attempts of a repeated course.
+
+Academic Statement fix verification on 23 October 2026:
+
+- Final full regression with `--require-frontend`: **465 passed, 6 skipped**,
+  including all 15 new Academic Statement cases and real HTTP frontend workflows.
+- The new Docker image directly read the user-reported original PDF in a read-only
+  check: one education entry, 25 distinct courses, both repeated attempts retained,
+  and no result columns in course names. Stored suggestions were not overwritten.
+- Rebuilt the application image and recreated only `document-worker`. Its startup
+  completed successfully; the existing API/frontend remained healthy and the
+  running worker contains the new parser. New uploads use the updated rules.
+- The six optional isolated Docker/MySQL tests were still skipped. The live
+  read-only PDF check and worker update do not replace those isolated tests.

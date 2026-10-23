@@ -5,6 +5,7 @@ import re
 import unicodedata
 
 from ...shared.validation import validator
+from .academic import extract_academic_records
 
 
 HEADINGS = {
@@ -317,11 +318,34 @@ def build_extraction_result(document_id, text, tags):
             result["uncertainFields"].append({"field": "resumeDescription", "status": "UNKNOWN",
                                                "reason": "Resume description was shortened to 20000 characters; consult the original file."})
     sections = _sections(text)
+    academic, academic_issues = extract_academic_records(text, OTHER_HEADINGS | {
+        alias for section, aliases in HEADINGS.items() if section not in ("education", "courses")
+        for alias in aliases})
     for section, lines in sections.items():
         if section in ("skills", "researchInterests"):
             items, issues = _tags(lines, tags, "SKILL" if section == "skills" else "INTEREST")
         else:
             items, issues = _structured(section, lines)
+        if section in academic:
+            # Transcript rows need their result columns separated from course names.
+            # Prefer those records over the same rows parsed as generic CV text.
+            records = academic[section]
+
+            def identity(item):
+                if section == "courses" and item.get("code"):
+                    return _fold(item["code"]).replace(" ", "")
+                return (_fold(item.get("institution", "")), _fold(item.get("qualification", "")))
+
+            existing = {identity(item) for item in records}
+            # Transcript metadata such as "Name: ..." is not a labelled course.
+            if section == "courses":
+                items = [item for item in items if re.fullmatch(r"[A-Z]{2,8}\s?\d{3,5}", item.get("code") or "")]
+                issues = []
+            items = records + [item for item in items if identity(item) not in existing]
+            if len(items) > 100:
+                issues.append("More than 100 records; remaining records need manual review.")
+                items = items[:100]
+        issues.extend(academic_issues.get(section, []))
         if items:
             result["suggestedSections"][section] = items
         if issues or not items:

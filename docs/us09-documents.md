@@ -48,6 +48,13 @@ Bullets, comma/semicolon lists and tab/pipe separated rows are supported.
 | Research interests / Interests | Controlled INTEREST label mentions, source-grounded free text and short personal-label proposals |
 | Research outputs / Publications / Projects / Research projects | `PUBLICATION | Title | https://...`, `PROJECT | Title`, or labelled Title, Type, URL, Description |
 
+Academic Statements also support programme/plan/term metadata, repeated page
+headers and course-result tables without `Education` or `Courses` section titles.
+Course codes are normalised, result columns stay in descriptions, and repeated
+attempts are retained together. Degree/completion details are not invented and
+subjects do not imply skill or research claims. See the
+[Academic Statement rules and existing-result recovery](us11-resume-extraction.md#academic-statements-and-transcripts).
+
 Separate labelled records with a blank line or repeat their first key.
 Delimited rows and course-code lines are separate records. Explicit year ranges
 are parsed; unsupported dates, reversed ranges, invalid URLs and records that do
