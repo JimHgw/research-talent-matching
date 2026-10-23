@@ -139,7 +139,30 @@ try {
   await click('Refresh talent');
   await until(() => text().includes('No discoverable talent yet'));
   assert.doesNotMatch(text(), /Demo Talent A|Needs reconfirmation/);
-  await click('Sign out');
+  // Hold the real anonymous response after logout to exercise the CSRF race deterministically.
+  const previousFetch = globalThis.fetch;
+  let releaseSession;
+  let sessionStarted = false;
+  const sessionGate = new Promise((resolve) => {
+    releaseSession = resolve;
+  });
+  globalThis.fetch = async (url, options) => {
+    const response = await previousFetch(url, options);
+    if (url.endsWith('/auth/session')) {
+      sessionStarted = true;
+      await sessionGate;
+    }
+    return response;
+  };
+  try {
+    await click('Sign out');
+    await until(() => sessionStarted);
+    assert.doesNotMatch(text(), /Welcome to Banana|No discoverable talent yet/);
+    assert.equal(document.querySelector('input[autocomplete="current-password"]'), null);
+  } finally {
+    globalThis.fetch = previousFetch;
+    await act(async () => releaseSession());
+  }
   await login('other@example.test');
   await until(() => text().includes('Tell your research story'));
   assert.equal(document.querySelector('.talent-card'), null);
@@ -162,22 +185,22 @@ try {
   await until(() => text().includes('Remove from Saved'));
   // Hold the post-logout bootstrap to reproduce the CI race deterministically.
   const browserFetch = globalThis.fetch;
-  let releaseSession;
+  let releaseSavedSession;
   globalThis.fetch = async (url, options) => {
     if (url.endsWith('/auth/session'))
       await new Promise((resolve) => {
-        releaseSession = resolve;
+        releaseSavedSession = resolve;
       });
     return browserFetch(url, options);
   };
   try {
     await click('Sign out');
-    await until(() => !!releaseSession);
+    await until(() => !!releaseSavedSession);
     assert.ok(document.querySelector('.app-loading'));
     assert.ok(!document.querySelector('.login-fields'), 'Sign-in must wait for the new session');
   } finally {
     globalThis.fetch = browserFetch;
-    await act(async () => releaseSession?.());
+    await act(async () => releaseSavedSession?.());
   }
   await login('talent@example.test');
   await until(() => text().includes('Tell your research story'));

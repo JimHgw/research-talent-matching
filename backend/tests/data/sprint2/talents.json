@@ -1,0 +1,442 @@
+[
+  {
+    "id": "s2_perfect_match",
+    "purpose": "perfect_match",
+    "content": {
+      "displayName": "Synthetic perfect match",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        },
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "displayName",
+        "skills",
+        "researchInterests"
+      ],
+      "privacyRevision": 1
+    }
+  },
+  {
+    "id": "s2_partial_multi_tag_requirement",
+    "purpose": "partial_multi_tag_requirement",
+    "content": {
+      "displayName": "Synthetic partial multi tag requirement",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "displayName",
+        "skills",
+        "researchInterests"
+      ],
+      "privacyRevision": 1
+    }
+  },
+  {
+    "id": "s2_explicit_negative_gap",
+    "purpose": "explicit_negative_gap",
+    "content": {
+      "displayName": "Synthetic explicit negative gap",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        },
+        {
+          "evidenceText": "Synthetic explicit negative claim.",
+          "id": "skill_interviews",
+          "title": "No Research interviews"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [],
+      "privacyRevision": 0
+    }
+  },
+  {
+    "id": "s2_missing_information",
+    "purpose": "missing_information",
+    "content": {
+      "displayName": "Synthetic missing information",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [],
+      "researchInterests": [],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [],
+      "privacyRevision": 0
+    }
+  },
+  {
+    "id": "s2_unmatched_tags",
+    "purpose": "unmatched_tags",
+    "content": {
+      "displayName": "Synthetic unmatched tags",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_java",
+          "title": "Java"
+        }
+      ],
+      "researchInterests": [
+        "interest_cv"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [],
+      "privacyRevision": 0
+    }
+  },
+  {
+    "id": "s2_incomplete_profile",
+    "purpose": "incomplete_profile",
+    "content": {
+      "displayName": "Synthetic incomplete profile",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        }
+      ],
+      "researchInterests": [],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "displayName",
+        "skills",
+        "researchInterests"
+      ],
+      "privacyRevision": 1
+    }
+  },
+  {
+    "id": "s2_no_matching_criteria",
+    "purpose": "no_matching_criteria",
+    "content": {
+      "displayName": "Synthetic no matching criteria",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        }
+      ],
+      "researchInterests": [],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [],
+      "privacyRevision": 0
+    }
+  },
+  {
+    "id": "s2_hidden_information",
+    "purpose": "hidden_information",
+    "content": {
+      "displayName": "Synthetic hidden information",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        },
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "displayName"
+      ],
+      "privacyRevision": 1
+    }
+  },
+  {
+    "id": "s2_private_profile",
+    "purpose": "private_profile",
+    "content": {
+      "displayName": "Synthetic private profile",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        },
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [],
+      "privacyRevision": 0
+    }
+  },
+  {
+    "id": "s2_unconfirmed_profile",
+    "purpose": "unconfirmed_profile",
+    "content": {
+      "displayName": "Synthetic unconfirmed profile",
+      "disciplineGroup": "STEM",
+      "education": [
+        {
+          "id": "edu_001",
+          "institution": "UNSW",
+          "qualification": "Master of IT",
+          "discipline": "Computer Science",
+          "startYear": 2025,
+          "endYear": null
+        }
+      ],
+      "courses": [],
+      "researchExperience": [],
+      "skills": [
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
+        },
+        {
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
+        }
+      ],
+      "researchInterests": [
+        "interest_ml"
+      ],
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
+    },
+    "state": {
+      "profileRevision": 1,
+      "confirmationStatus": "UNCONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "skills",
+        "researchInterests"
+      ],
+      "privacyRevision": 1
+    }
+  }
+]

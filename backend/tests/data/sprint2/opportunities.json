@@ -1,0 +1,254 @@
+[
+  {
+    "id": "s2_opp_perfect_match",
+    "purpose": "perfect_match",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic perfect match",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_python",
+          "kind": "SKILL",
+          "label": "Python",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python"
+          ]
+        },
+        {
+          "id": "req_sql",
+          "kind": "SKILL",
+          "label": "SQL",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "skill_sql"
+          ]
+        },
+        {
+          "id": "req_ml",
+          "kind": "INTEREST",
+          "label": "Machine learning",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_ml"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_partial_multi_tag_requirement",
+    "purpose": "partial_multi_tag_requirement",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic partial multi tag requirement",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_programming",
+          "kind": "SKILL",
+          "label": "Python and SQL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python",
+            "skill_sql"
+          ]
+        },
+        {
+          "id": "req_ml",
+          "kind": "INTEREST",
+          "label": "Machine learning",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_ml"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_explicit_negative_gap",
+    "purpose": "explicit_negative_gap",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic explicit negative gap",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_methods",
+          "kind": "SKILL",
+          "label": "Python and interviewing",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python",
+            "skill_interviews"
+          ]
+        },
+        {
+          "id": "req_ml",
+          "kind": "INTEREST",
+          "label": "Machine learning",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_ml"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_missing_information",
+    "purpose": "missing_information",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic missing information",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_python",
+          "kind": "SKILL",
+          "label": "Python",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python"
+          ]
+        },
+        {
+          "id": "req_ml",
+          "kind": "INTEREST",
+          "label": "Machine learning",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_ml"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_unmatched_tags",
+    "purpose": "unmatched_tags",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic unmatched tags",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_python",
+          "kind": "SKILL",
+          "label": "Python",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python"
+          ]
+        },
+        {
+          "id": "req_nlp",
+          "kind": "INTEREST",
+          "label": "Natural language processing",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_nlp"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_incomplete_profile",
+    "purpose": "incomplete_profile",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic incomplete profile",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_programming",
+          "kind": "SKILL",
+          "label": "Python and SQL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python",
+            "skill_sql"
+          ]
+        },
+        {
+          "id": "req_nlp",
+          "kind": "INTEREST",
+          "label": "Natural language processing",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "interest_nlp"
+          ]
+        }
+      ]
+    },
+    "state": {
+      "status": "PUBLISHED",
+      "revision": 2
+    }
+  },
+  {
+    "id": "s2_opp_no_matching_criteria",
+    "purpose": "no_matching_criteria",
+    "owner": "s2_team",
+    "content": {
+      "title": "Synthetic no matching criteria",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": []
+    },
+    "state": {
+      "status": "DRAFT",
+      "revision": 1
+    }
+  }
+]

@@ -27,6 +27,48 @@ async function remount() {
   await act(async () => state.root.render(React.createElement(App)));
 }
 
+test('logout hides sign-in until the fresh anonymous session has supplied its CSRF token', async () => {
+  await mount();
+  let release;
+  const sessionResponse = new Promise((resolve) => {
+    release = resolve;
+  });
+  let loginToken;
+  state.intercept = (path, options) => {
+    if (path === '/auth/session') return sessionResponse;
+    if (path === '/auth/login') loginToken = options.headers['X-CSRF-Token'];
+    return null;
+  };
+  await click('Sign out');
+  try {
+    assert.doesNotMatch(text(), /Welcome to Banana/);
+    assert.equal(document.querySelector('input[autocomplete="current-password"]'), null);
+    assert.equal(state.requests.filter((r) => r.path === '/auth/login').length, 0);
+  } finally {
+    await act(async () => release(json({ user: null, csrfToken: 'fresh-anonymous-token' })));
+  }
+  assert.match(text(), /Welcome to Banana/);
+  await change('Email address or account ID', 'talent@example.test');
+  await change('Password', 'Demo1234!');
+  await click('Sign in');
+  assert.equal(loginToken, 'fresh-anonymous-token');
+  assert.match(text(), /Tell your research story/);
+});
+
+test('failed session refresh after logout blocks sign-in and can be retried', async () => {
+  await mount();
+  state.intercept = (path) =>
+    path === '/auth/session'
+      ? json({ error: { code: 'UNAVAILABLE', message: 'Session unavailable.' } }, 503)
+      : null;
+  await click('Sign out');
+  assert.match(text(), /We could not reach your workspace/);
+  assert.doesNotMatch(text(), /Welcome to Banana|Tell your research story/);
+  state.intercept = null;
+  await click('Reload latest data');
+  assert.match(text(), /Welcome to Banana/);
+});
+
 test('sign-in visibility toggles preserve the exact password and clear when leaving the form', async () => {
   await mount(null);
   await change('Password', 'Exact-password-123!');
