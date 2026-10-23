@@ -1,5 +1,5 @@
 {
-  "datasetVersion": "sprint2-synthetic-v1",
+  "datasetVersion": "sprint2-synthetic-v2",
   "labelPolicy": "Static manual labels reused from US-06; privacy labels defined before execution. Never derive expected values from runtime results.",
   "cases": [
     {

@@ -100,3 +100,9 @@ The focused real HTTP case passed; all 191 frontend tests, formatting and build
 passed locally. Full `pytest backend/tests --require-frontend -q --tb=short`
 returned 449 passed and the same 6 existing optional MySQL/Docker skips; no skip
 was added. The earlier baseline failure record above remains historical.
+
+## Latest main synchronization (2026-10-23)
+
+Integrated main e24654c via the updated remote feature branch, preserving both histories. The first backend run failed collection because the v1 profile skills did not satisfy the new free-text skill schema. Dataset v2 updates the wire format and empty profile component defaults while retaining all independent matching labels and privacy checks. No application logic or existing database was changed.
+
+Validation after compatibility update: frontend 227 passed, no skips; backend with `--require-frontend` 551 passed, 7 existing opt-in/environment skips (MySQL, Docker, real MiniLM model); frontend formatting and production build passed; all 45 API JSON files parsed successfully. MySQL execution remains covered by GitLab CI.

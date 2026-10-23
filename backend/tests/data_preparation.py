@@ -61,9 +61,9 @@ def load_dataset(directory=DATASET):
         if state["profileRevision"] != 1 or state["privacyRevision"] != int(
                 state["discoverable"] or bool(state["visibleFields"])):
             raise ValueError("Starting revisions must match one initial profile/privacy write.")
-        for skill in item["content"]["skills"]:
-            if tags.get(skill["tagId"]) != "SKILL":
-                raise ValueError("Unknown skill tag.")
+        skill_ids = [skill["id"] for skill in item["content"]["skills"]]
+        if len(set(skill_ids)) != len(skill_ids):
+            raise ValueError("Duplicate skill record ID.")
         if any(tags.get(tag) != "INTEREST" for tag in item["content"]["researchInterests"]):
             raise ValueError("Unknown interest tag.")
     for item in data["opportunities"]:

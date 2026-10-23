@@ -28,7 +28,7 @@ def test_manifest_sources_and_independent_labels(monkeypatch):
     monkeypatch.setattr("backend.src.features.matching.engine.evaluate_opportunity", forbidden)
     data = load_dataset()
     manifest = data["manifest"]
-    assert manifest["datasetVersion"] == "sprint2-synthetic-v1"
+    assert manifest["datasetVersion"] == "sprint2-synthetic-v2"
     assert manifest["sourceStatus"] == "AUTHORISED_REAL_INPUT_REQUIRED"
     assert manifest["authorisedRealExamples"] == 0
     assert all(s["sourceCategory"] == "synthetic" and not s["originalFileRetained"]
@@ -43,7 +43,7 @@ def test_manifest_sources_and_independent_labels(monkeypatch):
     assert manifest["deadlineSupported"] is False
 
 
-@pytest.mark.parametrize("mutation", ["duplicate", "source", "version", "schema", "tag", "state"])
+@pytest.mark.parametrize("mutation", ["duplicate", "source", "version", "schema", "tag", "skill_id", "state"])
 def test_invalid_dataset_refused_before_directory_creation(tmp_path, mutation):
     data = load_dataset()
     if mutation == "duplicate":
@@ -55,7 +55,10 @@ def test_invalid_dataset_refused_before_directory_creation(tmp_path, mutation):
     elif mutation == "schema":
         data["opportunities"][0]["content"]["deadline"] = "2027-01-01"
     elif mutation == "tag":
-        data["talents"][0]["content"]["skills"][0]["tagId"] = "missing_tag"
+        data["talents"][0]["content"]["researchInterests"] = ["missing_tag"]
+    elif mutation == "skill_id":
+        skills = data["talents"][0]["content"]["skills"]
+        skills.append(deepcopy(skills[0]))
     else:
         data["talents"][0]["state"]["profileRevision"] = 99
     directory = tmp_path / "dataset"

@@ -2,7 +2,7 @@
 
 ## Scope and source status
 
-Dataset **`sprint2-synthetic-v1`** packages existing US-06 synthetic matching
+Dataset **`sprint2-synthetic-v2`** packages existing US-06 synthetic matching
 cases and US-05 privacy scenarios into repeatable application state. It contains
 10 talent profiles, 7 opportunities (6 published, 1 draft), 2 team accounts and
 12 independently labelled matching/access cases. It does not replace US-06.
@@ -169,3 +169,7 @@ existing MySQL fixtures and CI configuration are unchanged.
 
 See [the local verification record](sprint2-data-preparation-verification.md)
 for actual commands, results and environment limitations for this change.
+
+## Main synchronization compatibility (2026-10-23)
+
+Version v2 uses the current ProfileContent skill records (`id`, `title`, `evidenceText`) and explicit empty defaults for the three new profile components. Negative claims retain their meaning as `No <skill>` titles. Existing tag-backed opportunity criteria and independently authored matching labels are unchanged. Duplicate skill record IDs and unknown interest tags are rejected before creating an isolated run. No existing database is migrated or overwritten by this dataset update.

@@ -1,5 +1,5 @@
 {
-  "datasetVersion": "sprint2-synthetic-v1",
+  "datasetVersion": "sprint2-synthetic-v2",
   "algorithmVersion": "tag-coverage-v1",
   "sourceStatus": "AUTHORISED_REAL_INPUT_REQUIRED",
   "authorisedRealExamples": 0,
@@ -84,7 +84,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_perfect_match",
@@ -103,7 +103,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_partial_multi_tag_requirement",
@@ -122,7 +122,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_partial_multi_tag_requirement",
@@ -141,7 +141,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_explicit_negative_gap",
@@ -160,7 +160,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_explicit_negative_gap",
@@ -179,7 +179,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_missing_information",
@@ -198,7 +198,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_missing_information",
@@ -217,7 +217,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_unmatched_tags",
@@ -236,7 +236,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_unmatched_tags",
@@ -255,7 +255,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_incomplete_profile",
@@ -274,7 +274,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_incomplete_profile",
@@ -293,7 +293,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_no_matching_criteria",
@@ -312,7 +312,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_opp_no_matching_criteria",
@@ -331,7 +331,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_hidden_information",
@@ -349,7 +349,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_private_profile",
@@ -367,7 +367,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     },
     {
       "recordId": "s2_unconfirmed_profile",
@@ -385,7 +385,7 @@
       "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
       "originalContainsPrivateInformation": false,
       "originalFileRetained": false,
-      "datasetVersion": "sprint2-synthetic-v1"
+      "datasetVersion": "sprint2-synthetic-v2"
     }
   ],
   "tags": [

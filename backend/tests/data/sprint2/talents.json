@@ -19,20 +19,23 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         },
         {
-          "tagId": "skill_sql",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -66,15 +69,18 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -108,20 +114,23 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         },
         {
-          "tagId": "skill_interviews",
-          "claim": "DOES_NOT_HAVE",
-          "evidenceText": "Synthetic explicit negative claim."
+          "evidenceText": "Synthetic explicit negative claim.",
+          "id": "skill_interviews",
+          "title": "No Research interviews"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -151,7 +160,10 @@
       "researchExperience": [],
       "skills": [],
       "researchInterests": [],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -181,15 +193,18 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_java",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_java",
+          "title": "Java"
         }
       ],
       "researchInterests": [
         "interest_cv"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -219,13 +234,16 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         }
       ],
       "researchInterests": [],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -259,13 +277,16 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         }
       ],
       "researchInterests": [],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -295,20 +316,23 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         },
         {
-          "tagId": "skill_sql",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -340,20 +364,23 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         },
         {
-          "tagId": "skill_sql",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
@@ -383,20 +410,23 @@
       "researchExperience": [],
       "skills": [
         {
-          "tagId": "skill_python",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_python",
+          "title": "Python"
         },
         {
-          "tagId": "skill_sql",
-          "claim": "HAS",
-          "evidenceText": "Synthetic confirmed evidence."
+          "evidenceText": "Synthetic confirmed evidence.",
+          "id": "skill_sql",
+          "title": "SQL"
         }
       ],
       "researchInterests": [
         "interest_ml"
       ],
-      "researchOutputs": []
+      "researchOutputs": [],
+      "researchInterestText": "",
+      "customInterestTags": [],
+      "resumeDescription": ""
     },
     "state": {
       "profileRevision": 1,
