@@ -139,7 +139,30 @@ try {
   await click('Refresh talent');
   await until(() => text().includes('No discoverable talent yet'));
   assert.doesNotMatch(text(), /Demo Talent A|Needs reconfirmation/);
-  await click('Sign out');
+  // Hold the real anonymous response after logout to exercise the CSRF race deterministically.
+  const previousFetch = globalThis.fetch;
+  let releaseSession;
+  let sessionStarted = false;
+  const sessionGate = new Promise((resolve) => {
+    releaseSession = resolve;
+  });
+  globalThis.fetch = async (url, options) => {
+    const response = await previousFetch(url, options);
+    if (url.endsWith('/auth/session')) {
+      sessionStarted = true;
+      await sessionGate;
+    }
+    return response;
+  };
+  try {
+    await click('Sign out');
+    await until(() => sessionStarted);
+    assert.doesNotMatch(text(), /Welcome to Banana|No discoverable talent yet/);
+    assert.equal(document.querySelector('input[autocomplete="current-password"]'), null);
+  } finally {
+    globalThis.fetch = previousFetch;
+    await act(async () => releaseSession());
+  }
   await login('other@example.test');
   await until(() => text().includes('Tell your research story'));
   assert.equal(document.querySelector('.talent-card'), null);
