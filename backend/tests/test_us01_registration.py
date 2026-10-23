@@ -92,12 +92,86 @@ def test_register_both_roles_atomic_defaults_and_email_id_login(app, registratio
             assert not db.get(PrivacySettings, profile.talent_id).discoverable
         else:
             assert profile is None
-    for identifier in (EMAIL.upper(), user_id):
-        other = app.test_client()
-        token = other.get("/api/v1/auth/session").get_json()["csrfToken"]
-        logged = checked(other.post("/api/v1/auth/login", json={"identifier": identifier, "password": PASSWORD},
-                                   headers=headers(token)), 200, "Session")
-        assert logged["user"]["id"] == user_id
+    if role == "TALENT":
+        current = checked(client.get("/api/v1/me/profile"), 200, "Profile")
+        content = {
+            **current["content"],
+            "displayName": "US-15 saved profile",
+        }
+
+        saved = checked(
+            client.put(
+                "/api/v1/me/profile",
+                json={
+                    "expectedRevision": current["revision"],
+                    "content": content,
+                },
+                headers=headers(session["csrfToken"]),
+            ),
+            200,
+            "Profile",
+        )
+
+        private_url = "/api/v1/me/profile"
+        schema = "Profile"
+    else:
+        saved = checked(
+            client.post(
+                "/api/v1/opportunities",
+                json={
+                    "title": "US-15 private draft",
+                    "university": "UNSW",
+                    "disciplineGroup": "STEM",
+                    "discipline": "Computer Science",
+                    "researchArea": "Data analysis",
+                    "description": "Synthetic account return test.",
+                    "requirements": [],
+                },
+                headers=headers(session["csrfToken"]),
+            ),
+            201,
+            "Opportunity"
+        )
+        private_url = f"/api/v1/opportunities/{saved['id']}"
+        schema = "Opportunity"
+    response = client.post(
+        "/api/v1/auth/logout",
+        headers=headers(session["csrfToken"]),
+    )
+    assert response.status_code == 204
+    assert client.get_cookie(COOKIE) is None
+    checked(client.get(private_url), 401)
+
+    # Return in the same browser using the account ID, then email.
+    for identifier in (user_id, EMAIL.upper()):
+        anonymous = checked(
+            client.get("/api/v1/auth/session"), 200, "Session"
+        )
+        assert anonymous["user"] is None
+
+        logged = checked(
+            client.post(
+                "/api/v1/auth/login",
+                json={"identifier": identifier, "password": PASSWORD},
+                headers=headers(anonymous["csrfToken"]),
+            ),
+            200,
+            "Session",
+        )
+        assert logged["user"] == session["user"]
+        current_session = checked(
+            client.get("/api/v1/auth/session"), 200, "Session"
+        )
+        assert current_session["user"] == session["user"]
+        assert checked(client.get(private_url), 200, schema) == saved
+
+        response = client.post(
+            "/api/v1/auth/logout",
+            headers=headers(logged["csrfToken"]),
+        )
+        assert response.status_code == 204
+
+
 
 
 def test_code_is_bound_to_email_and_requesting_session(app, registration):

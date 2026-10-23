@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    'أدخل اسم مهارة واحدًا في كل سطر. تستخدم الاهتمامات البحثية وسومًا مشتركة. أضف متطلبًا واحدًا على الأقل قبل النشر.',
+  'Skill names for requirement {number}': 'أسماء المهارات للمتطلب {number}',
+  'Python\nFinancial modelling': 'Python\nالنمذجة المالية',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    'يحتاج المتطلب {number} إلى وصف وما بين 1 و20 اسم مهارة غير مكرر.',
+  'All requested skills have confirmed supporting evidence.':
+    'تتوفر أدلة مؤكدة تدعم جميع المهارات المطلوبة.',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    'تتوفر أدلة مؤكدة لبعض المهارات المطلوبة؛ أما المهارات المتبقية فلا تتوفر لها أدلة كافية.',
+  'Skill names must be unique.': 'يجب أن تكون أسماء المهارات غير مكررة.',
+  'Enter visible skill names without control characters.':
+    'أدخل أسماء مهارات مرئية لا تحتوي على أحرف تحكم.',
   ' · Reviewed document import': ' · مراجعة وثيقة الاستيراد',
   '#{rank} match': 'مطابقة #{rank}',
   '#{rank} recommendation': 'توصية #{rank}',

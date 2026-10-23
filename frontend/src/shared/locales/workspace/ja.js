@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    'スキル名を1行に1つ入力してください。研究関心には共通タグを使用します。公開前に少なくとも1つの要件を追加してください。',
+  'Skill names for requirement {number}': '要件 {number} のスキル名',
+  'Python\nFinancial modelling': 'Python\n財務モデリング',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    '要件 {number} にはラベルと、重複しない1〜20個のスキル名が必要です。',
+  'All requested skills have confirmed supporting evidence.':
+    '要求されたすべてのスキルに確認済みの裏付けがあります。',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    '要求された一部のスキルには確認済みの裏付けがありますが、残りのスキルは証拠が不十分です。',
+  'Skill names must be unique.': 'スキル名は重複できません。',
+  'Enter visible skill names without control characters.':
+    '制御文字を含まない、表示可能なスキル名を入力してください。',
   ' · Reviewed document import': ' · ドキュメントのインポートをレビューしました',
   '#{rank} match': '#{rank} マッチ',
   '#{rank} recommendation': '#{rank} のおすすめ',
