@@ -210,10 +210,10 @@ test('language changes and same-account session checks preserve unsaved profile 
   await mount();
   await change('Display name', 'Do not translate this draft');
   await change('Language', 'zh-CN');
-  assert.equal(field('Display name').value, 'Do not translate this draft');
+  assert.equal(field('显示名称').value, 'Do not translate this draft');
   assert.match(document.querySelector('nav').textContent, /我的资料/);
   await focus();
-  assert.equal(field('Display name').value, 'Do not translate this draft');
+  assert.equal(field('显示名称').value, 'Do not translate this draft');
   assert.equal(
     state.requests.some((r) => r.method === 'PUT'),
     false

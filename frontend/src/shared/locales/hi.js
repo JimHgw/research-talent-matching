@@ -1,4 +1,6 @@
+import workspaceMessages from './workspace/hi.js';
 export default {
+  ...workspaceMessages,
   Language: 'इंटरफ़ेस की भाषा',
   'RESEARCH, CONNECTED': 'शोध को जोड़ें',
   'Great research': 'बेहतरीन शोध',
@@ -131,6 +133,30 @@ export default {
   'Page {page} of {pages}': 'पृष्ठ {page}, कुल {pages}',
   'Close dialog': 'संवाद बंद करें',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: 'ईमेल, खाता ID या पासवर्ड गलत है।',
     EMAIL_ALREADY_REGISTERED: 'इस ईमेल से खाता पहले से है। साइन इन करें।',
     VERIFICATION_CODE_INVALID: 'कोड अमान्य है या समाप्त हो गया है। नया कोड माँगें।',

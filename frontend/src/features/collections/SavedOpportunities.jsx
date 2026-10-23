@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
@@ -5,6 +6,7 @@ import { Button, Empty, ErrorNotice, Loading, Pager } from '../../shared/ui.jsx'
 import CollectionButton, { collectionChanged } from './CollectionButton.jsx';
 
 export default function SavedOpportunities({ OpportunityDetails, MatchDetails, navigate }) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [details, setDetails] = useState(null);
   const [match, setMatch] = useState(null);
@@ -17,9 +19,9 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
   return (
     <>
       <div className="section-title">
-        <h2>My Saved Opportunities</h2>
+        <h2>{t('My Saved Opportunities')}</h2>
         <Button disabled={resource.loading} onClick={resource.refresh}>
-          Refresh saved
+          {t('Refresh saved')}
         </Button>
       </div>
       {resource.loading ? (
@@ -27,10 +29,11 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       ) : !resource.data.items.length ? (
-        <Empty title="No saved opportunities here">
-          Save opportunities from your recommendations. Only currently published opportunities
-          appear.
-          {page > 1 && <Button onClick={() => setPage(1)}>Back to first page</Button>}
+        <Empty title={t('No saved opportunities here')}>
+          {t(
+            'Save opportunities from your recommendations. Only currently published opportunities appear.'
+          )}
+          {page > 1 && <Button onClick={() => setPage(1)}>{t('Back to first page')}</Button>}
         </Empty>
       ) : (
         <div className="card-grid">
@@ -39,7 +42,7 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
               <small>{opportunity.content.university}</small>
               <h3>{opportunity.content.title}</h3>
               <p>{opportunity.content.description}</p>
-              <Button onClick={() => setDetails(opportunity.id)}>View opportunity</Button>
+              <Button onClick={() => setDetails(opportunity.id)}>{t('View opportunity')}</Button>
               <CollectionButton opportunityId={opportunity.id} />
             </article>
           ))}
