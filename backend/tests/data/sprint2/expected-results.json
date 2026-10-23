@@ -1,0 +1,192 @@
+{
+  "datasetVersion": "sprint2-synthetic-v1",
+  "labelPolicy": "Static manual labels reused from US-06; privacy labels defined before execution. Never derive expected values from runtime results.",
+  "cases": [
+    {
+      "id": "perfect_match",
+      "talent": "s2_perfect_match",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "MATCHED",
+        "MATCHED",
+        "MATCHED"
+      ],
+      "summary": {
+        "score": 100.0,
+        "unknownWeightPercent": 0.0,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#perfect_match"
+    },
+    {
+      "id": "partial_multi_tag_requirement",
+      "talent": "s2_partial_multi_tag_requirement",
+      "opportunity": "s2_opp_partial_multi_tag_requirement",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "PARTIAL",
+        "MATCHED"
+      ],
+      "summary": {
+        "score": 66.67,
+        "unknownWeightPercent": 0.0,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#partial_multi_tag_requirement"
+    },
+    {
+      "id": "explicit_negative_gap",
+      "talent": "s2_explicit_negative_gap",
+      "opportunity": "s2_opp_explicit_negative_gap",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "GAP",
+        "MATCHED"
+      ],
+      "summary": {
+        "score": 33.33,
+        "unknownWeightPercent": 0.0,
+        "requiredGapCount": 1,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#explicit_negative_gap"
+    },
+    {
+      "id": "missing_information",
+      "talent": "s2_missing_information",
+      "opportunity": "s2_opp_missing_information",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "UNKNOWN",
+        "UNKNOWN"
+      ],
+      "summary": {
+        "score": 0.0,
+        "unknownWeightPercent": 100.0,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#missing_information"
+    },
+    {
+      "id": "unmatched_tags",
+      "talent": "s2_unmatched_tags",
+      "opportunity": "s2_opp_unmatched_tags",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "UNKNOWN",
+        "UNKNOWN"
+      ],
+      "summary": {
+        "score": 0.0,
+        "unknownWeightPercent": 100.0,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#unmatched_tags"
+    },
+    {
+      "id": "incomplete_profile",
+      "talent": "s2_incomplete_profile",
+      "opportunity": "s2_opp_incomplete_profile",
+      "audience": "owner",
+      "httpStatus": 200,
+      "statuses": [
+        "PARTIAL",
+        "UNKNOWN"
+      ],
+      "summary": {
+        "score": 33.33,
+        "unknownWeightPercent": 33.33,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "backend/tests/test_us06.py#incomplete_profile"
+    },
+    {
+      "id": "no_matching_criteria",
+      "talent": "s2_no_matching_criteria",
+      "opportunity": "s2_opp_no_matching_criteria",
+      "audience": "engine",
+      "httpStatus": null,
+      "statuses": [],
+      "summary": {
+        "score": null,
+        "unknownWeightPercent": null,
+        "requiredGapCount": 0,
+        "evaluationStatus": "INSUFFICIENT_CRITERIA"
+      },
+      "labelSource": "backend/tests/test_us06.py#no_matching_criteria"
+    },
+    {
+      "id": "hidden_information",
+      "talent": "s2_hidden_information",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "team",
+      "httpStatus": 200,
+      "labelSource": "Manual US-05 privacy rules: hidden fields cannot support a match; private or unconfirmed profiles are excluded.",
+      "statuses": [
+        "UNKNOWN",
+        "UNKNOWN",
+        "UNKNOWN"
+      ],
+      "summary": {
+        "score": 0,
+        "unknownWeightPercent": 100,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      }
+    },
+    {
+      "id": "private_profile",
+      "talent": "s2_private_profile",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "team",
+      "httpStatus": 404,
+      "labelSource": "Manual US-05 privacy rules: hidden fields cannot support a match; private or unconfirmed profiles are excluded."
+    },
+    {
+      "id": "unconfirmed_profile",
+      "talent": "s2_unconfirmed_profile",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "team",
+      "httpStatus": 404,
+      "labelSource": "Manual US-05 privacy rules: hidden fields cannot support a match; private or unconfirmed profiles are excluded."
+    },
+    {
+      "id": "reverse_discovery",
+      "talent": "s2_perfect_match",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "team",
+      "httpStatus": 200,
+      "statuses": [
+        "MATCHED",
+        "MATCHED",
+        "MATCHED"
+      ],
+      "summary": {
+        "score": 100,
+        "unknownWeightPercent": 0,
+        "requiredGapCount": 0,
+        "evaluationStatus": "EVALUATED"
+      },
+      "labelSource": "US-06 perfect_match with explicit visible skills and interests."
+    },
+    {
+      "id": "unconfirmed_owner",
+      "talent": "s2_unconfirmed_profile",
+      "opportunity": "s2_opp_perfect_match",
+      "audience": "owner",
+      "httpStatus": 409,
+      "labelSource": "Current owner matching requires a confirmed revision."
+    }
+  ]
+}
