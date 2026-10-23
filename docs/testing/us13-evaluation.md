@@ -22,6 +22,9 @@ packages. The separate free-text opportunity skill extension is documented in
 
 The report records SHA-256 hashes for the dataset, configuration and all three
 implementation files, plus installed package versions and the execution platform.
+These text hashes normalise CRLF to LF before hashing, as recorded by
+`textChecksumNormalization`, so Windows and Linux checkouts verify the same saved
+evidence. Model artifact hashes still verify the exact downloaded bytes.
 Model files remain in ignored `data/us13/model/`; no weights, personal data,
 credentials, vectors or database changes are needed in source control.
 
@@ -177,12 +180,12 @@ The saved run used Python 3.12.14 on Windows x86-64, CPU only. One process encod
 | Measurement | Saved run |
 |---|---:|
 | Model + tokenizer artifact size | 90,871,461 bytes (86.66 MiB) |
-| Local model load including imports and checksum verification | 358.30 ms |
-| Batched encoding of 23 unique texts | 74.82 ms |
-| Baseline evaluation, 84 pairs total | 0.301 ms |
-| Full comparison including threshold selection, excluding model load | 89.94 ms |
-| Comparison process CPU time | 78.12 ms |
-| Whole-process peak resident memory | 313.27 MiB |
+| Local model load including imports and checksum verification | 351.91 ms |
+| Batched encoding of 23 unique texts | 72.22 ms |
+| Baseline evaluation, 84 pairs total | 0.305 ms |
+| Full comparison including threshold selection, excluding model load | 89.32 ms |
+| Comparison process CPU time | 93.75 ms |
+| Whole-process peak resident memory | 313.24 MiB |
 | Paid API calls / external inference requests | 0 / 0 |
 
 These are one-run local measurements, not production latency percentiles or
@@ -216,6 +219,10 @@ and similarity never creates a confirmed qualification or skill claim.
 
 ## Verification record
 
+- Cross-platform checksum correction: **12 US-13 tests passed**, including LF
+  and CRLF CLI inputs and source files, corrupt-model rejection and real-model
+  reproduction. Regenerated saved evidence has identical per-pair outputs,
+  thresholds, metrics and adoption decision; the costs above reflect that rerun.
 - Full backend suite including real frontend HTTP workflows: **521 passed,
   6 skipped** (optional isolated Docker/MySQL cases).
 - Frontend suite: **193 passed**; formatting and production build passed.

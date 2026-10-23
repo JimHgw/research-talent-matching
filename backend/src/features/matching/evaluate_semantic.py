@@ -25,6 +25,11 @@ ROOT = Path(__file__).resolve().parents[4]
 LABELS = ("RELEVANT", "PARTIAL", "UNRELATED", "UNKNOWN")
 
 
+def text_sha256(path):
+    """Hash versioned text consistently across LF and CRLF Git checkouts."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def eligible(profile):
     return (profile["role"] == "TALENT" and profile["active"]
             and profile["discoverable"] and profile["confirmationStatus"] == "CONFIRMED"
@@ -304,9 +309,10 @@ def main(argv=None):
     report = compare(dataset, config, encoder, error)
     report.update({"createdAt": datetime.now(timezone.utc).isoformat(),
                    "datasetVersion": dataset["version"], "configuration": config,
-                   "datasetSha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
-                   "configSha256": hashlib.sha256(args.config.read_bytes()).hexdigest(),
-                   "implementationSha256": {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest()
+                   "textChecksumNormalization": "CRLF to LF",
+                   "datasetSha256": text_sha256(args.dataset),
+                   "configSha256": text_sha256(args.config),
+                   "implementationSha256": {name: text_sha256(Path(__file__).parent / name)
                                             for name in ("engine.py", "semantic.py", "evaluate_semantic.py")},
                    "environment": {"python": platform.python_version(), "platform": platform.platform(),
                                    "machine": platform.machine(), "processor": platform.processor(),

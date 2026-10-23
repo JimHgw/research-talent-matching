@@ -1496,18 +1496,18 @@
     }
   },
   "costs": {
-    "comparisonWallMs": 89.93640000016967,
-    "comparisonCpuMs": 78.125,
-    "baselineTotalMs": 0.30110000011518423,
-    "baselineMedianPairMs": 0.002900000026784255,
-    "semanticEncodingMs": 74.82279999999264,
+    "comparisonWallMs": 89.32499999991705,
+    "comparisonCpuMs": 93.75,
+    "baselineTotalMs": 0.30470000456261914,
+    "baselineMedianPairMs": 0.0029000002541579306,
+    "semanticEncodingMs": 72.21669999944424,
     "uniqueTexts": 23,
     "encodedTexts": 23,
     "truncatedTexts": 0,
     "modelArtifactBytes": 90871461,
     "paidApiCalls": 0,
-    "modelLoadAndOptionalDownloadMs": 358.2988000000569,
-    "processPeakRssMiB": 313.2734375
+    "modelLoadAndOptionalDownloadMs": 351.9079999996393,
+    "processPeakRssMiB": 313.2421875
   },
   "errors": [],
   "modelError": null,
@@ -6898,7 +6898,7 @@
       }
     }
   ],
-  "createdAt": "2026-10-23T08:01:38.314684+00:00",
+  "createdAt": "2026-10-23T08:48:59.085902+00:00",
   "datasetVersion": "us13-interest-corpus-v1",
   "configuration": {
     "version": "us13-config-v1",
@@ -6940,12 +6940,13 @@
       "minimumMacroF1Gain": 0.1
     }
   },
-  "datasetSha256": "f6bc5931a7088b8aad56401f3c066bf0a81e6c629c8983959816629674b97603",
+  "textChecksumNormalization": "CRLF to LF",
+  "datasetSha256": "4332e76ef1f7c83c4fd17db63afc4ddc34a39402cbdff793d82c02017d97d6e8",
   "configSha256": "dc10e5eb025074df9deb0eaf2304217b97d4b9f886b66ea0c9b4e8fa61333f24",
   "implementationSha256": {
-    "engine.py": "e8b9e931f2463f2a475b6832a086f7422f5f0d7b7b2b580e09542468ee2e684d",
+    "engine.py": "2415c77404f040d7b6c72c877882dd9f07a507de2085bb769058d85514ee3ed2",
     "semantic.py": "ca3c567c5687a4cc2b23513407bf37c366a665e9ed682742ac8c9f7fe6c56c29",
-    "evaluate_semantic.py": "a27d9d3548e173468f823d3b43218dbcc6494a7386151866e372e4db50f96bd2"
+    "evaluate_semantic.py": "7c1cc8fa2a7b4d6b09e8b27b40cb3af7aea1cbbab22d5effdca1222fe354b9b7"
   },
   "environment": {
     "python": "3.12.14",

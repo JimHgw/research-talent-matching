@@ -6,8 +6,10 @@ import json
 
 import pytest
 
+from backend.src.features.matching import evaluate_semantic
 from backend.src.features.matching.evaluate_semantic import (ROOT, compare, main,
-                                                            make_rows, metrics)
+                                                            make_rows, metrics,
+                                                            text_sha256)
 from backend.src.features.matching.semantic import (MiniLMEncoder, cosine,
                                                    interest_input, relevance)
 from test_us04 import confirmed, research_team, make_opportunity, checked
@@ -77,6 +79,29 @@ def test_cli_missing_model_returns_failure_and_saves_incomplete_evidence(tmp_pat
     assert report["costs"]["encodedTexts"] == 0
 
 
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"], ids=["LF", "CRLF"])
+def test_cli_text_fingerprints_are_portable(tmp_path, monkeypatch, newline):
+    inputs = {name: DIRECTORY / name for name in ("dataset.json", "config.json")}
+    inputs.update({name: ROOT / "backend/src/features/matching" / name
+                   for name in ("engine.py", "semantic.py", "evaluate_semantic.py")})
+    contents = {name: path.read_text(encoding="utf-8").encode("utf-8")
+                for name, path in inputs.items()}
+    for name, content in contents.items():
+        (tmp_path / name).write_bytes(content.replace(b"\n", newline))
+    monkeypatch.setattr(evaluate_semantic, "__file__", str(tmp_path / "evaluate_semantic.py"))
+    output = tmp_path / "report.json"
+    assert main(["--dataset", str(tmp_path / "dataset.json"),
+                 "--config", str(tmp_path / "config.json"),
+                 "--model-dir", str(tmp_path / "absent"), "--output", str(output)]) == 1
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["textChecksumNormalization"] == "CRLF to LF"
+    for key, name in (("datasetSha256", "dataset.json"), ("configSha256", "config.json")):
+        assert report[key] == hashlib.sha256(contents[name]).hexdigest()
+    assert report["implementationSha256"] == {
+        name: hashlib.sha256(contents[name]).hexdigest()
+        for name in ("engine.py", "semantic.py", "evaluate_semantic.py")}
+
+
 def test_checksum_failure_is_detected_before_loading_graph(tmp_path):
     (tmp_path / "bad.onnx").write_bytes(b"corrupt")
     with pytest.raises(RuntimeError, match="checksum mismatch"):
@@ -98,10 +123,11 @@ def test_saved_evidence_matches_inputs_and_metrics():
     report = read("results.json")
     assert report["status"] == "COMPLETE"
     assert report["errors"] == []
+    assert report["textChecksumNormalization"] == "CRLF to LF"
     for key, name in (("datasetSha256", "dataset.json"), ("configSha256", "config.json")):
-        assert report[key] == hashlib.sha256((DIRECTORY / name).read_bytes()).hexdigest()
+        assert report[key] == text_sha256(DIRECTORY / name)
     for name, checksum in report["implementationSha256"].items():
-        assert checksum == hashlib.sha256((ROOT / "backend/src/features/matching" / name).read_bytes()).hexdigest()
+        assert checksum == text_sha256(ROOT / "backend/src/features/matching" / name)
     for split in ("tuning", "final"):
         rows = [r for r in report["pairs"] if r["split"] == split]
         for method in ("baseline", "semantic"):
