@@ -13,6 +13,11 @@ and a unified owner-only `resumeDescription`. Existing upload, worker, review an
 apply endpoints provide the complete workflow. Unmatched source text is retained.
 Other proposed Sprint 2 extensions remain subject to their own implementation.
 
+US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
+The measured decision keeps the application's structured interest matcher as its
+fallback. Optional embedding dependencies are separate from API/worker dependencies.
+Team opportunities additionally support [free-text skill requirements](../docs/free-text-skills.md#opportunity-skill-requirements).
+
 For an existing installation, rerun `init-db` using its existing database
 configuration before starting the updated API/worker. US-11 adds only
 `profile_text_details`, `personal_interest_tags`, `profile_personal_interests`

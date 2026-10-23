@@ -20,6 +20,7 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 
 ## Change Log
 
+- **2026-10-23:** Delivered the [US-13 executable experiment and measured report](docs/testing/us13-evaluation.md), including pinned MiniLM inference, 84 labelled comparisons, permission checks, failure reporting and an evidence-backed decision to omit application semantic integration. Team opportunity skills now support [free-text names](docs/free-text-skills.md#opportunity-skill-requirements); interest tags retain their baseline role.
 - **2026-10-23:** Added free-text research interests and personal custom interest tags, including extraction/review, atomic saves through existing endpoints, visibility, semantic inputs, frontend coordination and acceptance cases.
 - **2026-10-23:** Clarified US-13: implementing and running an embedding-based semantic matching experiment is mandatory; adopting it in the application recommendation flow depends on measured results. Defined tag baseline/filter/fallback roles and executable delivery evidence.
 - **2026-10-22:** Aligned responsibilities with the updated frontend task 49/41/61 documentation. Reuse its UI workflows and shared integration tests; backend owns server guarantees and contributes evidence to QA's shared workflow report.
@@ -264,6 +265,12 @@ Implement the existing upload/worker/review/apply flow so the owner receives fre
 Acceptance is demonstrated with functional extraction/import/persistence/privacy tests and reused real frontend HTTP/worker coverage. The separate US-13 semantic comparison retains its own implementation and evaluation responsibilities.
 
 #### 2.4.3 US-13: Required Semantic Implementation and Evaluation
+
+**Implementation evidence (2026-10-23):** see the [executed evaluation](docs/testing/us13-evaluation.md),
+[frozen inputs/labels](docs/testing/us13/dataset.json), [configuration](docs/testing/us13/config.json)
+and [actual outputs](docs/testing/us13/results.json). This experiment is complete;
+application semantic integration is omitted because the small synthetic corpus
+lacks independent human review. The following requirements remain the acceptance reference.
 
 **BE-46 must deliver executable semantic matching code and actual comparison results.** The experiment itself requires no new public endpoint or immediate replacement of the application matcher. The separately requested interest-entry feature in section 2.2.4 does require changes to existing frontend profile/review controls.
 

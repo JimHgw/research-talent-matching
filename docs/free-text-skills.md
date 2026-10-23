@@ -56,7 +56,8 @@ the new skill shape; deploy the API and frontend together.
 
 ## Matching and visibility
 
-The existing opportunity requirements continue to use their shared criteria.
+New opportunity skill requirements use the free-text names described below.
+Legacy opportunities keep their existing criteria through a compatibility path.
 Skill records themselves carry no tag reference. Matching resolves a skill title
 against a criterion's name using Unicode, whitespace and case normalisation with
 exact comparison. `Python` can support the Python criterion; `Pythonic` and
@@ -76,6 +77,52 @@ supported in English and Chinese. The MR !40 regression cases exercise both
 legacy and free-text records through owner/team matching HTTP endpoints.
 
 ## Verification
+
+### Opportunity skill requirements
+
+Team opportunity forms now accept **Skill names for requirement N**, one name per
+line, instead of SKILL-tag checkboxes. Any skill name is allowed without adding a
+shared tag. All names in a requirement form an AND group; create separate
+requirements to assign different importance. Research-interest requirements keep
+their shared interest-tag controls.
+
+The existing create/update endpoints accept this requirement shape:
+
+```json
+{
+  "id": "req_methods",
+  "kind": "SKILL",
+  "label": "Experimental methods",
+  "importance": "REQUIRED",
+  "skillTitles": ["CRISPR experimental design", "Financial modelling"],
+  "tagIds": []
+}
+```
+
+Use 1–20 unique visible names, each 1–350 characters. Names are compared after
+Unicode, whitespace and case normalisation; duplicate normalised names, control
+characters and mixed skill names/tag IDs are rejected. `skillTitles` is not
+accepted for INTEREST requirements. The existing display label and stable
+requirement ID are retained. Matching uses confirmed permitted skill records;
+missing titles remain UNKNOWN, partial coverage stays PARTIAL and explicit
+negative statements remain GAP. Explanations cite profile record IDs and evidence.
+These requirements return algorithm version `skill-title-interest-tags-v2`,
+with the existing required/preferred weights, rounding and four statuses.
+
+Run `init-db` with the existing database configuration before serving the updated
+API. This adds `opportunity_skill_details`, an ordered JSON list for each existing
+opportunity/requirement key. It does not alter or remove existing requirement/tag
+tables. Docker startup performs this step automatically. Deploy API/frontend
+together. Old tag-backed opportunities still read and match as before; their
+skill names appear as text in the editor. Editing those names saves the new
+representation atomically. Ordinary unchanged saves and stale-write conflicts
+retain their existing revision semantics. New skill requirements create no tag
+rows and work even when the SKILL vocabulary is empty.
+
+The standalone US-13 experiment evaluates interests only and retains its frozen
+`tag-coverage-v1` baseline independently of this application skill extension.
+
+### Profile and opportunity coverage
 
 `backend/tests/test_free_text_skills.py` covers both disciplines, arbitrary titles,
 actual PDF/DOCX review/import, persistence, legacy-table upgrades and old READY

@@ -1,5 +1,7 @@
 from decimal import Decimal, ROUND_HALF_UP
 
+from ...db.skills import matching_skills
+
 
 REASONS = {
     "MATCHED": (
@@ -60,8 +62,12 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
     negative = []
 
     if requirement["kind"] == "SKILL":
-        for tag_id in requirement["tagIds"]:
-            skill = profile["skills"].get(tag_id)
+        titles = requirement.get("skillTitles")
+        criteria = titles if titles is not None else requirement["tagIds"]
+        skills = (matching_skills(profile.get("skillRecords", []), {title: title for title in titles})
+                  if titles is not None else profile["skills"])
+        for tag_id in criteria:
+            skill = skills.get(tag_id)
 
             if skill is None:
                 continue
@@ -105,7 +111,7 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
     if negative:
         status = "GAP"
         evidence = negative
-    elif positive and len(positive) == len(requirement["tagIds"]):
+    elif positive and len(positive) == len(requirement.get("skillTitles", requirement["tagIds"])):
         status = "MATCHED"
         evidence = positive
     elif positive:
@@ -116,6 +122,13 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
         evidence = []
 
     reason_code, reason = REASONS[status]
+    if "skillTitles" in requirement:
+        reason_code, reason = {
+            "MATCHED": ("ALL_SKILLS_SUPPORTED", "All requested skills have confirmed supporting evidence."),
+            "PARTIAL": ("SOME_SKILLS_SUPPORTED", "Some requested skills have confirmed evidence; the remaining skills have insufficient evidence."),
+            "GAP": REASONS["GAP"],
+            "UNKNOWN": REASONS["UNKNOWN"],
+        }[status]
 
     return {
         "requirement": requirement,
@@ -189,4 +202,7 @@ def evaluate_opportunity(opportunity, profile, evidence_factory=owner_evidence):
         for requirement in opportunity["content"]["requirements"]
     ]
 
-    return results, summarize(results)
+    summary = summarize(results)
+    if any("skillTitles" in result["requirement"] for result in results):
+        summary["algorithmVersion"] = "skill-title-interest-tags-v2"
+    return results, summary

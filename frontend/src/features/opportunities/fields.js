@@ -22,6 +22,7 @@ export const newRequirement = () => ({
   kind: 'SKILL',
   importance: 'REQUIRED',
   tagIds: [],
+  skillTitles: [],
 });
 
 export function validateOpportunity(content, tags, status) {
@@ -32,6 +33,25 @@ export function validateOpportunity(content, tags, status) {
   if (content.requirements.length > limits.requirements)
     return `Use at most ${limits.requirements} requirements.`;
   for (const [index, requirement] of content.requirements.entries()) {
+    if (requirement.kind === 'SKILL' && requirement.skillTitles) {
+      const names = requirement.skillTitles.map((title) =>
+        title.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ')
+      );
+      if (
+        !requirement.label.trim() ||
+        requirement.label.length > limits.requirementLabel ||
+        !names.length ||
+        names.length > limits.tags ||
+        names.some((name) => !name) ||
+        requirement.skillTitles.some(
+          (title) => title.length > 350 || /[\p{Cc}\p{Cf}]/u.test(title)
+        ) ||
+        new Set(names).size !== names.length ||
+        requirement.tagIds.length
+      )
+        return `Requirement ${index + 1} needs a label and 1-20 unique skill names.`;
+      continue;
+    }
     if (
       !requirement.label.trim() ||
       requirement.label.length > limits.requirementLabel ||

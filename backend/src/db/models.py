@@ -374,6 +374,18 @@ class OpportunityRequirement(Base):
     )
 
 
+class OpportunitySkillDetails(Base):
+    __tablename__ = "opportunity_skill_details"
+    opportunity_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    requirement_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    titles: Mapped[list] = mapped_column(JSON, nullable=False)
+
+    __table_args__ = (
+        ForeignKeyConstraint(["opportunity_id", "requirement_id"],
+                             ["opportunity_requirements.opportunity_id", "opportunity_requirements.id"]),
+    )
+
+
 class RequirementTag(Base):
     __tablename__ = "requirement_tags"
     opportunity_id: Mapped[str] = mapped_column(String(64), primary_key=True)

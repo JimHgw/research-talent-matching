@@ -33,7 +33,7 @@ try {
   }
   await click('Add requirement');
   await change('Requirement label *', 'Python experience');
-  await checkbox('Python');
+  await change('Skill names for requirement 1', 'Python');
   await click('Save draft');
   await until(() => !document.querySelector('dialog') && !!button('Publish'));
 
@@ -41,7 +41,7 @@ try {
   await api.session();
   const draft = (await api.opportunities('mine')).items[0];
   assert.equal(draft.status, 'DRAFT');
-  assert.deepEqual(draft.content.requirements[0].tagIds, ['skill_python']);
+  assert.deepEqual(draft.content.requirements[0].skillTitles, ['Python']);
 
   await click('Publish');
   await until(() => text().includes('Opportunity published.'));

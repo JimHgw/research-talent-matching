@@ -1,0 +1,1096 @@
+{
+  "version": "us13-interest-corpus-v1",
+  "provenance": {
+    "type": "synthetic",
+    "annotationMethod": "Author-assigned domain relevance before model execution; no labels derived from tag overlap or model scores. Not independently human-reviewed.",
+    "independentHumanReviewers": 0,
+    "personalData": "None; synthetic examples only.",
+    "labelGuide": {
+      "RELEVANT": "Same research direction, including equivalent wording.",
+      "PARTIAL": "Related broad method or subfield, with a missing specialism.",
+      "UNRELATED": "Different research direction, with evidence present.",
+      "UNKNOWN": "No current permitted interest evidence."
+    },
+    "splitPolicy": "Disjoint profile and opportunity IDs and disjoint research topics for tuning and final; final labels never tune thresholds.",
+    "catalogue": "Frozen synthetic shared vocabulary; not inserted into the application tag catalogue."
+  },
+  "sharedLabels": {
+    "interest_nlp": "Natural language processing",
+    "interest_language": "Language technologies",
+    "interest_cv": "Computer vision",
+    "interest_graph": "Graph machine learning",
+    "interest_health": "Medical image analysis",
+    "interest_climate": "Climate science",
+    "interest_history": "Medieval history",
+    "interest_ml": "Machine learning",
+    "interest_marine": "Marine ecology",
+    "interest_solar": "Photovoltaic energy",
+    "interest_music": "Music information retrieval"
+  },
+  "profiles": [
+    {
+      "id": "tune_marine",
+      "split": "tuning",
+      "inputMode": "text-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Marine ecology and conservation of coral reef ecosystems.",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "tune_solar",
+      "split": "tuning",
+      "inputMode": "shared-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [
+          "interest_solar"
+        ],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "tune_music",
+      "split": "tuning",
+      "inputMode": "personal-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [],
+        "customInterestTags": [
+          {
+            "id": "tune_music_personal_0",
+            "label": "Computational analysis of music and audio recordings"
+          }
+        ]
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "tune_broad",
+      "split": "tuning",
+      "inputMode": "combined",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Conservation of terrestrial forests and biodiversity.",
+        "researchInterests": [],
+        "customInterestTags": [
+          {
+            "id": "tune_broad_personal_0",
+            "label": "Ecology"
+          }
+        ]
+      },
+      "annotationNote": "Ecology is related to marine conservation, but no marine specialism is claimed."
+    },
+    {
+      "id": "tune_unrelated",
+      "split": "tuning",
+      "inputMode": "text-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Auditing corporate accounts and financial statements.",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "tune_missing",
+      "split": "tuning",
+      "inputMode": "missing",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "eval_language",
+      "split": "final",
+      "inputMode": "text-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Understanding human language with neural models, including automatic translation.",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": "A language-research paraphrase with no shared IDs."
+    },
+    {
+      "id": "eval_vision",
+      "split": "final",
+      "inputMode": "shared-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [
+          "interest_cv"
+        ],
+        "customInterestTags": []
+      },
+      "annotationNote": "Computer vision is directly relevant to vision and partially relevant to medical imaging."
+    },
+    {
+      "id": "eval_graph",
+      "split": "final",
+      "inputMode": "personal-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [],
+        "customInterestTags": [
+          {
+            "id": "eval_graph_personal_0",
+            "label": "Learning representations on graphs for relational data"
+          }
+        ]
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "eval_medical",
+      "split": "final",
+      "inputMode": "combined",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Predicting disease from medical images using machine learning.",
+        "researchInterests": [
+          "interest_ml"
+        ],
+        "customInterestTags": [
+          {
+            "id": "eval_medical_personal_0",
+            "label": "Clinical imaging"
+          }
+        ]
+      },
+      "annotationNote": "Medical imaging is directly relevant; general vision is partial relevance."
+    },
+    {
+      "id": "eval_broad_ml",
+      "split": "final",
+      "inputMode": "combined",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Statistical learning methods and general predictive modelling.",
+        "researchInterests": [
+          "interest_ml"
+        ],
+        "customInterestTags": []
+      },
+      "annotationNote": "Broad ML gives partial relevance to the four specialised ML opportunities; it does not establish those specialisms."
+    },
+    {
+      "id": "eval_history",
+      "split": "final",
+      "inputMode": "personal-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [],
+        "customInterestTags": [
+          {
+            "id": "eval_history_personal_0",
+            "label": "Medieval manuscript studies and archival history"
+          }
+        ]
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "eval_missing",
+      "split": "final",
+      "inputMode": "missing",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "eval_climate",
+      "split": "final",
+      "inputMode": "text-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "eval_combined_language",
+      "split": "final",
+      "inputMode": "combined",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "Neural translation and natural language processing",
+        "researchInterests": [
+          "interest_nlp"
+        ],
+        "customInterestTags": [
+          {
+            "id": "eval_combined_language_personal_0",
+            "label": "Language technologies"
+          },
+          {
+            "id": "eval_combined_language_personal_1",
+            "label": "Neural translation"
+          }
+        ]
+      },
+      "annotationNote": "Duplicate phrases and supplementary labels must not count as independent evidence."
+    },
+    {
+      "id": "eval_language_alias",
+      "split": "final",
+      "inputMode": "shared-only",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "",
+        "researchInterests": [
+          "interest_language"
+        ],
+        "customInterestTags": []
+      },
+      "annotationNote": "Equivalent language interest with a different tag ID; no exact-ID gate."
+    },
+    {
+      "id": "eval_hidden",
+      "split": "final",
+      "inputMode": "hidden",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [],
+      "content": {
+        "researchInterestText": "PRIVATE_HIDDEN_INTEREST medical image analysis",
+        "researchInterests": [
+          "interest_health"
+        ],
+        "customInterestTags": [
+          {
+            "id": "eval_hidden_personal_0",
+            "label": "PRIVATE_HIDDEN_LABEL"
+          }
+        ]
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "excluded_revoked",
+      "split": "final",
+      "inputMode": "excluded",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": false,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "PRIVATE_REVOKED_TEXT",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "excluded_stale",
+      "split": "final",
+      "inputMode": "excluded",
+      "role": "TALENT",
+      "active": true,
+      "revision": 2,
+      "confirmedRevision": 1,
+      "confirmationStatus": "CONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "PRIVATE_STALE_TEXT",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    },
+    {
+      "id": "excluded_unconfirmed",
+      "split": "final",
+      "inputMode": "excluded",
+      "role": "TALENT",
+      "active": true,
+      "revision": 1,
+      "confirmedRevision": 1,
+      "confirmationStatus": "UNCONFIRMED",
+      "discoverable": true,
+      "visibleFields": [
+        "researchInterests"
+      ],
+      "content": {
+        "researchInterestText": "PRIVATE_UNCONFIRMED_TEXT",
+        "researchInterests": [],
+        "customInterestTags": []
+      },
+      "annotationNote": ""
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "tune_reef",
+      "split": "tuning",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Protecting coral reefs through marine ecosystem conservation.",
+        "requirements": [
+          {
+            "id": "tune_reef_interest",
+            "kind": "INTEREST",
+            "label": "Marine ecology",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_marine"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tune_energy",
+      "split": "tuning",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Solar cells and photovoltaic renewable energy systems.",
+        "requirements": [
+          {
+            "id": "tune_energy_interest",
+            "kind": "INTEREST",
+            "label": "Photovoltaic energy",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_solar"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tune_audio",
+      "split": "tuning",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Music information retrieval and computational audio analysis.",
+        "requirements": [
+          {
+            "id": "tune_audio_interest",
+            "kind": "INTEREST",
+            "label": "Music information retrieval",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_music"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_nlp",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Neural methods for understanding and translating human language.",
+        "requirements": [
+          {
+            "id": "eval_nlp_interest",
+            "kind": "INTEREST",
+            "label": "Natural language processing",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_nlp"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_cv",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Computer vision for object recognition in photographs and video.",
+        "requirements": [
+          {
+            "id": "eval_cv_interest",
+            "kind": "INTEREST",
+            "label": "Computer vision",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_cv"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_gnn",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Graph neural networks for learning from relational structures.",
+        "requirements": [
+          {
+            "id": "eval_gnn_interest",
+            "kind": "INTEREST",
+            "label": "Graph machine learning",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_graph"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_health",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Machine learning for diagnosis from medical images.",
+        "requirements": [
+          {
+            "id": "eval_health_interest",
+            "kind": "INTEREST",
+            "label": "Medical image analysis",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_health"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_weather",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Climate modelling and atmospheric weather prediction.",
+        "requirements": [
+          {
+            "id": "eval_weather_interest",
+            "kind": "INTEREST",
+            "label": "Climate science",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_climate"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "eval_archives",
+      "split": "final",
+      "revision": 1,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "researchArea": "Medieval history through archival manuscripts.",
+        "requirements": [
+          {
+            "id": "eval_archives_interest",
+            "kind": "INTEREST",
+            "label": "Medieval history",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "interest_history"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_reef",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_energy",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_audio",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_reef",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_energy",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_audio",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_reef",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_energy",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_audio",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_reef",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_energy",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_audio",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_reef",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_energy",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_audio",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_reef",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_energy",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_audio",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_nlp",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_nlp",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_cv",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_health",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_nlp",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_gnn",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_nlp",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_cv",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_health",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_nlp",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_cv",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_gnn",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_health",
+      "label": "PARTIAL"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_nlp",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_archives",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_nlp",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_cv",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_gnn",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_health",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_weather",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_archives",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_nlp",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_weather",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_nlp",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_nlp",
+      "label": "RELEVANT"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_cv",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_gnn",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_health",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_weather",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_archives",
+      "label": "UNRELATED"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_nlp",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_cv",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_gnn",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_health",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_weather",
+      "label": "UNKNOWN"
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_archives",
+      "label": "UNKNOWN"
+    }
+  ]
+}

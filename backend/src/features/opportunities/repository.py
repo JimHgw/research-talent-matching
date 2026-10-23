@@ -1,10 +1,8 @@
 """Ordered persistence and public serialization; callers own the transaction."""
 
-from collections import defaultdict
+from sqlalchemy import delete
 
-from sqlalchemy import delete, select
-
-from ...db.models import OpportunityRequirement, RequirementTag
+from ...db.models import OpportunityRequirement, OpportunitySkillDetails, RequirementTag
 from ...db.opportunity_read import CONTENT_FIELDS, serialize, serialize_many
 
 def replace_content(db, opportunity, content):
@@ -13,6 +11,7 @@ def replace_content(db, opportunity, content):
     db.flush()
     # Delete dependent rows first; independent tags and accounts are never deleted.
     db.execute(delete(RequirementTag).where(RequirementTag.opportunity_id == opportunity.id))
+    db.execute(delete(OpportunitySkillDetails).where(OpportunitySkillDetails.opportunity_id == opportunity.id))
     db.execute(delete(OpportunityRequirement).where(OpportunityRequirement.opportunity_id == opportunity.id))
     for position, requirement in enumerate(content["requirements"]):
         db.add(OpportunityRequirement(
@@ -20,6 +19,9 @@ def replace_content(db, opportunity, content):
             kind=requirement["kind"], importance=requirement["importance"], position=position))
     db.flush()
     for requirement in content["requirements"]:
+        if "skillTitles" in requirement:
+            db.add(OpportunitySkillDetails(opportunity_id=opportunity.id,
+                                          requirement_id=requirement["id"], titles=requirement["skillTitles"]))
         for position, tag_id in enumerate(requirement["tagIds"]):
             db.add(RequirementTag(opportunity_id=opportunity.id, requirement_id=requirement["id"],
                                   tag_id=tag_id, position=position))

@@ -25,10 +25,12 @@ export function evaluate(opportunity, profile, allowedFields = null) {
     : Object.fromEntries(allowedFields.map((key) => [key, profile.content[key]]));
   const requirements = opportunity.content.requirements.map((requirement) => {
     const field = requirement.kind === 'SKILL' ? 'skills' : 'researchInterests';
-    const claims = requirement.tagIds.map((id) =>
+    const claims = (requirement.skillTitles || requirement.tagIds).map((id) =>
       requirement.kind === 'SKILL'
         ? (() => {
-            const label = tags.find((tag) => tag.id === id)?.label.toLowerCase();
+            const label = (
+              requirement.skillTitles ? id : tags.find((tag) => tag.id === id)?.label
+            )?.toLowerCase();
             const skill = content.skills?.find((s) =>
               [label, `no ${label}`].includes(s.title.trim().toLowerCase())
             );

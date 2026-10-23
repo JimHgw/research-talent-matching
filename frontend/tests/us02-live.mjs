@@ -41,13 +41,12 @@ try {
 
   await click('Add requirement');
   await change('Requirement 1 label', 'Python and SQL');
-  await checkbox('Python');
-  await checkbox('SQL');
+  await change('Skill names for requirement 1', 'Python\nSQL');
   await click('Save changes');
   await until(() => button('Publish opportunity') && !button('Publish opportunity').disabled);
   const withRequirements = await api.opportunity(draft.id);
   assert.equal(withRequirements.revision, 2);
-  assert.deepEqual(withRequirements.content.requirements[0].tagIds, ['skill_python', 'skill_sql']);
+  assert.deepEqual(withRequirements.content.requirements[0].skillTitles, ['Python', 'SQL']);
 
   // Recreate the React tree and restore the authenticated session from its cookie.
   await remount();

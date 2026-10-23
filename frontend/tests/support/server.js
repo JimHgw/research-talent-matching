@@ -132,6 +132,17 @@ function validateOpportunity(content, published) {
       !['REQUIRED', 'PREFERRED'].includes(r.importance)
     )
       invalid('Choose a valid requirement type and importance.');
+    if (r.kind === 'SKILL' && r.skillTitles) {
+      if (
+        r.tagIds.length ||
+        !r.skillTitles.length ||
+        r.skillTitles.length > 20 ||
+        !unique(r.skillTitles)
+      )
+        invalid('Enter 1–20 unique skill names.');
+      r.skillTitles.forEach((title) => requiredText(title, 'Skill name', 350));
+      continue;
+    }
     if (!Array.isArray(r.tagIds) || !r.tagIds.length || r.tagIds.length > 20 || !unique(r.tagIds))
       invalid('Choose 1–20 unique tags per requirement.');
     r.tagIds.forEach((tag) => tagCheck(tag, r.kind));

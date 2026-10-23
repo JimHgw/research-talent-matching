@@ -106,6 +106,24 @@ backend_test:
     - python -m pytest
 
 
+semantic_evaluation:
+  stage: test
+  image: python:3.12-slim
+  before_script:
+    - python -m pip install -r backend/requirements-dev.txt -r backend/requirements-semantic.txt
+  script:
+    - python -m backend.src.features.matching.evaluate_semantic --download-model --output reports/us13-results.json
+    - python -m pytest backend/tests/test_us13.py -q
+  cache:
+    key: us13-minilm-1110a243
+    paths:
+      - data/us13/model/
+  artifacts:
+    when: always
+    paths:
+      - reports/us13-results.json
+    expire_in: 1 week
+
 backend_mysql_test:
   stage: test
   image: python:3.12-slim
