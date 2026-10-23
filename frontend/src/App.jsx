@@ -48,10 +48,7 @@ function AccountSession({ configuration }) {
         <h1>{t('Your account cannot open this workspace.')}</h1>
         <p>{t('Sign out and use an account with an authorised role.')}</p>
         <ErrorNotice error={logout.error} />
-        <Button
-          disabled={logout.busy}
-          onClick={() => logout.run(api.logout, () => session.accept(null))}
-        >
+        <Button disabled={logout.busy} onClick={() => logout.run(api.logout, session.signedOut)}>
           {t('Sign out')}
         </Button>
       </main>
@@ -61,10 +58,7 @@ function AccountSession({ configuration }) {
       configuration={configuration}
       key={`${user.id}:${user.role}`}
       user={user}
-      onLogout={() => {
-        session.accept(null);
-        session.refresh();
-      }}
+      onLogout={session.signedOut}
     />
   ) : (
     <Login onLogin={session.accept} />
