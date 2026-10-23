@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    'Введите по одному названию навыка в строке. Для исследовательских интересов используются общие теги. Перед публикацией добавьте хотя бы одно требование.',
+  'Skill names for requirement {number}': 'Названия навыков для требования {number}',
+  'Python\nFinancial modelling': 'Python\nФинансовое моделирование',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    'Для требования {number} нужны описание и от 1 до 20 неповторяющихся названий навыков.',
+  'All requested skills have confirmed supporting evidence.':
+    'Все запрошенные навыки имеют подтверждённые обоснования.',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    'Некоторые запрошенные навыки имеют подтверждённые обоснования; для остальных навыков данных недостаточно.',
+  'Skill names must be unique.': 'Названия навыков не должны повторяться.',
+  'Enter visible skill names without control characters.':
+    'Введите видимые названия навыков без управляющих символов.',
   ' · Reviewed document import': ' · Рассмотренный импорт документов',
   '#{rank} match': 'Соответствие #{rank}',
   '#{rank} recommendation': 'Рекомендация #{rank}',

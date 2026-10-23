@@ -5040,9 +5040,20 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9_-]{1,64}$"
             },
-            "minItems": 1,
+            "minItems": 0,
             "maxItems": 20,
             "uniqueItems": true
+          },
+          "skillTitles": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 350
+            }
           }
         },
         "required": [
@@ -5053,7 +5064,34 @@
           "tagIds"
         ],
         "additionalProperties": false,
-        "description": "Tags in one requirement form an AND group. Tag kind must match requirement kind. Stable IDs allow explanations to refer to the exact requirement."
+        "description": "SKILL requirements use skillTitles (all names required) and empty tagIds. Existing tag-backed records remain readable/writable for compatibility. INTEREST requirements keep shared tag IDs. Stable requirement IDs identify explanations.",
+        "oneOf": [
+          {
+            "required": [
+              "skillTitles"
+            ],
+            "properties": {
+              "kind": {
+                "const": "SKILL"
+              },
+              "tagIds": {
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "not": {
+              "required": [
+                "skillTitles"
+              ]
+            },
+            "properties": {
+              "tagIds": {
+                "minItems": 1
+              }
+            }
+          }
+        ]
       },
       "OpportunityContent": {
         "type": "object",
@@ -5260,7 +5298,9 @@
               "ALL_TAGS_SUPPORTED",
               "SOME_TAGS_SUPPORTED",
               "EXPLICIT_NEGATIVE_CLAIM",
-              "INSUFFICIENT_EVIDENCE"
+              "INSUFFICIENT_EVIDENCE",
+              "ALL_SKILLS_SUPPORTED",
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5297,7 +5337,9 @@
               "ALL_TAGS_SUPPORTED",
               "SOME_TAGS_SUPPORTED",
               "EXPLICIT_NEGATIVE_CLAIM",
-              "INSUFFICIENT_EVIDENCE"
+              "INSUFFICIENT_EVIDENCE",
+              "ALL_SKILLS_SUPPORTED",
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5360,7 +5402,8 @@
           "algorithmVersion": {
             "type": "string",
             "enum": [
-              "tag-coverage-v1"
+              "tag-coverage-v1",
+              "skill-title-interest-tags-v2"
             ]
           }
         },

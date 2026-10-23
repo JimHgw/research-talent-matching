@@ -12,6 +12,7 @@ def evaluate_visible(opportunity, talent, labels):
     fields = talent["fields"]
     snapshot = {
         "skills": matching_skills(fields.get("skills", []), labels),
+        "skillRecords": fields.get("skills", []),
         "researchInterests": {tag_id: labels[tag_id]
                               for tag_id in fields.get("researchInterests", [])},
     }

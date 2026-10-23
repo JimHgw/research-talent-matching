@@ -28,7 +28,8 @@ def get_owner_profile(db, user):
 
 def read_matching_profile(db, profile):
     # Read the profile's skills, research interests, and origins in a single transaction.
-    skills = matching_skills(read_skills_many(db, [profile.talent_id])[profile.talent_id],
+    skill_records = read_skills_many(db, [profile.talent_id])[profile.talent_id]
+    skills = matching_skills(skill_records,
                              dict(db.execute(select(Tag.id, Tag.label).where(Tag.kind == "SKILL")).all()))
     interests = dict(
         db.execute(
@@ -52,6 +53,7 @@ def read_matching_profile(db, profile):
     return {
         "revision": profile.revision,
         "skills": skills,
+        "skillRecords": skill_records,
         "researchInterests": interests,
         "origins": origins,
     }

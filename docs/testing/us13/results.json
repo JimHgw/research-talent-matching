@@ -1,0 +1,7023 @@
+{
+  "status": "COMPLETE",
+  "algorithmVersion": "minilm-interest-onnx-v1",
+  "thresholds": {
+    "partial": 0.45,
+    "relevant": 0.75
+  },
+  "thresholdSelection": "Tuning macro-F1, then accuracy, then higher thresholds; final labels unused.",
+  "metrics": {
+    "tuning": {
+      "baseline": {
+        "pairs": 18,
+        "accuracy": 0.2222222222222222,
+        "macroF1": 0.2,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 3,
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 2,
+            "f1": 0.5
+          },
+          "PARTIAL": {
+            "support": 1,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 1,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 11,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 11,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 3,
+            "truePositive": 3,
+            "falsePositive": 14,
+            "falseNegative": 0,
+            "f1": 0.3
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.25,
+        "retrievalF1": 0.4,
+        "ndcgAtK": 0.5989025269968355,
+        "unknownCount": 17,
+        "incorrectPairs": [
+          {
+            "talentId": "tune_marine",
+            "opportunityId": "tune_reef",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_marine",
+            "opportunityId": "tune_energy",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_marine",
+            "opportunityId": "tune_audio",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_solar",
+            "opportunityId": "tune_reef",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_solar",
+            "opportunityId": "tune_audio",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_music",
+            "opportunityId": "tune_reef",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_music",
+            "opportunityId": "tune_energy",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_music",
+            "opportunityId": "tune_audio",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_broad",
+            "opportunityId": "tune_reef",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_broad",
+            "opportunityId": "tune_energy",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_broad",
+            "opportunityId": "tune_audio",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_unrelated",
+            "opportunityId": "tune_reef",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_unrelated",
+            "opportunityId": "tune_energy",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "tune_unrelated",
+            "opportunityId": "tune_audio",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 18,
+        "accuracy": 1.0,
+        "macroF1": 1.0,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 3,
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "PARTIAL": {
+            "support": 1,
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "UNRELATED": {
+            "support": 11,
+            "truePositive": 11,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "UNKNOWN": {
+            "support": 3,
+            "truePositive": 3,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 1.0,
+        "retrievalF1": 1.0,
+        "ndcgAtK": 1.0,
+        "unknownCount": 3,
+        "incorrectPairs": []
+      }
+    },
+    "final": {
+      "baseline": {
+        "pairs": 66,
+        "accuracy": 0.21212121212121213,
+        "macroF1": 0.17894736842105263,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 8,
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 6,
+            "f1": 0.4
+          },
+          "PARTIAL": {
+            "support": 6,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 6,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 40,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 40,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 12,
+            "truePositive": 12,
+            "falsePositive": 52,
+            "falseNegative": 0,
+            "f1": 0.3157894736842105
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.14285714285714285,
+        "retrievalF1": 0.25,
+        "ndcgAtK": 0.43255868820970944,
+        "unknownCount": 64,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_gnn",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_health",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_nlp",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_gnn",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_archives",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_weather",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 66,
+        "accuracy": 0.8787878787878788,
+        "macroF1": 0.696843853820598,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 8,
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 2,
+            "f1": 0.8571428571428571
+          },
+          "PARTIAL": {
+            "support": 6,
+            "truePositive": 0,
+            "falsePositive": 2,
+            "falseNegative": 6,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 40,
+            "truePositive": 40,
+            "falsePositive": 6,
+            "falseNegative": 0,
+            "f1": 0.9302325581395349
+          },
+          "UNKNOWN": {
+            "support": 12,
+            "truePositive": 12,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.5714285714285714,
+        "retrievalF1": 0.7272727272727273,
+        "ndcgAtK": 0.9710391095214267,
+        "unknownCount": 12,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_cv",
+            "expected": "RELEVANT",
+            "actual": "PARTIAL"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_nlp",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_gnn",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "PARTIAL"
+          }
+        ]
+      }
+    }
+  },
+  "byInputMode": {
+    "combined": {
+      "baseline": {
+        "pairs": 18,
+        "accuracy": 0.05555555555555555,
+        "macroF1": 0.16666666666666666,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 1,
+            "f1": 0.6666666666666666
+          },
+          "PARTIAL": {
+            "support": 5,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 5,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 11,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 11,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 17,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.14285714285714285,
+        "retrievalF1": 0.25,
+        "ndcgAtK": 0.9020624175221635,
+        "unknownCount": 17,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_health",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_nlp",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_gnn",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_combined_language",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 18,
+        "accuracy": 0.7222222222222222,
+        "macroF1": 0.4537037037037037,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "PARTIAL": {
+            "support": 5,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 5,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 11,
+            "truePositive": 11,
+            "falsePositive": 5,
+            "falseNegative": 0,
+            "f1": 0.8148148148148148
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.2857142857142857,
+        "retrievalF1": 0.4444444444444444,
+        "ndcgAtK": 0.9077324383928644,
+        "unknownCount": 0,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_medical",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_nlp",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_cv",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_gnn",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_broad_ml",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          }
+        ]
+      }
+    },
+    "hidden": {
+      "baseline": {
+        "pairs": 6,
+        "accuracy": 1.0,
+        "macroF1": 0.25,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 6,
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": null,
+        "unknownCount": 6,
+        "incorrectPairs": []
+      },
+      "semantic": {
+        "pairs": 6,
+        "accuracy": 1.0,
+        "macroF1": 0.25,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 6,
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": null,
+        "unknownCount": 6,
+        "incorrectPairs": []
+      }
+    },
+    "missing": {
+      "baseline": {
+        "pairs": 6,
+        "accuracy": 1.0,
+        "macroF1": 0.25,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 6,
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": null,
+        "unknownCount": 6,
+        "incorrectPairs": []
+      },
+      "semantic": {
+        "pairs": 6,
+        "accuracy": 1.0,
+        "macroF1": 0.25,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 6,
+            "truePositive": 6,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": null,
+        "unknownCount": 6,
+        "incorrectPairs": []
+      }
+    },
+    "personal-only": {
+      "baseline": {
+        "pairs": 12,
+        "accuracy": 0.0,
+        "macroF1": 0.0,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 2,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 10,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 10,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 12,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": 0.8154648767857287,
+        "unknownCount": 12,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_gnn",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_graph",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_history",
+            "opportunityId": "eval_archives",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 12,
+        "accuracy": 1.0,
+        "macroF1": 0.5,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 10,
+            "truePositive": 10,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 1.0,
+        "retrievalF1": 1.0,
+        "ndcgAtK": 1.0,
+        "unknownCount": 0,
+        "incorrectPairs": []
+      }
+    },
+    "shared-only": {
+      "baseline": {
+        "pairs": 12,
+        "accuracy": 0.08333333333333333,
+        "macroF1": 0.16666666666666666,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 1,
+            "falsePositive": 0,
+            "falseNegative": 1,
+            "f1": 0.6666666666666666
+          },
+          "PARTIAL": {
+            "support": 1,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 1,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 9,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 9,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 11,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.3333333333333333,
+        "retrievalF1": 0.5,
+        "ndcgAtK": 0.8769765845238192,
+        "unknownCount": 11,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 12,
+        "accuracy": 0.75,
+        "macroF1": 0.23684210526315788,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 2,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 1,
+            "truePositive": 0,
+            "falsePositive": 2,
+            "falseNegative": 1,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 9,
+            "truePositive": 9,
+            "falsePositive": 1,
+            "falseNegative": 0,
+            "f1": 0.9473684210526315
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 0.6666666666666666,
+        "retrievalF1": 0.8,
+        "ndcgAtK": 1.0,
+        "unknownCount": 0,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_cv",
+            "expected": "RELEVANT",
+            "actual": "PARTIAL"
+          },
+          {
+            "talentId": "eval_vision",
+            "opportunityId": "eval_health",
+            "expected": "PARTIAL",
+            "actual": "UNRELATED"
+          },
+          {
+            "talentId": "eval_language_alias",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "PARTIAL"
+          }
+        ]
+      }
+    },
+    "text-only": {
+      "baseline": {
+        "pairs": 12,
+        "accuracy": 0.0,
+        "macroF1": 0.0,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 2,
+            "f1": 0.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 10,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 10,
+            "f1": 0.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 12,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 0.0,
+        "retrievalRecall": 0.0,
+        "retrievalF1": 0.0,
+        "ndcgAtK": 0.8154648767857287,
+        "unknownCount": 12,
+        "incorrectPairs": [
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_nlp",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_weather",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_language",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_nlp",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_cv",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_gnn",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_health",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_weather",
+            "expected": "RELEVANT",
+            "actual": "UNKNOWN"
+          },
+          {
+            "talentId": "eval_climate",
+            "opportunityId": "eval_archives",
+            "expected": "UNRELATED",
+            "actual": "UNKNOWN"
+          }
+        ]
+      },
+      "semantic": {
+        "pairs": 12,
+        "accuracy": 1.0,
+        "macroF1": 0.5,
+        "perLabel": {
+          "RELEVANT": {
+            "support": 2,
+            "truePositive": 2,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "PARTIAL": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          },
+          "UNRELATED": {
+            "support": 10,
+            "truePositive": 10,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 1.0
+          },
+          "UNKNOWN": {
+            "support": 0,
+            "truePositive": 0,
+            "falsePositive": 0,
+            "falseNegative": 0,
+            "f1": 0.0
+          }
+        },
+        "retrievalPrecision": 1.0,
+        "retrievalRecall": 1.0,
+        "retrievalF1": 1.0,
+        "ndcgAtK": 1.0,
+        "unknownCount": 0,
+        "incorrectPairs": []
+      }
+    }
+  },
+  "costs": {
+    "comparisonWallMs": 89.32499999991705,
+    "comparisonCpuMs": 93.75,
+    "baselineTotalMs": 0.30470000456261914,
+    "baselineMedianPairMs": 0.0029000002541579306,
+    "semanticEncodingMs": 72.21669999944424,
+    "uniqueTexts": 23,
+    "encodedTexts": 23,
+    "truncatedTexts": 0,
+    "modelArtifactBytes": 90871461,
+    "paidApiCalls": 0,
+    "modelLoadAndOptionalDownloadMs": 351.9079999996393,
+    "processPeakRssMiB": 313.2421875
+  },
+  "errors": [],
+  "modelError": null,
+  "decision": {
+    "applicationDecision": "OMIT",
+    "reasons": [
+      "Only 11 final profiles; need 50 for adoption.",
+      "Synthetic author labels lack independent human review.",
+      "No partial-relevance examples correctly classified in the final split."
+    ],
+    "applicationAlgorithm": "tag-coverage-v1 (interest baseline retained)",
+    "fallback": "Existing application matcher runs without semantic dependencies or artifacts.",
+    "automaticIntegration": false
+  },
+  "eligibility": {
+    "eligibleProfiles": 17,
+    "excluded": [
+      {
+        "talentId": "excluded_revoked",
+        "reason": "NOT_CURRENT_CONFIRMED_OPTED_IN_TALENT"
+      },
+      {
+        "talentId": "excluded_stale",
+        "reason": "NOT_CURRENT_CONFIRMED_OPTED_IN_TALENT"
+      },
+      {
+        "talentId": "excluded_unconfirmed",
+        "reason": "NOT_CURRENT_CONFIRMED_OPTED_IN_TALENT"
+      }
+    ]
+  },
+  "pairs": [
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Marine ecology and conservation of coral reef ecosystems.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.905728519235612,
+        "similarity": 0.905728519235612,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Marine ecology and conservation of coral reef ecosystems.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.055490124985815334,
+        "similarity": 0.055490124985815334,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_marine",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Marine ecology and conservation of coral reef ecosystems.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.02428906105511605,
+        "similarity": 0.02428906105511605,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Photovoltaic energy",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_solar"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.07631668941341532,
+        "similarity": 0.07631668941341532,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "shared-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Photovoltaic energy",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_solar"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      },
+      "semantic": {
+        "score": 0.7653602852270247,
+        "similarity": 0.7653602852270247,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_solar",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Photovoltaic energy",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_solar"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": -0.00679212438970834,
+        "similarity": -0.00679212438970834,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computational analysis of music and audio recordings",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_music_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.03701833466876572,
+        "similarity": 0.03701833466876572,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computational analysis of music and audio recordings",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_music_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.049641701161835985,
+        "similarity": 0.049641701161835985,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_music",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "personal-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Computational analysis of music and audio recordings",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_music_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.8017249752260274,
+        "similarity": 0.8017249752260274,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Conservation of terrestrial forests and biodiversity.\nEcology",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_broad_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.4691184148373081,
+        "similarity": 0.4691184148373081,
+        "state": "EVALUATED",
+        "label": "PARTIAL"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Conservation of terrestrial forests and biodiversity.\nEcology",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_broad_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.027463469178900937,
+        "similarity": 0.027463469178900937,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_broad",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Conservation of terrestrial forests and biodiversity.\nEcology",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "tune_broad_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.05853631847509362,
+        "similarity": 0.05853631847509362,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Auditing corporate accounts and financial statements.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.10850189075717878,
+        "similarity": 0.10850189075717878,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Auditing corporate accounts and financial statements.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.03387569435244108,
+        "similarity": 0.03387569435244108,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_unrelated",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Auditing corporate accounts and financial statements.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.06746748469837807,
+        "similarity": 0.06746748469837807,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_reef",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Protecting coral reefs through marine ecosystem conservation.\nMarine ecology",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_reef_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_energy",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Solar cells and photovoltaic renewable energy systems.\nPhotovoltaic energy",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "tune_energy_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "tune_missing",
+      "opportunityId": "tune_audio",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "tuning",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Music information retrieval and computational audio analysis.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.784990341737427,
+        "similarity": 0.784990341737427,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.1977593857013193,
+        "similarity": 0.1977593857013193,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.3112553103610337,
+        "similarity": 0.3112553103610337,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.1954752312461304,
+        "similarity": 0.1954752312461304,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.07891580099398197,
+        "similarity": 0.07891580099398197,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Understanding human language with neural models, including automatic translation.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.038275305598721956,
+        "similarity": 0.038275305598721956,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.26142083132381827,
+        "similarity": 0.26142083132381827,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      },
+      "semantic": {
+        "score": 0.6571030782713282,
+        "similarity": 0.6571030782713282,
+        "state": "EVALUATED",
+        "label": "PARTIAL"
+      },
+      "fallback": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.11447357962196614,
+        "similarity": 0.11447357962196614,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.34082404175439845,
+        "similarity": 0.34082404175439845,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.04209697209516008,
+        "similarity": 0.04209697209516008,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_vision",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Computer vision",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_cv"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.10166423804629313,
+        "similarity": 0.10166423804629313,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.3016318919534597,
+        "similarity": 0.3016318919534597,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.12372432038270985,
+        "similarity": 0.12372432038270985,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.7876342188765013,
+        "similarity": 0.7876342188765013,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.22432346477667855,
+        "similarity": 0.22432346477667855,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.10476525581204531,
+        "similarity": 0.10476525581204531,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_graph",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Learning representations on graphs for relational data",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_graph_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.13285332417724194,
+        "similarity": 0.13285332417724194,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.08202013679035709,
+        "similarity": 0.08202013679035709,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.2987165981986398,
+        "similarity": 0.2987165981986398,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.1845345258533964,
+        "similarity": 0.1845345258533964,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.8295479368755861,
+        "similarity": 0.8295479368755861,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.23366368835335044,
+        "similarity": 0.23366368835335044,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_medical",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Predicting disease from medical images using machine learning.\nClinical imaging",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_medical_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.06348640257889532,
+        "similarity": 0.06348640257889532,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.25250162285634853,
+        "similarity": 0.25250162285634853,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.2953298641260097,
+        "similarity": 0.2953298641260097,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.2533820938314105,
+        "similarity": 0.2533820938314105,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "PARTIAL",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.42319181635133585,
+        "similarity": 0.42319181635133585,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.3689942353980793,
+        "similarity": 0.3689942353980793,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_broad_ml",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Statistical learning methods and general predictive modelling.\nMachine learning",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "researchInterests",
+            "recordId": "interest_ml"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.08509961036230403,
+        "similarity": 0.08509961036230403,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": -0.037102625823552,
+        "similarity": -0.037102625823552,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.011191400482401949,
+        "similarity": 0.011191400482401949,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.04023848696309191,
+        "similarity": 0.04023848696309191,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": -0.011317802015109303,
+        "similarity": -0.011317802015109303,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.036175091950658,
+        "similarity": 0.036175091950658,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_history",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "personal-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Medieval manuscript studies and archival history",
+        "sources": [
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_history_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.9237531043436225,
+        "similarity": 0.9237531043436225,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_missing",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "missing",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.01880019056454755,
+        "similarity": 0.01880019056454755,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.09979969453972498,
+        "similarity": 0.09979969453972498,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.021195817804964493,
+        "similarity": 0.021195817804964493,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.12141149103151778,
+        "similarity": 0.12141149103151778,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.8441310281165292,
+        "similarity": 0.8441310281165292,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_climate",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "text-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Forecasting climate and weather using physical models and atmospheric observations.",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.05695789543484172,
+        "similarity": 0.05695789543484172,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      },
+      "semantic": {
+        "score": 0.7783633744430435,
+        "similarity": 0.7783633744430435,
+        "state": "EVALUATED",
+        "label": "RELEVANT"
+      },
+      "fallback": {
+        "label": "RELEVANT",
+        "score": 100.0,
+        "summary": {
+          "score": 100.0,
+          "unknownWeightPercent": 0.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "MATCHED"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.14475548025131674,
+        "similarity": 0.14475548025131674,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.3232273518676532,
+        "similarity": 0.3232273518676532,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.07120701009641506,
+        "similarity": 0.07120701009641506,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.02243155319274932,
+        "similarity": 0.02243155319274932,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_combined_language",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "combined",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Neural translation and natural language processing\nLanguage technologies",
+        "sources": [
+          {
+            "field": "researchInterestText",
+            "recordId": null
+          },
+          {
+            "field": "customInterestTags",
+            "recordId": "eval_combined_language_personal_0"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.035684076094470676,
+        "similarity": 0.035684076094470676,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "RELEVANT",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.4603604366823965,
+        "similarity": 0.4603604366823965,
+        "state": "EVALUATED",
+        "label": "PARTIAL"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.08213444541414645,
+        "similarity": 0.08213444541414645,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.15266142856731463,
+        "similarity": 0.15266142856731463,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.029165533444361735,
+        "similarity": 0.029165533444361735,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.0774159768232472,
+        "similarity": 0.0774159768232472,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_language_alias",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "shared-only",
+      "label": "UNRELATED",
+      "profileInput": {
+        "text": "Language technologies",
+        "sources": [
+          {
+            "field": "researchInterests",
+            "recordId": "interest_language"
+          }
+        ]
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": 0.2126156945356024,
+        "similarity": 0.2126156945356024,
+        "state": "EVALUATED",
+        "label": "UNRELATED"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_nlp",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Neural methods for understanding and translating human language.\nNatural language processing",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_nlp_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_cv",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Computer vision for object recognition in photographs and video.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_gnn",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Graph neural networks for learning from relational structures.\nGraph machine learning",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_gnn_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_health",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Machine learning for diagnosis from medical images.\nMedical image analysis",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_health_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_weather",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Climate modelling and atmospheric weather prediction.\nClimate science",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          },
+          {
+            "field": "requirements",
+            "recordId": "eval_weather_interest"
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "talentId": "eval_hidden",
+      "opportunityId": "eval_archives",
+      "profileRevision": 1,
+      "opportunityRevision": 1,
+      "split": "final",
+      "inputMode": "hidden",
+      "label": "UNKNOWN",
+      "profileInput": {
+        "text": "",
+        "sources": []
+      },
+      "opportunityInput": {
+        "text": "Medieval history through archival manuscripts.",
+        "sources": [
+          {
+            "field": "researchArea",
+            "recordId": null
+          }
+        ]
+      },
+      "baseline": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      },
+      "semantic": {
+        "score": null,
+        "similarity": null,
+        "state": "MISSING_EVIDENCE",
+        "label": "UNKNOWN"
+      },
+      "fallback": {
+        "label": "UNKNOWN",
+        "score": 0.0,
+        "summary": {
+          "score": 0.0,
+          "unknownWeightPercent": 100.0,
+          "requiredGapCount": 0,
+          "evaluationStatus": "EVALUATED",
+          "algorithmVersion": "tag-coverage-v1"
+        },
+        "requirementStatuses": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "createdAt": "2026-10-23T08:48:59.085902+00:00",
+  "datasetVersion": "us13-interest-corpus-v1",
+  "configuration": {
+    "version": "us13-config-v1",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "artifacts": {
+      "tokenizer.json": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+      "onnx/model.onnx": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452"
+    },
+    "maxTokens": 256,
+    "threads": 1,
+    "batchSize": 16,
+    "pooling": "attention-mask-weighted-mean",
+    "normalisation": "NFKC, collapse whitespace, exact casefold label deduplication; L2 embeddings",
+    "similarity": "cosine",
+    "randomSeed": null,
+    "thresholdGrid": [
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85
+    ],
+    "rankingK": 3,
+    "adoptionGates": {
+      "minimumFinalProfiles": 50,
+      "minimumIndependentHumanReviewers": 2,
+      "minimumRetrievalPrecision": 0.9,
+      "minimumMacroF1Gain": 0.1
+    }
+  },
+  "textChecksumNormalization": "CRLF to LF",
+  "datasetSha256": "4332e76ef1f7c83c4fd17db63afc4ddc34a39402cbdff793d82c02017d97d6e8",
+  "configSha256": "dc10e5eb025074df9deb0eaf2304217b97d4b9f886b66ea0c9b4e8fa61333f24",
+  "implementationSha256": {
+    "engine.py": "2415c77404f040d7b6c72c877882dd9f07a507de2085bb769058d85514ee3ed2",
+    "semantic.py": "ca3c567c5687a4cc2b23513407bf37c366a665e9ed682742ac8c9f7fe6c56c29",
+    "evaluate_semantic.py": "7c1cc8fa2a7b4d6b09e8b27b40cb3af7aea1cbbab22d5effdca1222fe354b9b7"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+    "packages": {
+      "anyio": "4.15.1",
+      "argon2-cffi": "25.1.0",
+      "argon2-cffi-bindings": "26.1.0",
+      "arrow": "1.4.0",
+      "attrs": "26.1.0",
+      "blinker": "1.9.0",
+      "certifi": "2026.10.19",
+      "cffi": "2.1.1",
+      "click": "8.5.0",
+      "colorama": "0.4.6",
+      "coloredlogs": "15.0.1",
+      "cryptography": "50.0.2",
+      "filelock": "4.2.4",
+      "Flask": "3.1.2",
+      "flatbuffers": "25.12.19",
+      "fqdn": "1.6.0",
+      "fsspec": "2026.9.0",
+      "greenlet": "3.5.6",
+      "h11": "0.16.0",
+      "hf-xet": "1.7.0",
+      "httpcore": "1.0.9",
+      "httpx": "0.28.1",
+      "huggingface_hub": "1.33.0",
+      "humanfriendly": "10.0",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "isoduration": "20.11.0",
+      "itsdangerous": "2.2.0",
+      "Jinja2": "3.1.6",
+      "jsonpointer": "3.1.1",
+      "jsonschema": "4.25.1",
+      "jsonschema-specifications": "2025.9.1",
+      "lxml": "6.1.3",
+      "MarkupSafe": "3.0.4",
+      "mpmath": "1.3.0",
+      "numpy": "2.3.4",
+      "onnxruntime": "1.23.2",
+      "packaging": "26.3",
+      "pip": "25.0.1",
+      "pluggy": "1.6.0",
+      "protobuf": "7.36.2",
+      "pycparser": "3.0",
+      "Pygments": "2.21.0",
+      "PyMySQL": "1.1.2",
+      "pypdf": "6.20.0",
+      "pyreadline3": "3.5.6",
+      "pytest": "8.4.2",
+      "python-dateutil": "2.9.0.post0",
+      "python-docx": "1.2.0",
+      "PyYAML": "6.0.3",
+      "referencing": "0.37.0",
+      "rfc3339-validator": "0.1.4",
+      "rfc3987": "1.3.8",
+      "rpds-py": "2026.9.1",
+      "six": "1.17.0",
+      "SQLAlchemy": "2.0.44",
+      "sympy": "1.14.0",
+      "tokenizers": "0.22.1",
+      "tqdm": "4.70.1",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "uri-template": "1.3.0",
+      "webcolors": "25.10.0",
+      "Werkzeug": "3.1.9"
+    }
+  }
+}

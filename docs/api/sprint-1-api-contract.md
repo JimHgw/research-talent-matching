@@ -6,6 +6,13 @@ Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
 
+Implemented extension, 2026-10-23: opportunity SKILL requirements support
+`skillTitles: ["Financial modelling"]` with `tagIds: []`; all titles in a
+requirement are required. Existing tag-backed requirements remain compatible and
+INTEREST requirements retain shared tags. See [validation, persistence and matching](../free-text-skills.md#opportunity-skill-requirements).
+The OpenAPI definition includes the two skill-specific reason codes and
+`skill-title-interest-tags-v2`; historical fixtures below also exercise compatibility.
+
 Scope: **US-01 through US-09 in the current Sprint 1, comprising 29 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
 
 This document can be shared on its own: it contains endpoints, field definitions, request and response examples, permissions, errors and integration requirements. The accompanying `openapi.json` provides the machine-readable definition of the same version.

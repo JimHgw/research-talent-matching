@@ -13,7 +13,7 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
       <h3>{t('Requirements')}</h3>
       <p className="muted">
         {t(
-          'Each requirement uses all its selected tags. Add at least one requirement before publishing.'
+          'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.'
         )}
       </p>
       {value.map((row, index) => (
@@ -41,7 +41,21 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
             >
               <select
                 value={row.kind}
-                onChange={(e) => update(row.id, { kind: e.target.value, tagIds: [] })}
+                onChange={(e) => {
+                  const { skillTitles, ...rest } = row;
+                  onChange(
+                    value.map((item) =>
+                      item.id === row.id
+                        ? {
+                            ...rest,
+                            kind: e.target.value,
+                            tagIds: [],
+                            ...(e.target.value === 'SKILL' ? { skillTitles: [] } : {}),
+                          }
+                        : item
+                    )
+                  );
+                }}
               >
                 <option value="SKILL">{t('Skill')}</option>
                 <option value="INTEREST">{t('Research interest')}</option>
@@ -63,39 +77,56 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               </select>
             </Field>
           </div>
-          <fieldset className="requirement-tags">
-            <legend>
-              {t('Tags for requirement {number} ({count}/{limit})', {
-                number: index + 1,
-                count: row.tagIds.length,
-                limit: limits.tags,
-              })}
-            </legend>
-            <div className="opportunity-tag-options">
-              {tags
-                .filter((tag) => tag.kind === row.kind)
-                .map((tag) => (
-                  <label key={tag.id}>
-                    <input
-                      type="checkbox"
-                      checked={row.tagIds.includes(tag.id)}
-                      disabled={!row.tagIds.includes(tag.id) && row.tagIds.length >= limits.tags}
-                      onChange={(e) =>
-                        update(row.id, {
-                          tagIds: e.target.checked
-                            ? [...row.tagIds, tag.id]
-                            : row.tagIds.filter((id) => id !== tag.id),
-                        })
-                      }
-                    />
-                    <span>{tag.label}</span>
-                  </label>
-                ))}
-            </div>
-            {!tags.some((tag) => tag.kind === row.kind) && (
-              <p>{t('No tags available for this kind.')}</p>
-            )}
-          </fieldset>
+          {row.kind === 'SKILL' ? (
+            <Field label={t('Skill names for requirement {number}', { number: index + 1 })}>
+              <textarea
+                required
+                rows={3}
+                placeholder={t('Python\nFinancial modelling')}
+                value={(
+                  row.skillTitles ||
+                  row.tagIds.map((id) => tags.find((tag) => tag.id === id)?.label || id)
+                ).join('\n')}
+                onChange={(e) =>
+                  update(row.id, { skillTitles: e.target.value.split('\n'), tagIds: [] })
+                }
+              />
+            </Field>
+          ) : (
+            <fieldset className="requirement-tags">
+              <legend>
+                {t('Tags for requirement {number} ({count}/{limit})', {
+                  number: index + 1,
+                  count: row.tagIds.length,
+                  limit: limits.tags,
+                })}
+              </legend>
+              <div className="opportunity-tag-options">
+                {tags
+                  .filter((tag) => tag.kind === row.kind)
+                  .map((tag) => (
+                    <label key={tag.id}>
+                      <input
+                        type="checkbox"
+                        checked={row.tagIds.includes(tag.id)}
+                        disabled={!row.tagIds.includes(tag.id) && row.tagIds.length >= limits.tags}
+                        onChange={(e) =>
+                          update(row.id, {
+                            tagIds: e.target.checked
+                              ? [...row.tagIds, tag.id]
+                              : row.tagIds.filter((id) => id !== tag.id),
+                          })
+                        }
+                      />
+                      <span>{tag.label}</span>
+                    </label>
+                  ))}
+              </div>
+              {!tags.some((tag) => tag.kind === row.kind) && (
+                <p>{t('No tags available for this kind.')}</p>
+              )}
+            </fieldset>
+          )}
           <div className="actions">
             <Button
               variant="text"

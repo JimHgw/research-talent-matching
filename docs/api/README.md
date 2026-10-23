@@ -41,3 +41,9 @@ Skills now use [free-text titles and supporting evidence](../free-text-skills.md
 with record IDs, replacing the skill-tag/claim shape in profile, extraction and
 team-visible records. Deploy the API and frontend together; legacy stored data
 and old READY results have read adapters.
+
+Opportunity SKILL requirements now accept `skillTitles` with empty `tagIds`;
+INTEREST requirements retain shared IDs. See the [requirement shape and compatibility rules](../free-text-skills.md#opportunity-skill-requirements).
+Free-text skill results add `ALL_SKILLS_SUPPORTED` / `SOME_SKILLS_SUPPORTED` and
+use `skill-title-interest-tags-v2`; legacy requirements retain `tag-coverage-v1`.
+US-13 is a [local executed experiment](../testing/us13-evaluation.md) and adds no endpoint.

@@ -26,7 +26,7 @@ export function OpportunityContent({ content, tags }) {
               {row.importance === 'REQUIRED' ? t('Required') : t('Preferred')} ·{' '}
               {row.kind === 'SKILL' ? t('Skill') : t('Research interest')}
             </p>
-            <p>{row.tagIds.map((id) => labels.get(id) || id).join(' + ')}</p>
+            <p>{(row.skillTitles || row.tagIds.map((id) => labels.get(id) || id)).join(' + ')}</p>
           </li>
         ))}
       </ol>

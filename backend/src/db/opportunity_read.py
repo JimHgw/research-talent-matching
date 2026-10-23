@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from sqlalchemy import select
 
-from .models import OpportunityRequirement, RequirementTag
+from .models import OpportunityRequirement, OpportunitySkillDetails, RequirementTag
 
 CONTENT_FIELDS = {
     "title": "title", "university": "university", "disciplineGroup": "discipline_group",
@@ -19,6 +19,9 @@ def serialize_many(db, opportunities):
     for row in db.scalars(select(RequirementTag).where(RequirementTag.opportunity_id.in_(ids))
                          .order_by(RequirementTag.position)):
         tags[(row.opportunity_id, row.requirement_id)].append(row.tag_id)
+    skill_titles = {(row.opportunity_id, row.requirement_id): row.titles
+                    for row in db.scalars(select(OpportunitySkillDetails)
+                                          .where(OpportunitySkillDetails.opportunity_id.in_(ids)))}
     requirements = defaultdict(list)
     for row in db.scalars(select(OpportunityRequirement)
                          .where(OpportunityRequirement.opportunity_id.in_(ids))
@@ -26,6 +29,8 @@ def serialize_many(db, opportunities):
         requirements[row.opportunity_id].append({
             "id": row.id, "label": row.label, "kind": row.kind, "importance": row.importance,
             "tagIds": tags[(row.opportunity_id, row.id)],
+            **({"skillTitles": skill_titles[(row.opportunity_id, row.id)]}
+               if (row.opportunity_id, row.id) in skill_titles else {}),
         })
     return [{
         "id": row.id, "revision": row.revision, "status": row.status,
