@@ -138,7 +138,10 @@ def test_initial_profile_and_privacy_defaults(app, signed):
     data = checked(client.get("/api/v1/me/profile"), 200, "Profile")
     assert data["revision"] == 0 and data["origins"] == []
     assert data["content"]["displayName"] == "" and data["content"]["disciplineGroup"] is None
-    assert all(value == [] for key, value in data["content"].items() if key not in ("displayName", "disciplineGroup"))
+    assert data["content"]["researchInterestText"] == ""
+    assert data["content"]["resumeDescription"] == ""
+    assert all(value == [] for key, value in data["content"].items()
+               if key not in ("displayName", "disciplineGroup", "researchInterestText", "resumeDescription"))
     assert data["confirmation"] == {"status": "UNCONFIRMED", "confirmedAt": None, "confirmedRevision": None}
     with app.extensions["database"].transaction() as db:
         privacy = db.get(PrivacySettings, data["talentId"])
@@ -180,7 +183,7 @@ def test_noop_preserves_confirmation_and_change_resets_it(app, signed):
 def test_clear_sections_and_reorder_skills(signed):
     client, csrf = signed
     content = sample()
-    content["skills"] = [{"tagId": tag, "claim": "HAS", "evidenceText": ""}
+    content["skills"] = [{"id": tag, "title": tag, "evidenceText": ""}
                          for tag in ("skill_python", "skill_sql")]
     checked(save(client, csrf, content), 200)
     content["skills"].reverse()
@@ -319,7 +322,7 @@ def test_failed_save_rolls_back_all_changes(app, signed):
     database = app.extensions["database"]
 
     def fail_insert(connection, cursor, statement, parameters, context, executemany):
-        if statement.startswith("INSERT INTO profile_skills"):
+        if statement.startswith("INSERT INTO profile_skill_details"):
             raise RuntimeError("injected failure")
 
     event.listen(database.engine, "before_cursor_execute", fail_insert)
@@ -361,8 +364,9 @@ def test_orm_relationships_preserve_ownership_and_restrict_deletion(app, signed)
         assert db.get(PrivacySettings, profile.talent_id).profile is profile
         session = db.get(AuthSession, digest(client.get_cookie(COOKIE).value))
         assert session.user is owner
-        skill = db.get(ProfileSkill, (profile.talent_id, saved["content"]["skills"][0]["tagId"]))
-        assert skill.profile is profile and skill.tag.kind == "SKILL"
+        from backend.src.db.models import ProfileSkillDetails
+        skill = db.get(ProfileSkillDetails, profile.talent_id)
+        assert skill.profile is profile and skill.skills == saved["content"]["skills"]
         origin = db.get(ProfileOrigin, (profile.talent_id, "education"))
         assert origin.profile is profile and origin.document is None
     with pytest.raises(IntegrityError), database.transaction(write=True) as db:
@@ -428,3 +432,147 @@ def test_failed_login_commit_keeps_original_session(app, client):
     assert client.get("/api/v1/auth/session").get_json() == anonymous
     with database.transaction() as db:
         assert db.get(AuthSession, digest(original_cookie)).revoked_at is None
+
+def test_us15_profile_changes_and_logout_do_not_affect_another_session(app):
+    first = app.test_client()
+    second = app.test_client()
+
+    first_csrf = sign_in(first)
+    second_csrf = sign_in(second, "other@example.test")
+
+    first_identity = checked(
+        first.get("/api/v1/auth/session"), 200, "Session"
+    )["user"]
+
+    second_session = checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    )
+
+    second_before = checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    )
+
+    second_cookie = second.get_cookie(COOKIE).value
+
+    assert first_identity["id"] != second_session["user"]["id"]
+
+    # Saving A's profile must not change B's identity or profile.
+    first_content = sample()
+    first_content["displayName"] = "US-15 first private profile"
+    first_saved = checked(
+        save(first, first_csrf, first_content), 200, "Profile"
+    )
+
+    assert checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    ) == second_session
+
+    assert checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_before
+
+    # Saving B's profile must not overwrite A's profile.
+    second_content = sample()
+    second_content["displayName"] = "US-15 second private profile"
+    second_saved = checked(
+        save(second, second_csrf, second_content), 200, "Profile"
+    )
+
+    assert first_saved["talentId"] != second_saved["talentId"]
+    assert checked(
+        first.get("/api/v1/me/profile"), 200, "Profile"
+    ) == first_saved
+
+    # Logging out A must revoke A's cookie while preserving B's session.
+    old_cookie = first.get_cookie(COOKIE).value
+    checked(
+        first.post("/api/v1/auth/logout", headers=headers(first_csrf)),
+        204,
+    )
+
+    replay = app.test_client()
+    replay.set_cookie(COOKIE, old_cookie)
+    checked(replay.get("/api/v1/me/profile"), 401)
+
+    assert second.get_cookie(COOKIE).value == second_cookie
+    assert checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    ) == second_session
+    assert checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_saved
+
+    # Switching A's browser to B must resolve B's identity and private data.
+    sign_in(first, "other@example.test")
+    assert checked(
+        first.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] == second_session["user"]
+    assert checked(
+        first.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_saved
+
+
+@pytest.mark.parametrize(
+    "email,role,forged_role,forbidden_path",
+    [
+        (
+            "talent@example.test",
+            "TALENT",
+            "RESEARCH_TEAM",
+            "/api/v1/opportunities?scope=mine&role=RESEARCH_TEAM",
+        ),
+        (
+            "team@example.test",
+            "RESEARCH_TEAM",
+            "TALENT",
+            "/api/v1/me/profile?role=TALENT",
+        ),
+    ],
+)
+def test_us15_client_role_cannot_override_stored_role(
+    app, email, role, forged_role, forbidden_path
+):
+    client = app.test_client()
+    anonymous = checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )
+
+    # Login must reject an extra role field instead of granting that role.
+    result = checked(
+        client.post(
+            "/api/v1/auth/login",
+            json={
+                "identifier": email,
+                "password": PASSWORD,
+                "role": forged_role,
+            },
+            headers=headers(anonymous["csrfToken"]),
+        ),
+        422,
+    )
+    assert result["error"]["code"] == "VALIDATION_ERROR"
+    assert checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] is None
+
+    # Query parameters and headers must not override the stored role.
+    sign_in(client, email)
+    identity = checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"]
+    assert identity["role"] == role
+
+    result = checked(
+        client.get(
+            forbidden_path,
+            headers={
+                "X-Role": forged_role,
+                "X-User-Id": "user_forged",
+            },
+        ),
+        403,
+    )
+    assert result["error"]["code"] == "FORBIDDEN"
+    assert checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] == identity

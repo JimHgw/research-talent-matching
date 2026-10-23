@@ -32,7 +32,7 @@ async function newDraft() {
 const writes = () =>
   state.requests.filter((r) => r.method !== 'GET' && r.path.startsWith('/opportunities'));
 
-test('team creates a draft, adds AND tags and publishes only saved requirements', async () => {
+test('team creates a draft, adds free-text skills and publishes only saved requirements', async () => {
   await newDraft();
   await click('Save draft');
   assert.match(text(), /Opportunity saved/);
@@ -41,12 +41,11 @@ test('team creates a draft, adds AND tags and publishes only saved requirements'
   assert.equal(button('Publish opportunity').disabled, true);
   await click('Add requirement');
   await change('Requirement 1 label', 'Python and SQL experience');
-  await checkbox('Python');
-  await checkbox('SQL');
+  await change('Skill names for requirement 1', 'Python\nSQL');
   assert.equal(button('Publish opportunity').disabled, true);
   await click('Save changes');
   const saved = writes().at(-1).body;
-  assert.deepEqual(saved.content.requirements[0].tagIds, ['skill_python', 'skill_sql']);
+  assert.deepEqual(saved.content.requirements[0].skillTitles, ['Python', 'SQL']);
   assert.equal(saved.expectedRevision, 1);
   assert.equal(button('Publish opportunity').disabled, false);
   await click('Publish opportunity');
@@ -78,7 +77,39 @@ test('existing requirement IDs survive edits and switching kind clears incompati
   const requirement = writes().at(-1).body.content.requirements[0];
   assert.equal(requirement.id, original.content.requirements[0].id);
   assert.deepEqual(requirement.tagIds, ['interest_ml']);
+  assert.equal('skillTitles' in requirement, false);
   assert.equal(requirement.kind, 'INTEREST');
+});
+
+test('arbitrary opportunity skills save without a SKILL vocabulary and survive reopening', async () => {
+  state.intercept = (path) =>
+    path === '/tags'
+      ? json({
+          items: [
+            {
+              id: 'interest_ml',
+              kind: 'INTEREST',
+              label: 'Machine learning',
+              disciplineGroups: ['STEM'],
+            },
+          ],
+        })
+      : null;
+  await newDraft();
+  await click('Add requirement');
+  await change('Requirement 1 label', 'Experimental and business methods');
+  await change('Skill names for requirement 1', 'CRISPR experimental design\nFinancial modelling');
+  assert.equal(document.querySelector('.requirement-card input[type="checkbox"]'), null);
+  await click('Save draft');
+  const saved = writes().at(-1).body.requirements[0];
+  assert.deepEqual(saved.skillTitles, ['CRISPR experimental design', 'Financial modelling']);
+  assert.deepEqual(saved.tagIds, []);
+  await click('Back to opportunities');
+  await click('View and edit');
+  assert.equal(
+    field('Skill names for requirement 1').value,
+    'CRISPR experimental design\nFinancial modelling'
+  );
 });
 
 test('conflict reload compares versions without overwriting local input or retrying', async () => {

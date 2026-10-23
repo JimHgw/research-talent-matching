@@ -80,11 +80,13 @@ test('talent list failures clear old results and retry can recover an empty list
   assert.equal(document.querySelector('[role="alert"]'), null);
 });
 
-test('shared skills use vocabulary labels rather than interpreting opaque tag IDs', async () => {
+test('shared skills display their free-text titles without a skill vocabulary lookup', async () => {
   const list = await fixture('team-talent-page');
   const detail = await fixture('team-match-hidden-skills');
   const fields = {
-    skills: [{ tagId: 'opaque_27', claim: 'HAS', evidenceText: 'Confirmed claim.' }],
+    skills: [
+      { id: 'opaque_27', title: 'Financial modelling', evidenceText: 'Built a valuation model.' },
+    ],
     researchInterests: ['opaque_99'],
   };
   list.items[0].talent.fields = fields;
@@ -107,9 +109,12 @@ test('shared skills use vocabulary labels rather than interpreting opaque tag ID
   };
   await mount('team@example.test');
   await click('Discover talent');
-  assert.match(document.querySelector('.talent-card').textContent, /Python/);
+  assert.match(document.querySelector('.talent-card').textContent, /Financial modelling/);
   await click('View evidence');
-  assert.match(document.querySelector('.shared-profile').textContent, /Python: has skill/);
+  assert.match(
+    document.querySelector('.shared-profile').textContent,
+    /Financial modelling — Built a valuation model/
+  );
   assert.match(document.querySelector('.shared-profile').textContent, /Machine learning/);
   assert.doesNotMatch(text(), /opaque_27|opaque_99/);
 });

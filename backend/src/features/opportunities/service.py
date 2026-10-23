@@ -1,10 +1,12 @@
 """Opportunity visibility, validation and lifecycle, independent of HTTP handlers."""
 
 import secrets
+import unicodedata
 
 from sqlalchemy import func, select
 
 from ...db.models import Opportunity, Tag, utcnow
+from ...db.skills import normalise_title
 from ...shared.validation import ApiError, invalid, validate
 from .repository import replace_content, serialize, serialize_many
 
@@ -48,6 +50,13 @@ def check_content(db, content, *, published=False):
     tag_ids = {tag_id for row in requirements for tag_id in row["tagIds"]}
     kinds = dict(db.execute(select(Tag.id, Tag.kind).where(Tag.id.in_(tag_ids))).all())
     for index, row in enumerate(requirements):
+        if "skillTitles" in row:
+            titles = row["skillTitles"]
+            if len({normalise_title(title) for title in titles}) != len(titles):
+                invalid(f"content.requirements[{index}].skillTitles", "Skill names must be unique.")
+            for title in titles:
+                if not normalise_title(title) or any(unicodedata.category(c).startswith("C") for c in title):
+                    invalid(f"content.requirements[{index}].skillTitles", "Enter visible skill names without control characters.")
         for tag_index, tag_id in enumerate(row["tagIds"]):
             if kinds.get(tag_id) != row["kind"]:
                 invalid(f"content.requirements[{index}].tagIds[{tag_index}]",

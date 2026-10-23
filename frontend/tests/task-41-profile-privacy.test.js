@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   act,
   state,
@@ -21,6 +22,9 @@ const sharedField = (name) =>
   [...document.querySelectorAll('.visibility-option')]
     .find((label) => label.textContent === name)
     .querySelector('input');
+const contract = JSON.parse(
+  await readFile(new URL('../../docs/api/openapi.json', import.meta.url), 'utf8')
+);
 
 async function editElsewhere(name) {
   const profile = await state.server.dispatch('GET', '/me/profile');
@@ -29,6 +33,71 @@ async function editElsewhere(name) {
     content: { ...profile.content, displayName: name },
   });
 }
+
+test('privacy options and the saved request contain only fields accepted by the API contract', async () => {
+  await mount();
+  await click('Privacy & visibility');
+  const options = [...document.querySelectorAll('.visibility-option input')];
+  const allowed = contract.components.schemas.ProfileField.enum;
+  assert.deepEqual(options.map((input) => input.value).sort(), [...allowed].sort());
+  for (const label of document.querySelectorAll('.visibility-option span')) {
+    await checkbox(label.textContent);
+  }
+  await click('Save privacy settings');
+  const request = state.requests.findLast((r) => r.path === '/me/privacy' && r.method === 'PUT');
+  assert.deepEqual([...request.body.visibleFields].sort(), [...allowed].sort());
+  const saved = await state.server.dispatch('GET', '/me/privacy');
+  assert.deepEqual([...saved.visibleFields].sort(), [...allowed].sort());
+});
+
+test('grouped interest components and the private resume have no independent privacy checkbox', async () => {
+  await mount();
+  await click('Privacy & visibility');
+  const choices = [...document.querySelectorAll('.visibility-option span')].map(
+    (node) => node.textContent
+  );
+  assert.ok(choices.includes('Research interests'));
+  assert.ok(!choices.includes('Research interest description'));
+  assert.ok(!choices.includes('Personal interest tags'));
+  assert.ok(!choices.includes('Resume description'));
+  assert.match(
+    text(),
+    /Research interests also controls your research interest description and personal interest tags/
+  );
+  assert.match(text(), /Your resume description always stays private/);
+});
+
+test('skills need only a free-text title and supporting evidence even with no skill tags', async () => {
+  const vocabulary = await fixture('tags');
+  state.intercept = (path) =>
+    path === '/tags'
+      ? json({ items: vocabulary.items.filter((tag) => tag.kind === 'INTEREST') })
+      : null;
+  await mount('new@example.test');
+  assert.equal(button('Add skill').disabled, false);
+  await click('Add skill');
+  const record = document.querySelector('.record');
+  assert.deepEqual(
+    [...record.querySelectorAll('label > span')].map((node) => node.textContent),
+    ['Skill title', 'Supporting evidence']
+  );
+  assert.equal(record.querySelectorAll('select').length, 0);
+  assert.equal(field('Skill title').maxLength, 350);
+  assert.equal(field('Supporting evidence').maxLength, 2000);
+  await change('Skill title', 'Financial modelling');
+  await change('Supporting evidence', 'Built a cash-flow forecast.');
+  await click('Save changes');
+  const saved = await state.server.dispatch('GET', '/me/profile');
+  assert.equal(saved.content.skills[0].title, 'Financial modelling');
+  assert.equal(saved.content.skills[0].evidenceText, 'Built a cash-flow forecast.');
+  assert.deepEqual(Object.keys(saved.content.skills[0]).sort(), ['evidenceText', 'id', 'title']);
+  assert.equal(saved.confirmation.status, 'UNCONFIRMED');
+  await click('Refresh profile');
+  assert.equal(field('Skill title').value, 'Financial modelling');
+  await click('Remove skill 1');
+  await click('Save changes');
+  assert.deepEqual((await state.server.dispatch('GET', '/me/profile')).content.skills, []);
+});
 
 test('a clean profile refreshes saved edits from another tab and requires review of the new revision', async () => {
   await mount();

@@ -44,7 +44,7 @@ def test_worker_restart_recovers_abandoned_claim(app, signed, queued):
     process(app)
     result = signed[0].get(f"/api/v1/me/documents/{queued}/extraction")
     assert result.status_code == 200, result.json
-    assert result.json["suggestedSections"]["skills"][0]["tagId"] == "skill_python"
+    assert result.json["suggestedSections"]["skills"][0]["title"] == "Python"
     with app.extensions["database"].transaction() as db:
         assert db.get(DocumentProcessingLease, queued).attempts == 2
 

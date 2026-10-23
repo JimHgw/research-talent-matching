@@ -1,4 +1,6 @@
+import workspaceMessages from './workspace/es.js';
 export default {
+  ...workspaceMessages,
   Language: 'Idioma',
   'RESEARCH, CONNECTED': 'INVESTIGACIÓN CONECTADA',
   'Great research': 'La gran investigación',
@@ -133,6 +135,30 @@ export default {
   'Page {page} of {pages}': 'Página {page} de {pages}',
   'Close dialog': 'Cerrar diálogo',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: 'El correo, ID de cuenta o contraseña es incorrecto.',
     EMAIL_ALREADY_REGISTERED: 'Este correo ya tiene una cuenta. Inicia sesión.',
     VERIFICATION_CODE_INVALID: 'El código no es válido o ha caducado. Solicita uno nuevo.',

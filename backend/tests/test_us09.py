@@ -753,11 +753,11 @@ def test_extraction_is_ready_after_worker_processes_docx(
     assert result["reviewRequired"] is True
 
     skills = result["suggestedSections"]["skills"]
-    assert {skill["tagId"] for skill in skills} == {
-        "skill_python",
-        "skill_sql",
+    assert {skill["title"] for skill in skills} == {
+        "Python",
+        "SQL",
     }
-    assert all(skill["claim"] == "HAS" for skill in skills)
+    assert all(set(skill) == {"id", "title", "evidenceText"} for skill in skills)
     assert all(
         skill["evidenceText"] == "Skills: Python, SQL"
         for skill in skills
@@ -882,8 +882,7 @@ def test_apply_replaces_skills_and_resets_confirmation(
     content["displayName"] = "Test Talent"
     content["skills"] = [
         {
-            "tagId": "skill_python",
-            "claim": "HAS",
+            "id": "skill_python", "title": "Python",
             "evidenceText": "Original Python evidence.",
         }
     ]
@@ -911,8 +910,7 @@ def test_apply_replaces_skills_and_resets_confirmation(
 
     reviewed_skills = [
         {
-            "tagId": "skill_sql",
-            "claim": "HAS",
+            "id": "skill_sql", "title": "SQL",
             "evidenceText": "User-reviewed SQL evidence.",
         }
     ]

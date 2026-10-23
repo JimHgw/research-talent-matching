@@ -65,10 +65,10 @@ function validateSections(content, partial = false) {
     if (!Array.isArray(items) || items.length > 100)
       invalid('Each profile section accepts at most 100 records.');
     if (section === 'skills') {
-      if (!unique(items.map((s) => s.tagId))) invalid('Each skill can appear only once.');
+      if (!unique(items.map((s) => s.id))) invalid('Skill record IDs must be unique.');
       for (const skill of items) {
-        tagCheck(skill.tagId, 'SKILL');
-        if (!['HAS', 'DOES_NOT_HAVE'].includes(skill.claim)) invalid('Choose a valid skill claim.');
+        requiredText(skill.title, 'Skill title', 350);
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(skill.id)) invalid('Skill record ID is invalid.');
         if (typeof skill.evidenceText !== 'string' || skill.evidenceText.length > 2000)
           invalid('Skill evidence must be at most 2,000 characters.');
       }
@@ -132,6 +132,17 @@ function validateOpportunity(content, published) {
       !['REQUIRED', 'PREFERRED'].includes(r.importance)
     )
       invalid('Choose a valid requirement type and importance.');
+    if (r.kind === 'SKILL' && r.skillTitles) {
+      if (
+        r.tagIds.length ||
+        !r.skillTitles.length ||
+        r.skillTitles.length > 20 ||
+        !unique(r.skillTitles)
+      )
+        invalid('Enter 1–20 unique skill names.');
+      r.skillTitles.forEach((title) => requiredText(title, 'Skill name', 350));
+      continue;
+    }
     if (!Array.isArray(r.tagIds) || !r.tagIds.length || r.tagIds.length > 20 || !unique(r.tagIds))
       invalid('Choose 1–20 unique tags per requirement.');
     r.tagIds.forEach((tag) => tagCheck(tag, r.kind));
@@ -419,8 +430,8 @@ export function createMockServer({ storage, now = () => Date.now(), processingDe
                 ],
                 skills: [
                   {
-                    tagId: 'skill_python',
-                    claim: 'HAS',
+                    id: 'skill_python',
+                    title: 'Python',
                     evidenceText:
                       'Synthetic suggestion for review. Replace this text with your own evidence.',
                   },

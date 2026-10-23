@@ -1,0 +1,4 @@
+# Optional US-13 experiment only; API/worker images do not need these packages.
+numpy==2.3.4
+onnxruntime==1.23.2
+tokenizers==0.22.1

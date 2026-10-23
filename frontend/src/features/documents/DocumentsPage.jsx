@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { api } from '../../api/client.js';
 import {
@@ -17,6 +18,7 @@ import { displayDate } from '../../shared/format.js';
 import ExtractionReview from './ExtractionReview.jsx';
 
 export default function DocumentsPage({ tags, notify, navigate, onDirty, onPending }) {
+  const { t, language, errorMessage } = useLanguage();
   const [page, setPage] = useState(1);
   const resource = useResource(() => api.documents(page), [page]);
   const [file, setFile] = useState(null);
@@ -70,11 +72,11 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
     <>
       <div className="section-title">
         <div>
-          <h2>A head start for your profile</h2>
-          <p>Upload a document, review its suggestions, then choose what to keep.</p>
+          <h2>{t('A head start for your profile')}</h2>
+          <p>{t('Upload a document, review its suggestions, then choose what to keep.')}</p>
         </div>
         <Button variant="secondary" onClick={() => navigate('profile')}>
-          Enter details manually
+          {t('Enter details manually')}
         </Button>
       </div>
       <ErrorNotice error={error} />
@@ -82,16 +84,16 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
         <span className="upload-icon">
           <Icon name="upload" size={32} />
         </span>
-        <h3>Add your CV or transcript</h3>
-        <p className="muted">PDF or DOCX · Up to 10 MiB · Always private</p>
+        <h3>{t('Add your CV or transcript')}</h3>
+        <p className="muted">{t('PDF or DOCX · Up to 10 MiB · Always private')}</p>
         <fieldset className="form-fields upload-controls" disabled={busy}>
-          <Field label="Document type">
+          <Field label={t('Document type')}>
             <select value={kind} onChange={(e) => setKind(e.target.value)}>
-              <option value="CV">CV / Resume</option>
-              <option value="TRANSCRIPT">Academic transcript</option>
+              <option value="CV">{t('CV / Resume')}</option>
+              <option value="TRANSCRIPT">{t('Academic transcript')}</option>
             </select>
           </Field>
-          <Field label="Choose a document">
+          <Field label={t('Choose a document')}>
             <input
               ref={input}
               type="file"
@@ -101,13 +103,13 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
             />
           </Field>
           <Button type="submit" disabled={busy || !file}>
-            {busy ? 'Uploading…' : 'Upload document'}
+            {busy ? t('Uploading…') : t('Upload document')}
             <Icon name="upload" size={16} />
           </Button>
         </fieldset>
       </form>
       <div className="section-title">
-        <h2>Your documents</h2>
+        <h2>{t('Your documents')}</h2>
         <Button
           variant="text"
           onClick={() => {
@@ -116,13 +118,14 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
             resource.refresh();
           }}
         >
-          Refresh status
+          {t('Refresh status')}
         </Button>
       </div>
       {paused && (
         <Notice>
-          Automatic checks paused after 60 seconds. Refresh to check again, or continue with manual
-          entry.
+          {t(
+            'Automatic checks paused after 60 seconds. Refresh to check again, or continue with manual entry.'
+          )}
         </Notice>
       )}
       {resource.loading ? (
@@ -130,8 +133,8 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       ) : !resource.data.items.length ? (
-        <Empty icon="file" title="No documents yet">
-          Uploading is optional. You can build your entire profile manually.
+        <Empty icon="file" title={t('No documents yet')}>
+          {t('Uploading is optional. You can build your entire profile manually.')}
         </Empty>
       ) : (
         <div className="document-list">
@@ -143,30 +146,33 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
               <div className="document-name">
                 <h3>{d.fileName}</h3>
                 <p>
-                  {d.kind} · {(d.sizeBytes / 1024).toFixed(1)} KB · {displayDate(d.createdAt)}
+                  {t(d.kind)} · {t('{size} KB', { size: (d.sizeBytes / 1024).toFixed(1) })} ·{' '}
+                  {displayDate(d.createdAt, language)}
                 </p>
-                {d.error && <p className="error-text">{d.error.message}</p>}
+                {d.error && <p className="error-text">{errorMessage(d.error)}</p>}
                 {['QUEUED', 'PROCESSING'].includes(d.status) && (
                   <p className="help" role="status">
                     {d.status === 'QUEUED'
-                      ? 'Waiting for document processing.'
-                      : 'Extracting suggestions. Review will be available when processing finishes.'}
+                      ? t('Waiting for document processing.')
+                      : t(
+                          'Extracting suggestions. Review will be available when processing finishes.'
+                        )}
                   </p>
                 )}
               </div>
               <Badge status={d.status} />
               <div className="document-actions">
                 <Button variant="text" onClick={() => download(d)}>
-                  Download
+                  {t('Download')}
                 </Button>
                 {d.status === 'READY' && (
                   <Button variant="secondary" onClick={() => setSelected(d)}>
-                    Review suggestions
+                    {t('Review suggestions')}
                   </Button>
                 )}
                 {d.status === 'FAILED' && (
                   <Button variant="secondary" onClick={() => navigate('profile')}>
-                    Enter manually
+                    {t('Enter manually')}
                   </Button>
                 )}
               </div>

@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, ForeignKey,
                         ForeignKeyConstraint, Index, Integer, String, Table, Text, UniqueConstraint)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.dialects.mysql import DATETIME
+from sqlalchemy.dialects.mysql import DATETIME, MEDIUMTEXT
 
 
 # Both engines store naive UTC. MySQL must retain microseconds for ordering/leases.
@@ -179,6 +179,7 @@ class TagDisciplineGroup(Base):
 
 
 class ProfileSkill(Base):
+    """Legacy tag-backed rows, retained for non-destructive upgrades."""
     __tablename__ = "profile_skills"
     talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
     tag_id: Mapped[str] = mapped_column(ForeignKey("tags.id"), primary_key=True)
@@ -192,6 +193,14 @@ class ProfileSkill(Base):
                       CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
 
 
+class ProfileSkillDetails(Base):
+    """An explicit empty list also supersedes legacy skill rows."""
+    __tablename__ = "profile_skill_details"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    skills: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False, default=list)
+    profile: Mapped[TalentProfile] = relationship()
+
+
 class ProfileInterest(Base):
     __tablename__ = "profile_interests"
     talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
@@ -201,6 +210,51 @@ class ProfileInterest(Base):
     profile: Mapped[TalentProfile] = relationship()
     tag: Mapped[Tag] = relationship()
     __table_args__ = (CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
+
+
+class ProfileTextDetails(Base):
+    """Private descriptions; the resume permits 20,000 four-byte characters."""
+
+    __tablename__ = "profile_text_details"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    research_interest_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    resume_description: Mapped[str] = mapped_column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=False, default="")
+    profile: Mapped[TalentProfile] = relationship()
+
+
+class PersonalInterestTag(Base):
+    __tablename__ = "personal_interest_tags"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), nullable=False)
+    label: Mapped[str] = mapped_column(String(100), nullable=False)
+    normalised_label: Mapped[str] = mapped_column(String(300), nullable=False)
+    profile: Mapped[TalentProfile] = relationship()
+    __table_args__ = (UniqueConstraint("talent_id", "normalised_label"),
+                      UniqueConstraint("id", "talent_id"))
+
+
+class ProfilePersonalInterest(Base):
+    __tablename__ = "profile_personal_interests"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    tag_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    tag: Mapped[PersonalInterestTag] = relationship()
+    __table_args__ = (ForeignKeyConstraint(["tag_id", "talent_id"],
+                                          ["personal_interest_tags.id", "personal_interest_tags.talent_id"]),
+                      CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
+
+
+class ProfileComponentOrigin(Base):
+    """Component provenance without weakening the legacy profile-origin check."""
+
+    __tablename__ = "profile_component_origins"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    field: Mapped[str] = mapped_column(String(32), primary_key=True)
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    document_id: Mapped[str | None] = mapped_column(ForeignKey("documents.id"), nullable=True)
+    __table_args__ = (CheckConstraint("field IN ('researchInterestText', 'customInterestTags', 'resumeDescription')"),
+                      CheckConstraint("(source_type = 'MANUAL' AND document_id IS NULL) OR "
+                                      "(source_type = 'USER_REVIEWED_DOCUMENT' AND document_id IS NOT NULL)"))
 
 
 class Document(Base):
@@ -317,6 +371,18 @@ class OpportunityRequirement(Base):
         CheckConstraint("importance IN ('REQUIRED', 'PREFERRED')"),
         CheckConstraint("position >= 0"),
         UniqueConstraint("opportunity_id", "position"),
+    )
+
+
+class OpportunitySkillDetails(Base):
+    __tablename__ = "opportunity_skill_details"
+    opportunity_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    requirement_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    titles: Mapped[list] = mapped_column(JSON, nullable=False)
+
+    __table_args__ = (
+        ForeignKeyConstraint(["opportunity_id", "requirement_id"],
+                             ["opportunity_requirements.opportunity_id", "opportunity_requirements.id"]),
     )
 
 

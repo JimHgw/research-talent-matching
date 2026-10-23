@@ -918,13 +918,13 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Used Python in a user-reviewed demo project."
                           },
                           {
-                            "tagId": "skill_interviews",
-                            "claim": "DOES_NOT_HAVE",
+                            "id": "skill_interviews",
+                            "title": "No Research interviews",
                             "evidenceText": "I have not conducted research interviews."
                           }
                         ],
@@ -1052,13 +1052,13 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Reviewed and corrected Python evidence."
                           },
                           {
-                            "tagId": "skill_interviews",
-                            "claim": "DOES_NOT_HAVE",
+                            "id": "skill_interviews",
+                            "title": "No Research interviews",
                             "evidenceText": "I have not conducted research interviews."
                           }
                         ],
@@ -1171,13 +1171,13 @@
                   ],
                   "skills": [
                     {
-                      "tagId": "skill_python",
-                      "claim": "HAS",
+                      "id": "skill_python",
+                      "title": "Python",
                       "evidenceText": "Reviewed and corrected Python evidence."
                     },
                     {
-                      "tagId": "skill_interviews",
-                      "claim": "DOES_NOT_HAVE",
+                      "id": "skill_interviews",
+                      "title": "No Research interviews",
                       "evidenceText": "I have not conducted research interviews."
                     }
                   ],
@@ -1251,13 +1251,13 @@
                     ],
                     "skills": [
                       {
-                        "tagId": "skill_python",
-                        "claim": "HAS",
+                        "id": "skill_python",
+                        "title": "Python",
                         "evidenceText": "Reviewed and corrected Python evidence."
                       },
                       {
-                        "tagId": "skill_interviews",
-                        "claim": "DOES_NOT_HAVE",
+                        "id": "skill_interviews",
+                        "title": "No Research interviews",
                         "evidenceText": "I have not conducted research interviews."
                       }
                     ],
@@ -1821,8 +1821,8 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Used Python in a user-reviewed demo project."
                           }
                         ]
@@ -1937,8 +1937,8 @@
                     ],
                     "skills": [
                       {
-                        "tagId": "skill_python",
-                        "claim": "HAS",
+                        "id": "skill_python",
+                        "title": "Python",
                         "evidenceText": "Used Python in a user-reviewed demo project."
                       }
                     ],
@@ -2040,8 +2040,8 @@
                 "sections": {
                   "skills": [
                     {
-                      "tagId": "skill_python",
-                      "claim": "HAS",
+                      "id": "skill_python",
+                      "title": "Python",
                       "evidenceText": "Used Python in a user-reviewed demo project."
                     }
                   ]
@@ -4273,33 +4273,6 @@
         ],
         "additionalProperties": false
       },
-      "SkillClaim": {
-        "type": "object",
-        "properties": {
-          "tagId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
-          },
-          "claim": {
-            "type": "string",
-            "enum": [
-              "HAS",
-              "DOES_NOT_HAVE"
-            ]
-          },
-          "evidenceText": {
-            "type": "string",
-            "maxLength": 2000
-          }
-        },
-        "required": [
-          "tagId",
-          "claim",
-          "evidenceText"
-        ],
-        "additionalProperties": false,
-        "description": "A selected skill normally uses HAS. DOES_NOT_HAVE is an explicit user assertion, never inferred from an omitted tag. Confirmation is user review, not credential verification."
-      },
       "ResearchOutput": {
         "type": "object",
         "properties": {
@@ -4391,7 +4364,7 @@
           "skills": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SkillClaim"
+              "$ref": "#/components/schemas/Skill"
             },
             "maxItems": 100
           },
@@ -4410,6 +4383,23 @@
               "$ref": "#/components/schemas/ResearchOutput"
             },
             "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTag"
+            },
+            "maxItems": 100
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
           }
         },
         "required": [
@@ -4423,7 +4413,7 @@
           "researchOutputs"
         ],
         "additionalProperties": false,
-        "description": "Full replacement shape for PUT. Arrays use stable client-generated record IDs; IDs must be unique and tag kind must match the field. Empty arrays mean clear the section."
+        "description": "Canonical owner profile: eight legacy fields plus optional-compatible researchInterestText, customInterestTags and owner-only resumeDescription, returned with empty defaults for old profiles."
       },
       "ProfileSections": {
         "type": "object",
@@ -4452,7 +4442,7 @@
           "skills": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SkillClaim"
+              "$ref": "#/components/schemas/Skill"
             },
             "maxItems": 100
           },
@@ -4471,12 +4461,30 @@
               "$ref": "#/components/schemas/ResearchOutput"
             },
             "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTagInput"
+            },
+            "maxItems": 100,
+            "description": "Accepted owner-local interest labels. New items omit id. Exact shared labels resolve to shared IDs; omission preserves the selection and [] clears it. Shared/personal combined maximum is 100."
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
           }
         },
         "required": [],
         "additionalProperties": false,
         "minProperties": 1,
-        "description": "Only submitted sections are replaced. Omitted sections remain unchanged. An explicit empty array clears that section."
+        "description": "Replace only submitted sections/components, including owner-only resumeDescription. Omitted components and their provenance persist; empty strings clear text and [] clears selections. Accepted exact shared labels append canonical shared IDs."
       },
       "Confirmation": {
         "type": "object",
@@ -4530,7 +4538,10 @@
               "researchExperience",
               "skills",
               "researchInterests",
-              "researchOutputs"
+              "researchOutputs",
+              "researchInterestText",
+              "customInterestTags",
+              "resumeDescription"
             ]
           },
           "sourceType": {
@@ -4606,7 +4617,7 @@
             "minimum": 0
           },
           "content": {
-            "$ref": "#/components/schemas/ProfileContent"
+            "$ref": "#/components/schemas/ProfileContentWrite"
           }
         },
         "required": [
@@ -4845,7 +4856,10 @@
               "researchExperience",
               "skills",
               "researchInterests",
-              "researchOutputs"
+              "researchOutputs",
+              "researchInterestText",
+              "customInterestTags",
+              "resumeDescription"
             ]
           },
           "status": {
@@ -4906,7 +4920,7 @@
               "skills": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SkillClaim"
+                  "$ref": "#/components/schemas/Skill"
                 },
                 "maxItems": 100
               },
@@ -4925,6 +4939,24 @@
                   "$ref": "#/components/schemas/ResearchOutput"
                 },
                 "maxItems": 100
+              },
+              "researchInterestText": {
+                "type": "string",
+                "maxLength": 5000,
+                "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+              },
+              "customInterestTags": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomInterestTagInput"
+                },
+                "maxItems": 100,
+                "description": "Unaccepted, source-grounded personal interest label proposals. Extraction creates no persistent labels; the owner can accept/edit/reject them through the reviewed apply endpoint."
+              },
+              "resumeDescription": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
               }
             },
             "required": [],
@@ -4956,7 +4988,7 @@
           "reviewRequired"
         ],
         "additionalProperties": false,
-        "description": "Suggestions do not mutate the profile. Unknown values are not converted to positive skill claims. All source information stays owner-only."
+        "description": "Owner-only source-grounded suggestions with free-text skill titles/evidence, shared interest IDs, interest free text and personal-label proposals. Suggestions never create tags, update or confirm profiles."
       },
       "ApplyExtractionRequest": {
         "type": "object",
@@ -5008,9 +5040,20 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9_-]{1,64}$"
             },
-            "minItems": 1,
+            "minItems": 0,
             "maxItems": 20,
             "uniqueItems": true
+          },
+          "skillTitles": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 350
+            }
           }
         },
         "required": [
@@ -5021,7 +5064,34 @@
           "tagIds"
         ],
         "additionalProperties": false,
-        "description": "Tags in one requirement form an AND group. Tag kind must match requirement kind. Stable IDs allow explanations to refer to the exact requirement."
+        "description": "SKILL requirements use skillTitles (all names required) and empty tagIds. Existing tag-backed records remain readable/writable for compatibility. INTEREST requirements keep shared tag IDs. Stable requirement IDs identify explanations.",
+        "oneOf": [
+          {
+            "required": [
+              "skillTitles"
+            ],
+            "properties": {
+              "kind": {
+                "const": "SKILL"
+              },
+              "tagIds": {
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "not": {
+              "required": [
+                "skillTitles"
+              ]
+            },
+            "properties": {
+              "tagIds": {
+                "minItems": 1
+              }
+            }
+          }
+        ]
       },
       "OpportunityContent": {
         "type": "object",
@@ -5151,7 +5221,8 @@
           },
           "recordId": {
             "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "description": "Skill record ID for skills; shared tag ID for interests. Never substitute a skill criterion tag ID for the actual skill record."
           },
           "valueSummary": {
             "type": "string"
@@ -5197,7 +5268,8 @@
           },
           "recordId": {
             "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "description": "Skill record ID for skills; shared tag ID for interests. Never substitute a skill criterion tag ID for the actual skill record."
           },
           "valueSummary": {
             "type": "string"
@@ -5226,7 +5298,9 @@
               "ALL_TAGS_SUPPORTED",
               "SOME_TAGS_SUPPORTED",
               "EXPLICIT_NEGATIVE_CLAIM",
-              "INSUFFICIENT_EVIDENCE"
+              "INSUFFICIENT_EVIDENCE",
+              "ALL_SKILLS_SUPPORTED",
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5263,7 +5337,9 @@
               "ALL_TAGS_SUPPORTED",
               "SOME_TAGS_SUPPORTED",
               "EXPLICIT_NEGATIVE_CLAIM",
-              "INSUFFICIENT_EVIDENCE"
+              "INSUFFICIENT_EVIDENCE",
+              "ALL_SKILLS_SUPPORTED",
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5326,7 +5402,8 @@
           "algorithmVersion": {
             "type": "string",
             "enum": [
-              "tag-coverage-v1"
+              "tag-coverage-v1",
+              "skill-title-interest-tags-v2"
             ]
           }
         },
@@ -5425,7 +5502,7 @@
               "skills": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SkillClaim"
+                  "$ref": "#/components/schemas/Skill"
                 },
                 "maxItems": 100
               },
@@ -5444,6 +5521,18 @@
                   "$ref": "#/components/schemas/ResearchOutput"
                 },
                 "maxItems": 100
+              },
+              "researchInterestText": {
+                "type": "string",
+                "maxLength": 5000,
+                "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+              },
+              "customInterestTags": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomInterestTag"
+                },
+                "maxItems": 100
               }
             },
             "required": [],
@@ -5455,7 +5544,7 @@
           "fields"
         ],
         "additionalProperties": false,
-        "description": "Contains only allowed fields. Omit private keys entirely. No email, original files, origin metadata or privacy settings. Matching uses this same filtered evidence scope."
+        "description": "Only confirmed permitted content. researchInterests visibility covers shared IDs, researchInterestText and customInterestTags together. Omit all three if hidden. No original documents or provenance."
       },
       "TeamMatch": {
         "type": "object",
@@ -5905,6 +5994,162 @@
           }
         ],
         "description": "PASSWORD: verify current credentials. EMAIL_CODE: first verify a mailed code in the same session. Both require matching newPassword/confirmPassword and a new password distinct from the current password."
+      },
+      "CustomInterestTag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "CustomInterestTagInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileContentWrite": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "disciplineGroup": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "STEM",
+                  "BUSINESS"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "education": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Education"
+            },
+            "maxItems": 100
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Course"
+            },
+            "maxItems": 100
+          },
+          "researchExperience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchExperience"
+            },
+            "maxItems": 100
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Skill"
+            },
+            "maxItems": 100
+          },
+          "researchInterests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "uniqueItems": true,
+            "maxItems": 100
+          },
+          "researchOutputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchOutput"
+            },
+            "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTagInput"
+            },
+            "maxItems": 100,
+            "description": "Accepted owner-local interest labels. New items omit id. Exact shared labels resolve to shared IDs; omission preserves the selection and [] clears it. Shared/personal combined maximum is 100."
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
+          }
+        },
+        "required": [
+          "displayName",
+          "disciplineGroup",
+          "education",
+          "courses",
+          "researchExperience",
+          "skills",
+          "researchInterests",
+          "researchOutputs"
+        ],
+        "additionalProperties": false,
+        "description": "Replace the eight legacy fields; optional researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted. Expected revision is mandatory; real changes invalidate confirmation."
+      },
+      "Skill": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 350
+          },
+          "evidenceText": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "evidenceText"
+        ],
+        "additionalProperties": false,
+        "description": "A free-text skill title and supporting evidence. No vocabulary tag or claim selector. ID identifies the profile record, not a shared tag. Explicit legacy negative statements retain their wording when upgraded."
       }
     },
     "parameters": {

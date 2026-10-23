@@ -184,7 +184,7 @@ export default function Register({ initialEmail = '', onBack, onRegister }) {
               </Field>
               <Field label={t('Confirm password')}>
                 <PasswordInput
-                  label="Confirm password"
+                  label={t('Confirm password')}
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}

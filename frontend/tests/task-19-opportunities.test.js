@@ -46,7 +46,7 @@ test('opportunity edits survive cancel, close and Escape until explicitly discar
   assert.equal(after.defaultPrevented, false);
 });
 
-test('opportunity validation prevents blank text, missing tags and empty published criteria', async () => {
+test('opportunity validation prevents blank text, missing skill names and empty published criteria', async () => {
   await mount('team@example.test');
   await click('My opportunities');
   await click('Edit');
@@ -54,9 +54,13 @@ test('opportunity validation prevents blank text, missing tags and empty publish
   await click('Save opportunity');
   assert.match(text(), /non-blank text/);
   await change('Opportunity title *', 'Updated opportunity');
-  await checkbox('Python');
-  await click('Save opportunity');
-  assert.match(text(), /Requirement 1 needs a label and 1-20 valid tags/);
+  await change('Skill names for requirement 1', '');
+  await act(async () =>
+    document
+      .querySelector('dialog form')
+      .dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+  );
+  assert.match(text(), /Requirement 1 needs a label and 1-20 unique skill names/);
   while (document.querySelector('[aria-label="Remove requirement 1"]'))
     await click('Remove requirement 1');
   await click('Save opportunity');
@@ -165,7 +169,7 @@ test('team creates a draft first and publishes only after a separate action', as
   await change('Description *', 'Synthetic data used by an isolated frontend test.');
   await click('Add requirement');
   await change('Requirement label *', 'Python experience');
-  await checkbox('Python');
+  await change('Skill names for requirement 1', 'Python');
   await click('Save draft');
   assert.equal(document.querySelector('dialog'), null);
   assert.equal(

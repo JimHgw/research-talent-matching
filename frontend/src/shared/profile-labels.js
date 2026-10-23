@@ -6,5 +6,8 @@ export const labels = {
   researchExperience: 'Research experience',
   skills: 'Skills',
   researchInterests: 'Research interests',
+  researchInterestText: 'Research interest description',
+  customInterestTags: 'Personal interest tags',
+  resumeDescription: 'Resume description',
   researchOutputs: 'Research outputs',
 };

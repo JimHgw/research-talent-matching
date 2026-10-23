@@ -6,6 +6,13 @@ Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
 
+Implemented extension, 2026-10-23: opportunity SKILL requirements support
+`skillTitles: ["Financial modelling"]` with `tagIds: []`; all titles in a
+requirement are required. Existing tag-backed requirements remain compatible and
+INTEREST requirements retain shared tags. See [validation, persistence and matching](../free-text-skills.md#opportunity-skill-requirements).
+The OpenAPI definition includes the two skill-specific reason codes and
+`skill-title-interest-tags-v2`; historical fixtures below also exercise compatibility.
+
 Scope: **US-01 through US-09 in the current Sprint 1, comprising 29 HTTP operations**. This draft supports team review and parallel development. It does not mean that the backend has been implemented or that every design choice has been approved by the team.
 
 This document can be shared on its own: it contains endpoints, field definitions, request and response examples, permissions, errors and integration requirements. The accompanying `openapi.json` provides the machine-readable definition of the same version.
@@ -387,13 +394,13 @@ Success: **200**, [Profile](#model-profile).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Used Python in a user-reviewed demo project."
       },
       {
-        "tagId": "skill_interviews",
-        "claim": "DOES_NOT_HAVE",
+        "id": "skill_interviews",
+        "title": "No Research interviews",
         "evidenceText": "I have not conducted research interviews."
       }
     ],
@@ -456,7 +463,7 @@ Related Jira subtasks: H18ABANANA-21, H18ABANANA-27.
 
 Permission: **Talent owner**.
 
-content fully replaces the profile content and must include all eight fields. Read first, retain unedited fields, then submit. Actual changes increment revision, set confirmation to UNCONFIRMED and clear confirmedRevision and confirmedAt. An exact no-op preserves all three. Changed sections receive MANUAL provenance; unchanged sections keep their origin.
+content replaces the eight required legacy fields. Optional US-11 fields researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted; explicit empty strings/arrays clear them. Read first, retain unedited fields, then submit. Actual changes increment revision, set confirmation to UNCONFIRMED and clear confirmedRevision and confirmedAt. An exact no-op preserves all three. Changed sections receive MANUAL provenance; unchanged sections keep their origin.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
@@ -492,13 +499,13 @@ Request body: `application/json`, [ProfileWrite](#model-profilewrite).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Reviewed and corrected Python evidence."
       },
       {
-        "tagId": "skill_interviews",
-        "claim": "DOES_NOT_HAVE",
+        "id": "skill_interviews",
+        "title": "No Research interviews",
         "evidenceText": "I have not conducted research interviews."
       }
     ],
@@ -541,13 +548,13 @@ Success: **200**, [Profile](#model-profile).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Reviewed and corrected Python evidence."
       },
       {
-        "tagId": "skill_interviews",
-        "claim": "DOES_NOT_HAVE",
+        "id": "skill_interviews",
+        "title": "No Research interviews",
         "evidenceText": "I have not conducted research interviews."
       }
     ],
@@ -656,13 +663,13 @@ Success: **200**, [Profile](#model-profile).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Reviewed and corrected Python evidence."
       },
       {
-        "tagId": "skill_interviews",
-        "claim": "DOES_NOT_HAVE",
+        "id": "skill_interviews",
+        "title": "No Research interviews",
         "evidenceText": "I have not conducted research interviews."
       }
     ],
@@ -942,7 +949,7 @@ Related Jira subtasks: H18ABANANA-22, H18ABANANA-23, H18ABANANA-24.
 
 Permission: **Talent owner**.
 
-Owner-only. READY returns 200; QUEUED/PROCESSING returns 409 EXTRACTION_NOT_READY; FAILED returns 422 EXTRACTION_FAILED. suggestedSections contains review suggestions and does not mutate the profile. Put unreliable information in uncertainFields rather than inventing positive skill claims.
+Owner-only. READY returns 200; QUEUED/PROCESSING returns 409 EXTRACTION_NOT_READY; FAILED returns 422 EXTRACTION_FAILED. suggestedSections contains review suggestions and does not mutate the profile. US-11 also supplies recognised paragraph tags, interest free text, proposed personal labels and a unified owner-only resumeDescription; see the [extraction guide](../us11-resume-extraction.md). Put unreliable information in uncertainFields rather than inventing positive skill claims.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
@@ -970,8 +977,8 @@ Success: **200**, [Extraction](#model-extraction).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Used Python in a user-reviewed demo project."
       }
     ]
@@ -1019,8 +1026,8 @@ Request body: `application/json`, [ApplyExtractionRequest](#model-applyextractio
   "sections": {
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Used Python in a user-reviewed demo project."
       }
     ]
@@ -1059,8 +1066,8 @@ Success: **200**, [Profile](#model-profile).
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Used Python in a user-reviewed demo project."
       }
     ],
@@ -2438,17 +2445,19 @@ the new password must differ from the stored password.
 | `organisation` | string | Yes | Research institution or organisation; maximum length: 200 |
 | `description` | string | Yes | Plain-text description; maximum length: 5000 |
 
-<a id="model-skillclaim"></a>
+<a id="model-skill"></a>
 
-### SkillClaim
+### Skill
 
-An unselected skill is unknown, not absent. DOES_NOT_HAVE is entered or reviewed explicitly by the user; extraction must not infer it from a skill not being found.
+A skill is a free-text title with supporting evidence. No shared tag or claim
+selector is required. Omitted skills remain unknown. See the
+[free-text skill update](../free-text-skills.md) for legacy reads and matching.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `tagId` | string | Yes | Shared tag ID; do not substitute display text; pattern: `^[A-Za-z0-9_-]{1,64}$` |
-| `claim` | `HAS` / `DOES_NOT_HAVE` | Yes | HAS is an affirmative user claim; DOES_NOT_HAVE is an explicit negative claim, never inferred from omission |
-| `evidenceText` | string | Yes | User-reviewed evidence description; may be empty, in which case only the tag claim itself can be cited; maximum length: 2000 |
+| `id` | string | Yes | Skill record ID, independent of the vocabulary; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `title` | string | Yes | Free-text skill title with visible content; maximum length: 350 |
+| `evidenceText` | string | Yes | Supporting evidence; may be empty, in which case only the confirmed title can be cited; maximum length: 2000 |
 
 <a id="model-researchoutput"></a>
 
@@ -2468,7 +2477,7 @@ Only HTTP/HTTPS URLs are accepted. The frontend should use appropriate link attr
 
 ### ProfileContent
 
-PUT fully replaces all eight required fields. Use [] for an unfilled section and null for an unknown discipline group. Keep an existing child record ID when editing, assign a new ID when adding and remove a record from its array to delete it. Each section allows up to 100 items.
+PUT replaces all eight required legacy fields. The optional US-11 text/personal-tag components below preserve stored values when omitted. Use [] for an unfilled section and null for an unknown discipline group. Keep an existing child record ID when editing, assign a new ID when adding and remove a record from its array to delete it. Each section allows up to 100 items.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
@@ -2477,24 +2486,38 @@ PUT fully replaces all eight required fields. Use [] for an unfilled section and
 | `education` | [Education](#model-education)[] | Yes | Education records; maximum items: 100 |
 | `courses` | [Course](#model-course)[] | Yes | Course records; maximum items: 100 |
 | `researchExperience` | [ResearchExperience](#model-researchexperience)[] | Yes | Research experience records; maximum items: 100 |
-| `skills` | [SkillClaim](#model-skillclaim)[] | Yes | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
+| `skills` | [Skill](#model-skill)[] | Yes | Free-text titles/evidence; record IDs must be unique; maximum items: 100 |
 | `researchInterests` | string[] | Yes | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
 | `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | Yes | Research output records; maximum items: 100 |
+| `researchInterestText` | string | No on writes | Research-interest source description; maximum 5,000 characters; defaults to empty; shares researchInterests visibility |
+| `customInterestTags` | object[] | No on writes | Canonical owner-local `{id, label}` records on reads; label 1–100 characters; shared/personal combined maximum 100 |
+| `resumeDescription` | string | No on writes | Unified whole-resume description; maximum 20,000 characters; defaults to empty; always owner-only |
+
+
+<a id="model-profilecontentwrite"></a>
+
+### ProfileContentWrite
+
+Uses the same eight required legacy fields and optional US-11 components as ProfileContent. For customInterestTags, a new input item contains a label without id; an existing ID must belong to the current owner. Exact normalised shared labels resolve to researchInterests IDs, then owner-local labels are reused or created atomically. No-op saves preserve revision/confirmation. See [US-11 rules](../us11-resume-extraction.md).
 
 <a id="model-profilesections"></a>
 
 ### ProfileSections
 
-Partial import object with at least one section. Omitted sections are unchanged; [] clears a section. Only the six academic/research sections are accepted; displayName and disciplineGroup are not imported here.
+Partial import object with at least one section. Omitted sections are unchanged; [] clears a section. The six academic/research sections and three US-11 text/personal-tag components are accepted; displayName and disciplineGroup are not imported here. An empty string clears a text component.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
 | `education` | [Education](#model-education)[] | No | Education records; maximum items: 100 |
 | `courses` | [Course](#model-course)[] | No | Course records; maximum items: 100 |
 | `researchExperience` | [ResearchExperience](#model-researchexperience)[] | No | Research experience records; maximum items: 100 |
-| `skills` | [SkillClaim](#model-skillclaim)[] | No | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
+| `skills` | [Skill](#model-skill)[] | No | Free-text titles/evidence; record IDs must be unique; maximum items: 100 |
 | `researchInterests` | string[] | No | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
 | `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | No | Research output records; maximum items: 100 |
+| `researchInterestText` | string | No | Maximum 5,000 characters; omitted preserves current text; empty string clears |
+| `customInterestTags` | object[] | No | Reviewed `{id?, label}` selection; omitted preserves current selection; [] clears; exact shared resolutions append canonical shared IDs |
+| `resumeDescription` | string | No | Maximum 20,000 characters; reviewed owner-only unified source description; omitted preserves; empty string clears |
+
 
 <a id="model-confirmation"></a>
 
@@ -2516,7 +2539,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` / `researchInterestText` / `customInterestTags` / `resumeDescription` | Yes | Associated field or component |
 | `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | Yes | Server-maintained origin: MANUAL or USER_REVIEWED_DOCUMENT |
 | `documentId` | string / null | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
@@ -2540,7 +2563,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
 | `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
-| `content` | [ProfileContent](#model-profilecontent) | Yes | Business content of the resource |
+| `content` | [ProfileContentWrite](#model-profilecontentwrite) | Yes | Eight legacy fields plus optional text/personal-tag components |
 
 <a id="model-revisionrequest"></a>
 
@@ -2622,7 +2645,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` / `researchInterestText` / `customInterestTags` / `resumeDescription` | Yes | Associated field or component |
 | `status` | `UNKNOWN` / `NOT_RECOGNISED` | Yes | Status enum; see the relevant business rules |
 | `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
 
@@ -2636,7 +2659,7 @@ suggestedSections may be empty. In that case, show uncertainty and manual entry 
 |---|---|---|---|
 | `documentId` | string | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `status` | `READY` | Yes | Status enum; see the relevant business rules |
-| `suggestedSections` | object (optional subset of six sections) | Yes | Any subset of the six profile sections, including an empty object; same field shapes as ProfileSections without the minimum-one-field requirement |
+| `suggestedSections` | object (optional subset of nine sections/components) | Yes | Any subset of the six profile sections plus researchInterestText, customInterestTags and resumeDescription, including an empty object; same field shapes as ProfileSections without the minimum-one-field requirement |
 | `uncertainFields` | [UncertainField](#model-uncertainfield)[] | Yes | Sections that could not be reliably extracted, with reasons |
 | `warnings` | string[] | Yes | Review guidance |
 | `reviewRequired` | `true` | Yes | Always true; extraction suggestions require user review |
@@ -2654,7 +2677,9 @@ suggestedSections may be empty. In that case, show uncertainty and manual entry 
 
 ### Requirement
 
-This version deterministically evaluates SKILL and INTEREST tag requirements. Education, courses and outputs may be displayed as profile information, but free text is not used to invent skill evidence.
+Opportunity criteria continue to use SKILL and INTEREST tags. Confirmed free-text
+skill titles are compared exactly with criterion names after Unicode, whitespace
+and case normalisation. Education, courses and outputs do not imply proficiency.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
@@ -2717,7 +2742,7 @@ Used only for the talent owner’s match details. documentId is a source referen
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
 | `field` | [ProfileField](#model-profilefield) | Yes | Associated field or section |
-| `recordId` | string | Yes | Evidence record ID; tagId for skills/interests and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `recordId` | string | Yes | Evidence record ID; skill record id for skills, tagId for interests, and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `valueSummary` | string | Yes | Brief evidence text without invented facts |
 | `confirmedRevision` | integer | Yes | Confirmed revision; null while unconfirmed; minimum: 0 |
 | `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | Yes | Server-maintained origin: MANUAL or USER_REVIEWED_DOCUMENT |
@@ -2732,7 +2757,7 @@ A reduced shape compared with OwnerEvidence: no documentId, sourceType or confir
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
 | `field` | [ProfileField](#model-profilefield) | Yes | Associated field or section |
-| `recordId` | string | Yes | Evidence record ID; tagId for skills/interests and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
+| `recordId` | string | Yes | Evidence record ID; skill record id for skills, tagId for interests, and child record id for other sections; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `valueSummary` | string | Yes | Brief evidence text without invented facts |
 
 <a id="model-ownerrequirementresult"></a>
@@ -2789,7 +2814,7 @@ Display the backend summary rather than recalculating from a page of results. Va
 
 ### VisibleProfile
 
-fields may contain any subset of ProfileContent fields, all optional. Present values follow the corresponding ProfileContent types. If displayName is absent, display “Anonymous talent”; do not bypass visibility through another endpoint to retrieve the name.
+fields may contain a permitted subset of ProfileContent fields, all optional. resumeDescription is always excluded. The researchInterests visibility group covers shared IDs, researchInterestText and customInterestTags together. Present values follow the corresponding ProfileContent types. If displayName is absent, display “Anonymous talent”; do not bypass visibility through another endpoint to retrieve the name.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
@@ -2901,7 +2926,7 @@ POST /me/documents/{documentId}/apply (expectedProfileRevision + sections)
 New UNCONFIRMED profile → user reviews → POST /me/profile/confirmation
 ```
 
-- Show which sections the import will replace. To merge old and new skills, combine them locally by tagId, let the user review and submit the complete merged skills array.
+- Show which sections the import will replace. To merge old and new skills, preserve their record IDs, let the user review the titles/evidence and submit the complete merged skills array.
 - An extraction response must not overwrite a form the user is currently editing. Submit the last known revision and handle conflicts through comparison, not silent replacement.
 - `READY` means extraction completed, not that the user confirmed it or that it is accurate.
 - `UNKNOWN` means the value cannot be determined; `NOT_RECOGNISED` means no reliable information was identified. Neither becomes an affirmative or negative skill claim automatically.
@@ -2940,20 +2965,26 @@ Revocation affects subsequent responses; it cannot retract information that anot
 
 ### 7.5 Deterministic status rules
 
-Use only authorised information from a confirmed revision. Multiple tagIds in one requirement form an AND group. SKILL requirements look up claims in skills; INTEREST requirements look up researchInterests. Other sections do not automatically imply tags in v0.1.
+Use only authorised information from a confirmed revision. Multiple tagIds in one
+requirement form an AND group. SKILL criteria compare normalised names with skill
+titles; INTEREST criteria look up researchInterests. Other sections do not imply
+skills. Explicit negative skill wording remains negative after legacy conversion.
 
 Evaluate in this order:
 
 | Priority | Condition | status | reasonCode |
 |---|---|---|---|
-| 1 | Any requested skill has an explicit DOES_NOT_HAVE claim | GAP | EXPLICIT_NEGATIVE_CLAIM |
+| 1 | Any requested skill has an explicit negative statement | GAP | EXPLICIT_NEGATIVE_CLAIM |
 | 2 | Every requested tag has affirmative evidence | MATCHED | ALL_TAGS_SUPPORTED |
 | 3 | Some tags have affirmative evidence and the rest are unknown | PARTIAL | SOME_TAGS_SUPPORTED |
 | 4 | No usable affirmative or explicit negative evidence | UNKNOWN | INSUFFICIENT_EVIDENCE |
 
 Thus an AND requirement with “has Python” and “explicitly does not have SQL” is GAP. “Has Python” with no SQL information is PARTIAL. No information for either is UNKNOWN. Unconfirmed profiles never enter matching. Missing documents, omitted skills or hidden skills must not automatically become GAP.
 
-MATCHED/PARTIAL evidence cites actual supporting claims; GAP cites the explicit negative claim; UNKNOWN has evidence=[]. An interest uses its tagId as recordId. If evidenceText is empty, the explanation may cite the user’s confirmed tag claim, but cannot invent project or course experience.
+MATCHED/PARTIAL evidence cites confirmed skill records; GAP cites an explicit
+negative statement; UNKNOWN has evidence=[]. A skill uses its record id as
+recordId; an interest uses its tagId. Empty evidenceText permits citing only the
+confirmed title, without inventing project or course experience.
 
 ### 7.6 Scores and ranking
 
