@@ -1,13 +1,15 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Button } from '../../shared/ui.jsx';
 
 export default function PersonalInterestTagsEditor({ value, onChange }) {
+  const { t } = useLanguage();
   return (
     <div className="record-list">
       {value.map((tag, index) => (
         <div className="record" key={tag.id || index}>
           <label>
-            <span>Personal interest label</span>
+            <span>{t('Personal interest label')}</span>
             <input
               value={tag.label}
               maxLength={100}
@@ -22,7 +24,7 @@ export default function PersonalInterestTagsEditor({ value, onChange }) {
             />
           </label>
           <Button variant="text" onClick={() => onChange(value.filter((_, i) => i !== index))}>
-            Remove personal interest
+            {t('Remove personal interest')}
           </Button>
         </div>
       ))}
@@ -31,7 +33,7 @@ export default function PersonalInterestTagsEditor({ value, onChange }) {
         disabled={value.length >= 100}
         onClick={() => onChange([...value, { label: '' }])}
       >
-        Add personal interest
+        {t('Add personal interest')}
       </Button>
     </div>
   );

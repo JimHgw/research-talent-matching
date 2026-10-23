@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Badge, Button } from '../../shared/ui.jsx';
 import { useOpportunityEditor } from './useOpportunityEditor.js';
@@ -12,19 +13,20 @@ export default function OpportunityEditor({
   notify,
   onBack,
 }) {
+  const { t } = useLanguage();
   const editor = useOpportunityEditor({ opportunity, tags, onDirty, onPending, notify });
   const { saved, content, change, busy, dirty, needsReview, save, publish, isPending } = editor;
   function back() {
     if (isPending()) return;
-    if (!dirty || window.confirm('Discard your unsaved opportunity changes?')) onBack();
+    if (!dirty || window.confirm(t('Discard your unsaved opportunity changes?'))) onBack();
   }
   return (
     <div className="opportunity-editor">
       <Button variant="text" onClick={back} disabled={busy}>
-        Back to opportunities
+        {t('Back to opportunities')}
       </Button>
       <div className="section-title">
-        <h2>{saved ? 'Edit opportunity' : 'Create opportunity'}</h2>
+        <h2>{saved ? t('Edit opportunity') : t('Create opportunity')}</h2>
         <Badge status={saved?.status || 'DRAFT'} />
       </div>
       <OpportunityRecovery editor={editor} tags={tags} />
@@ -38,7 +40,7 @@ export default function OpportunityEditor({
           />
           <div className="actions">
             <Button type="submit" disabled={busy || needsReview || (!dirty && !!saved)}>
-              {busy ? 'Working…' : saved ? 'Save changes' : 'Save draft'}
+              {busy ? t('Working…') : saved ? t('Save changes') : t('Save draft')}
             </Button>
             {saved?.status === 'DRAFT' && (
               <Button
@@ -46,7 +48,7 @@ export default function OpportunityEditor({
                 onClick={publish}
                 disabled={busy || dirty || needsReview || !saved.content.requirements.length}
               >
-                Publish opportunity
+                {t('Publish opportunity')}
               </Button>
             )}
           </div>

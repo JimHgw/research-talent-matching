@@ -1,4 +1,6 @@
+import workspaceMessages from './workspace/zh-TW.js';
 export default {
+  ...workspaceMessages,
   Language: '介面語言',
   'RESEARCH, CONNECTED': '連結研究，發現機會',
   'Great research': '出色的研究',
@@ -127,6 +129,30 @@ export default {
   'Page {page} of {pages}': '第 {page} 頁，共 {pages} 頁',
   'Close dialog': '關閉對話方塊',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: '電子郵件、帳號 ID 或密碼不正確。',
     EMAIL_ALREADY_REGISTERED: '此電子郵件已註冊，請直接登入。',
     VERIFICATION_CODE_INVALID: '驗證碼無效或已過期，請重新取得驗證碼。',

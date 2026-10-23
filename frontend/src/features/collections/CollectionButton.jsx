@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
@@ -7,6 +8,7 @@ import { Button, ErrorNotice } from '../../shared/ui.jsx';
 export const collectionChanged = 'research-collection-changed';
 
 export default function CollectionButton({ opportunityId, talentId, onChange }) {
+  const { t } = useLanguage();
   const resource = useResource(
     () => api.collectionState(opportunityId, talentId),
     [opportunityId, talentId],
@@ -29,7 +31,7 @@ export default function CollectionButton({ opportunityId, talentId, onChange }) 
       : 'Save Opportunity';
   return (
     <div>
-      {saved && <span className="subtle-pill">{talentId ? 'Shortlisted' : 'Saved'}</span>}
+      {saved && <span className="subtle-pill">{talentId ? t('Shortlisted') : t('Saved')}</span>}
       <Button
         variant="secondary"
         disabled={resource.loading || !!resource.error || mutation.busy}
@@ -46,9 +48,9 @@ export default function CollectionButton({ opportunityId, talentId, onChange }) 
           );
         }}
       >
-        {resource.loading ? 'Checking saved state…' : mutation.busy ? 'Saving…' : label}
+        {resource.loading ? t('Checking saved state…') : mutation.busy ? t('Saving…') : t(label)}
       </Button>
-      {message && <p role="status">{message}</p>}
+      {message && <p role="status">{t(message)}</p>}
       {resource.error && <ErrorNotice error={resource.error} retry={resource.refresh} />}
       {mutation.error && <ErrorNotice error={mutation.error} retry={resource.refresh} />}
     </div>

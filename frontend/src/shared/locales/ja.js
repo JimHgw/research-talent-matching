@@ -1,4 +1,6 @@
+import workspaceMessages from './workspace/ja.js';
 export default {
+  ...workspaceMessages,
   Language: '表示言語',
   'RESEARCH, CONNECTED': '研究をつなぐ',
   'Great research': '優れた研究は',
@@ -135,6 +137,30 @@ export default {
   'Page {page} of {pages}': '{page} / {pages} ページ',
   'Close dialog': 'ダイアログを閉じる',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: 'メールアドレス、アカウント ID またはパスワードが正しくありません。',
     EMAIL_ALREADY_REGISTERED: 'このメールアドレスは登録済みです。ログインしてください。',
     VERIFICATION_CODE_INVALID: 'コードが無効または期限切れです。新しいコードを取得してください。',

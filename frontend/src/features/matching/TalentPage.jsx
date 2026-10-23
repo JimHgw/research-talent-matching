@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
@@ -27,6 +28,7 @@ async function loadPublishedOpportunities() {
 }
 
 function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const resource = useResource(
@@ -45,14 +47,16 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
           icon="user"
           title={
             shortlist
-              ? 'No currently discoverable shortlisted candidates'
+              ? t('No currently discoverable shortlisted candidates')
               : page > 1
-                ? 'No talent on this page'
-                : 'No discoverable talent yet'
+                ? t('No talent on this page')
+                : t('No discoverable talent yet')
           }
-          action={page > 1 ? <Button onClick={() => setPage(1)}>Back to first page</Button> : null}
+          action={
+            page > 1 ? <Button onClick={() => setPage(1)}>{t('Back to first page')}</Button> : null
+          }
         >
-          Talent appears here after confirming their profile and choosing to be discovered.
+          {t('Talent appears here after confirming their profile and choosing to be discovered.')}
         </Empty>
       ) : (
         <div className="talent-grid">
@@ -71,9 +75,9 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
                   <small>/100</small>
                 </span>
               </div>
-              <h3>{item.talent.fields.displayName || 'Anonymous talent'}</h3>
+              <h3>{item.talent.fields.displayName || t('Anonymous talent')}</h3>
               <p className="muted">
-                {item.talent.fields.education?.[0]?.qualification || 'Shared research profile'}
+                {item.talent.fields.education?.[0]?.qualification || t('Shared research profile')}
                 {item.talent.fields.education?.[0]?.institution
                   ? ` · ${item.talent.fields.education[0].institution}`
                   : ''}
@@ -85,9 +89,10 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
               </div>
               <p className="help">
                 {item.summary.unknownWeightPercent == null
-                  ? 'Not available'
+                  ? t('Not available')
                   : `${item.summary.unknownWeightPercent}%`}{' '}
-                unknown evidence · {item.summary.requiredGapCount} required gaps
+                {t('unknown evidence')} ·{' '}
+                {t('{count} required gaps', { count: item.summary.requiredGapCount })}
               </p>
               {CollectionButton && (
                 <CollectionButton
@@ -97,9 +102,9 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
                 />
               )}
               <div className="card-bottom">
-                <small className="muted">#{item.rank} match</small>
+                <small className="muted">{t('#{rank} match', { rank: item.rank })}</small>
                 <Button variant="text" onClick={() => setSelected(item.talent.talentId)}>
-                  View evidence
+                  {t('View evidence')}
                   <Icon name="arrow" size={16} />
                 </Button>
               </div>
@@ -132,6 +137,7 @@ export default function TalentPage({
   initialShortlist = false,
   CollectionButton,
 }) {
+  const { t } = useLanguage();
   const resource = useResource(loadPublishedOpportunities, [], true);
   const [selected, setSelected] = useState(initialOpportunity || '');
   const [shortlist, setShortlist] = useState(initialShortlist);
@@ -142,19 +148,20 @@ export default function TalentPage({
     <>
       <div className="section-title">
         <div>
-          <h2>{shortlist ? 'Shortlisted Candidates' : 'Find people for your next idea'}</h2>
-          <p>Confirmed profiles, shared with consent. Every match has an explanation.</p>
+          <h2>{shortlist ? t('Shortlisted Candidates') : t('Find people for your next idea')}</h2>
+          <p>{t('Confirmed profiles, shared with consent. Every match has an explanation.')}</p>
         </div>
         <Button variant="secondary" disabled={resource.loading} onClick={resource.refresh}>
-          Refresh talent
+          {t('Refresh talent')}
         </Button>
       </div>
       <Button variant="secondary" onClick={() => setShortlist(!shortlist)}>
-        {shortlist ? 'Discover talent' : 'View Shortlisted Candidates'}
+        {shortlist ? t('Discover talent') : t('View Shortlisted Candidates')}
       </Button>
       <Notice>
-        Scores and evidence use only the fields each talent has chosen to share. A low score can
-        mean limited shared information.
+        {t(
+          'Scores and evidence use only the fields each talent has chosen to share. A low score can mean limited shared information.'
+        )}
       </Notice>
       {resource.loading ? (
         <Loading />
@@ -163,17 +170,19 @@ export default function TalentPage({
       ) : !resource.data.length ? (
         <Empty
           icon="briefcase"
-          title="Publish an opportunity first"
+          title={t('Publish an opportunity first')}
           action={
-            <Button onClick={() => navigate('teamOpportunities')}>Manage opportunities</Button>
+            <Button onClick={() => navigate('teamOpportunities')}>
+              {t('Manage opportunities')}
+            </Button>
           }
         >
-          Talent discovery is available for your published opportunities.
+          {t('Talent discovery is available for your published opportunities.')}
         </Empty>
       ) : (
         <>
           <div className="opportunity-select">
-            <Field label="Match talent to this opportunity">
+            <Field label={t('Match talent to this opportunity')}>
               <select value={activeOpportunity} onChange={(e) => setSelected(e.target.value)}>
                 {resource.data.map((o) => (
                   <option key={o.id} value={o.id}>

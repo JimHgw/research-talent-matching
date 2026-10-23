@@ -126,7 +126,7 @@ export function WorkspaceToast({ toast, setToast }) {
       {toast && (
         <div className="toast" role="status">
           <Icon name="check" />
-          <span>{toast}</span>
+          <span>{t(toast)}</span>
           <Button
             variant="icon"
             aria-label={t('Dismiss notification')}

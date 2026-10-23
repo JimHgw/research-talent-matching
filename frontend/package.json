@@ -23,7 +23,8 @@
     "test:49": "node scripts/test.js 49",
     "test:61": "node scripts/test.js 22 41 61",
     "format": "prettier --write src tests scripts *.json *.js *.html *.md",
-    "format:check": "prettier --check src tests scripts *.json *.js *.html *.md"
+    "format:check": "prettier --check src tests scripts *.json *.js *.html *.md",
+    "test:i18n": "node scripts/test.js i18n"
   },
   "dependencies": {
     "react": "^19.1.1",

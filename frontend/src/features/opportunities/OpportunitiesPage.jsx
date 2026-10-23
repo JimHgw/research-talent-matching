@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
 import { Badge, Button, Empty, ErrorNotice, Loading, Pager } from '../../shared/ui.jsx';
@@ -7,13 +8,14 @@ import OpportunityEditor from './OpportunityEditor.jsx';
 import OpportunityDetails from './OpportunityDetails.jsx';
 
 function SelectedOpportunity({ id, editable, onBack, ...props }) {
+  const { t, language } = useLanguage();
   const resource = useResource(() => api.opportunity(id), [id]);
   if (resource.loading) return <Loading />;
   if (resource.error)
     return (
       <>
         <Button variant="text" onClick={onBack}>
-          Back to opportunities
+          {t('Back to opportunities')}
         </Button>
         <ErrorNotice error={resource.error} retry={resource.refresh} />
       </>
@@ -22,7 +24,7 @@ function SelectedOpportunity({ id, editable, onBack, ...props }) {
   return (
     <>
       <Button variant="text" onClick={onBack}>
-        Back to opportunities
+        {t('Back to opportunities')}
       </Button>
       <OpportunityDetails opportunity={resource.data} tags={props.tags} />
     </>
@@ -30,6 +32,7 @@ function SelectedOpportunity({ id, editable, onBack, ...props }) {
 }
 
 function OpportunityList({ scope, onSelect }) {
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const resource = useResource(() => api.opportunities(scope, page), [scope, page], true);
   if (resource.loading) return <Loading />;
@@ -38,9 +41,9 @@ function OpportunityList({ scope, onSelect }) {
   return (
     <>
       <div className="opportunity-list-heading">
-        <p className="muted">{data.total} opportunities</p>
+        <p className="muted">{t('{count} opportunities', { count: data.total })}</p>
         <Button variant="text" onClick={resource.refresh}>
-          Refresh opportunities
+          {t('Refresh opportunities')}
         </Button>
       </div>
       {!data.items.length && (
@@ -48,15 +51,15 @@ function OpportunityList({ scope, onSelect }) {
           icon="briefcase"
           title={
             page > 1
-              ? 'No opportunities on this page'
+              ? t('No opportunities on this page')
               : scope === 'mine'
-                ? 'Create your first opportunity'
-                : 'No published opportunities yet'
+                ? t('Create your first opportunity')
+                : t('No published opportunities yet')
           }
         >
           {scope === 'mine'
-            ? 'Describe your research and the skills or interests your team is looking for.'
-            : 'Published opportunities will appear here when research teams share them.'}
+            ? t('Describe your research and the skills or interests your team is looking for.')
+            : t('Published opportunities will appear here when research teams share them.')}
         </Empty>
       )}
       <div className="opportunity-list">
@@ -64,7 +67,7 @@ function OpportunityList({ scope, onSelect }) {
           <article className="panel opportunity-card" key={item.id}>
             <div className="opportunity-meta">
               <Badge status={item.status} />
-              <span>{item.content.disciplineGroup}</span>
+              <span>{t(item.content.disciplineGroup)}</span>
             </div>
             <h2>{item.content.title}</h2>
             <p className="muted">
@@ -73,9 +76,9 @@ function OpportunityList({ scope, onSelect }) {
             <p>{item.content.researchArea}</p>
             <p className="opportunity-excerpt">{item.content.description}</p>
             <div className="opportunity-card-footer">
-              <small>Updated {displayDate(item.updatedAt)}</small>
+              <small>{t('Updated {date}', { date: displayDate(item.updatedAt, language) })}</small>
               <Button variant="secondary" onClick={() => onSelect(item.id)}>
-                {scope === 'mine' ? 'View and edit' : 'View details'}
+                {scope === 'mine' ? t('View and edit') : t('View details')}
               </Button>
             </div>
           </article>
@@ -84,7 +87,7 @@ function OpportunityList({ scope, onSelect }) {
       <Pager data={data} onPage={setPage} />
       {!data.items.length && page > 1 && (
         <Button variant="secondary" onClick={() => setPage(1)}>
-          Back to first page
+          {t('Back to first page')}
         </Button>
       )}
     </>
@@ -92,6 +95,7 @@ function OpportunityList({ scope, onSelect }) {
 }
 
 export default function OpportunitiesPage({ user, tags, onDirty, onPending, notify }) {
+  const { t, language } = useLanguage();
   const team = user.role === 'RESEARCH_TEAM';
   const [scope, setScope] = useState(team ? 'mine' : 'published');
   const [selected, setSelected] = useState(null);
@@ -107,26 +111,26 @@ export default function OpportunitiesPage({ user, tags, onDirty, onPending, noti
     <div>
       <div className="section-title opportunity-toolbar">
         {team ? (
-          <div className="actions" role="group" aria-label="Opportunity scope">
+          <div className="actions" role="group" aria-label={t('Opportunity scope')}>
             <Button
               variant={scope === 'mine' ? 'primary' : 'secondary'}
               aria-pressed={scope === 'mine'}
               onClick={() => setScope('mine')}
             >
-              My opportunities
+              {t('My opportunities')}
             </Button>
             <Button
               variant={scope === 'published' ? 'primary' : 'secondary'}
               aria-pressed={scope === 'published'}
               onClick={() => setScope('published')}
             >
-              Published opportunities
+              {t('Published opportunities')}
             </Button>
           </div>
         ) : (
-          <p className="muted">Explore published research opportunities.</p>
+          <p className="muted">{t('Explore published research opportunities.')}</p>
         )}
-        {team && <Button onClick={() => setSelected('new')}>Create opportunity</Button>}
+        {team && <Button onClick={() => setSelected('new')}>{t('Create opportunity')}</Button>}
       </div>
       <OpportunityList key={scope} scope={scope} onSelect={setSelected} />
     </div>

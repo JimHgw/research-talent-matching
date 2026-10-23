@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { Badge, Button, ErrorNotice, Icon, Loading, Notice } from '../../shared/ui.jsx';
@@ -13,6 +14,7 @@ export default function ProfilePage({
   navigate,
   canRecommend = true,
 }) {
+  const { t } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [content, setContent] = useState(null);
   const { error, clearError, busy, run, isPending } = useMutation();
@@ -31,7 +33,7 @@ export default function ProfilePage({
   usePageGuard(dirty, busy, onDirty, onPending);
   function refresh() {
     if (isPending()) return;
-    if (dirty && !window.confirm('Reload and discard your unsaved edits?')) return;
+    if (dirty && !window.confirm(t('Reload and discard your unsaved edits?'))) return;
     clearError();
     resource.refresh();
   }
@@ -69,29 +71,34 @@ export default function ProfilePage({
     <form onSubmit={save}>
       <div className="section-title">
         <div>
-          <h2>Tell your research story</h2>
-          <p>Your background, interests and evidence, all in one place.</p>
+          <h2>{t('Tell your research story')}</h2>
+          <p>{t('Your background, interests and evidence, all in one place.')}</p>
         </div>
         <div className="profile-status">
           <Badge status={!dirty && confirmed ? 'CONFIRMED' : 'UNCONFIRMED'}>
-            {dirty ? 'Unsaved changes' : confirmed ? 'Confirmed' : 'Needs confirmation'}
+            {dirty ? t('Unsaved changes') : confirmed ? t('Confirmed') : t('Needs confirmation')}
           </Badge>
-          <small className="muted">Saved profile revision {profile.revision}</small>
+          <small className="muted">
+            {t('Saved profile revision {revision}', { revision: profile.revision })}
+          </small>
           <Button variant="text" disabled={busy} onClick={refresh}>
-            Refresh profile
+            {t('Refresh profile')}
           </Button>
         </div>
       </div>
       <ErrorNotice error={error} retry={conflict ? refresh : undefined} />
       {dirty && (
         <Notice>
-          Unsaved profile changes are not used for matching. Save, review and confirm the updated
-          profile.
+          {t(
+            'Unsaved profile changes are not used for matching. Save, review and confirm the updated profile.'
+          )}
         </Notice>
       )}
       {conflict && (
         <Notice>
-          Refresh the latest saved profile before confirming. Your local edits have been kept.
+          {t(
+            'Refresh the latest saved profile before confirming. Your local edits have been kept.'
+          )}
         </Notice>
       )}
       <fieldset className="form-fields editor-layout" disabled={busy}>
@@ -107,17 +114,18 @@ export default function ProfilePage({
             <span className="aside-icon">
               <Icon name="shield" size={26} />
             </span>
-            <h3>Reviewed by you.</h3>
+            <h3>{t('Reviewed by you.')}</h3>
             <p className="muted">
-              Only the current confirmed version is used for matching. Editing your profile means
-              reviewing it again.
+              {t(
+                'Only the current confirmed version is used for matching. Editing your profile means reviewing it again.'
+              )}
             </p>
             <Button type="submit" className="full" disabled={busy || !dirty}>
-              {busy ? 'Saving…' : 'Save changes'}
+              {busy ? t('Saving…') : t('Save changes')}
             </Button>
             <div className="review-divider" />
             {confirmed && !dirty ? (
-              <Notice tone="success">This version is confirmed.</Notice>
+              <Notice tone="success">{t('This version is confirmed.')}</Notice>
             ) : (
               <>
                 <label className="check-label">
@@ -127,7 +135,7 @@ export default function ProfilePage({
                     disabled={dirty || conflict}
                     onChange={(e) => setReviewed(e.target.checked)}
                   />
-                  I have reviewed my saved profile and confirm it reflects my information.
+                  {t('I have reviewed my saved profile and confirm it reflects my information.')}
                 </label>
                 <Button
                   className="full"
@@ -135,18 +143,18 @@ export default function ProfilePage({
                   disabled={busy || dirty || !reviewed || conflict}
                   onClick={confirm}
                 >
-                  Confirm profile
+                  {t('Confirm profile')}
                 </Button>
               </>
             )}
             {canRecommend && (
               <Button variant="text" className="full" onClick={() => navigate('recommendations')}>
-                See recommendations
+                {t('See recommendations')}
                 <Icon name="arrow" size={16} />
               </Button>
             )}
             <small className="muted">
-              Confirmation records your review. It does not verify academic credentials.
+              {t('Confirmation records your review. It does not verify academic credentials.')}
             </small>
           </div>
         </aside>
