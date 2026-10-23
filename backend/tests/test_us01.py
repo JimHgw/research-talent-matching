@@ -432,3 +432,147 @@ def test_failed_login_commit_keeps_original_session(app, client):
     assert client.get("/api/v1/auth/session").get_json() == anonymous
     with database.transaction() as db:
         assert db.get(AuthSession, digest(original_cookie)).revoked_at is None
+
+def test_us15_profile_changes_and_logout_do_not_affect_another_session(app):
+    first = app.test_client()
+    second = app.test_client()
+
+    first_csrf = sign_in(first)
+    second_csrf = sign_in(second, "other@example.test")
+
+    first_identity = checked(
+        first.get("/api/v1/auth/session"), 200, "Session"
+    )["user"]
+
+    second_session = checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    )
+
+    second_before = checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    )
+
+    second_cookie = second.get_cookie(COOKIE).value
+
+    assert first_identity["id"] != second_session["user"]["id"]
+
+    # Saving A's profile must not change B's identity or profile.
+    first_content = sample()
+    first_content["displayName"] = "US-15 first private profile"
+    first_saved = checked(
+        save(first, first_csrf, first_content), 200, "Profile"
+    )
+
+    assert checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    ) == second_session
+
+    assert checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_before
+
+    # Saving B's profile must not overwrite A's profile.
+    second_content = sample()
+    second_content["displayName"] = "US-15 second private profile"
+    second_saved = checked(
+        save(second, second_csrf, second_content), 200, "Profile"
+    )
+
+    assert first_saved["talentId"] != second_saved["talentId"]
+    assert checked(
+        first.get("/api/v1/me/profile"), 200, "Profile"
+    ) == first_saved
+
+    # Logging out A must revoke A's cookie while preserving B's session.
+    old_cookie = first.get_cookie(COOKIE).value
+    checked(
+        first.post("/api/v1/auth/logout", headers=headers(first_csrf)),
+        204,
+    )
+
+    replay = app.test_client()
+    replay.set_cookie(COOKIE, old_cookie)
+    checked(replay.get("/api/v1/me/profile"), 401)
+
+    assert second.get_cookie(COOKIE).value == second_cookie
+    assert checked(
+        second.get("/api/v1/auth/session"), 200, "Session"
+    ) == second_session
+    assert checked(
+        second.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_saved
+
+    # Switching A's browser to B must resolve B's identity and private data.
+    sign_in(first, "other@example.test")
+    assert checked(
+        first.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] == second_session["user"]
+    assert checked(
+        first.get("/api/v1/me/profile"), 200, "Profile"
+    ) == second_saved
+
+
+@pytest.mark.parametrize(
+    "email,role,forged_role,forbidden_path",
+    [
+        (
+            "talent@example.test",
+            "TALENT",
+            "RESEARCH_TEAM",
+            "/api/v1/opportunities?scope=mine&role=RESEARCH_TEAM",
+        ),
+        (
+            "team@example.test",
+            "RESEARCH_TEAM",
+            "TALENT",
+            "/api/v1/me/profile?role=TALENT",
+        ),
+    ],
+)
+def test_us15_client_role_cannot_override_stored_role(
+    app, email, role, forged_role, forbidden_path
+):
+    client = app.test_client()
+    anonymous = checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )
+
+    # Login must reject an extra role field instead of granting that role.
+    result = checked(
+        client.post(
+            "/api/v1/auth/login",
+            json={
+                "identifier": email,
+                "password": PASSWORD,
+                "role": forged_role,
+            },
+            headers=headers(anonymous["csrfToken"]),
+        ),
+        422,
+    )
+    assert result["error"]["code"] == "VALIDATION_ERROR"
+    assert checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] is None
+
+    # Query parameters and headers must not override the stored role.
+    sign_in(client, email)
+    identity = checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"]
+    assert identity["role"] == role
+
+    result = checked(
+        client.get(
+            forbidden_path,
+            headers={
+                "X-Role": forged_role,
+                "X-User-Id": "user_forged",
+            },
+        ),
+        403,
+    )
+    assert result["error"]["code"] == "FORBIDDEN"
+    assert checked(
+        client.get("/api/v1/auth/session"), 200, "Session"
+    )["user"] == identity
