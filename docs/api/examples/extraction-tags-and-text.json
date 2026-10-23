@@ -1,0 +1,34 @@
+{
+  "documentId": "doc_resume_text",
+  "status": "READY",
+  "suggestedSections": {
+    "skills": [
+      {
+        "id": "skill_python",
+        "title": "Python",
+        "evidenceText": "Experienced in Python for data analysis."
+      }
+    ],
+    "researchInterests": [
+      "interest_ml"
+    ],
+    "researchInterestText": "Machine learning; Climate-resilient urban systems",
+    "customInterestTags": [
+      {
+        "label": "Climate-resilient urban systems"
+      }
+    ],
+    "resumeDescription": "Skills\nExperienced in Python for data analysis.\nResearch interests\nMachine learning; Climate-resilient urban systems"
+  },
+  "uncertainFields": [
+    {
+      "field": "researchInterests",
+      "status": "UNKNOWN",
+      "reason": "Review the source-grounded personal label before saving."
+    }
+  ],
+  "warnings": [
+    "Review all suggestions before saving."
+  ],
+  "reviewRequired": true
+}

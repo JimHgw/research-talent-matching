@@ -1,0 +1,12 @@
+{
+  "expectedProfileRevision": 3,
+  "sections": {
+    "researchInterestText": "Machine learning for ecological forecasting.",
+    "customInterestTags": [
+      {
+        "label": "Ecological forecasting"
+      }
+    ],
+    "resumeDescription": "Reviewed unified resume description."
+  }
+}

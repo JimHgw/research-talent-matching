@@ -4,11 +4,11 @@ from ...db.models import (
     Opportunity,
     ProfileInterest,
     ProfileOrigin,
-    ProfileSkill,
     Tag,
     TalentProfile,
 )
 from ...db.opportunity_read import serialize, serialize_many
+from ...db.skills import matching_skills, read_skills_many
 from ...shared.validation import ApiError, validate
 
 
@@ -28,19 +28,8 @@ def get_owner_profile(db, user):
 
 def read_matching_profile(db, profile):
     # Read the profile's skills, research interests, and origins in a single transaction.
-    skills = {}
-    rows = db.execute(
-        select(ProfileSkill, Tag.label)
-        .join(Tag, ProfileSkill.tag_id == Tag.id)
-        .where(ProfileSkill.talent_id == profile.talent_id)
-        .order_by(ProfileSkill.position)
-    )
-    for skill, label in rows:
-        skills[skill.tag_id] = {
-            "claim": skill.claim,
-            "evidenceText": skill.evidence_text,
-            "label": label,
-        }
+    skills = matching_skills(read_skills_many(db, [profile.talent_id])[profile.talent_id],
+                             dict(db.execute(select(Tag.id, Tag.label).where(Tag.kind == "SKILL")).all()))
     interests = dict(
         db.execute(
             select(ProfileInterest.tag_id, Tag.label)

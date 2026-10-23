@@ -25,13 +25,13 @@
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Reviewed and corrected Python evidence."
       },
       {
-        "tagId": "skill_interviews",
-        "claim": "DOES_NOT_HAVE",
+        "id": "skill_interviews",
+        "title": "No Research interviews",
         "evidenceText": "I have not conducted research interviews."
       }
     ],

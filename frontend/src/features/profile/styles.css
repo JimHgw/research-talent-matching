@@ -15,7 +15,7 @@
   gap: 10px;
 }
 .skill-grid {
-  grid-template-columns: 1fr 1fr 35px;
+  grid-template-columns: minmax(0, 1fr) 35px;
   align-items: center;
 }
 .sticky-panel {

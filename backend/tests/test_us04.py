@@ -175,8 +175,8 @@ def test_profile_edit_requires_reconfirmation(confirmed, research_team):
 
     content = deepcopy(profile["content"])
     content["skills"].append({
-        "tagId": "skill_sql",
-        "claim": "HAS",
+        "id": "skill_sql",
+        "title": "SQL",
         "evidenceText": "Confirmed SQL experience.",
     })
 

@@ -2,17 +2,20 @@
 
 import hashlib
 import re
+import unicodedata
 
 from ...shared.validation import validator
+from .academic import extract_academic_records
+from .skill_suggestions import free_skill_suggestions
 
 
 HEADINGS = {
-    "education": ("education", "academic qualifications", "qualifications"),
-    "courses": ("courses", "coursework", "relevant coursework", "academic transcript", "transcript"),
-    "researchExperience": ("research experience", "research experiences"),
-    "skills": ("skills", "technical skills", "programming skills"),
-    "researchInterests": ("research interests", "research interest", "interests"),
-    "researchOutputs": ("research outputs", "publications", "projects", "research projects"),
+    "education": ("education", "academic qualifications", "qualifications", "教育背景", "教育经历"),
+    "courses": ("courses", "coursework", "relevant coursework", "academic transcript", "transcript", "相关课程", "课程"),
+    "researchExperience": ("research experience", "research experiences", "科研经历", "研究经历"),
+    "skills": ("skills", "technical skills", "programming skills", "专业技能", "技能"),
+    "researchInterests": ("research interests", "research interest", "interests", "研究兴趣", "研究方向"),
+    "researchOutputs": ("research outputs", "publications", "projects", "research projects", "科研成果", "研究成果"),
 }
 SCHEMAS = {
     "education": "Education", "courses": "Course",
@@ -31,7 +34,8 @@ KEYS = {
     "description": "description", "type": "type", "url": "url",
 }
 OTHER_HEADINGS = {"work experience", "employment", "professional experience", "awards",
-                  "contact", "personal information", "references", "languages", "certifications"}
+                  "contact", "personal information", "references", "languages", "certifications",
+                  "工作经历", "联系方式", "个人信息", "获奖经历", "自我评价"}
 
 
 def new_extraction_result(document_id):
@@ -51,7 +55,7 @@ def _sections(text):
     active = None
     for raw in text.splitlines():
         line = _clean(raw)
-        parts = re.split(r"[:\t]", line, maxsplit=1)
+        parts = re.split(r"[:：\t]", line, maxsplit=1)
         heading = parts[0].strip().casefold()
         if heading in aliases:
             active = aliases[heading]
@@ -66,33 +70,75 @@ def _sections(text):
     return sections
 
 
+def _fold(value):
+    return " ".join(unicodedata.normalize("NFKC", value).split()).casefold()
+
+
+def _tag_mentions(value, tags, kind):
+    folded = _fold(value)
+    for tag in tags:
+        if tag["kind"] != kind:
+            continue
+        label = _fold(tag["label"])
+        for match in re.finditer(r"(?<!\w)" + re.escape(label) + r"(?!\w)", folded):
+            yield match.start(), tag, folded[:match.start()]
+
+
 def _tags(lines, tags, kind):
-    lookup = {tag["label"].casefold(): tag for tag in tags if tag["kind"] == kind}
-    found, issues, seen = [], [], set()
+    found, issues = {}, []
     for values, source in lines:
-        for name in re.split(r"[,;\t|]", values):
+        for name in re.split(r"[,;\t|、，；]|\b(?:but|however)\b", values, flags=re.I):
             name = _clean(name)
             if not name:
                 continue
-            tag = lookup.get(name.casefold())
-            if tag is None:
+            mentions = sorted(_tag_mentions(name, tags, kind), key=lambda item: item[0])
+            if not mentions:
                 issues.append(f"Unrecognised item: {name[:100]}")
-            elif tag["id"] not in seen:
-                seen.add(tag["id"])
+            for _, tag, before in mentions:
+                if re.search(r"\b(?:want to learn|plan to learn|interested in learning|wish to learn)\b", _fold(name)):
+                    issues.append(f"Learning intention needs manual review: {name[:100]}")
+                    continue
+                negative = bool(re.search(r"\b(?:no|not|without|lack|lacking)\b(?!\s+only\b)[^.;]*$", before))
+                if kind == "INTEREST" and negative:
+                    issues.append(f"Negative interest statement needs manual review: {name[:100]}")
+                    continue
+                existing = found.get(tag["id"])
+                if existing:
+                    continue
                 if len(found) >= 100:
                     issues.append("More than 100 items; remaining items need manual review.")
                     continue
-                if kind == "SKILL":
-                    found.append({"tagId": tag["id"], "claim": "HAS", "evidenceText": source[:2000]})
-                    if len(source) > 2000:
-                        issues.append("Supporting evidence was shortened to 2000 characters.")
-                else:
-                    found.append(tag["id"])
-    return found, issues
+                found[tag["id"]] = tag["id"]
+    return list(found.values()), issues
+
+
+def _interest_details(lines, tags, shared_count):
+    """Preserve source text; propose only short explicit labels, never invent them."""
+    text = "\n".join(value for value, _ in lines).strip()
+    personal, issues, seen = [], [], set()
+    for value, _ in lines:
+        for candidate in re.split(r"[,;\t|、，；]|\s+and\s+", value, flags=re.I):
+            candidate = _clean(candidate)
+            folded = _fold(candidate)
+            if not candidate or folded in seen or list(_tag_mentions(candidate, tags, "INTEREST")):
+                continue
+            # Paragraphs remain free text. Only explicit, short list labels become proposals.
+            if (len(candidate) > 100 or len(candidate.split()) > 12 or re.search(r"[.!?。！？:：]", candidate)
+                    or re.match(r"(?:i\b|my\b|we\b|interested\b|not\b|no\b|focus\b)", folded)):
+                continue
+            if len(personal) + shared_count >= 100:
+                issues.append("More than 100 interest tags; remaining labels are retained in the description.")
+                continue
+            seen.add(folded)
+            personal.append({"label": candidate})
+    if len(text) > 5000:
+        text = text[:5000]
+        issues.append("Interest description was shortened to 5000 characters; consult the original file.")
+    return text, personal, issues
 
 
 def find_skill_suggestions(text, tags):
-    return _tags(_sections(text)["skills"], tags, "SKILL")[0]
+    return free_skill_suggestions(_sections(text)["skills"])[0]
 
 
 def find_interest_suggestions(text, tags):
@@ -256,11 +302,44 @@ def _structured(section, lines):
 
 def build_extraction_result(document_id, text, tags):
     result = new_extraction_result(document_id)
-    for section, lines in _sections(text).items():
-        if section in ("skills", "researchInterests"):
-            items, issues = _tags(lines, tags, "SKILL" if section == "skills" else "INTEREST")
+    # One owner-only free-text description also retains content outside known headings.
+    description = "\n".join(" ".join(line.split()) for line in text.splitlines() if line.strip())
+    if description:
+        result["suggestedSections"]["resumeDescription"] = description[:20000]
+        if len(description) > 20000:
+            result["uncertainFields"].append({"field": "resumeDescription", "status": "UNKNOWN",
+                                               "reason": "Resume description was shortened to 20000 characters; consult the original file."})
+    sections = _sections(text)
+    academic, academic_issues = extract_academic_records(text, OTHER_HEADINGS | {
+        alias for section, aliases in HEADINGS.items() if section not in ("education", "courses")
+        for alias in aliases})
+    for section, lines in sections.items():
+        if section == "skills":
+            items, issues = free_skill_suggestions(lines)
+        elif section == "researchInterests":
+            items, issues = _tags(lines, tags, "INTEREST")
         else:
             items, issues = _structured(section, lines)
+        if section in academic:
+            # Transcript rows need their result columns separated from course names.
+            # Prefer those records over the same rows parsed as generic CV text.
+            records = academic[section]
+
+            def identity(item):
+                if section == "courses" and item.get("code"):
+                    return _fold(item["code"]).replace(" ", "")
+                return (_fold(item.get("institution", "")), _fold(item.get("qualification", "")))
+
+            existing = {identity(item) for item in records}
+            # Transcript metadata such as "Name: ..." is not a labelled course.
+            if section == "courses":
+                items = [item for item in items if re.fullmatch(r"[A-Z]{2,8}\s?\d{3,5}", item.get("code") or "")]
+                issues = []
+            items = records + [item for item in items if identity(item) not in existing]
+            if len(items) > 100:
+                issues.append("More than 100 records; remaining records need manual review.")
+                items = items[:100]
+        issues.extend(academic_issues.get(section, []))
         if items:
             result["suggestedSections"][section] = items
         if issues or not items:
@@ -271,6 +350,15 @@ def build_extraction_result(document_id, text, tags):
             result["uncertainFields"].append({
                 "field": section, "status": "UNKNOWN" if items else "NOT_RECOGNISED", "reason": reason,
             })
+    interest_text, personal, issues = _interest_details(
+        sections["researchInterests"], tags, len(result["suggestedSections"].get("researchInterests", [])))
+    if interest_text:
+        result["suggestedSections"]["researchInterestText"] = interest_text
+    if personal:
+        result["suggestedSections"]["customInterestTags"] = personal
+    if issues:
+        result["uncertainFields"].append({"field": "researchInterestText", "status": "UNKNOWN",
+                                           "reason": "; ".join(dict.fromkeys(issues))})
     if not text.strip():
         result["warnings"].append("No readable text was found. Enter information manually.")
     return result

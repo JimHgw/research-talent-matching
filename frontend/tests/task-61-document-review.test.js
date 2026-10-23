@@ -147,7 +147,7 @@ test('an extraction response for another document is rejected before exposing su
       documentId: 'doc_wrong',
       suggestedSections: {
         skills: [
-          { tagId: 'skill_python', claim: 'HAS', evidenceText: 'WRONG DOCUMENT PRIVATE TEXT' },
+          { id: 'skill_python', title: 'Python', evidenceText: 'WRONG DOCUMENT PRIVATE TEXT' },
         ],
       },
     });

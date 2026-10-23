@@ -35,7 +35,7 @@ profile data. `--once` attempts one available document and exits.
 ## Supported extraction rules
 
 Extraction reads PDF text layers and Word paragraphs/tables. It attempts all six
-sections under English headings (case insensitive), accepting headings on their
+sections under English headings (case insensitive) and common Chinese headings, accepting headings on their
 own line, `Heading: value`, and headings in a Word table's first cell.
 Bullets, comma/semicolon lists and tab/pipe separated rows are supported.
 
@@ -44,9 +44,16 @@ Bullets, comma/semicolon lists and tab/pipe separated rows are supported.
 | Education / Academic qualifications / Qualifications | Institution and degree on separate lines or `Institution | Qualification | Discipline | 2022-2025`; labelled Institution/University, Qualification/Degree, Discipline/Major, Start year and End year |
 | Courses / Coursework / Relevant coursework / Academic transcript / Transcript | Course code and name, e.g. `COMP1511 - Programming Fundamentals`; transcript rows with code, name and optional further columns; labelled Name/Course name, Code/Course code, Description |
 | Research experience | `Title | Organisation | Description`, or labelled Title, Organisation/Organization, Description |
-| Skills / Technical skills / Programming skills | Exact names from the controlled SKILL vocabulary, on one line or as a list |
-| Research interests / Interests | Exact names from the controlled INTEREST vocabulary, on one line or as a list |
+| Skills / Technical skills / Programming skills | Free-text titles/evidence from lists, descriptions or labelled blocks; no skill vocabulary lookup; explicit negative wording and source text are preserved |
+| Research interests / Interests | Controlled INTEREST label mentions, source-grounded free text and short personal-label proposals |
 | Research outputs / Publications / Projects / Research projects | `PUBLICATION | Title | https://...`, `PROJECT | Title`, or labelled Title, Type, URL, Description |
+
+Academic Statements also support programme/plan/term metadata, repeated page
+headers and course-result tables without `Education` or `Courses` section titles.
+Course codes are normalised, result columns stay in descriptions, and repeated
+attempts are retained together. Degree/completion details are not invented and
+subjects do not imply skill or research claims. See the
+[Academic Statement rules and existing-result recovery](us11-resume-extraction.md#academic-statements-and-transcripts).
 
 Separate labelled records with a blank line or repeat their first key.
 Delimited rows and course-code lines are separate records. Explicit year ranges
@@ -63,13 +70,18 @@ retain source text in `description` when there is no explicit description.
 The owner can consult the original file. Reviewed section provenance stores
 `USER_REVIEWED_DOCUMENT` and that document's ID.
 
+US-11 extends this result with `researchInterestText`, `customInterestTags` and
+the unified owner-only `resumeDescription`. Text remains available without a
+vocabulary match. Proposed personal labels create no rows until accepted in a
+reviewed save. See [fields, partial imports, privacy and upgrades](us11-resume-extraction.md).
+
 Unknown items remain visible in uncertainty reasons, even when other items in
 the same section were recognised (e.g. Python alongside unsupported COBOL).
 Each section is limited to 100 suggestions; omitted items and shortened skill
 evidence are flagged. Unrecognised sections receive NOT_RECOGNISED; partially
 recognised sections receive UNKNOWN. This is conservative rule-based extraction,
-not OCR or a general resume parser. Scanned PDFs, arbitrary layouts, non-English
-headings and unsupported vocabulary may need manual entry.
+not OCR or a general resume parser. Scanned PDFs, arbitrary layouts, unsupported
+headings and vocabulary may need manual entry.
 
 ## Recovery and failure
 

@@ -30,7 +30,9 @@ def test_us09_real_frontend_workflow(app, request, tmp_path, format):
     # Reuse the same synthetic CV for both real supported file formats.
     document_path = tmp_path / f"review-cv.{format}"
     encode = text_pdf if format == "pdf" else text_docx
-    document_path.write_bytes(encode(CV_TEXT.replace("Python, SQL", "Python, SQL, COBOL")))
+    source = CV_TEXT.replace("Python, SQL", "Python, SQL, COBOL").replace(
+        "Machine learning", "Machine learning; Climate-resilient urban systems")
+    document_path.write_bytes(encode(source))
 
     # Start the real HTTP server on an available local port.
     server = make_server("127.0.0.1", 0, app, threaded=True)

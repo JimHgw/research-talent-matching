@@ -14,8 +14,8 @@
     ],
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Used Python in a user-reviewed demo project."
       }
     ]

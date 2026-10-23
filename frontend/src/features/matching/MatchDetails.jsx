@@ -114,22 +114,17 @@ function VisibleTalent({ talent, tags }) {
   const fields = talent.fields;
 
   function formatItem(item) {
+    if (item.label) return item.label;
     if (typeof item === 'string') {
       return tags.find((tag) => tag.id === item)?.label || 'Unlabelled interest';
     }
     if (item.institution) {
       return `${item.qualification}, ${item.institution}`;
     }
-    if (item.tagId) {
-      const skill = tags.find((tag) => tag.id === item.tagId)?.label || 'Unlabelled skill';
-      const experience = item.claim === 'HAS' ? 'has skill' : 'does not have skill';
-      let text = `${skill}: ${experience}`;
-      if (item.evidenceText) {
-        text += ` — ${item.evidenceText}`;
-      }
-      return text;
-    }
     let text = `${item.title || item.name}`;
+    if (item.evidenceText) {
+      text += ` — ${item.evidenceText}`;
+    }
     if (item.description) {
       text += ` — ${item.description}`;
     }

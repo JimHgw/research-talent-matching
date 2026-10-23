@@ -1,6 +1,7 @@
 """Team discovery always evaluates current, permitted fields in one transaction."""
 
 from ...db.models import utcnow
+from ...db.skills import matching_skills
 from .engine import evaluate_opportunity, team_evidence
 from .service import ranked_page
 from .team_repository import (discoverable_profiles, own_published_opportunity,
@@ -10,8 +11,7 @@ from .team_repository import (discoverable_profiles, own_published_opportunity,
 def evaluate_visible(opportunity, talent, labels):
     fields = talent["fields"]
     snapshot = {
-        "skills": {skill["tagId"]: {**skill, "label": labels[skill["tagId"]]}
-                   for skill in fields.get("skills", [])},
+        "skills": matching_skills(fields.get("skills", []), labels),
         "researchInterests": {tag_id: labels[tag_id]
                               for tag_id in fields.get("researchInterests", [])},
     }

@@ -4,6 +4,7 @@ import { Button, ErrorNotice, Icon, Loading, Notice } from '../../shared/ui.jsx'
 import { useResource, usePageGuard } from '../../shared/hooks.js';
 import { useMutation } from '../../shared/useMutation.js';
 import { labels } from '../../shared/profile-labels.js';
+import { privacyFields } from './fields.js';
 
 export default function PrivacyPage({ onDirty, onPending, notify }) {
   const [value, setValue] = useState(null);
@@ -100,10 +101,11 @@ export default function PrivacyPage({ onDirty, onPending, notify }) {
             Only selected fields can appear in team results or influence their scores.
           </p>
           <div className="visibility-grid">
-            {Object.entries(labels).map(([field, label]) => (
+            {privacyFields.map((field) => (
               <label className="visibility-option" key={field}>
                 <input
                   type="checkbox"
+                  value={field}
                   checked={value.visibleFields.includes(field)}
                   onChange={(e) =>
                     setValue({
@@ -114,10 +116,14 @@ export default function PrivacyPage({ onDirty, onPending, notify }) {
                     })
                   }
                 />
-                <span>{label}</span>
+                <span>{labels[field]}</span>
               </label>
             ))}
           </div>
+          <p className="help">
+            Research interests also controls your research interest description and personal
+            interest tags. Your resume description always stays private.
+          </p>
         </section>
         <Notice>
           <strong>Original documents always stay private.</strong>

@@ -24,7 +24,13 @@ export const fieldConfigs = {
   ],
 };
 
-export const profileSections = Object.keys(fieldConfigs).concat(['skills', 'researchInterests']);
+export const profileSections = Object.keys(fieldConfigs).concat([
+  'skills',
+  'researchInterests',
+  'researchInterestText',
+  'customInterestTags',
+  'resumeDescription',
+]);
 
 export function createRecord(section) {
   const row = { id: `record_${crypto.randomUUID()}` };

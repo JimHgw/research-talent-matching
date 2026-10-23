@@ -1,44 +1,23 @@
 import React from 'react';
 import { Button, Field, Icon } from '../../shared/ui.jsx';
 
-export default function SkillsEditor({ value, onChange, tags }) {
-  const skills = tags.filter((tag) => tag.kind === 'SKILL');
-  const available = skills.find((tag) => !value.some((skill) => skill.tagId === tag.id));
+export default function SkillsEditor({ value, onChange }) {
   const update = (index, patch) =>
     onChange(value.map((skill, i) => (i === index ? { ...skill, ...patch } : skill)));
   return (
     <>
-      <p className="help">
-        Add skills you can support. Only use “Not yet” when you explicitly know you do not have that
-        skill.
-      </p>
+      <p className="help">Give each skill a title and describe the experience that supports it.</p>
       {value.map((skill, index) => (
-        <div className="record" key={index}>
+        <div className="record" key={skill.id}>
           <div className="form-grid skill-grid">
-            <Field label="Skill">
-              <select
-                value={skill.tagId}
-                onChange={(e) => update(index, { tagId: e.target.value })}
-              >
-                {skills.map((tag) => (
-                  <option
-                    key={tag.id}
-                    value={tag.id}
-                    disabled={value.some((other, i) => i !== index && other.tagId === tag.id)}
-                  >
-                    {tag.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Your experience">
-              <select
-                value={skill.claim}
-                onChange={(e) => update(index, { claim: e.target.value })}
-              >
-                <option value="HAS">I have this skill</option>
-                <option value="DOES_NOT_HAVE">Not yet — explicit gap</option>
-              </select>
+            <Field label="Skill title">
+              <input
+                type="text"
+                required
+                maxLength={350}
+                value={skill.title}
+                onChange={(e) => update(index, { title: e.target.value })}
+              />
             </Field>
             <Button
               variant="icon"
@@ -61,9 +40,9 @@ export default function SkillsEditor({ value, onChange, tags }) {
       ))}
       <Button
         variant="secondary"
-        disabled={!available || value.length >= 100}
+        disabled={value.length >= 100}
         onClick={() =>
-          onChange([...value, { tagId: available.id, claim: 'HAS', evidenceText: '' }])
+          onChange([...value, { id: `record_${crypto.randomUUID()}`, title: '', evidenceText: '' }])
         }
       >
         <Icon name="plus" size={16} />

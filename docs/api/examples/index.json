@@ -158,5 +158,13 @@
   {
     "file": "reset-email-request.json",
     "schema": "PasswordResetRequest"
+  },
+  {
+    "file": "extraction-tags-and-text.json",
+    "schema": "Extraction"
+  },
+  {
+    "file": "apply-tags-and-text-request.json",
+    "schema": "ApplyExtractionRequest"
   }
 ]

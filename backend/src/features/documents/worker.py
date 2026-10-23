@@ -130,7 +130,7 @@ def process_next_document():
             tags = []
 
             for tag in db.scalars(
-                select(Tag).order_by(Tag.id.asc())
+                select(Tag).where(Tag.kind == "INTEREST").order_by(Tag.id.asc())
             ):
                 tags.append(
                     {

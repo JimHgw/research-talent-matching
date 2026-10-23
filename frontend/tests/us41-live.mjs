@@ -56,6 +56,9 @@ try {
   await owner.saveProfile(current.revision, {
     ...current.content,
     displayName: 'Changed in another tab',
+    researchInterestText: 'Reviewed research interest description',
+    customInterestTags: [{ label: 'Synthetic personal interest' }],
+    resumeDescription: 'Private whole-resume description',
   });
   await focus();
   await until(
@@ -85,6 +88,24 @@ try {
 
   await click('Privacy & visibility');
   await until(() => text().includes('Saved discovery status: Off'));
+  const contract = JSON.parse(
+    await readFile(new URL('../../docs/api/openapi.json', import.meta.url), 'utf8')
+  );
+  const allowed = contract.components.schemas.ProfileField.enum;
+  const options = [...document.querySelectorAll('.visibility-option input')];
+  assert.deepEqual(options.map((input) => input.value).sort(), [...allowed].sort());
+  for (const option of options) await act(async () => option.click());
+  await click('Save privacy settings');
+  await until(() => text().includes('Privacy settings saved.'));
+  assert.deepEqual((await api.privacy()).visibleFields, [...allowed].sort());
+  const afterPrivacy = await api.profile();
+  assert.equal(afterPrivacy.content.resumeDescription, 'Private whole-resume description');
+  assert.equal(afterPrivacy.content.researchInterestText, 'Reviewed research interest description');
+  assert.equal(afterPrivacy.content.customInterestTags[0].label, 'Synthetic personal interest');
+  assert.equal(afterPrivacy.confirmation.status, 'CONFIRMED');
+  for (const option of document.querySelectorAll('.visibility-option input')) {
+    await act(async () => option.click());
+  }
   await act(async () =>
     document.querySelector('[aria-label="Allow teams to discover me"]').click()
   );
