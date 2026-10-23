@@ -12,14 +12,8 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
     <section className="opportunity-requirements">
       <h3>{t('Requirements')}</h3>
       <p className="muted">
-<<<<<<< HEAD
         Enter skill names, one per line. Research interests use shared tags. Add at least one
         requirement before publishing.
-=======
-        {t(
-          'Each requirement uses all its selected tags. Add at least one requirement before publishing.'
-        )}
->>>>>>> 7ae7caec94015ae37fc11b7815b3fd702179a815
       </p>
       {value.map((row, index) => (
         <fieldset className="requirement-card" key={row.id}>
@@ -82,7 +76,6 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               </select>
             </Field>
           </div>
-<<<<<<< HEAD
           {row.kind === 'SKILL' ? (
             <Field label={`Skill names for requirement ${index + 1}`}>
               <textarea
@@ -129,41 +122,6 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               )}
             </fieldset>
           )}
-=======
-          <fieldset className="requirement-tags">
-            <legend>
-              {t('Tags for requirement {number} ({count}/{limit})', {
-                number: index + 1,
-                count: row.tagIds.length,
-                limit: limits.tags,
-              })}
-            </legend>
-            <div className="opportunity-tag-options">
-              {tags
-                .filter((tag) => tag.kind === row.kind)
-                .map((tag) => (
-                  <label key={tag.id}>
-                    <input
-                      type="checkbox"
-                      checked={row.tagIds.includes(tag.id)}
-                      disabled={!row.tagIds.includes(tag.id) && row.tagIds.length >= limits.tags}
-                      onChange={(e) =>
-                        update(row.id, {
-                          tagIds: e.target.checked
-                            ? [...row.tagIds, tag.id]
-                            : row.tagIds.filter((id) => id !== tag.id),
-                        })
-                      }
-                    />
-                    <span>{tag.label}</span>
-                  </label>
-                ))}
-            </div>
-            {!tags.some((tag) => tag.kind === row.kind) && (
-              <p>{t('No tags available for this kind.')}</p>
-            )}
-          </fieldset>
->>>>>>> 7ae7caec94015ae37fc11b7815b3fd702179a815
           <div className="actions">
             <Button
               variant="text"
