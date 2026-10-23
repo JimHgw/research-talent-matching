@@ -72,3 +72,31 @@ Local main was fast-forwarded to the fetched remote tip as requested; no task
 changes or commits were made on main. Existing untracked test-output files were
 preserved and excluded from staging. No remote push, merge, history rewrite or
 merge request was performed.
+
+## Follow-up: logout/session race
+
+The subsequently pushed commit `7dafd97` triggered pipeline 3214237. Its only
+failed job, frontend_backend_integration (6181551), reproduced US-05's logout,
+login HTTP 403 and page timeout. Backend, MySQL shards, frontend tests, formatting
+and API validation passed; the dependent build was skipped.
+
+A controlled pending-session regression failed against the original frontend:
+logout cleared the API client's CSRF token, but App immediately displayed Login
+while the asynchronous anonymous-session refresh was still pending. Login could
+submit before the replacement token was available. This confirms a missing
+readiness barrier, rather than a need to relax server CSRF checks.
+
+The fix keeps the account state loading, with no previous user, until the fresh
+session resolves. Both workspace and unsupported-role logout use this path;
+ordinary background focus refreshes retain their existing behaviour. Session
+failure retains the existing error/retry UI. No API, backend security, CI rules
+or test skip conditions were changed.
+
+Regression coverage holds the session response without fixed sleeps, checks
+that no login form is available early, verifies the next login sends the new
+token, and exercises refresh failure/recovery. The existing US-05 real HTTP
+workflow also holds the actual anonymous response before switching accounts.
+The focused real HTTP case passed; all 191 frontend tests, formatting and build
+passed locally. Full `pytest backend/tests --require-frontend -q --tb=short`
+returned 449 passed and the same 6 existing optional MySQL/Docker skips; no skip
+was added. The earlier baseline failure record above remains historical.

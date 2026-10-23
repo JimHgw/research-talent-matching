@@ -50,7 +50,7 @@ function AccountSession({ configuration }) {
         <ErrorNotice error={logout.error} />
         <Button
           disabled={logout.busy}
-          onClick={() => logout.run(api.logout, () => session.accept(null))}
+          onClick={() => logout.run(api.logout, () => session.refresh({ clearUser: true }))}
         >
           {t('Sign out')}
         </Button>
@@ -61,10 +61,7 @@ function AccountSession({ configuration }) {
       configuration={configuration}
       key={`${user.id}:${user.role}`}
       user={user}
-      onLogout={() => {
-        session.accept(null);
-        session.refresh();
-      }}
+      onLogout={() => session.refresh({ clearUser: true })}
     />
   ) : (
     <Login onLogin={session.accept} />

@@ -11,8 +11,10 @@ export function useAccountSession() {
     generation.current++;
     setSession({ user, loading: false, error: null });
   }, []);
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async ({ clearUser = false } = {}) => {
     const request = ++generation.current;
+    // After logout, no authentication form may submit before the new CSRF token arrives.
+    if (clearUser) setSession({ user: null, loading: true, error: null });
     try {
       const current = await api.session();
       if (alive.current && request === generation.current)
