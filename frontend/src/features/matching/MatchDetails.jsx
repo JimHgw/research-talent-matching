@@ -8,6 +8,9 @@ import { labels } from '../../shared/profile-labels.js';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 
 const matchReasons = {
+  ALL_SKILLS_SUPPORTED: 'All requested skills have confirmed supporting evidence.',
+  SOME_SKILLS_SUPPORTED:
+    'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.',
   ALL_TAGS_SUPPORTED: 'All requested tags have confirmed supporting evidence.',
   SOME_TAGS_SUPPORTED:
     'Some requested tags have confirmed evidence; the remaining tags have insufficient evidence.',

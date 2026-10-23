@@ -77,7 +77,12 @@ for (const locale of locales) {
     for (const [label, value] of Object.entries(input)) await change(label, value);
     await click('Add requirement');
     await change('Requirement 1 label', 'Python experience');
-    await checkbox('Python');
+    const skills = 'Python\nFinancial modelling العربية';
+    await change('Skill names for requirement 1', skills);
+    await click('Add requirement');
+    await change('Requirement 2 label', 'Research direction');
+    await change('Requirement 2 kind', 'INTEREST');
+    await checkbox('Machine learning');
     const before = state.requests.length;
     await change('Language', locale);
     assert.equal(state.requests.length, before);
@@ -87,9 +92,25 @@ for (const locale of locales) {
     for (const [label, value] of Object.entries(input)) assert.equal(field(t(label)).value, value);
     assert.equal(field(t('Requirement {number} kind', { number: 1 })).value, 'SKILL');
     assert.equal(field(t('Requirement {number} importance', { number: 1 })).value, 'REQUIRED');
+    assert.equal(field(t('Skill names for requirement {number}', { number: 1 })).value, skills);
+    assert.equal(
+      field(t('Skill names for requirement {number}', { number: 1 })).placeholder,
+      t('Python\nFinancial modelling')
+    );
+    assert.equal(
+      document.querySelector('.requirement-card').querySelector('input[type="checkbox"]'),
+      null
+    );
     assert.ok(
       text().includes(
-        t('Tags for requirement {number} ({count}/{limit})', { number: 1, count: 1, limit: 20 })
+        t(
+          'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.'
+        )
+      )
+    );
+    assert.ok(
+      text().includes(
+        t('Tags for requirement {number} ({count}/{limit})', { number: 2, count: 1, limit: 20 })
       )
     );
     await change(t('University'), '   ');
@@ -100,6 +121,16 @@ for (const locale of locales) {
         .textContent.includes(t('Complete all required fields with non-blank text.'))
     );
     await change(t('University'), 'UNSW');
+    await change(t('Skill names for requirement {number}', { number: 1 }), 'Python\nＰＹＴＨＯＮ');
+    await click(t('Save draft'));
+    assert.ok(
+      document
+        .querySelector('[role="alert"]')
+        .textContent.includes(
+          t('Requirement {number} needs a label and 1-20 unique skill names.', { number: 1 })
+        )
+    );
+    await change(t('Skill names for requirement {number}', { number: 1 }), skills);
     await click(t('Save draft'));
     assert.ok(text().includes(t('Opportunity saved.')));
     const request = state.requests.find((r) => r.path === '/opportunities' && r.method === 'POST');
@@ -108,9 +139,12 @@ for (const locale of locales) {
     assert.equal(request.body.disciplineGroup, 'STEM');
     assert.equal(request.body.requirements[0].kind, 'SKILL');
     assert.equal(request.body.requirements[0].importance, 'REQUIRED');
-    assert.deepEqual(request.body.requirements[0].tagIds, ['skill_python']);
+    assert.deepEqual(request.body.requirements[0].tagIds, []);
+    assert.deepEqual(request.body.requirements[0].skillTitles, skills.split('\n'));
+    assert.deepEqual(request.body.requirements[1].tagIds, ['interest_ml']);
     await change(t('Language'), 'en');
     assert.equal(field('Opportunity title').value, input['Opportunity title']);
+    assert.equal(field('Skill names for requirement 1').value, skills);
     assert.equal(document.documentElement.dir, 'ltr');
   });
   test(`${locale}: profile, privacy, documents, recommendations and saved pages localize`, async () => {

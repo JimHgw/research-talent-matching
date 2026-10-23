@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    'Geben Sie einen Kompetenznamen pro Zeile ein. Forschungsinteressen verwenden gemeinsame Tags. Fügen Sie vor der Veröffentlichung mindestens eine Anforderung hinzu.',
+  'Skill names for requirement {number}': 'Kompetenznamen für Anforderung {number}',
+  'Python\nFinancial modelling': 'Python\nFinanzmodellierung',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    'Anforderung {number} benötigt eine Bezeichnung und 1 bis 20 eindeutige Kompetenznamen.',
+  'All requested skills have confirmed supporting evidence.':
+    'Für alle angeforderten Kompetenzen liegen bestätigte Nachweise vor.',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    'Für einige angeforderte Kompetenzen liegen bestätigte Nachweise vor; für die übrigen reichen die Nachweise nicht aus.',
+  'Skill names must be unique.': 'Kompetenznamen müssen eindeutig sein.',
+  'Enter visible skill names without control characters.':
+    'Geben Sie sichtbare Kompetenznamen ohne Steuerzeichen ein.',
   ' · Reviewed document import': ' · Überprüfter Dokumentenimport',
   '#{rank} match': '#{rank}-Match',
   '#{rank} recommendation': '#{rank} Empfehlung',

@@ -12,8 +12,9 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
     <section className="opportunity-requirements">
       <h3>{t('Requirements')}</h3>
       <p className="muted">
-        Enter skill names, one per line. Research interests use shared tags. Add at least one
-        requirement before publishing.
+        {t(
+          'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.'
+        )}
       </p>
       {value.map((row, index) => (
         <fieldset className="requirement-card" key={row.id}>
@@ -77,11 +78,11 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
             </Field>
           </div>
           {row.kind === 'SKILL' ? (
-            <Field label={`Skill names for requirement ${index + 1}`}>
+            <Field label={t('Skill names for requirement {number}', { number: index + 1 })}>
               <textarea
                 required
                 rows={3}
-                placeholder={'Python\nFinancial modelling'}
+                placeholder={t('Python\nFinancial modelling')}
                 value={(
                   row.skillTitles ||
                   row.tagIds.map((id) => tags.find((tag) => tag.id === id)?.label || id)
@@ -94,7 +95,11 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
           ) : (
             <fieldset className="requirement-tags">
               <legend>
-                Tags for requirement {index + 1} ({row.tagIds.length}/{limits.tags})
+                {t('Tags for requirement {number} ({count}/{limit})', {
+                  number: index + 1,
+                  count: row.tagIds.length,
+                  limit: limits.tags,
+                })}
               </legend>
               <div className="opportunity-tag-options">
                 {tags
@@ -118,7 +123,7 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
                   ))}
               </div>
               {!tags.some((tag) => tag.kind === row.kind) && (
-                <p>No tags available for this kind.</p>
+                <p>{t('No tags available for this kind.')}</p>
               )}
             </fieldset>
           )}
