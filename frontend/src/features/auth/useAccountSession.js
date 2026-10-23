@@ -24,6 +24,11 @@ export function useAccountSession() {
         setSession({ user: null, loading: false, error });
     }
   }, []);
+  const signedOut = useCallback(() => {
+    // Logout clears the cookie and CSRF token. Bootstrap the anonymous session
+    // before allowing another login, registration or password-reset request.
+    return refresh({ clearUser: true });
+  }, [refresh]);
   useEffect(() => {
     alive.current = true;
     refresh();
@@ -34,5 +39,5 @@ export function useAccountSession() {
       window.removeEventListener('focus', refresh);
     };
   }, [refresh]);
-  return { ...session, accept, refresh };
+  return { ...session, accept, refresh, signedOut };
 }

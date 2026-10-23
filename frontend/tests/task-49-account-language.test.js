@@ -248,6 +248,53 @@ test('account ID and server role are displayed for both roles, persist on refres
   assert.match(document.querySelector('dialog').textContent, /Research team/);
 });
 
+test('signing out waits for the new anonymous session before showing sign-in controls', async () => {
+  await mount();
+  let release;
+  state.intercept = (path) =>
+    path === '/auth/session'
+      ? new Promise((resolve) => {
+          release = resolve;
+        })
+      : null;
+  await click('Sign out');
+  try {
+    assert.equal(document.querySelector('.workspace'), null);
+    assert.ok(
+      !document.querySelector('.login-fields'),
+      'Sign-in controls appeared before CSRF was ready'
+    );
+    assert.ok(document.querySelector('.app-loading'));
+  } finally {
+    await act(async () => release(json({ user: null, csrfToken: 'after-logout' })));
+  }
+  let loginToken;
+  state.intercept = (path, options) => {
+    if (path === '/auth/login') loginToken = options.headers['X-CSRF-Token'];
+    return null;
+  };
+  await change('Email address or account ID', 'team@example.test');
+  await change('Password', 'Demo1234!');
+  await click('Sign in');
+  assert.equal(loginToken, 'after-logout');
+  assert.match(text(), /Your account/);
+});
+
+test('a failed session refresh after sign-out can be retried before signing in', async () => {
+  await mount();
+  state.intercept = (path) =>
+    path === '/auth/session'
+      ? json({ error: { code: 'UNAVAILABLE', message: 'Service unavailable.' } }, 503)
+      : null;
+  await click('Sign out');
+  assert.equal(document.querySelector('.workspace'), null);
+  assert.equal(document.querySelector('.login-fields'), null);
+  assert.match(text(), /We could not reach your workspace/);
+  state.intercept = null;
+  await click('Reload latest data');
+  assert.match(text(), /Welcome to Banana/);
+});
+
 test('language changes and same-account session checks preserve unsaved profile edits', async () => {
   await mount();
   await change('Display name', 'Do not translate this draft');

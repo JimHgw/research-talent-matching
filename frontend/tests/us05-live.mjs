@@ -183,7 +183,25 @@ try {
   await until(() => text().includes('Tell your research story'));
   await click('Saved opportunities');
   await until(() => text().includes('Remove from Saved'));
-  await click('Sign out');
+  // Hold the post-logout bootstrap to reproduce the CI race deterministically.
+  const browserFetch = globalThis.fetch;
+  let releaseSavedSession;
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/auth/session'))
+      await new Promise((resolve) => {
+        releaseSavedSession = resolve;
+      });
+    return browserFetch(url, options);
+  };
+  try {
+    await click('Sign out');
+    await until(() => !!releaseSavedSession);
+    assert.ok(document.querySelector('.app-loading'));
+    assert.ok(!document.querySelector('.login-fields'), 'Sign-in must wait for the new session');
+  } finally {
+    globalThis.fetch = browserFetch;
+    await act(async () => releaseSavedSession?.());
+  }
   await login('talent@example.test');
   await until(() => text().includes('Tell your research story'));
   await click('Saved opportunities');
