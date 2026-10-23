@@ -49,7 +49,7 @@ try {
   await until(() => text().includes(t('Opportunity saved.')));
   await click(t('Add requirement'));
   await change(t('Requirement {number} label', { number: 1 }), 'Python requirement');
-  await checkbox('Python');
+  await change(t('Skill names for requirement {number}', { number: 1 }), 'Python');
   await click(t('Save changes'));
   await until(() => button(t('Publish opportunity'))?.disabled === false);
   await click(t('Publish opportunity'));
@@ -58,7 +58,8 @@ try {
   const published = own.items.find((o) => o.content.title === title);
   assert.ok(published && published.status === 'PUBLISHED');
   assert.equal(published.content.requirements[0].kind, 'SKILL');
-  assert.deepEqual(published.content.requirements[0].tagIds, ['skill_python']);
+  assert.deepEqual(published.content.requirements[0].tagIds, []);
+  assert.deepEqual(published.content.requirements[0].skillTitles, ['Python']);
   await switchLanguage('en');
   await click('Sign out');
   await until(() => text().includes('Welcome to Banana'));
@@ -96,7 +97,7 @@ try {
   assert.ok(
     document
       .querySelector('dialog')
-      .textContent.includes(t('All requested tags have confirmed supporting evidence.'))
+      .textContent.includes(t('All requested skills have confirmed supporting evidence.'))
   );
   await click(t('Close dialog'));
   await click(t('My documents'));

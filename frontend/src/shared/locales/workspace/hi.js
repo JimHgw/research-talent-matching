@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    'हर पंक्ति में एक कौशल का नाम दर्ज करें। शोध रुचियों के लिए साझा टैग उपयोग किए जाते हैं। प्रकाशित करने से पहले कम से कम एक आवश्यकता जोड़ें।',
+  'Skill names for requirement {number}': 'आवश्यकता {number} के लिए कौशल के नाम',
+  'Python\nFinancial modelling': 'Python\nवित्तीय मॉडलिंग',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    'आवश्यकता {number} के लिए एक विवरण और 1 से 20 अलग-अलग कौशल के नाम चाहिए।',
+  'All requested skills have confirmed supporting evidence.':
+    'सभी अनुरोधित कौशलों के लिए पुष्ट सहायक प्रमाण उपलब्ध हैं।',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    'कुछ अनुरोधित कौशलों के लिए पुष्ट प्रमाण उपलब्ध हैं; बाकी कौशलों के लिए पर्याप्त प्रमाण नहीं हैं।',
+  'Skill names must be unique.': 'कौशल के नाम दोहराए नहीं जा सकते।',
+  'Enter visible skill names without control characters.':
+    'नियंत्रण वर्णों के बिना दिखाई देने वाले कौशल के नाम दर्ज करें।',
   ' · Reviewed document import': ' · दस्तावेज़ आयात की समीक्षा की गई',
   '#{rank} match': '#{rank} मिलान',
   '#{rank} recommendation': '#{rank} सिफ़ारिश',

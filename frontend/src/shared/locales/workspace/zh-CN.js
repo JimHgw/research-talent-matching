@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    '每行输入一个技能名称。研究兴趣使用共享标签。发布前请至少添加一项要求。',
+  'Skill names for requirement {number}': '要求 {number} 的技能名称',
+  'Python\nFinancial modelling': 'Python\n财务建模',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    '要求 {number} 需要一个说明和 1-20 个不重复的技能名称。',
+  'All requested skills have confirmed supporting evidence.':
+    '所有要求的技能都有已确认的支持证据。',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    '部分要求的技能有已确认的证据，其余技能的证据不足。',
+  'Skill names must be unique.': '技能名称不能重复。',
+  'Enter visible skill names without control characters.':
+    '请输入可见的技能名称，不得包含控制字符。',
   ' · Reviewed document import': ' · 已审阅文档导入',
   '#{rank} match': '第 {rank} 位匹配',
   '#{rank} recommendation': '第 {rank} 位推荐',

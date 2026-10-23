@@ -1,5 +1,18 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
+    '스킬 이름을 한 줄에 하나씩 입력하세요. 연구 관심사는 공유 태그를 사용합니다. 게시하기 전에 요구 사항을 하나 이상 추가하세요.',
+  'Skill names for requirement {number}': '요구 사항 {number}의 스킬 이름',
+  'Python\nFinancial modelling': 'Python\n재무 모델링',
+  'Requirement {number} needs a label and 1-20 unique skill names.':
+    '요구 사항 {number}에는 설명과 중복되지 않는 스킬 이름 1~20개가 필요합니다.',
+  'All requested skills have confirmed supporting evidence.':
+    '요청된 모든 스킬에 확인된 근거가 있습니다.',
+  'Some requested skills have confirmed evidence; the remaining skills have insufficient evidence.':
+    '요청된 일부 스킬에는 확인된 근거가 있지만 나머지 스킬은 근거가 부족합니다.',
+  'Skill names must be unique.': '스킬 이름은 중복될 수 없습니다.',
+  'Enter visible skill names without control characters.':
+    '제어 문자가 없는 표시 가능한 스킬 이름을 입력하세요.',
   ' · Reviewed document import': ' · 검토된 문서 가져오기',
   '#{rank} match': '#{rank} 매칭',
   '#{rank} recommendation': '#{rank} 추천',
