@@ -1,22 +1,36 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Button, Field } from '../../shared/ui.jsx';
 import { limits, newRequirement } from './fields.js';
 
 export default function RequirementEditor({ value, onChange, tags, numberedLabels = true }) {
+  const { t } = useLanguage();
   function update(id, patch) {
     onChange(value.map((row) => (row.id === id ? { ...row, ...patch } : row)));
   }
   return (
     <section className="opportunity-requirements">
-      <h3>Requirements</h3>
+      <h3>{t('Requirements')}</h3>
       <p className="muted">
+<<<<<<< HEAD
         Enter skill names, one per line. Research interests use shared tags. Add at least one
         requirement before publishing.
+=======
+        {t(
+          'Each requirement uses all its selected tags. Add at least one requirement before publishing.'
+        )}
+>>>>>>> 7ae7caec94015ae37fc11b7815b3fd702179a815
       </p>
       {value.map((row, index) => (
         <fieldset className="requirement-card" key={row.id}>
-          <legend>Requirement {index + 1}</legend>
-          <Field label={numberedLabels ? `Requirement ${index + 1} label` : 'Requirement label *'}>
+          <legend>{t('Requirement {number}', { number: index + 1 })}</legend>
+          <Field
+            label={
+              numberedLabels
+                ? t('Requirement {number} label', { number: index + 1 })
+                : t('Requirement label *')
+            }
+          >
             <input
               required
               maxLength={limits.requirementLabel}
@@ -25,7 +39,11 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
             />
           </Field>
           <div className="opportunity-fields">
-            <Field label={numberedLabels ? `Requirement ${index + 1} kind` : 'Kind'}>
+            <Field
+              label={
+                numberedLabels ? t('Requirement {number} kind', { number: index + 1 }) : t('Kind')
+              }
+            >
               <select
                 value={row.kind}
                 onChange={(e) => {
@@ -44,20 +62,27 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
                   );
                 }}
               >
-                <option value="SKILL">Skill</option>
-                <option value="INTEREST">Research interest</option>
+                <option value="SKILL">{t('Skill')}</option>
+                <option value="INTEREST">{t('Research interest')}</option>
               </select>
             </Field>
-            <Field label={numberedLabels ? `Requirement ${index + 1} importance` : 'Importance'}>
+            <Field
+              label={
+                numberedLabels
+                  ? t('Requirement {number} importance', { number: index + 1 })
+                  : t('Importance')
+              }
+            >
               <select
                 value={row.importance}
                 onChange={(e) => update(row.id, { importance: e.target.value })}
               >
-                <option value="REQUIRED">Required</option>
-                <option value="PREFERRED">Preferred</option>
+                <option value="REQUIRED">{t('Required')}</option>
+                <option value="PREFERRED">{t('Preferred')}</option>
               </select>
             </Field>
           </div>
+<<<<<<< HEAD
           {row.kind === 'SKILL' ? (
             <Field label={`Skill names for requirement ${index + 1}`}>
               <textarea
@@ -104,13 +129,48 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               )}
             </fieldset>
           )}
+=======
+          <fieldset className="requirement-tags">
+            <legend>
+              {t('Tags for requirement {number} ({count}/{limit})', {
+                number: index + 1,
+                count: row.tagIds.length,
+                limit: limits.tags,
+              })}
+            </legend>
+            <div className="opportunity-tag-options">
+              {tags
+                .filter((tag) => tag.kind === row.kind)
+                .map((tag) => (
+                  <label key={tag.id}>
+                    <input
+                      type="checkbox"
+                      checked={row.tagIds.includes(tag.id)}
+                      disabled={!row.tagIds.includes(tag.id) && row.tagIds.length >= limits.tags}
+                      onChange={(e) =>
+                        update(row.id, {
+                          tagIds: e.target.checked
+                            ? [...row.tagIds, tag.id]
+                            : row.tagIds.filter((id) => id !== tag.id),
+                        })
+                      }
+                    />
+                    <span>{tag.label}</span>
+                  </label>
+                ))}
+            </div>
+            {!tags.some((tag) => tag.kind === row.kind) && (
+              <p>{t('No tags available for this kind.')}</p>
+            )}
+          </fieldset>
+>>>>>>> 7ae7caec94015ae37fc11b7815b3fd702179a815
           <div className="actions">
             <Button
               variant="text"
-              aria-label={`Remove requirement ${index + 1}`}
+              aria-label={t('Remove requirement {number}', { number: index + 1 })}
               onClick={() => onChange(value.filter((item) => item.id !== row.id))}
             >
-              Remove requirement {index + 1}
+              {t('Remove requirement {number}', { number: index + 1 })}
             </Button>
           </div>
         </fieldset>
@@ -120,7 +180,7 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
         disabled={value.length >= limits.requirements}
         onClick={() => onChange([...value, newRequirement()])}
       >
-        Add requirement
+        {t('Add requirement')}
       </Button>
     </section>
   );

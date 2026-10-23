@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { Button, Modal } from '../../shared/ui.jsx';
 import { useOpportunityEditor } from './useOpportunityEditor.js';
@@ -12,6 +13,7 @@ export default function TeamOpportunityEditor({
   onDirty,
   onPending,
 }) {
+  const { t } = useLanguage();
   const editor = useOpportunityEditor({ opportunity, tags, onSaved, onDirty, onPending });
   const { saved, content, change, dirty, busy, needsReview, save, isPending } = editor;
   const [pendingClose, setPendingClose] = useState(false);
@@ -22,18 +24,18 @@ export default function TeamOpportunityEditor({
   }
   return (
     <Modal
-      title={saved ? 'Edit research opportunity' : 'Create research opportunity'}
+      title={saved ? t('Edit research opportunity') : t('Create research opportunity')}
       onClose={close}
     >
       {pendingClose ? (
         <div className="editor-confirm" role="alert">
-          <h3>Leave without saving?</h3>
-          <p>Your unsaved opportunity changes will be discarded.</p>
+          <h3>{t('Leave without saving?')}</h3>
+          <p>{t('Your unsaved opportunity changes will be discarded.')}</p>
           <div className="actions">
             <Button variant="secondary" onClick={() => setPendingClose(false)}>
-              Keep editing
+              {t('Keep editing')}
             </Button>
-            <Button onClick={onClose}>Discard changes</Button>
+            <Button onClick={onClose}>{t('Discard changes')}</Button>
           </div>
         </div>
       ) : (
@@ -43,7 +45,7 @@ export default function TeamOpportunityEditor({
             <fieldset className="team-opportunity-fields" disabled={busy}>
               {dirty && (
                 <span className="editor-dirty" role="status">
-                  Unsaved changes
+                  {t('Unsaved changes')}
                 </span>
               )}
               <OpportunityFields
@@ -55,10 +57,10 @@ export default function TeamOpportunityEditor({
               />
               <div className="actions">
                 <Button variant="secondary" disabled={busy} onClick={close}>
-                  Cancel
+                  {t('Cancel')}
                 </Button>
                 <Button type="submit" disabled={busy || needsReview || (saved && !dirty)}>
-                  {busy ? 'Saving…' : saved ? 'Save opportunity' : 'Save draft'}
+                  {busy ? t('Saving…') : saved ? t('Save opportunity') : t('Save draft')}
                 </Button>
               </div>
             </fieldset>

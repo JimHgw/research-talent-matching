@@ -143,7 +143,7 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
               </Field>
               <Field label={t('Current password')}>
                 <PasswordInput
-                  label="Current password"
+                  label={t('Current password')}
                   autoComplete="current-password"
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
@@ -205,7 +205,7 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
             <>
               <Field label={t('New password')} hint={t(passwordHint)}>
                 <PasswordInput
-                  label="New password"
+                  label={t('New password')}
                   autoComplete="new-password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
@@ -215,7 +215,7 @@ export default function PasswordReset({ initialIdentifier, onBack, onComplete })
               </Field>
               <Field label={t('Confirm new password')}>
                 <PasswordInput
-                  label="Confirm new password"
+                  label={t('Confirm new password')}
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}

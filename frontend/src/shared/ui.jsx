@@ -1,5 +1,28 @@
 import React, { useEffect, useRef } from 'react';
 import { useLanguage } from './i18n.jsx';
+import { labels } from './profile-labels.js';
+
+const fieldLabels = {
+  ...labels,
+  email: 'Email address',
+  password: 'Password',
+  institution: 'Institution',
+  qualification: 'Qualification',
+  discipline: 'Discipline',
+  startYear: 'Start year',
+  endYear: 'End year',
+  name: 'Course name',
+  code: 'Course code',
+  description: 'Description',
+  title: 'Opportunity title',
+  organisation: 'Organisation',
+  type: 'Type',
+  url: 'Link (optional)',
+  evidenceText: 'Supporting evidence',
+  label: 'Personal interest label',
+  university: 'University',
+  researchArea: 'Research area',
+};
 
 const paths = {
   grid: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
@@ -50,9 +73,10 @@ export function Brand() {
   );
 }
 export function Badge({ status, children }) {
+  const { t } = useLanguage();
   return (
     <span className={`badge ${String(status || '').toLowerCase()}`}>
-      {children || String(status).replaceAll('_', ' ')}
+      {children || t(String(status).replaceAll('_', ' '))}
     </span>
   );
 }
@@ -82,7 +106,15 @@ export function ErrorNotice({ error, retry }) {
         <strong>{errorMessage(error)}</strong>
         {error.fields?.map((f, i) => (
           <p key={i}>
-            {f.field}: {t(f.message)}
+            {t(
+              fieldLabels[
+                f.field
+                  .replace(/\[\d+\]/g, '')
+                  .split('.')
+                  .at(-1)
+              ] || 'Submitted field'
+            )}
+            : {t(f.message)}
           </p>
         ))}
         {retry && (

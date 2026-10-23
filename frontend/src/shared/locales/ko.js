@@ -1,4 +1,6 @@
+import workspaceMessages from './workspace/ko.js';
 export default {
+  ...workspaceMessages,
   Language: '표시 언어',
   'RESEARCH, CONNECTED': '연구를 연결하다',
   'Great research': '훌륭한 연구는',
@@ -130,6 +132,30 @@ export default {
   'Page {page} of {pages}': '{pages}페이지 중 {page}페이지',
   'Close dialog': '대화 상자 닫기',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: '이메일, 계정 ID 또는 비밀번호가 올바르지 않습니다.',
     EMAIL_ALREADY_REGISTERED: '이미 등록된 이메일입니다. 로그인하세요.',
     VERIFICATION_CODE_INVALID: '코드가 올바르지 않거나 만료되었습니다. 새 코드를 요청하세요.',

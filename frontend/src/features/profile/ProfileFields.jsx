@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { labels } from '../../shared/profile-labels.js';
 import { profileSections } from './fields.js';
@@ -14,6 +15,7 @@ export default function ProfileFields({
   sections = profileSections,
   identity = true,
 }) {
+  const { t } = useLanguage();
   const set = (key, value) => onChange({ ...content, [key]: value });
   return (
     <div className="profile-fields">
@@ -33,21 +35,21 @@ export default function ProfileFields({
               <span className="section-number">
                 {String(index + (identity ? 2 : 1)).padStart(2, '0')}
               </span>
-              <h3>{labels[section]}</h3>
+              <h3>{t(labels[section])}</h3>
               <span className="muted count">
-                {value.length} {isText ? 'characters' : 'entries'}
+                {t(isText ? '{count} characters' : '{count} entries', { count: value.length })}
               </span>
             </div>
             {isText ? (
               <label>
-                <span>{labels[section]}</span>
+                <span>{t(labels[section])}</span>
                 <textarea
                   value={value}
                   maxLength={section === 'resumeDescription' ? 20000 : 5000}
                   rows={5}
                   onChange={(event) => set(section, event.target.value)}
                 />
-                {section === 'resumeDescription' && <small>Visible only to you.</small>}
+                {section === 'resumeDescription' && <small>{t('Visible only to you.')}</small>}
               </label>
             ) : section === 'customInterestTags' ? (
               <PersonalInterestTagsEditor {...props} />

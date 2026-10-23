@@ -1,5 +1,7 @@
+import workspaceMessages from './workspace/zh-CN.js';
 // English source messages are stable keys. Domain data and API payloads are never translated.
 export default {
+  ...workspaceMessages,
   Language: '界面语言',
   'RESEARCH, CONNECTED': '连接科研，发现机遇',
   'Great research': '出色的研究',
@@ -127,6 +129,30 @@ export default {
   'Page {page} of {pages}': '第 {page} 页，共 {pages} 页',
   'Close dialog': '关闭对话框',
   errors: {
+    VALIDATION_ERROR: workspaceMessages['Check the submitted fields.'],
+    REVISION_CONFLICT:
+      workspaceMessages[
+        'Your saved information changed. Review the latest version before trying again.'
+      ],
+    PROFILE_UNCONFIRMED:
+      workspaceMessages['Review and confirm your saved profile before matching.'],
+    EXTRACTION_NOT_READY: workspaceMessages['The document is still being processed.'],
+    EXTRACTION_FAILED: workspaceMessages['The document could not be processed.'],
+    UPLOAD_TOO_LARGE: workspaceMessages['The document exceeds the upload size limit.'],
+    UNSUPPORTED_FILE_TYPE: workspaceMessages['Choose a supported PDF or DOCX file.'],
+    NOT_FOUND: workspaceMessages['The requested item is no longer available.'],
+    INTERNAL_ERROR: workspaceMessages['The service could not complete this request.'],
+    BAD_REQUEST: workspaceMessages['The request is invalid. Check the submitted information.'],
+    UNSUPPORTED_MEDIA_TYPE: workspaceMessages['The submitted format is not supported.'],
+    EXTRACTION_UNREADABLE:
+      workspaceMessages[
+        'The document contains no readable text. Try another file or enter information manually.'
+      ],
+    EXTRACTION_TIMEOUT:
+      workspaceMessages[
+        'Document processing timed out. Try another file or enter information manually.'
+      ],
+
     INVALID_CREDENTIALS: '邮箱、账号 ID 或密码不正确。',
     EMAIL_ALREADY_REGISTERED: '此邮箱已注册，请直接登录。',
     VERIFICATION_CODE_INVALID: '验证码无效或已过期，请重新获取验证码。',

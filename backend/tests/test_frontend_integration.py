@@ -28,7 +28,7 @@ def frontend_node(required=False):
     return node
 
 
-@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19", "01-register", "01-reset", "41", "49"])
+@pytest.mark.parametrize("story", ["01", "02", "03", "05", "19", "01-register", "01-reset", "41", "49", "i18n"])
 def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
     node = frontend_node(required=request.config.getoption("--require-frontend"))
     if story == "02":
@@ -42,7 +42,7 @@ def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
         monkeypatch.setattr("backend.src.features.auth.reset.secrets.randbelow", lambda _: 12345)
         app.extensions["password_reset_mailer"] = lambda email, code: outbox.append((email, code))
     extra_env = {}
-    if story == "41":
+    if story in ("41", "i18n"):
         from io import BytesIO
         from docx import Document
         from backend.tests.conftest import sign_in, headers

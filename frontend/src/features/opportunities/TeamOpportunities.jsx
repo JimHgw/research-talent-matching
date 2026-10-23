@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource, usePageGuard } from '../../shared/hooks.js';
@@ -7,6 +8,7 @@ import { Badge, Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../s
 import OpportunityEditor from './TeamOpportunityEditor.jsx';
 
 export default function TeamOpportunities({ tags, notify, navigate, onDirty, onPending }) {
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState(null);
   const { error, clearError, busy, run, isPending } = useMutation();
@@ -27,12 +29,12 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
     <>
       <div className="section-title">
         <div>
-          <h2>Your research opportunities</h2>
-          <p>Manage drafts and publish the work you want to move forward.</p>
+          <h2>{t('Your research opportunities')}</h2>
+          <p>{t('Manage drafts and publish the work you want to move forward.')}</p>
         </div>
         <Button disabled={busy} onClick={() => setEditor({})}>
           <Icon name="plus" size={16} />
-          New opportunity
+          {t('New opportunity')}
         </Button>
       </div>
       <ErrorNotice
@@ -46,10 +48,10 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
       ) : !resource.data.items.length ? (
         <Empty
           icon="briefcase"
-          title="Your next project starts here"
-          action={<Button onClick={() => setEditor({})}>Create an opportunity</Button>}
+          title={t('Your next project starts here')}
+          action={<Button onClick={() => setEditor({})}>{t('Create an opportunity')}</Button>}
         >
-          Add a research opportunity to start discovering talent.
+          {t('Add a research opportunity to start discovering talent.')}
         </Empty>
       ) : (
         <div className="team-opportunities">
@@ -57,7 +59,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
             <article className="panel team-opportunity" key={opportunity.id}>
               <div className="row-between">
                 <span className="eyebrow">
-                  {opportunity.content.university} · {opportunity.content.disciplineGroup}
+                  {opportunity.content.university} · {t(opportunity.content.disciplineGroup)}
                 </span>
                 <Badge status={opportunity.status} />
               </div>
@@ -65,13 +67,15 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
               <p>{opportunity.content.description}</p>
               <div className="tag-row">
                 <span>{opportunity.content.researchArea}</span>
-                <span>{opportunity.content.requirements.length} requirements</span>
+                <span>
+                  {t('{count} requirements', { count: opportunity.content.requirements.length })}
+                </span>
               </div>
               <div className="card-bottom">
                 <small className="muted">
-                  Updated {displayDate(opportunity.updatedAt)}
+                  {t('Updated {date}', { date: displayDate(opportunity.updatedAt, language) })}
                   {opportunity.status === 'DRAFT' && !opportunity.content.requirements.length && (
-                    <span className="publish-hint">Add a requirement to publish.</span>
+                    <span className="publish-hint">{t('Add a requirement to publish.')}</span>
                   )}
                 </small>
                 <div className="actions compact">
@@ -80,25 +84,25 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
                     disabled={busy}
                     onClick={() => setEditor(opportunity)}
                   >
-                    Edit
+                    {t('Edit')}
                   </Button>
                   {opportunity.status === 'DRAFT' ? (
                     <Button
                       disabled={busy || !opportunity.content.requirements.length}
                       title={
                         !opportunity.content.requirements.length
-                          ? 'Add at least one requirement before publishing'
+                          ? t('Add at least one requirement before publishing')
                           : undefined
                       }
                       onClick={() => publish(opportunity)}
                     >
-                      {busy ? 'Publishing…' : 'Publish'}
+                      {busy ? t('Publishing…') : t('Publish')}
                     </Button>
                   ) : (
                     <Button
                       onClick={() => navigate('talent', { initialOpportunity: opportunity.id })}
                     >
-                      Discover talent
+                      {t('Discover talent')}
                       <Icon name="arrow" size={16} />
                     </Button>
                   )}
