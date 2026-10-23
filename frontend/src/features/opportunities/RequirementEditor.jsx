@@ -12,8 +12,9 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
     <section className="opportunity-requirements">
       <h3>{t('Requirements')}</h3>
       <p className="muted">
-        Enter skill names, one per line. Research interests use shared tags. Add at least one
-        requirement before publishing.
+        {t(
+          'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.'
+        )}
       </p>
       {value.map((row, index) => (
         <fieldset className="requirement-card" key={row.id}>
