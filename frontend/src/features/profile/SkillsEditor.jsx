@@ -1,16 +1,20 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Button, Field, Icon } from '../../shared/ui.jsx';
 
 export default function SkillsEditor({ value, onChange }) {
+  const { t } = useLanguage();
   const update = (index, patch) =>
     onChange(value.map((skill, i) => (i === index ? { ...skill, ...patch } : skill)));
   return (
     <>
-      <p className="help">Give each skill a title and describe the experience that supports it.</p>
+      <p className="help">
+        {t('Give each skill a title and describe the experience that supports it.')}
+      </p>
       {value.map((skill, index) => (
         <div className="record" key={skill.id}>
           <div className="form-grid skill-grid">
-            <Field label="Skill title">
+            <Field label={t('Skill title')}>
               <input
                 type="text"
                 required
@@ -21,17 +25,17 @@ export default function SkillsEditor({ value, onChange }) {
             </Field>
             <Button
               variant="icon"
-              aria-label={`Remove skill ${index + 1}`}
+              aria-label={t('Remove skill {number}', { number: index + 1 })}
               onClick={() => onChange(value.filter((_, i) => i !== index))}
             >
               <Icon name="close" />
             </Button>
           </div>
-          <Field label="Supporting evidence">
+          <Field label={t('Supporting evidence')}>
             <textarea
               rows={2}
               maxLength={2000}
-              placeholder="A project, course, or experience that supports your statement"
+              placeholder={t('A project, course, or experience that supports your statement')}
               value={skill.evidenceText}
               onChange={(e) => update(index, { evidenceText: e.target.value })}
             />
@@ -46,7 +50,7 @@ export default function SkillsEditor({ value, onChange }) {
         }
       >
         <Icon name="plus" size={16} />
-        Add skill
+        {t('Add skill')}
       </Button>
     </>
   );

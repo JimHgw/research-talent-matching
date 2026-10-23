@@ -27,7 +27,7 @@ try {
   await change('Display name', 'Private draft, preserve verbatim');
   await change('Language', 'zh-CN');
   assert.match(document.querySelector('nav').textContent, /我的资料/);
-  assert.equal(field('Display name').value, 'Private draft, preserve verbatim');
+  assert.equal(field('显示名称').value, 'Private draft, preserve verbatim');
   assert.equal(document.documentElement.lang, 'zh-CN');
 
   assert.equal((await secondBrowser.session()).user, null);
@@ -79,8 +79,8 @@ try {
   assert.equal(field('密码').type, 'text');
   await click('登录');
   await until(() => document.querySelector('.account-entry code')?.textContent === talent.id);
-  await until(() => text().includes('Tell your research story'));
-  assert.equal(field('Display name').value, '');
+  await until(() => text().includes(translate('zh-CN', 'Tell your research story')));
+  assert.equal(field('显示名称').value, '');
   await change('界面语言', 'en');
   await click('Sign out');
   await until(() => text().includes('Welcome to Banana'));

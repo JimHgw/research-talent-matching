@@ -114,6 +114,8 @@ To run just one stage, use `npm test`, `npm run build`, or `npm run format:check
 For focused checks, use `npm run test:18` for login/navigation,
 `npm run test:19` for opportunities, `npm run test:21` for profile/privacy, or `npm run test:22` for documents. Focused
 checks do not replace the full suite, which also covers shared code and contracts.
+Use `npm run test:i18n` / `sh frontend/run.sh test:i18n` for the complete business-page
+language coverage, field dictionaries, statuses and preservation of API values.
 Use `npm run test:49` for Sprint 2 account, password visibility, language and
 session-isolation regressions. With the saved setup toolchain, the repository-root
 equivalent is `sh frontend/run.sh test:49`.
@@ -151,14 +153,17 @@ an account registered for that role; there is no client-side permission switch.
 Returning to a tab revalidates the server session and removes the previous
 account's mounted workspace if identity or role changed.
 
-Auth pages, workspace navigation/account screens and shared loading/error/dialog
-controls support English, Simplified/Traditional Chinese, Spanish, French, German,
+Auth, profile/privacy, document upload/review, opportunity editing/publication,
+recommendations/explanations, talent discovery and collections, plus the workspace
+and shared loading/error/dialog controls, support English, Simplified/Traditional Chinese, Spanish, French, German,
 Portuguese, Japanese, Korean, Arabic, Hindi and Russian. English is the default and
 fallback. The choice is stored under `banana.language` in browser local storage;
 storage restrictions do not prevent use. Language changes preserve current input.
-Feature-page content can adopt `useLanguage().t(message, values)` from
-`src/shared/i18n.jsx` and add English-source-message keys to the independently
-maintained dictionaries in `src/shared/locales/`. Register further languages in
+Feature-page content uses `useLanguage().t(message, values)` from
+`src/shared/i18n.jsx`. Add English-source-message keys to the independently
+maintained dictionaries in `src/shared/locales/` and `src/shared/locales/workspace/`.
+These dictionaries ship with the app; no online translation service is called at runtime.
+Register further languages in
 `src/shared/locales/index.js` with their native name and writing direction.
 Arabic sets the document direction to right-to-left; the workspace/mobile
 navigation follows that direction while account IDs, email and password inputs
@@ -166,11 +171,16 @@ remain left-to-right. Returning to another language restores left-to-right layou
 `tests/task-49-locales.test.js` checks dictionary completeness, interpolation,
 errors, input preservation and direction for every supported language. Translation
 wording should be reviewed by native speakers before public release.
-Task 49 supplies this shared framework; profile,
-document, opportunity and matching page copy remains with its owning module.
-Names, profile records, vocabulary/API values and generated matching explanations
-are preserved verbatim. API status/error codes stay unchanged; known errors are
-translated at display time and unknown messages fall back to the server text.
+Business-page tests cover every supported language, including the opportunity form
+that previously stayed English. A compiled-JSX audit rejects unconnected literal
+UI text, confirmation prompts and accessible labels; dictionary checks also cover
+form metadata, status values and notifications.
+Names, profile records, file names, vocabulary labels and API payload values remain
+verbatim. Fixed API status/error codes and matching-explanation prefixes are
+localized only for display. Known server diagnostic templates preserve their
+source-text placeholders; unknown messages retain their original text. Dates use
+the selected locale. Language changes neither reset a draft or acknowledgement
+nor bypass pending-write guards.
 
 After normal project setup, run the full real-HTTP regression from the repository
 root (the test creates temporary databases and a test mailbox, never sends real mail):

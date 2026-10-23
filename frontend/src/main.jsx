@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
+import FatalError from './shared/FatalError.jsx';
 import './styles.css';
 
 class ErrorBoundary extends React.Component {
@@ -9,14 +10,7 @@ class ErrorBoundary extends React.Component {
     return { failed: true };
   }
   render() {
-    if (this.state.failed)
-      return (
-        <main className="fatal">
-          <h1>Something interrupted this page.</h1>
-          <p>Your saved work is still available. Reload to try again.</p>
-          <button onClick={() => location.reload()}>Reload page</button>
-        </main>
-      );
+    if (this.state.failed) return <FatalError />;
     return this.props.children;
   }
 }

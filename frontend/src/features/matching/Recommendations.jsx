@@ -1,3 +1,4 @@
+import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
@@ -6,6 +7,7 @@ import MatchDetails from './MatchDetails.jsx';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
+  const { t } = useLanguage();
   const content = opportunity.content;
   const universityInitials = content.university
     .split(' ')
@@ -23,7 +25,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
         </span>
         <div>
           <small>{content.university}</small>
-          <span className="card-category">{content.disciplineGroup}</span>
+          <span className="card-category">{t(content.disciplineGroup)}</span>
         </div>
         {summary && (
           <span className="score-chip">
@@ -41,15 +43,17 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
       {CollectionButton && <CollectionButton opportunityId={opportunity.id} />}
       <div className="card-bottom">
         <span className="muted">
-          {rank ? `#${rank} recommendation` : `${content.requirements.length} requirements`}
+          {rank
+            ? t('#{rank} recommendation', { rank })
+            : t('{count} requirements', { count: content.requirements.length })}
         </span>
         <Button variant="text" onClick={onView}>
-          {summary ? 'Why this match?' : 'View details'}
+          {summary ? t('Why this match?') : t('View details')}
           <Icon name="arrow" size={16} />
         </Button>
         {onDetails && (
           <Button variant="text" onClick={onDetails}>
-            View opportunity
+            {t('View opportunity')}
             <Icon name="briefcase" size={16} />
           </Button>
         )}
@@ -59,6 +63,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
 }
 
 export default function Recommendations({ navigate, OpportunityDetails, CollectionButton }) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState(null);
@@ -67,10 +72,12 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
     <>
       <div className="section-title">
         <div>
-          <h2>Your recommended opportunities</h2>
-          <p>Ranked using your current confirmed profile.</p>
+          <h2>{t('Your recommended opportunities')}</h2>
+          <p>{t('Ranked using your current confirmed profile.')}</p>
         </div>
-        <span className="subtle-pill">{resource.data?.total ?? '—'} opportunities</span>
+        <span className="subtle-pill">
+          {t('{count} opportunities', { count: resource.data?.total ?? '—' })}
+        </span>
       </div>
       {resource.loading ? (
         <Loading />
@@ -93,8 +100,8 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
           ))}
         </div>
       ) : (
-        <Empty title="No opportunities just yet">
-          Published opportunities will appear here when teams add them.
+        <Empty title={t('No opportunities just yet')}>
+          {t('Published opportunities will appear here when teams add them.')}
         </Empty>
       )}
       <Pager data={resource.data} onPage={setPage} />

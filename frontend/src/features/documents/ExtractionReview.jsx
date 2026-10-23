@@ -1,3 +1,4 @@
+import { useLanguage, translateDiagnostic } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api, ApiError } from '../../api/client.js';
 import { Button, ErrorNotice, Loading, Modal, Notice } from '../../shared/ui.jsx';
@@ -35,6 +36,7 @@ export default function ExtractionReview({
   onManual,
   onRefresh,
 }) {
+  const { t, language } = useLanguage();
   const resource = useResource(() => loadReview(document.id), [document.id]);
   const [sections, setSections] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -60,7 +62,7 @@ export default function ExtractionReview({
   function discardAllowed() {
     return (
       !isPending() &&
-      (!dirty || window.confirm('Discard your changes to the extraction suggestions?'))
+      (!dirty || window.confirm(t('Discard your changes to the extraction suggestions?')))
     );
   }
   function close() {
@@ -113,9 +115,10 @@ export default function ExtractionReview({
     onClose: close,
   };
   return (
-    <Modal title="Review extraction suggestions" onClose={close}>
+    <Modal title={t('Review extraction suggestions')} onClose={close}>
       <p className="review-document">
-        Reviewing: <bdi>{document.fileName}</bdi>
+        {t('Reviewing: ')}
+        <bdi>{document.fileName}</bdi>
       </p>
       {resource.loading || (!sections && !blocked) ? (
         <Loading />
@@ -127,11 +130,13 @@ export default function ExtractionReview({
         <form onSubmit={apply}>
           <fieldset className="form-fields" disabled={busy}>
             {!!resource.data[0].warnings.length && (
-              <Notice>{resource.data[0].warnings.join(' ')}</Notice>
+              <Notice>{resource.data[0].warnings.map((message) => t(message)).join(' ')}</Notice>
             )}
-            <p>Choose the sections to import. Edit any suggestion below before applying it.</p>
+            <p>
+              {t('Choose the sections to import. Edit any suggestion below before applying it.')}
+            </p>
             <Button variant="text" disabled={busy} onClick={reload}>
-              Reload suggestions
+              {t('Reload suggestions')}
             </Button>
             <div className="tag-options">
               {Object.keys(sections).map((key) => (
@@ -146,7 +151,7 @@ export default function ExtractionReview({
                       setAck(false);
                     }}
                   />
-                  {labels[key]}
+                  {t(labels[key])}
                 </label>
               ))}
             </div>
@@ -162,35 +167,37 @@ export default function ExtractionReview({
             />
             {resource.data[0].uncertainFields.map((f, i) => (
               <p className="help" key={i}>
-                {labels[f.field]}: {f.status.replaceAll('_', ' ')} — {f.reason}
+                {t(labels[f.field])}: {t(f.status.replaceAll('_', ' '))} —{' '}
+                {translateDiagnostic(language, f.reason)}
               </p>
             ))}
             <ErrorNotice error={error} />
             <label className="check-label">
-              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} />I
-              understand that importing replaces the selected sections in my profile and requires a
-              separate confirmation.
+              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} />
+              {t(
+                'I understand that importing replaces the selected sections in my profile and requires a separate confirmation.'
+              )}
             </label>
             <div className="actions">
               <Button variant="secondary" disabled={busy} onClick={close}>
-                Cancel
+                {t('Cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={busy || !ack || !selected.length || error?.code === 'REVISION_CONFLICT'}
               >
-                {busy ? 'Importing…' : 'Apply reviewed sections'}
+                {busy ? t('Importing…') : t('Apply reviewed sections')}
               </Button>
             </div>
             {error?.code === 'REVISION_CONFLICT' && (
               <Notice>
                 <p>
-                  Your profile changed while this review was open. Your corrections have been kept.
-                  Review the latest profile, or reload suggestions and review them again before
-                  importing.
+                  {t(
+                    'Your profile changed while this review was open. Your corrections have been kept. Review the latest profile, or reload suggestions and review them again before importing.'
+                  )}
                 </p>
                 <Button variant="text" onClick={manual}>
-                  Review latest profile
+                  {t('Review latest profile')}
                 </Button>
               </Notice>
             )}
