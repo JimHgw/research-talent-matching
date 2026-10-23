@@ -1,0 +1,464 @@
+{
+  "datasetVersion": "sprint2-synthetic-v1",
+  "algorithmVersion": "tag-coverage-v1",
+  "sourceStatus": "AUTHORISED_REAL_INPUT_REQUIRED",
+  "authorisedRealExamples": 0,
+  "sourcePolicy": "Only repository synthetic regression inputs are included. Authorised real talent and opportunity examples remain required.",
+  "accounts": [
+    {
+      "id": "s2_team",
+      "role": "RESEARCH_TEAM",
+      "purpose": "Owner of prepared opportunities"
+    },
+    {
+      "id": "s2_other_team",
+      "role": "RESEARCH_TEAM",
+      "purpose": "Non-owner access checks"
+    },
+    {
+      "id": "s2_perfect_match",
+      "role": "TALENT",
+      "purpose": "perfect_match"
+    },
+    {
+      "id": "s2_partial_multi_tag_requirement",
+      "role": "TALENT",
+      "purpose": "partial_multi_tag_requirement"
+    },
+    {
+      "id": "s2_explicit_negative_gap",
+      "role": "TALENT",
+      "purpose": "explicit_negative_gap"
+    },
+    {
+      "id": "s2_missing_information",
+      "role": "TALENT",
+      "purpose": "missing_information"
+    },
+    {
+      "id": "s2_unmatched_tags",
+      "role": "TALENT",
+      "purpose": "unmatched_tags"
+    },
+    {
+      "id": "s2_incomplete_profile",
+      "role": "TALENT",
+      "purpose": "incomplete_profile"
+    },
+    {
+      "id": "s2_no_matching_criteria",
+      "role": "TALENT",
+      "purpose": "no_matching_criteria"
+    },
+    {
+      "id": "s2_hidden_information",
+      "role": "TALENT",
+      "purpose": "hidden_information"
+    },
+    {
+      "id": "s2_private_profile",
+      "role": "TALENT",
+      "purpose": "private_profile"
+    },
+    {
+      "id": "s2_unconfirmed_profile",
+      "role": "TALENT",
+      "purpose": "unconfirmed_profile"
+    }
+  ],
+  "sources": [
+    {
+      "recordId": "s2_perfect_match",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#perfect_match",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_perfect_match",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#perfect_match",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_partial_multi_tag_requirement",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#partial_multi_tag_requirement",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_partial_multi_tag_requirement",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#partial_multi_tag_requirement",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_explicit_negative_gap",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#explicit_negative_gap",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_explicit_negative_gap",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#explicit_negative_gap",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_missing_information",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#missing_information",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_missing_information",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#missing_information",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_unmatched_tags",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#unmatched_tags",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_unmatched_tags",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#unmatched_tags",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_incomplete_profile",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#incomplete_profile",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_incomplete_profile",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#incomplete_profile",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_no_matching_criteria",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#no_matching_criteria",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Use existing synthetic skill/interest claims.",
+        "Map to ProfileContent with synthetic education from docs/api/examples/profile-write.json.",
+        "Explicitly set confirmation and discovery for this scenario."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_opp_no_matching_criteria",
+      "exampleType": "opportunity",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us06.py#no_matching_criteria",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Preserve existing requirement definitions.",
+        "Map into OpportunityContent from docs/api/examples/opportunity-create.json.",
+        "Keep no-criteria opportunity as draft, as publication requires criteria."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_hidden_information",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us05.py",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Reuse synthetic perfect_match claims from US-06.",
+        "Apply existing US-05 consent/visibility/unconfirmed scenarios."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_private_profile",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us05.py",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Reuse synthetic perfect_match claims from US-06.",
+        "Apply existing US-05 consent/visibility/unconfirmed scenarios."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    },
+    {
+      "recordId": "s2_unconfirmed_profile",
+      "exampleType": "talent",
+      "sourceCategory": "synthetic",
+      "sourceReference": "backend/tests/test_us05.py",
+      "datePrepared": "2026-10-23",
+      "preparationSteps": [
+        "Reuse synthetic perfect_match claims from US-06.",
+        "Apply existing US-05 consent/visibility/unconfirmed scenarios."
+      ],
+      "deIdentificationSteps": [
+        "No personal source information used; synthetic structured records only."
+      ],
+      "intendedTestUse": "Repeatable preparation and tag-coverage-v1 regression; not real-world quality evidence.",
+      "originalContainsPrivateInformation": false,
+      "originalFileRetained": false,
+      "datasetVersion": "sprint2-synthetic-v1"
+    }
+  ],
+  "tags": [
+    {
+      "id": "skill_python",
+      "label": "Python",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_sql",
+      "label": "SQL",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_interviews",
+      "label": "Research interviews",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_r",
+      "label": "R",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "interest_ml",
+      "label": "Machine learning",
+      "kind": "INTEREST",
+      "disciplineGroups": [
+        "STEM",
+        "BUSINESS"
+      ]
+    },
+    {
+      "id": "skill_java",
+      "label": "Java",
+      "kind": "SKILL",
+      "disciplineGroups": [
+        "STEM"
+      ]
+    },
+    {
+      "id": "interest_cv",
+      "label": "Computer vision",
+      "kind": "INTEREST",
+      "disciplineGroups": [
+        "STEM"
+      ]
+    },
+    {
+      "id": "interest_nlp",
+      "label": "Natural language processing",
+      "kind": "INTEREST",
+      "disciplineGroups": [
+        "STEM"
+      ]
+    }
+  ],
+  "tagSource": "docs/api/examples/tags.json plus synthetic skill_java, interest_cv and interest_nlp from backend/tests/test_us06.py",
+  "deadlineSupported": false
+}
