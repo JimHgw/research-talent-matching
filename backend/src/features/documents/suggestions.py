@@ -6,6 +6,7 @@ import unicodedata
 
 from ...shared.validation import validator
 from .academic import extract_academic_records
+from .skill_suggestions import free_skill_suggestions
 
 
 HEADINGS = {
@@ -84,7 +85,7 @@ def _tag_mentions(value, tags, kind):
 
 
 def _tags(lines, tags, kind):
-    found, issues, conflicts = {}, [], set()
+    found, issues = {}, []
     for values, source in lines:
         for name in re.split(r"[,;\t|、，；]|\b(?:but|however)\b", values, flags=re.I):
             name = _clean(name)
@@ -101,23 +102,14 @@ def _tags(lines, tags, kind):
                 if kind == "INTEREST" and negative:
                     issues.append(f"Negative interest statement needs manual review: {name[:100]}")
                     continue
-                claim = "DOES_NOT_HAVE" if negative else "HAS"
                 existing = found.get(tag["id"])
-                if kind == "SKILL" and existing and existing["claim"] != claim:
-                    conflicts.add(tag["id"])
-                    issues.append(f"Conflicting skill claims need manual review: {tag['label']}")
-                if existing or tag["id"] in conflicts:
+                if existing:
                     continue
                 if len(found) >= 100:
                     issues.append("More than 100 items; remaining items need manual review.")
                     continue
-                if kind == "SKILL":
-                    found[tag["id"]] = {"tagId": tag["id"], "claim": claim, "evidenceText": source[:2000]}
-                    if len(source) > 2000:
-                        issues.append("Supporting evidence was shortened to 2000 characters.")
-                else:
-                    found[tag["id"]] = tag["id"]
-    return [item for key, item in found.items() if key not in conflicts], issues
+                found[tag["id"]] = tag["id"]
+    return list(found.values()), issues
 
 
 def _interest_details(lines, tags, shared_count):
@@ -146,7 +138,7 @@ def _interest_details(lines, tags, shared_count):
 
 
 def find_skill_suggestions(text, tags):
-    return _tags(_sections(text)["skills"], tags, "SKILL")[0]
+    return free_skill_suggestions(_sections(text)["skills"])[0]
 
 
 def find_interest_suggestions(text, tags):
@@ -322,8 +314,10 @@ def build_extraction_result(document_id, text, tags):
         alias for section, aliases in HEADINGS.items() if section not in ("education", "courses")
         for alias in aliases})
     for section, lines in sections.items():
-        if section in ("skills", "researchInterests"):
-            items, issues = _tags(lines, tags, "SKILL" if section == "skills" else "INTEREST")
+        if section == "skills":
+            items, issues = free_skill_suggestions(lines)
+        elif section == "researchInterests":
+            items, issues = _tags(lines, tags, "INTEREST")
         else:
             items, issues = _structured(section, lines)
         if section in academic:

@@ -12,7 +12,7 @@ extraction containing these values in `suggestedSections`:
 
 | Field | Meaning |
 |---|---|
-| `skills` | Recognised shared SKILL IDs, HAS/DOES_NOT_HAVE claims and the original supporting line in `evidenceText` |
+| `skills` | Free-text `title` and supporting `evidenceText`, with a record `id`; no vocabulary tag or claim selector |
 | `researchInterests` | Recognised shared INTEREST IDs, including exact label mentions inside paragraphs |
 | `researchInterestText` | Reviewable source description of research interests, up to 5,000 characters, retained even with no matching vocabulary tag |
 | `customInterestTags` | Short explicit interest labels outside the shared vocabulary, proposed as `{label}` for acceptance/editing/rejection |
@@ -39,13 +39,17 @@ the owner can consult the private original file.
 
 The parser recognises the documented English headings and common Chinese headings
 such as 教育背景, 科研经历, 技能, 研究兴趣 and 研究成果, including full-width colons.
-Known tags use whole-word label mentions, so `Pythonic` and `SQLAlchemy` do not
-become Python/SQL claims. Explicit negative skill statements are preserved as
-DOES_NOT_HAVE; learning intentions and conflicting claims require review. Skills
+Interest tags use whole-word label mentions. Skill titles now preserve the source
+wording without a vocabulary lookup; `Pythonic` and `SQLAlchemy` remain those
+titles, and do not establish Python/SQL matches. Explicit negative skill wording
+is retained; learning intentions and conflicting statements require review. Skills
 are drawn from the skills section, rather than inferred from incidental mentions
 elsewhere. Unmatched information remains in free text and uncertainty warnings.
 Short list labels can become personal-interest proposals; long sentences remain
 descriptive text.
+
+See [free-text skill fields, legacy compatibility and matching](free-text-skills.md)
+for the later change replacing the original skill-tag representation.
 
 ### Academic Statements and transcripts
 
@@ -141,8 +145,9 @@ contact details or information from hidden sections. It has no public visibility
 control and is excluded from team schemas, database projections and matching
 inputs. Original documents and component provenance remain owner-only.
 
-The structured matcher continues to use confirmed shared IDs. Free text and
-personal labels do not fabricate a shared-tag match; missing supported evidence
+The structured matcher uses shared interest IDs and exact normalised skill-title
+comparisons with existing opportunity criteria. Interest free text and personal
+labels do not fabricate a shared-tag match; missing supported evidence
 remains UNKNOWN. The separate US-13 semantic matcher is outside this extraction
 implementation.
 
@@ -168,6 +173,8 @@ stores ordered selections with a same-owner foreign key;
 IDs, profile revisions, confirmations, credentials and document results remain
 unchanged. No ALTER or destructive reset is required. Existing profiles default
 to empty new fields, and old READY results can still be reviewed/imported.
+The later free-text skill update adds `profile_skill_details` as described in
+the [skill compatibility guide](free-text-skills.md).
 
 ## Verification
 

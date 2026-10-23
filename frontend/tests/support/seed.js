@@ -74,14 +74,14 @@ export function createSeed() {
   casey.content.displayName = 'Casey Jordan';
   casey.content.skills = [
     {
-      tagId: 'skill_python',
-      claim: 'HAS',
+      id: 'skill_python',
+      title: 'Python',
       evidenceText: 'Prepared data for a synthetic research project.',
     },
-    { tagId: 'skill_sql', claim: 'HAS', evidenceText: 'Queried a sample research database.' },
+    { id: 'skill_sql', title: 'SQL', evidenceText: 'Queried a sample research database.' },
     {
-      tagId: 'skill_stats',
-      claim: 'HAS',
+      id: 'skill_stats',
+      title: 'Statistics',
       evidenceText: 'Used descriptive statistics in a class project.',
     },
   ];

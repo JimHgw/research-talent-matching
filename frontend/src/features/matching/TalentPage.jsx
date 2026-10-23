@@ -79,14 +79,9 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
                   : ''}
               </p>
               <div className="tag-row">
-                {item.talent.fields.skills
-                  ?.filter((s) => s.claim === 'HAS')
-                  .slice(0, 4)
-                  .map((s) => (
-                    <span key={s.tagId}>
-                      {tags.find((tag) => tag.id === s.tagId)?.label || 'Unlabelled skill'}
-                    </span>
-                  ))}
+                {item.talent.fields.skills?.slice(0, 4).map((s) => (
+                  <span key={s.id}>{s.title}</span>
+                ))}
               </div>
               <p className="help">
                 {item.summary.unknownWeightPercent == null

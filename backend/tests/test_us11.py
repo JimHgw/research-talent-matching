@@ -67,7 +67,7 @@ def test_tags_in_paragraphs_keep_their_source_and_all_free_descriptions():
     validator("Extraction").validate(result)
     sections = result["suggestedSections"]
     assert sections["resumeDescription"] == SOURCE.strip()
-    assert [item["tagId"] for item in sections["skills"]] == ["skill_python", "skill_sql"]
+    assert [item["title"] for item in sections["skills"]] == ["Experienced in Python and SQL for data analysis."]
     assert all(item["evidenceText"] == "Experienced in Python and SQL for data analysis." for item in sections["skills"])
     assert sections["researchInterests"] == ["interest_ml"]
     assert sections["researchInterestText"] == ("I want to apply Machine learning to ecological forecasting.\n"
@@ -98,12 +98,11 @@ def test_unified_description_retains_unstructured_text_and_reports_truncation():
 
 def test_word_boundaries_negations_intentions_and_unrelated_sections():
     result = build_extraction_result("doc_claims", "Skills: No Python; SQL\nWork experience\nPython\nResearch interests\nNo Machine learning", TAGS)
-    assert [(row["tagId"], row["claim"]) for row in result["suggestedSections"]["skills"]] == [
-        ("skill_python", "DOES_NOT_HAVE"), ("skill_sql", "HAS")]
+    assert [row["title"] for row in result["suggestedSections"]["skills"]] == ["No Python", "SQL"]
     assert "researchInterests" not in result["suggestedSections"]
     assert "customInterestTags" not in result["suggestedSections"]
     assert "skills" not in build_extraction_result("doc_learning", "Skills: I want to learn Python", TAGS)["suggestedSections"]
-    assert "skills" not in build_extraction_result("doc_substring", "Skills: Pythonic; SQLAlchemy", TAGS)["suggestedSections"]
+    assert [row["title"] for row in build_extraction_result("doc_substring", "Skills: Pythonic; SQLAlchemy", TAGS)["suggestedSections"]["skills"]] == ["Pythonic", "SQLAlchemy"]
 
 
 def test_chinese_headings_and_long_interest_text_are_preserved_and_flagged():

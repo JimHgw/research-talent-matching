@@ -158,7 +158,7 @@ def test_ranking_global_pages_and_total_after_permission_filtering(app, research
         client = app.test_client()
         signed = client, sign_in(client, email)
         content = example("profile-write.json")["content"]
-        content["skills"] = ([{"tagId": "skill_python", "claim": claim, "evidenceText": ""}]
+        content["skills"] = ([{"id": "skill_python", "title": ("No " if claim == "DOES_NOT_HAVE" else "") + "Python", "evidenceText": ""}]
                              if claim else [])
         profile = confirm_profile(signed, content)
         share(signed, ["skills"], discoverable=i != 4)

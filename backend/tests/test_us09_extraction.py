@@ -131,9 +131,7 @@ def test_real_word_tables_and_transcript_course_rows(app, signed, tmp_path):
     result = client.get(f"/api/v1/me/documents/{document_id}/extraction").json
     validator("Extraction").validate(result)
     assert [item["code"] for item in result["suggestedSections"]["courses"]] == ["COMP1511", "COMP2521"]
-    assert result["suggestedSections"]["skills"][0]["tagId"] == "skill_python"
-    assert any(item["field"] == "skills" and item["status"] == "UNKNOWN" and "COBOL" in item["reason"]
-               for item in result["uncertainFields"])
+    assert [item["title"] for item in result["suggestedSections"]["skills"]] == ["Python", "COBOL"]
 
 
 def test_labelled_blocks_and_multiple_entries_preserve_missing_details():
@@ -178,9 +176,12 @@ Description: Reported the findings.
 def test_partial_tags_keep_known_items_and_warn_about_unknown_items(text, field, known, unknown):
     result = build_extraction_result("doc_partial", text, TAGS)
     items = result["suggestedSections"][field]
-    assert (items[0]["tagId"] if field == "skills" else items[0]) == known
-    assert any(item["field"] == field and item["status"] == "UNKNOWN" and unknown in item["reason"]
-               for item in result["uncertainFields"])
+    if field == "skills":
+        assert [item["title"] for item in items] == ["Python", "COBOL"]
+    else:
+        assert items[0] == known
+        assert any(item["field"] == field and item["status"] == "UNKNOWN" and unknown in item["reason"]
+                   for item in result["uncertainFields"])
 
 
 @pytest.mark.parametrize("text", [
@@ -189,7 +190,7 @@ def test_partial_tags_keep_known_items_and_warn_about_unknown_items(text, field,
     "Education\nUNSW | Bachelor of Science | Computing | 2025-2022",
     "Education\nUNSW | Bachelor of Science | Computing | 1800-2022",
     "Research outputs\nPUBLICATION | Paper | javascript:alert(1)",
-    "Skills: No Python, Python (beginner)",
+    "Skills: No Python, Python",
 ])
 def test_unreliable_text_is_not_invented_or_promoted(text):
     result = build_extraction_result("doc_unknown", text, TAGS)
@@ -200,7 +201,7 @@ def test_unreliable_text_is_not_invented_or_promoted(text):
 
 def test_bullets_stop_at_unrelated_headings_and_deduplicate():
     result = build_extraction_result("doc_bullets", "Technical skills\n- Python\n• Python\nWork experience\nSQL", TAGS)
-    assert [item["tagId"] for item in result["suggestedSections"]["skills"]] == ["skill_python"]
+    assert [item["title"] for item in result["suggestedSections"]["skills"]] == ["Python"]
 
 
 def test_truncated_tags_and_evidence_are_flagged():
@@ -236,7 +237,7 @@ def test_oversized_year_and_mixed_records_do_not_fail_reliable_sections():
                                      + "Start year: " + "2" * 5000 + "\nSkills: Python", TAGS)
     validator("Extraction").validate(result)
     assert "education" not in result["suggestedSections"]
-    assert result["suggestedSections"]["skills"][0]["tagId"] == "skill_python"
+    assert result["suggestedSections"]["skills"][0]["title"] == "Python"
 
 
 def test_structured_item_limit_is_reported_without_losing_first_records():

@@ -27,7 +27,15 @@ export function evaluate(opportunity, profile, allowedFields = null) {
     const field = requirement.kind === 'SKILL' ? 'skills' : 'researchInterests';
     const claims = requirement.tagIds.map((id) =>
       requirement.kind === 'SKILL'
-        ? content.skills?.find((s) => s.tagId === id)
+        ? (() => {
+            const label = tags.find((tag) => tag.id === id)?.label.toLowerCase();
+            const skill = content.skills?.find((s) =>
+              [label, `no ${label}`].includes(s.title.trim().toLowerCase())
+            );
+            return skill
+              ? { ...skill, tagId: id, claim: /^no /i.test(skill.title) ? 'DOES_NOT_HAVE' : 'HAS' }
+              : undefined;
+          })()
         : content.researchInterests?.includes(id)
           ? { tagId: id, claim: 'HAS', evidenceText: '' }
           : undefined
@@ -61,7 +69,7 @@ export function evaluate(opportunity, profile, allowedFields = null) {
       const label = tags.find((t) => t.id === c.tagId)?.label || c.tagId;
       const value = {
         field,
-        recordId: c.tagId,
+        recordId: c.id || c.tagId,
         valueSummary:
           c.evidenceText || `User confirmed ${c.claim === 'HAS' ? '' : 'not having '}${label}.`,
       };

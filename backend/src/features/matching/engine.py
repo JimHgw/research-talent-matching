@@ -75,7 +75,7 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
                 ).strip()
 
                 positive.append(
-                    evidence_factory(profile, "skills", tag_id, summary)
+                    evidence_factory(profile, "skills", skill.get("id", tag_id), summary)
                 )
 
             elif skill["claim"] == "DOES_NOT_HAVE":
@@ -85,7 +85,7 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
                 ).strip()
 
                 negative.append(
-                    evidence_factory(profile, "skills", tag_id, summary)
+                    evidence_factory(profile, "skills", skill.get("id", tag_id), summary)
                 )
 
     else:

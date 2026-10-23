@@ -250,9 +250,9 @@ Start from the synthetic CV, tags, contract examples and isolated setup already 
 
 #### 2.4.2 US-11: Resume Tag and Free-Text Extraction
 
-Implement the existing upload/worker/review/apply flow so the owner receives recognised skill and research-interest tags alongside reviewable free text. The user also requested one unified description of the whole resume. See the [implemented fields, upgrade and test guide](docs/us11-resume-extraction.md).
+Implement the existing upload/worker/review/apply flow so the owner receives free-text skill titles/evidence and recognised research-interest tags alongside reviewable free text. The user also requested one unified description of the whole resume. See the [implemented fields, upgrade and test guide](docs/us11-resume-extraction.md) and [later free-text skill update](docs/free-text-skills.md).
 
-- Return shared skill IDs with claim/source evidence and shared interest IDs recognised inside lists or paragraphs.
+- Return skill record IDs, free-text titles and supporting evidence without a skill-vocabulary requirement; return shared interest IDs recognised inside lists or paragraphs.
 - Preserve source-grounded research-interest text even without a vocabulary match; propose short unmatched interest labels for explicit personal-tag review.
 - Return `resumeDescription`, the whole resume's readable source text in one owner-only field. Preserve otherwise unrecognised sections and flag truncation; do not invent missing facts.
 - Retain the existing course, experience and output descriptions. Reuse real PDF/DOCX reading, worker leases, authentication and document ownership.
@@ -496,7 +496,13 @@ Keep personalised responses `Cache-Control: no-store`. Any application-side matc
 
 #### 2.7.1 US-18 Evidence Extension
 
-The inspected baseline engine evaluates only skill and interest tags. This describes existing code, not the complete Sprint 2 matching target. BE-46 must implement and run the semantic interest comparison in section 2.4.3. Separately, `team_service.py` currently builds its matching snapshot from those two fields even though the visible profile can contain education, experience and outputs; BE-54 must extend the evidence evaluation path and specify its supported comparisons.
+The baseline engine compares free-text skill titles with existing criterion names
+and evaluates shared interest tags. This describes existing code, not the complete
+Sprint 2 matching target. BE-46 must implement and run the semantic interest
+comparison in section 2.4.3. Separately, `team_service.py` currently builds its
+matching snapshot from those two fields even though the visible profile can
+contain education, experience and outputs; BE-54 must extend the evidence
+evaluation path and specify its supported comparisons.
 
 | Evidence source | Required supported mapping / boundary |
 |---|---|

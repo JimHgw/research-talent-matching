@@ -918,13 +918,13 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Used Python in a user-reviewed demo project."
                           },
                           {
-                            "tagId": "skill_interviews",
-                            "claim": "DOES_NOT_HAVE",
+                            "id": "skill_interviews",
+                            "title": "No Research interviews",
                             "evidenceText": "I have not conducted research interviews."
                           }
                         ],
@@ -1052,13 +1052,13 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Reviewed and corrected Python evidence."
                           },
                           {
-                            "tagId": "skill_interviews",
-                            "claim": "DOES_NOT_HAVE",
+                            "id": "skill_interviews",
+                            "title": "No Research interviews",
                             "evidenceText": "I have not conducted research interviews."
                           }
                         ],
@@ -1171,13 +1171,13 @@
                   ],
                   "skills": [
                     {
-                      "tagId": "skill_python",
-                      "claim": "HAS",
+                      "id": "skill_python",
+                      "title": "Python",
                       "evidenceText": "Reviewed and corrected Python evidence."
                     },
                     {
-                      "tagId": "skill_interviews",
-                      "claim": "DOES_NOT_HAVE",
+                      "id": "skill_interviews",
+                      "title": "No Research interviews",
                       "evidenceText": "I have not conducted research interviews."
                     }
                   ],
@@ -1251,13 +1251,13 @@
                     ],
                     "skills": [
                       {
-                        "tagId": "skill_python",
-                        "claim": "HAS",
+                        "id": "skill_python",
+                        "title": "Python",
                         "evidenceText": "Reviewed and corrected Python evidence."
                       },
                       {
-                        "tagId": "skill_interviews",
-                        "claim": "DOES_NOT_HAVE",
+                        "id": "skill_interviews",
+                        "title": "No Research interviews",
                         "evidenceText": "I have not conducted research interviews."
                       }
                     ],
@@ -1821,8 +1821,8 @@
                         ],
                         "skills": [
                           {
-                            "tagId": "skill_python",
-                            "claim": "HAS",
+                            "id": "skill_python",
+                            "title": "Python",
                             "evidenceText": "Used Python in a user-reviewed demo project."
                           }
                         ]
@@ -1937,8 +1937,8 @@
                     ],
                     "skills": [
                       {
-                        "tagId": "skill_python",
-                        "claim": "HAS",
+                        "id": "skill_python",
+                        "title": "Python",
                         "evidenceText": "Used Python in a user-reviewed demo project."
                       }
                     ],
@@ -2040,8 +2040,8 @@
                 "sections": {
                   "skills": [
                     {
-                      "tagId": "skill_python",
-                      "claim": "HAS",
+                      "id": "skill_python",
+                      "title": "Python",
                       "evidenceText": "Used Python in a user-reviewed demo project."
                     }
                   ]
@@ -4273,33 +4273,6 @@
         ],
         "additionalProperties": false
       },
-      "SkillClaim": {
-        "type": "object",
-        "properties": {
-          "tagId": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
-          },
-          "claim": {
-            "type": "string",
-            "enum": [
-              "HAS",
-              "DOES_NOT_HAVE"
-            ]
-          },
-          "evidenceText": {
-            "type": "string",
-            "maxLength": 2000
-          }
-        },
-        "required": [
-          "tagId",
-          "claim",
-          "evidenceText"
-        ],
-        "additionalProperties": false,
-        "description": "A selected skill normally uses HAS. DOES_NOT_HAVE is an explicit user assertion, never inferred from an omitted tag. Confirmation is user review, not credential verification."
-      },
       "ResearchOutput": {
         "type": "object",
         "properties": {
@@ -4391,7 +4364,7 @@
           "skills": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SkillClaim"
+              "$ref": "#/components/schemas/Skill"
             },
             "maxItems": 100
           },
@@ -4469,7 +4442,7 @@
           "skills": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SkillClaim"
+              "$ref": "#/components/schemas/Skill"
             },
             "maxItems": 100
           },
@@ -4947,7 +4920,7 @@
               "skills": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SkillClaim"
+                  "$ref": "#/components/schemas/Skill"
                 },
                 "maxItems": 100
               },
@@ -5015,7 +4988,7 @@
           "reviewRequired"
         ],
         "additionalProperties": false,
-        "description": "Owner-only source-grounded suggestions containing recognised tag IDs, reviewable interest free text and proposed personal labels. Suggestions never create tags, update or confirm profiles. Skills retain supporting source text; research/course/output records retain their descriptions."
+        "description": "Owner-only source-grounded suggestions with free-text skill titles/evidence, shared interest IDs, interest free text and personal-label proposals. Suggestions never create tags, update or confirm profiles."
       },
       "ApplyExtractionRequest": {
         "type": "object",
@@ -5210,7 +5183,8 @@
           },
           "recordId": {
             "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "description": "Skill record ID for skills; shared tag ID for interests. Never substitute a skill criterion tag ID for the actual skill record."
           },
           "valueSummary": {
             "type": "string"
@@ -5256,7 +5230,8 @@
           },
           "recordId": {
             "type": "string",
-            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "description": "Skill record ID for skills; shared tag ID for interests. Never substitute a skill criterion tag ID for the actual skill record."
           },
           "valueSummary": {
             "type": "string"
@@ -5484,7 +5459,7 @@
               "skills": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SkillClaim"
+                  "$ref": "#/components/schemas/Skill"
                 },
                 "maxItems": 100
               },
@@ -6057,7 +6032,7 @@
           "skills": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SkillClaim"
+              "$ref": "#/components/schemas/Skill"
             },
             "maxItems": 100
           },
@@ -6108,6 +6083,30 @@
         ],
         "additionalProperties": false,
         "description": "Replace the eight legacy fields; optional researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted. Expected revision is mandatory; real changes invalidate confirmation."
+      },
+      "Skill": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 350
+          },
+          "evidenceText": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "evidenceText"
+        ],
+        "additionalProperties": false,
+        "description": "A free-text skill title and supporting evidence. No vocabulary tag or claim selector. ID identifies the profile record, not a shared tag. Explicit legacy negative statements retain their wording when upgraded."
       }
     },
     "parameters": {

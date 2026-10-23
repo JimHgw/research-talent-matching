@@ -7,7 +7,8 @@ from ...db.database import database
 from ...db.interests import (COMPONENTS, TEXT_FIELDS, profile_components, replace_personal_selection,
                             resolve_personal_tags, set_component_origin, set_profile_text)
 from ...db.models import ProfileComponentOrigin
-from ...db.models import (ProfileInterest, ProfileOrigin, ProfileSkill, Tag, TagDisciplineGroup,
+from ...db.skills import check_skills, read_skills_many, replace_skills
+from ...db.models import (ProfileInterest, ProfileOrigin, Tag, TagDisciplineGroup,
                           TalentProfile, utcnow)
 from ...shared.security import require_csrf, require_user
 from ...shared.validation import ApiError, body, invalid, validate
@@ -26,11 +27,7 @@ def timestamp(value):
 
 def serialize_profile(db, profile):
     content = {field: getattr(profile, attr) for field, attr in (SCALARS | ARRAYS).items()}
-    content["skills"] = [
-        {"tagId": row.tag_id, "claim": row.claim, "evidenceText": row.evidence_text}
-        for row in db.scalars(select(ProfileSkill).where(ProfileSkill.talent_id == profile.talent_id)
-                             .order_by(ProfileSkill.position))
-    ]
+    content["skills"] = read_skills_many(db, [profile.talent_id])[profile.talent_id]
     content["researchInterests"] = list(db.scalars(
         select(ProfileInterest.tag_id).where(ProfileInterest.talent_id == profile.talent_id)
         .order_by(ProfileInterest.position)))
@@ -58,12 +55,14 @@ def own_profile(db, user):
 def check_content(db, content):
     for section in BASE_SECTIONS:
         entries = content[section]
-        ids = entries if section == "researchInterests" else [
-            row["tagId" if section == "skills" else "id"] for row in entries]
+        if section == "skills":
+            check_skills(entries, "content.skills")
+            continue
+        ids = entries if section == "researchInterests" else [row["id"] for row in entries]
         if len(ids) != len(set(ids)):
             invalid(f"content.{section}", "Each record or tag ID must be unique within the section.")
-        if section in ("skills", "researchInterests"):
-            expected = "SKILL" if section == "skills" else "INTEREST"
+        if section == "researchInterests":
+            expected = "INTEREST"
             for tag_id in ids:
                 tag = db.get(Tag, tag_id)
                 if tag is None or tag.kind != expected:
@@ -133,11 +132,8 @@ def profile_put():
                         origin = ProfileOrigin(talent_id=profile.talent_id, field=section)
                         db.add(origin)
                     origin.source_type, origin.document_id = "MANUAL", None
-            for model in (ProfileSkill, ProfileInterest):
-                db.execute(delete(model).where(model.talent_id == profile.talent_id))
-            for position, skill in enumerate(content["skills"]):
-                db.add(ProfileSkill(talent_id=profile.talent_id, tag_id=skill["tagId"],
-                                    claim=skill["claim"], evidence_text=skill["evidenceText"], position=position))
+            db.execute(delete(ProfileInterest).where(ProfileInterest.talent_id == profile.talent_id))
+            replace_skills(db, profile.talent_id, content["skills"])
             for position, tag_id in enumerate(content["researchInterests"]):
                 db.add(ProfileInterest(talent_id=profile.talent_id, tag_id=tag_id, position=position))
             for field in TEXT_FIELDS:

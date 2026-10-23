@@ -65,10 +65,10 @@ function validateSections(content, partial = false) {
     if (!Array.isArray(items) || items.length > 100)
       invalid('Each profile section accepts at most 100 records.');
     if (section === 'skills') {
-      if (!unique(items.map((s) => s.tagId))) invalid('Each skill can appear only once.');
+      if (!unique(items.map((s) => s.id))) invalid('Skill record IDs must be unique.');
       for (const skill of items) {
-        tagCheck(skill.tagId, 'SKILL');
-        if (!['HAS', 'DOES_NOT_HAVE'].includes(skill.claim)) invalid('Choose a valid skill claim.');
+        requiredText(skill.title, 'Skill title', 350);
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(skill.id)) invalid('Skill record ID is invalid.');
         if (typeof skill.evidenceText !== 'string' || skill.evidenceText.length > 2000)
           invalid('Skill evidence must be at most 2,000 characters.');
       }
@@ -419,8 +419,8 @@ export function createMockServer({ storage, now = () => Date.now(), processingDe
                 ],
                 skills: [
                   {
-                    tagId: 'skill_python',
-                    claim: 'HAS',
+                    id: 'skill_python',
+                    title: 'Python',
                     evidenceText:
                       'Synthetic suggestion for review. Replace this text with your own evidence.',
                   },

@@ -44,7 +44,7 @@ try {
   const outputUrl = `https://example.test/research/${'x'.repeat(220)}`;
   await change('Link (optional)', outputUrl);
   await click('Add skill');
-  await change('Skill', 'skill_python');
+  await change('Skill title', 'Financial modelling');
   await change('Supporting evidence', 'Built the test project.');
   const interest = [...document.querySelectorAll('label')].find(
     (label) => label.textContent.trim() === 'Machine learning'
@@ -62,7 +62,8 @@ try {
   assert.equal(saved.content.education[0].endYear, null);
   assert.equal(saved.content.researchOutputs[0].url, outputUrl);
   assert.equal(saved.content.researchOutputs[0].type, 'PROJECT');
-  assert.equal(saved.content.skills[0].claim, 'HAS');
+  assert.equal(saved.content.skills[0].title, 'Financial modelling');
+  assert.deepEqual(Object.keys(saved.content.skills[0]).sort(), ['evidenceText', 'id', 'title']);
   assert.deepEqual(saved.content.researchInterests, ['interest_ml']);
   assert.deepEqual(Object.keys(saved.content).sort(), [
     'courses',
@@ -96,6 +97,7 @@ try {
   assert.equal(field('Institution *').value, 'UNSW');
   assert.equal(field('Course code').value, courseCode);
   assert.equal(field('Link (optional)').value, outputUrl);
+  assert.equal(field('Skill title').value, 'Financial modelling');
 
   await api.saveProfile(1, { ...saved.content, displayName: 'Saved by another tab' });
   await change('Display name', 'Keep my draft');

@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from ...db.database import database
 from ...db.interests import resolve_personal_tags
+from ...db.skills import upgrade_extraction_skills
 from ...db.models import Document, DocumentExtraction, TalentProfile, utcnow
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
@@ -202,7 +203,7 @@ def document_extraction_get(document_id):
                 "The extraction result is unavailable.",
             )
 
-        result = extraction.result
+        result = upgrade_extraction_skills(db, extraction.result)
 
     return jsonify(result)
 

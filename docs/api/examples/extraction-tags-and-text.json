@@ -4,8 +4,8 @@
   "suggestedSections": {
     "skills": [
       {
-        "tagId": "skill_python",
-        "claim": "HAS",
+        "id": "skill_python",
+        "title": "Python",
         "evidenceText": "Experienced in Python for data analysis."
       }
     ],

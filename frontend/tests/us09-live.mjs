@@ -95,10 +95,9 @@ try {
     'resumeDescription',
     'skills',
   ]);
-  assert.ok(
-    extraction.uncertainFields.some(
-      (item) => item.field === 'skills' && item.reason.includes('COBOL')
-    )
+  assert.deepEqual(
+    extraction.suggestedSections.skills.map((item) => item.title),
+    ['Python', 'SQL', 'COBOL']
   );
 
   // Check the frontend download client against the real backend.
@@ -127,6 +126,7 @@ try {
 
   await change('Supporting evidence', 'Reviewed through the React page.');
   await click('Remove skill 2');
+  await click('Remove skill 2');
   await checkbox('Research interests');
 
   await checkbox(
@@ -143,8 +143,8 @@ try {
   assert.equal(imported.revision, before.revision + 1);
   assert.deepEqual(imported.content.skills, [
     {
-      tagId: 'skill_python',
-      claim: 'HAS',
+      id: extraction.suggestedSections.skills[0].id,
+      title: 'Python',
       evidenceText: 'Reviewed through the React page.',
     },
   ]);

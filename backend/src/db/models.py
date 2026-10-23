@@ -179,6 +179,7 @@ class TagDisciplineGroup(Base):
 
 
 class ProfileSkill(Base):
+    """Legacy tag-backed rows, retained for non-destructive upgrades."""
     __tablename__ = "profile_skills"
     talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
     tag_id: Mapped[str] = mapped_column(ForeignKey("tags.id"), primary_key=True)
@@ -190,6 +191,14 @@ class ProfileSkill(Base):
     tag: Mapped[Tag] = relationship()
     __table_args__ = (CheckConstraint("claim IN ('HAS', 'DOES_NOT_HAVE')"),
                       CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
+
+
+class ProfileSkillDetails(Base):
+    """An explicit empty list also supersedes legacy skill rows."""
+    __tablename__ = "profile_skill_details"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    skills: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False, default=list)
+    profile: Mapped[TalentProfile] = relationship()
 
 
 class ProfileInterest(Base):

@@ -8,7 +8,7 @@ For current sprint requirements, backend subtasks, proposed API/data changes and
 acceptance criteria, see the [Sprint 2 backend developer README](../README_SPRINT2_BACKEND_EN.md).
 It is a development specification. The implemented US-11 resume extraction
 extension is described in the [US-11 guide](../docs/us11-resume-extraction.md):
-recognised skill/interest tags, per-section free text, personal-interest proposals
+free-text skill titles/evidence, recognised interest tags, personal-interest proposals
 and a unified owner-only `resumeDescription`. Existing upload, worker, review and
 apply endpoints provide the complete workflow. Unmatched source text is retained.
 Other proposed Sprint 2 extensions remain subject to their own implementation.
@@ -17,6 +17,8 @@ For an existing installation, rerun `init-db` using its existing database
 configuration before starting the updated API/worker. US-11 adds only
 `profile_text_details`, `personal_interest_tags`, `profile_personal_interests`
 and `profile_component_origins`; it preserves existing tables and records.
+The [free-text skill update](../docs/free-text-skills.md) additionally creates
+`profile_skill_details`, retaining legacy skill names/evidence and old extraction results.
 
 For frontend and backend containers together, use the
 [integrated Docker workflow](../docs/docker-integration.md).

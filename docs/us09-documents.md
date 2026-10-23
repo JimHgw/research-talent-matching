@@ -44,7 +44,7 @@ Bullets, comma/semicolon lists and tab/pipe separated rows are supported.
 | Education / Academic qualifications / Qualifications | Institution and degree on separate lines or `Institution | Qualification | Discipline | 2022-2025`; labelled Institution/University, Qualification/Degree, Discipline/Major, Start year and End year |
 | Courses / Coursework / Relevant coursework / Academic transcript / Transcript | Course code and name, e.g. `COMP1511 - Programming Fundamentals`; transcript rows with code, name and optional further columns; labelled Name/Course name, Code/Course code, Description |
 | Research experience | `Title | Organisation | Description`, or labelled Title, Organisation/Organization, Description |
-| Skills / Technical skills / Programming skills | Controlled SKILL label mentions in lists or descriptive paragraphs; explicit negative claims and original supporting text are preserved |
+| Skills / Technical skills / Programming skills | Free-text titles/evidence from lists, descriptions or labelled blocks; no skill vocabulary lookup; explicit negative wording and source text are preserved |
 | Research interests / Interests | Controlled INTEREST label mentions, source-grounded free text and short personal-label proposals |
 | Research outputs / Publications / Projects / Research projects | `PUBLICATION | Title | https://...`, `PROJECT | Title`, or labelled Title, Type, URL, Description |
 

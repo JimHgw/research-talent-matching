@@ -183,7 +183,7 @@ def test_noop_preserves_confirmation_and_change_resets_it(app, signed):
 def test_clear_sections_and_reorder_skills(signed):
     client, csrf = signed
     content = sample()
-    content["skills"] = [{"tagId": tag, "claim": "HAS", "evidenceText": ""}
+    content["skills"] = [{"id": tag, "title": tag, "evidenceText": ""}
                          for tag in ("skill_python", "skill_sql")]
     checked(save(client, csrf, content), 200)
     content["skills"].reverse()
@@ -322,7 +322,7 @@ def test_failed_save_rolls_back_all_changes(app, signed):
     database = app.extensions["database"]
 
     def fail_insert(connection, cursor, statement, parameters, context, executemany):
-        if statement.startswith("INSERT INTO profile_skills"):
+        if statement.startswith("INSERT INTO profile_skill_details"):
             raise RuntimeError("injected failure")
 
     event.listen(database.engine, "before_cursor_execute", fail_insert)
@@ -364,8 +364,9 @@ def test_orm_relationships_preserve_ownership_and_restrict_deletion(app, signed)
         assert db.get(PrivacySettings, profile.talent_id).profile is profile
         session = db.get(AuthSession, digest(client.get_cookie(COOKIE).value))
         assert session.user is owner
-        skill = db.get(ProfileSkill, (profile.talent_id, saved["content"]["skills"][0]["tagId"]))
-        assert skill.profile is profile and skill.tag.kind == "SKILL"
+        from backend.src.db.models import ProfileSkillDetails
+        skill = db.get(ProfileSkillDetails, profile.talent_id)
+        assert skill.profile is profile and skill.skills == saved["content"]["skills"]
         origin = db.get(ProfileOrigin, (profile.talent_id, "education"))
         assert origin.profile is profile and origin.document is None
     with pytest.raises(IntegrityError), database.transaction(write=True) as db:

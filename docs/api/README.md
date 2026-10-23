@@ -36,3 +36,8 @@ US-01 now includes [verified-email registration and email/ID login](../us01-regi
 US-01 also includes [password rules and both password-reset methods](../us01-password-reset.md): original-password verification or staged email-code verification, confirmation, and session revocation.
 
 US-11 adds [resume tags, free text and a unified owner-only description](../us11-resume-extraction.md), including optional compatible profile/import fields, personal labels and per-component provenance. Existing methods and paths are retained.
+
+Skills now use [free-text titles and supporting evidence](../free-text-skills.md)
+with record IDs, replacing the skill-tag/claim shape in profile, extraction and
+team-visible records. Deploy the API and frontend together; legacy stored data
+and old READY results have read adapters.
