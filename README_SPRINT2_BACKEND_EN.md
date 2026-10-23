@@ -12,6 +12,8 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 
 **Additional user-requested scope, 2026-10-23:** support research-interest free text alongside existing shared tags and user-created personal interest tags. This is a recorded product decision, not a claim that Jira already specifies these fields or that existing frontend tasks implement them. Section 2.2.4 defines the behaviour; field names and limits remain proposed integration details.
 
+**US-11 implementation scope clarified by the user, 2026-10-23:** complete backend resume extraction, returning tags and per-section free text plus an additional unified `resumeDescription`. Section 2.4.2 and the linked implementation guide describe this delivery. Historical sprint/Jira estimates are retained.
+
 ## Contents
 
 [[_TOC_]]
@@ -77,7 +79,7 @@ The supplied board shows **21–29 October 2026**, **12 parent work items** and 
 | Opportunities | Draft/create/edit/publish/list/detail and revision checks | Add optional source URL, deadline, type/filter support and explicit reopening with migrations |
 | Matching | `tag-coverage-v1`, four statuses and per-requirement evidence based on skills/interests | Implement and evaluate embedding-based interest matching under BE-46; extend grounded education/experience/output evidence under BE-54; preserve permissions |
 | Search | Opportunity routes currently consume `scope`, `page`, `pageSize`; matching routes consume pagination | Define, validate and apply combined filters before ranking/pagination |
-| Evaluation | [US-06 synthetic matching evaluation](docs/testing/us06-evaluation.md) and existing tests | Add independent extraction/relevance labels and US-11/US-13 reports; old test results are not Sprint 2 results |
+| Evaluation | [US-06 synthetic matching evaluation](docs/testing/us06-evaluation.md) and existing tests | Implement US-11 extraction regression coverage and US-13 independent relevance labels/reports; old test results are not Sprint 2 results |
 | Localisation | Frontend language catalogue; backend error codes, field paths and English messages | Fill any code/mapping gaps while preserving domain values and API compatibility |
 
 The current opportunity model has no `sourceUrl`, deadline or opportunity-type field. Its persisted status is `DRAFT` or `PUBLISHED`. Requirement kinds are currently only `SKILL` and `INTEREST`. These are concrete schema gaps, not merely missing frontend labels.
@@ -99,7 +101,7 @@ The same user story appears in both READMEs because it crosses the UI/API bounda
 
 **Reuse existing tests:** `backend/tests/test_frontend_integration.py` already includes task `41` and `49` and registration cases. `backend/tests/test_us09_frontend_integration.py` already exercises PDF/DOCX review with the real worker and task `61` state/account cases. Their UI drivers are under `frontend/tests/`. A Python test harness in `backend/tests/` does not make its UI scenario a new backend-owned feature. BE-42/50/52/62 should run/link these cases and add only missing server assertions or coverage for new behaviour, rather than copying the same workflows and fixtures into another suite.
 
-BE-44 owns extraction/matching metrics; BE-46 owns the runnable semantic implementation and its executed comparison. These are distinct from browser workflow testing. BE-64 packages the shared examples and independently reviewed labels for repeatable use instead of creating a competing dataset. Shared acceptance requirements below provide integration context and do not transfer frontend implementation to the backend team.
+BE-44 owns the clarified resume tag/free-text extraction and reviewed-import implementation; BE-46 owns the runnable semantic implementation and its executed comparison. These are distinct from browser workflow testing. BE-64 packages the shared examples and independently reviewed labels for repeatable use instead of creating a competing dataset. Shared acceptance requirements below provide integration context and do not transfer frontend implementation to the backend team.
 
 The added interest controls are new coordination work, not covered merely because FE-41/61 previously passed. Proposed coordination is BE-42 for profile/privacy, BE-62 for extraction/import and BE-46 for semantic inputs, with the owners of the existing profile and document-review UI. Keep this feature separate from investigation of BUG-35; no Jira assignment or completion status is changed by this README.
 
@@ -110,7 +112,7 @@ The added interest controls are new coordination work, not covered merely becaus
 | Story / task | Jira parent | Points | Backend subtask | Required backend outcome |
 |---|---|---:|---|---|
 | US-10 Confirmation and document privacy | [H18ABANANA-3](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-3) | 3 | [BE-42](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-42) | Use the current confirmed revision; enforce opt-in, permitted fields and owner-only originals on list/detail/direct requests |
-| US-11 Extraction and matching quality | [H18ABANANA-4](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-4) | 5 | [BE-44](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-44) | Versioned evaluation runner, independently checked labels, defined measures, actual results and linked findings |
+| US-11 Resume tags and free-text extraction (clarified scope) | [H18ABANANA-4](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-4) | 5 | [BE-44](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-44) | Implemented resume tags, source-grounded section text, unified description and atomic reviewed import with persistence/privacy |
 | US-13 Semantic interest matching evaluation | [H18ABANANA-6](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-6) | 8 | [BE-46](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-46) | Implement and run embedding-based interest matching; compare actual outputs with the tag baseline on identical labelled examples; record costs, errors, application adoption/omission decision and fallback |
 | US-14 Search and combined filters | [H18ABANANA-7](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-7) | 5 | [BE-48](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-48) | Authorised opportunity/talent filters with correct totals, ranks, expiry and privacy |
 | US-15 Registration, login and role switching | [H18ABANANA-8](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-8) | 5 | [BE-50](https://unsw-comp3900-comp9900-26t3.atlassian.net/browse/H18ABANANA-50) | Stable ID and authoritative role, atomic registration, ID re-login and independent sessions |
@@ -214,7 +216,7 @@ Build team embeddings only from the permitted projection. Key derived vectors/re
 3. **Extend opportunity persistence/lifecycle:** BE-56 and BE-58 coordinate one migration and compatible create/update/detail responses.
 4. **Implement authorised queries and evidence:** BE-48 uses the shared active-opportunity rule; BE-54 extends the evidence engine after permission filtering.
 5. **Complete stable localisation contracts:** BE-60 checks new and existing errors with FE-1, including filter/expiry errors.
-6. **Implement and run evaluations:** BE-44 evaluates quality; BE-46 builds a runnable embedding-based interest matcher and executes it alongside the structured baseline on the same labelled subset. Record whether the application adopts it and keep fallback working. BE-52 records end-to-end results and retests.
+6. **Implement extraction and run semantic evaluation:** BE-44 delivers resume tags/free text and reviewed import; BE-46 builds a runnable embedding-based interest matcher and executes it alongside the structured baseline on the same labelled subset. Record whether the application adopts it and keep fallback working. BE-52 records end-to-end results and retests.
 
 | Existing code area | Main backend work |
 |---|---|
@@ -246,26 +248,20 @@ Test fixtures belong in an explicitly scoped test database or dataset. No public
 
 Start from the synthetic CV, tags, contract examples and isolated setup already used by tasks 41/61 and the existing backend tests. QA-1 coordinates the shared examples and manual labels; BE-64 supplies versioning and machine-repeatable preparation/restore. Extend the shared dataset only for missing scenarios or evaluation coverage rather than duplicating the existing browser fixtures.
 
-#### 2.4.2 US-11: Quality Evaluation
+#### 2.4.2 US-11: Resume Tag and Free-Text Extraction
 
-Evaluate extraction and matching separately from whether a browser workflow succeeds. Include education, research experience, skills, outputs and interests; also report courses because the existing extractor supports that section. Include incomplete documents, unconfirmed imports, unsupported claims and missing evidence.
+Implement the existing upload/worker/review/apply flow so the owner receives recognised skill and research-interest tags alongside reviewable free text. The user also requested one unified description of the whole resume. See the [implemented fields, upgrade and test guide](docs/us11-resume-extraction.md).
 
-For the additional interest-entry scope, check preservation of source-grounded text without a vocabulary match, correctness of shared-tag suggestions and user acceptance/rejection of personal labels. Creating a label does not itself demonstrate accurate extraction. Reuse these reviewed examples for US-13, including cases with no shared tag.
+- Return shared skill IDs with claim/source evidence and shared interest IDs recognised inside lists or paragraphs.
+- Preserve source-grounded research-interest text even without a vocabulary match; propose short unmatched interest labels for explicit personal-tag review.
+- Return `resumeDescription`, the whole resume's readable source text in one owner-only field. Preserve otherwise unrecognised sections and flag truncation; do not invent missing facts.
+- Retain the existing course, experience and output descriptions. Reuse real PDF/DOCX reading, worker leases, authentication and document ownership.
+- Review/apply only submitted components. Omitted components and their provenance persist; explicit empty strings/arrays clear them. Suggestions create no persistent tag.
+- Resolve accepted exact shared/personal labels atomically, enforce owner isolation, combined limits and revision checks, then require separate confirmation.
+- Share interest text/tags only under the existing confirmed, opted-in `researchInterests` visibility group. Keep the unified resume description and originals owner-only.
+- Extend the checked-in OpenAPI and existing strict clients together. Use additive tables so old profiles, documents and existing table shapes survive upgrades.
 
-**Proposed measurement rules:** agree and freeze the normalisation, matching thresholds and denominator rules before reporting results.
-
-| Measure | Definition / reporting requirement |
-|---|---|
-| Extraction field correctness | For manually defined reference slots, `C / (C + I + M)`: correct values C, incorrect values I, missing values M. State exact-match/normalised-match rules per field |
-| Extraction output precision | `C / (C + I + U)`, where U is extra unsupported output. Report unsupported outputs explicitly so hallucinated additions are not hidden by reference-slot accuracy |
-| Requirement-status accuracy | Correct `MATCHED`/`PARTIAL`/`GAP`/`UNKNOWN` decisions divided by labelled requirements; report per-status errors |
-| Matching precision@K | Relevant returned items / returned items in the first K results; fix K and the relevance definition in advance |
-| Matching recall@K | Relevant returned items in the first K / all manually labelled relevant items in the eligible candidate pool |
-| Coverage and limitations | Sample counts, incomplete/unjudgeable cases, error examples, dataset balance and known limitations; no extrapolation from a tiny sample to general system accuracy |
-
-Define whether partially relevant examples count as relevant before computing binary precision/recall; retain the original partial label in the report. Eligibility is based on role, confirmation, visibility and opportunity availability. A system `UNKNOWN` status means missing permitted evidence, not automatically an irrelevant candidate. Unjudgeable gold labels must be reported separately with explicit exclusion counts. A zero denominator is **N/A**, not an invented 0% or 100%.
-
-Report raw counts alongside percentages. Link incorrect outputs to improvement/defect records. The existing US-06 perfect synthetic-fixture results neither establish real-document extraction quality nor satisfy US-11's relevance evaluation.
+Acceptance is demonstrated with functional extraction/import/persistence/privacy tests and reused real frontend HTTP/worker coverage. The separate US-13 semantic comparison retains its own implementation and evaluation responsibilities.
 
 #### 2.4.3 US-13: Required Semantic Implementation and Evaluation
 
@@ -588,7 +584,7 @@ These are shared acceptance targets, not passed test results or a list of fronte
 | Review success | BUG-35, US-16 | Backend returns the owned READY result, imports corrections atomically and requires later confirmation; FE-61 owns opening/recovery/editor behaviour and its existing regressions |
 | Review failure and conflict | BUG-35, US-16 | Pending/failed/missing/cross-user requests have defined errors; stale import cannot overwrite newer profile data |
 | Data preparation/reset | DATA-40 | Manifest identifies starting state; repeatable setup has no duplicates; restore preserves unrelated records |
-| Quality evaluation | US-11 | Versioned labels, raw counts, defined denominators, unsupported outputs and reproducible results/limitations |
+| Resume extraction | US-11 | Tags, section free text and an owner-only unified description survive reviewed atomic import/reload; source grounding, privacy and revision checks hold |
 | Semantic comparison | US-13 | Runnable embedding implementation has executed on the same labelled examples as the baseline; actual outputs, costs/errors and application adopt/omit decision are reproducible; fallback works |
 | Upgrade/persistence | All changed storage | Fresh and migrated MySQL preserve old data; new values survive refresh, re-login and service restart |
 
@@ -620,7 +616,7 @@ US-16 case records must include case/story ID, environment, starting state, step
 - [ ] US-18 evaluates supported education/experience/output evidence, with no fabricated qualifications or document leakage.
 - [ ] BE-62 links the existing FE-61/shared regression evidence and records actual API/worker outcomes, any demonstrated server fix and retest, or an explicit not-reproduced outcome with the original cause still unverified.
 - [ ] DATA-40 delivers a versioned manifest and demonstrated isolated seed/restore procedure.
-- [ ] US-11 delivers an actual extraction/matching quality report with counts, denominators, errors and limitations.
+- [ ] US-11 delivers working resume tag/free-text extraction, a unified owner-only description, compatible persistence and passing review/import/privacy regressions.
 - [ ] BE-46 delivers runnable embedding-based research-interest matching code, model/dependency configuration and an exact comparison command.
 - [ ] US-13 records actual semantic and structured-baseline outputs on the same versioned labelled examples, including equivalent wording, unrelated interests, errors, metrics and measured costs. Mock scores or a tag-only run do not pass.
 - [ ] US-13 records an evidence-backed application adoption/omission decision and working structured fallback. Omitting application integration does not remove the requirement to implement and execute the semantic experiment.
@@ -628,7 +624,7 @@ US-16 case records must include case/story ID, environment, starting state, step
 - [ ] Frontend-owned controls, translation dictionaries, refresh/draft guards and review recovery remain with their FE tasks; backend changes address server guarantees or demonstrated gaps without duplicating those implementations or tests.
 - [ ] Startup, migration, test and evaluation commands are documented and reproducible; no secrets or private originals enter shared reports.
 
-Suggested artifact names are `docs/testing/sprint-2-dataset-manifest.json` (BE-64 with QA's shared inputs), `docs/testing/sprint-2-quality-report.md` (BE-44), `docs/testing/sprint-2-semantic-comparison.md` (BE-46) and `docs/testing/sprint-2-e2e-report.md` (QA-1 coordination with BE-52 result sections). These are **planned deliverables, not files created or evaluations executed by this README**. Reuse an equivalent existing shared report rather than creating a second one. The manifest's exact schema and runner/seed command names must be supplied by BE-64/44/46 when implemented.
+Suggested artifact names are `docs/testing/sprint-2-dataset-manifest.json` (BE-64 with QA's shared inputs), [the US-11 implementation guide](docs/us11-resume-extraction.md) (BE-44), `docs/testing/sprint-2-semantic-comparison.md` (BE-46) and `docs/testing/sprint-2-e2e-report.md` (QA-1 coordination with BE-52 result sections). These are **planned deliverables, not files created or evaluations executed by this README**. Reuse an equivalent existing shared report rather than creating a second one. The manifest's exact schema and runner/seed command names must be supplied by BE-64/44/46 when implemented.
 
 ## 3. Backend Setup, Verification and Handover
 
@@ -668,7 +664,7 @@ sh frontend/run.sh test
 
 The default backend tests use isolated temporary SQLite databases. MySQL acceptance uses the existing `--run-mysql` option and `MYSQL_TEST_DATABASE_URL` pointing to a **dedicated disposable database whose name ends in `_test`**. That fixture clears tables: never point it at the normal application database. Include real MySQL migration and persistence checks for changed storage. Real container testing is available through the existing `--run-docker` option; do not describe mocked Docker tests as a successful container deployment.
 
-Add focused Sprint 2 tests for changed behaviour; existing suites alone do not certify interest text/personal tags, new filters, deadlines or evidence mappings. BE-44/46/64 must publish their actual evaluation/seed commands once those runners exist rather than relying on hypothetical commands in documentation.
+Add focused Sprint 2 tests for changed behaviour; existing suites alone do not certify interest text/personal tags, new filters, deadlines or evidence mappings. BE-44 publishes its extraction regression commands; BE-46/64 must publish their actual evaluation/seed commands once those runners exist rather than relying on hypothetical commands in documentation.
 
 ### 3.3 Contract Decisions to Record Before Integration
 
@@ -685,4 +681,4 @@ Add focused Sprint 2 tests for changed behaviour; existing suites alone do not c
 | Localised validation mapping | Reuse error/reason codes and field paths; add compatible codes only where needed | BE-60 + FE-1 |
 | Dataset size and quality targets | Record agreed counts/thresholds before evaluation; do not invent client-approved targets | BE-64/44/46 + QA-1 |
 
-This documentation change does not run application tests, perform migrations, change Jira status or claim Sprint 2 completion. Handover acceptance requires the actual implementation and recorded results above.
+US-11 implementation and verification are recorded in its linked guide. Other Sprint 2 work requires its own implementation and recorded acceptance evidence; this guide does not change Jira status or claim completion of the whole sprint.

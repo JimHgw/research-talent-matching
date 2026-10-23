@@ -138,7 +138,10 @@ def test_initial_profile_and_privacy_defaults(app, signed):
     data = checked(client.get("/api/v1/me/profile"), 200, "Profile")
     assert data["revision"] == 0 and data["origins"] == []
     assert data["content"]["displayName"] == "" and data["content"]["disciplineGroup"] is None
-    assert all(value == [] for key, value in data["content"].items() if key not in ("displayName", "disciplineGroup"))
+    assert data["content"]["researchInterestText"] == ""
+    assert data["content"]["resumeDescription"] == ""
+    assert all(value == [] for key, value in data["content"].items()
+               if key not in ("displayName", "disciplineGroup", "researchInterestText", "resumeDescription"))
     assert data["confirmation"] == {"status": "UNCONFIRMED", "confirmedAt": None, "confirmedRevision": None}
     with app.extensions["database"].transaction() as db:
         privacy = db.get(PrivacySettings, data["talentId"])

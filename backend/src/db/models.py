@@ -203,6 +203,51 @@ class ProfileInterest(Base):
     __table_args__ = (CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
 
 
+class ProfileTextDetails(Base):
+    """Additive storage: existing profile tables and rows need no ALTER."""
+
+    __tablename__ = "profile_text_details"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    research_interest_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    resume_description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    profile: Mapped[TalentProfile] = relationship()
+
+
+class PersonalInterestTag(Base):
+    __tablename__ = "personal_interest_tags"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), nullable=False)
+    label: Mapped[str] = mapped_column(String(100), nullable=False)
+    normalised_label: Mapped[str] = mapped_column(String(300), nullable=False)
+    profile: Mapped[TalentProfile] = relationship()
+    __table_args__ = (UniqueConstraint("talent_id", "normalised_label"),
+                      UniqueConstraint("id", "talent_id"))
+
+
+class ProfilePersonalInterest(Base):
+    __tablename__ = "profile_personal_interests"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    tag_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    tag: Mapped[PersonalInterestTag] = relationship()
+    __table_args__ = (ForeignKeyConstraint(["tag_id", "talent_id"],
+                                          ["personal_interest_tags.id", "personal_interest_tags.talent_id"]),
+                      CheckConstraint("position >= 0"), UniqueConstraint("talent_id", "position"))
+
+
+class ProfileComponentOrigin(Base):
+    """Component provenance without weakening the legacy profile-origin check."""
+
+    __tablename__ = "profile_component_origins"
+    talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
+    field: Mapped[str] = mapped_column(String(32), primary_key=True)
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    document_id: Mapped[str | None] = mapped_column(ForeignKey("documents.id"), nullable=True)
+    __table_args__ = (CheckConstraint("field IN ('researchInterestText', 'customInterestTags', 'resumeDescription')"),
+                      CheckConstraint("(source_type = 'MANUAL' AND document_id IS NULL) OR "
+                                      "(source_type = 'USER_REVIEWED_DOCUMENT' AND document_id IS NOT NULL)"))
+
+
 class Document(Base):
     """Metadata target for provenance FKs; upload/extraction routes belong to US-09."""
     __tablename__ = "documents"

@@ -3,7 +3,8 @@
 from sqlalchemy import select
 
 from ...db.models import (Opportunity, PrivacySettings, PrivacyVisibleField,
-                          ProfileInterest, ProfileSkill, TalentProfile, Tag, User)
+                          PersonalInterestTag, ProfileInterest, ProfileTextDetails,
+                          ProfilePersonalInterest, ProfileSkill, TalentProfile, Tag, User)
 from ...db.opportunity_read import serialize
 from ...shared.validation import ApiError, validate
 
@@ -68,6 +69,9 @@ def visible_profiles(db, profiles):
         for field in ("skills", "researchInterests"):
             if field in allowed[profile.talent_id]:
                 fields[field] = []
+        if "researchInterests" in allowed[profile.talent_id]:
+            fields["researchInterestText"] = ""
+            fields["customInterestTags"] = []
         visible[profile.talent_id] = {"talentId": profile.talent_id, "fields": fields}
 
     # Filter child rows before reading them. No hidden claims or origins enter matching.
@@ -81,6 +85,20 @@ def visible_profiles(db, profiles):
             value = ({"tagId": row.tag_id, "claim": row.claim, "evidenceText": row.evidence_text}
                      if field == "skills" else row.tag_id)
             visible[row.talent_id]["fields"][field].append(value)
+    interest_ids = [key for key in ids if "researchInterests" in allowed[key]]
+    if interest_ids:
+        # Select only the permitted interest column; never load the whole private resume description.
+        for talent_id, interest_text in db.execute(select(ProfileTextDetails.talent_id, ProfileTextDetails.research_interest_text)
+                                                   .where(ProfileTextDetails.talent_id.in_(interest_ids))):
+            visible[talent_id]["fields"]["researchInterestText"] = interest_text
+        rows = db.execute(select(ProfilePersonalInterest.talent_id, PersonalInterestTag).join(
+            PersonalInterestTag,
+            (ProfilePersonalInterest.tag_id == PersonalInterestTag.id)
+            & (ProfilePersonalInterest.talent_id == PersonalInterestTag.talent_id),
+        ).where(ProfilePersonalInterest.talent_id.in_(interest_ids))
+          .order_by(ProfilePersonalInterest.talent_id, ProfilePersonalInterest.position))
+        for talent_id, tag in rows:
+            visible[talent_id]["fields"]["customInterestTags"].append({"id": tag.id, "label": tag.label})
     return list(visible.values())
 
 

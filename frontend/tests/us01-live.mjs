@@ -66,12 +66,15 @@ try {
   assert.deepEqual(saved.content.researchInterests, ['interest_ml']);
   assert.deepEqual(Object.keys(saved.content).sort(), [
     'courses',
+    'customInterestTags',
     'disciplineGroup',
     'displayName',
     'education',
     'researchExperience',
+    'researchInterestText',
     'researchInterests',
     'researchOutputs',
+    'resumeDescription',
     'skills',
   ]);
   for (const section of ['education', 'courses', 'researchExperience', 'researchOutputs'])

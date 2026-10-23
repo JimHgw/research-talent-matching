@@ -4410,6 +4410,23 @@
               "$ref": "#/components/schemas/ResearchOutput"
             },
             "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTag"
+            },
+            "maxItems": 100
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
           }
         },
         "required": [
@@ -4423,7 +4440,7 @@
           "researchOutputs"
         ],
         "additionalProperties": false,
-        "description": "Full replacement shape for PUT. Arrays use stable client-generated record IDs; IDs must be unique and tag kind must match the field. Empty arrays mean clear the section."
+        "description": "Canonical owner profile: eight legacy fields plus optional-compatible researchInterestText, customInterestTags and owner-only resumeDescription, returned with empty defaults for old profiles."
       },
       "ProfileSections": {
         "type": "object",
@@ -4471,12 +4488,30 @@
               "$ref": "#/components/schemas/ResearchOutput"
             },
             "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTagInput"
+            },
+            "maxItems": 100,
+            "description": "Accepted owner-local interest labels. New items omit id. Exact shared labels resolve to shared IDs; omission preserves the selection and [] clears it. Shared/personal combined maximum is 100."
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
           }
         },
         "required": [],
         "additionalProperties": false,
         "minProperties": 1,
-        "description": "Only submitted sections are replaced. Omitted sections remain unchanged. An explicit empty array clears that section."
+        "description": "Replace only submitted sections/components, including owner-only resumeDescription. Omitted components and their provenance persist; empty strings clear text and [] clears selections. Accepted exact shared labels append canonical shared IDs."
       },
       "Confirmation": {
         "type": "object",
@@ -4530,7 +4565,10 @@
               "researchExperience",
               "skills",
               "researchInterests",
-              "researchOutputs"
+              "researchOutputs",
+              "researchInterestText",
+              "customInterestTags",
+              "resumeDescription"
             ]
           },
           "sourceType": {
@@ -4606,7 +4644,7 @@
             "minimum": 0
           },
           "content": {
-            "$ref": "#/components/schemas/ProfileContent"
+            "$ref": "#/components/schemas/ProfileContentWrite"
           }
         },
         "required": [
@@ -4845,7 +4883,10 @@
               "researchExperience",
               "skills",
               "researchInterests",
-              "researchOutputs"
+              "researchOutputs",
+              "researchInterestText",
+              "customInterestTags",
+              "resumeDescription"
             ]
           },
           "status": {
@@ -4925,6 +4966,24 @@
                   "$ref": "#/components/schemas/ResearchOutput"
                 },
                 "maxItems": 100
+              },
+              "researchInterestText": {
+                "type": "string",
+                "maxLength": 5000,
+                "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+              },
+              "customInterestTags": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomInterestTagInput"
+                },
+                "maxItems": 100,
+                "description": "Unaccepted, source-grounded personal interest label proposals. Extraction creates no persistent labels; the owner can accept/edit/reject them through the reviewed apply endpoint."
+              },
+              "resumeDescription": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
               }
             },
             "required": [],
@@ -4956,7 +5015,7 @@
           "reviewRequired"
         ],
         "additionalProperties": false,
-        "description": "Suggestions do not mutate the profile. Unknown values are not converted to positive skill claims. All source information stays owner-only."
+        "description": "Owner-only source-grounded suggestions containing recognised tag IDs, reviewable interest free text and proposed personal labels. Suggestions never create tags, update or confirm profiles. Skills retain supporting source text; research/course/output records retain their descriptions."
       },
       "ApplyExtractionRequest": {
         "type": "object",
@@ -5444,6 +5503,18 @@
                   "$ref": "#/components/schemas/ResearchOutput"
                 },
                 "maxItems": 100
+              },
+              "researchInterestText": {
+                "type": "string",
+                "maxLength": 5000,
+                "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+              },
+              "customInterestTags": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomInterestTag"
+                },
+                "maxItems": 100
               }
             },
             "required": [],
@@ -5455,7 +5526,7 @@
           "fields"
         ],
         "additionalProperties": false,
-        "description": "Contains only allowed fields. Omit private keys entirely. No email, original files, origin metadata or privacy settings. Matching uses this same filtered evidence scope."
+        "description": "Only confirmed permitted content. researchInterests visibility covers shared IDs, researchInterestText and customInterestTags together. Omit all three if hidden. No original documents or provenance."
       },
       "TeamMatch": {
         "type": "object",
@@ -5905,6 +5976,138 @@
           }
         ],
         "description": "PASSWORD: verify current credentials. EMAIL_CODE: first verify a mailed code in the same session. Both require matching newPassword/confirmPassword and a new password distinct from the current password."
+      },
+      "CustomInterestTag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "CustomInterestTagInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileContentWrite": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "disciplineGroup": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "STEM",
+                  "BUSINESS"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "education": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Education"
+            },
+            "maxItems": 100
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Course"
+            },
+            "maxItems": 100
+          },
+          "researchExperience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchExperience"
+            },
+            "maxItems": 100
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillClaim"
+            },
+            "maxItems": 100
+          },
+          "researchInterests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            },
+            "uniqueItems": true,
+            "maxItems": 100
+          },
+          "researchOutputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchOutput"
+            },
+            "maxItems": 100
+          },
+          "researchInterestText": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Source-grounded research-interest description. Optional on writes: omitted preserves stored text; empty string clears it. Shares researchInterests visibility."
+          },
+          "customInterestTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomInterestTagInput"
+            },
+            "maxItems": 100,
+            "description": "Accepted owner-local interest labels. New items omit id. Exact shared labels resolve to shared IDs; omission preserves the selection and [] clears it. Shared/personal combined maximum is 100."
+          },
+          "resumeDescription": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Unified owner-only description retaining readable source text from the whole resume, including unmatched sections. Optional writes preserve it when omitted; empty string clears it. Never shared with teams or used as unrestricted matching evidence."
+          }
+        },
+        "required": [
+          "displayName",
+          "disciplineGroup",
+          "education",
+          "courses",
+          "researchExperience",
+          "skills",
+          "researchInterests",
+          "researchOutputs"
+        ],
+        "additionalProperties": false,
+        "description": "Replace the eight legacy fields; optional researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted. Expected revision is mandatory; real changes invalidate confirmation."
       }
     },
     "parameters": {

@@ -114,6 +114,7 @@ function VisibleTalent({ talent, tags }) {
   const fields = talent.fields;
 
   function formatItem(item) {
+    if (item.label) return item.label;
     if (typeof item === 'string') {
       return tags.find((tag) => tag.id === item)?.label || 'Unlabelled interest';
     }

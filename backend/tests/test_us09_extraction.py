@@ -31,7 +31,7 @@ TAGS = [
     {"id": "skill_sql", "label": "SQL", "kind": "SKILL"},
     {"id": "interest_ml", "label": "Machine learning", "kind": "INTEREST"},
 ]
-SECTIONS = {"education", "courses", "researchExperience", "skills", "researchInterests", "researchOutputs"}
+SECTIONS = {"education", "courses", "researchExperience", "skills", "researchInterests", "researchOutputs", "researchInterestText", "resumeDescription"}
 
 
 def text_pdf(text):
@@ -194,7 +194,7 @@ def test_partial_tags_keep_known_items_and_warn_about_unknown_items(text, field,
 def test_unreliable_text_is_not_invented_or_promoted(text):
     result = build_extraction_result("doc_unknown", text, TAGS)
     validator("Extraction").validate(result)
-    assert result["suggestedSections"] == {}
+    assert set(result["suggestedSections"]) <= {"resumeDescription"}
     assert len(result["uncertainFields"]) == 6
 
 

@@ -1,11 +1,15 @@
 """Validate and save user-reviewed document sections."""
 
 from ...db.models import ProfileInterest, ProfileOrigin, ProfileSkill, Tag
+from ...db.interests import (COMPONENTS, TEXT_FIELDS, replace_personal_selection, set_component_origin,
+                            set_profile_text)
 from ...shared.validation import invalid
 from sqlalchemy import delete
 
 def check_reviewed_sections(db, sections):
     for section, entries in sections.items():
+        if section in TEXT_FIELDS:
+            continue
         if section == "researchInterests":
             ids = entries
         elif section == "skills":
@@ -73,6 +77,13 @@ def replace_reviewed_interests(db, profile, interests):
 
 def save_reviewed_sections(db, profile, sections, document_id):
     for section, entries in sections.items():
+        if section in COMPONENTS:
+            if section in TEXT_FIELDS:
+                set_profile_text(db, profile.talent_id, section, entries)
+            else:
+                replace_personal_selection(db, profile.talent_id, entries)
+            set_component_origin(db, profile.talent_id, section, "USER_REVIEWED_DOCUMENT", document_id)
+            continue
         if section == "education":
             profile.education = entries
 

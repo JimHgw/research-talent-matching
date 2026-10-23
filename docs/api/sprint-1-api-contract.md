@@ -456,7 +456,7 @@ Related Jira subtasks: H18ABANANA-21, H18ABANANA-27.
 
 Permission: **Talent owner**.
 
-content fully replaces the profile content and must include all eight fields. Read first, retain unedited fields, then submit. Actual changes increment revision, set confirmation to UNCONFIRMED and clear confirmedRevision and confirmedAt. An exact no-op preserves all three. Changed sections receive MANUAL provenance; unchanged sections keep their origin.
+content replaces the eight required legacy fields. Optional US-11 fields researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted; explicit empty strings/arrays clear them. Read first, retain unedited fields, then submit. Actual changes increment revision, set confirmation to UNCONFIRMED and clear confirmedRevision and confirmedAt. An exact no-op preserves all three. Changed sections receive MANUAL provenance; unchanged sections keep their origin.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
@@ -942,7 +942,7 @@ Related Jira subtasks: H18ABANANA-22, H18ABANANA-23, H18ABANANA-24.
 
 Permission: **Talent owner**.
 
-Owner-only. READY returns 200; QUEUED/PROCESSING returns 409 EXTRACTION_NOT_READY; FAILED returns 422 EXTRACTION_FAILED. suggestedSections contains review suggestions and does not mutate the profile. Put unreliable information in uncertainFields rather than inventing positive skill claims.
+Owner-only. READY returns 200; QUEUED/PROCESSING returns 409 EXTRACTION_NOT_READY; FAILED returns 422 EXTRACTION_FAILED. suggestedSections contains review suggestions and does not mutate the profile. US-11 also supplies recognised paragraph tags, interest free text, proposed personal labels and a unified owner-only resumeDescription; see the [extraction guide](../us11-resume-extraction.md). Put unreliable information in uncertainFields rather than inventing positive skill claims.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
@@ -2468,7 +2468,7 @@ Only HTTP/HTTPS URLs are accepted. The frontend should use appropriate link attr
 
 ### ProfileContent
 
-PUT fully replaces all eight required fields. Use [] for an unfilled section and null for an unknown discipline group. Keep an existing child record ID when editing, assign a new ID when adding and remove a record from its array to delete it. Each section allows up to 100 items.
+PUT replaces all eight required legacy fields. The optional US-11 text/personal-tag components below preserve stored values when omitted. Use [] for an unfilled section and null for an unknown discipline group. Keep an existing child record ID when editing, assign a new ID when adding and remove a record from its array to delete it. Each section allows up to 100 items.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
@@ -2480,12 +2480,22 @@ PUT fully replaces all eight required fields. Use [] for an unfilled section and
 | `skills` | [SkillClaim](#model-skillclaim)[] | Yes | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
 | `researchInterests` | string[] | Yes | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
 | `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | Yes | Research output records; maximum items: 100 |
+| `researchInterestText` | string | No on writes | Research-interest source description; maximum 5,000 characters; defaults to empty; shares researchInterests visibility |
+| `customInterestTags` | object[] | No on writes | Canonical owner-local `{id, label}` records on reads; label 1–100 characters; shared/personal combined maximum 100 |
+| `resumeDescription` | string | No on writes | Unified whole-resume description; maximum 20,000 characters; defaults to empty; always owner-only |
+
+
+<a id="model-profilecontentwrite"></a>
+
+### ProfileContentWrite
+
+Uses the same eight required legacy fields and optional US-11 components as ProfileContent. For customInterestTags, a new input item contains a label without id; an existing ID must belong to the current owner. Exact normalised shared labels resolve to researchInterests IDs, then owner-local labels are reused or created atomically. No-op saves preserve revision/confirmation. See [US-11 rules](../us11-resume-extraction.md).
 
 <a id="model-profilesections"></a>
 
 ### ProfileSections
 
-Partial import object with at least one section. Omitted sections are unchanged; [] clears a section. Only the six academic/research sections are accepted; displayName and disciplineGroup are not imported here.
+Partial import object with at least one section. Omitted sections are unchanged; [] clears a section. The six academic/research sections and three US-11 text/personal-tag components are accepted; displayName and disciplineGroup are not imported here. An empty string clears a text component.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
@@ -2495,6 +2505,10 @@ Partial import object with at least one section. Omitted sections are unchanged;
 | `skills` | [SkillClaim](#model-skillclaim)[] | No | Skill claims; tagId must be unique and refer to a SKILL tag; maximum items: 100 |
 | `researchInterests` | string[] | No | Interest tag IDs, each referring to an INTEREST tag; maximum items: 100; unique items |
 | `researchOutputs` | [ResearchOutput](#model-researchoutput)[] | No | Research output records; maximum items: 100 |
+| `researchInterestText` | string | No | Maximum 5,000 characters; omitted preserves current text; empty string clears |
+| `customInterestTags` | object[] | No | Reviewed `{id?, label}` selection; omitted preserves current selection; [] clears; exact shared resolutions append canonical shared IDs |
+| `resumeDescription` | string | No | Maximum 20,000 characters; reviewed owner-only unified source description; omitted preserves; empty string clears |
+
 
 <a id="model-confirmation"></a>
 
@@ -2516,7 +2530,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` / `researchInterestText` / `customInterestTags` / `resumeDescription` | Yes | Associated field or component |
 | `sourceType` | `MANUAL` / `USER_REVIEWED_DOCUMENT` | Yes | Server-maintained origin: MANUAL or USER_REVIEWED_DOCUMENT |
 | `documentId` | string / null | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 
@@ -2540,7 +2554,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
 | `expectedRevision` | integer | Yes | Resource revision most recently read by the frontend; minimum: 0 |
-| `content` | [ProfileContent](#model-profilecontent) | Yes | Business content of the resource |
+| `content` | [ProfileContentWrite](#model-profilecontentwrite) | Yes | Eight legacy fields plus optional text/personal-tag components |
 
 <a id="model-revisionrequest"></a>
 
@@ -2622,7 +2636,7 @@ Provenance is tracked per section, not as a verified sentence-level file citatio
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|
-| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` | Yes | Associated field or section |
+| `field` | `education` / `courses` / `researchExperience` / `skills` / `researchInterests` / `researchOutputs` / `researchInterestText` / `customInterestTags` / `resumeDescription` | Yes | Associated field or component |
 | `status` | `UNKNOWN` / `NOT_RECOGNISED` | Yes | Status enum; see the relevant business rules |
 | `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
 
@@ -2636,7 +2650,7 @@ suggestedSections may be empty. In that case, show uncertainty and manual entry 
 |---|---|---|---|
 | `documentId` | string | Yes | Owner-only document source reference; null for manual input; never disclosed to research teams; pattern: `^[A-Za-z0-9_-]{1,64}$` |
 | `status` | `READY` | Yes | Status enum; see the relevant business rules |
-| `suggestedSections` | object (optional subset of six sections) | Yes | Any subset of the six profile sections, including an empty object; same field shapes as ProfileSections without the minimum-one-field requirement |
+| `suggestedSections` | object (optional subset of nine sections/components) | Yes | Any subset of the six profile sections plus researchInterestText, customInterestTags and resumeDescription, including an empty object; same field shapes as ProfileSections without the minimum-one-field requirement |
 | `uncertainFields` | [UncertainField](#model-uncertainfield)[] | Yes | Sections that could not be reliably extracted, with reasons |
 | `warnings` | string[] | Yes | Review guidance |
 | `reviewRequired` | `true` | Yes | Always true; extraction suggestions require user review |
@@ -2789,7 +2803,7 @@ Display the backend summary rather than recalculating from a page of results. Va
 
 ### VisibleProfile
 
-fields may contain any subset of ProfileContent fields, all optional. Present values follow the corresponding ProfileContent types. If displayName is absent, display “Anonymous talent”; do not bypass visibility through another endpoint to retrieve the name.
+fields may contain a permitted subset of ProfileContent fields, all optional. resumeDescription is always excluded. The researchInterests visibility group covers shared IDs, researchInterestText and customInterestTags together. Present values follow the corresponding ProfileContent types. If displayName is absent, display “Anonymous talent”; do not bypass visibility through another endpoint to retrieve the name.
 
 | Field | Type / allowed values | Required | Description and constraints |
 |---|---|---|---|

@@ -15,6 +15,7 @@ PRIVACY = "/api/v1/me/privacy"
 
 def share(signed, fields, discoverable=True):
     client, csrf = signed
+    fields = [field for field in fields if field not in ("researchInterestText", "customInterestTags", "resumeDescription")]
     current = checked(client.get(PRIVACY), "Privacy")
     return checked(client.put(PRIVACY, json={
         "expectedRevision": current["revision"],
@@ -46,7 +47,7 @@ def test_visible_content_four_statuses_and_no_owner_metadata(app, discovery):
     page = checked(response, "TalentMatchPage")
     assert page["total"] == 1
     detail = checked(team.get(f"{url}/{profile['talentId']}"), "TeamMatch")
-    assert detail["talent"]["fields"] == profile["content"]
+    assert detail["talent"]["fields"] == {key: value for key, value in profile["content"].items() if key != "resumeDescription"}
     assert detail["opportunityRevision"] == opportunity["revision"]
     assert detail["summary"] == page["items"][0]["summary"]
     assert detail["summary"]["score"] == 50

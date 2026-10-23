@@ -4,6 +4,9 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import delete, select
 
 from ...db.database import database
+from ...db.interests import (COMPONENTS, TEXT_FIELDS, profile_components, replace_personal_selection,
+                            resolve_personal_tags, set_component_origin, set_profile_text)
+from ...db.models import ProfileComponentOrigin
 from ...db.models import (ProfileInterest, ProfileOrigin, ProfileSkill, Tag, TagDisciplineGroup,
                           TalentProfile, utcnow)
 from ...shared.security import require_csrf, require_user
@@ -13,7 +16,8 @@ profiles = Blueprint("profiles", __name__, url_prefix="/api/v1")
 SCALARS = {"displayName": "display_name", "disciplineGroup": "discipline_group"}
 ARRAYS = {"education": "education", "courses": "courses", "researchExperience": "research_experience",
           "researchOutputs": "research_outputs"}
-SECTIONS = (*ARRAYS, "skills", "researchInterests")
+BASE_SECTIONS = (*ARRAYS, "skills", "researchInterests")
+SECTIONS = (*BASE_SECTIONS, *COMPONENTS)
 
 
 def timestamp(value):
@@ -30,14 +34,16 @@ def serialize_profile(db, profile):
     content["researchInterests"] = list(db.scalars(
         select(ProfileInterest.tag_id).where(ProfileInterest.talent_id == profile.talent_id)
         .order_by(ProfileInterest.position)))
+    content.update(profile_components(db, profile.talent_id))
+    origins = [{"field": row.field, "sourceType": row.source_type, "documentId": row.document_id}
+               for model in (ProfileOrigin, ProfileComponentOrigin)
+               for row in db.scalars(select(model).where(model.talent_id == profile.talent_id))]
     return {
         "talentId": profile.talent_id, "revision": profile.revision, "content": content,
         "confirmation": {"status": profile.confirmation_status,
                          "confirmedRevision": profile.confirmed_revision,
                          "confirmedAt": timestamp(profile.confirmed_at)},
-        "origins": [{"field": row.field, "sourceType": row.source_type, "documentId": row.document_id}
-                    for row in db.scalars(select(ProfileOrigin)
-                    .where(ProfileOrigin.talent_id == profile.talent_id).order_by(ProfileOrigin.field))],
+        "origins": sorted(origins, key=lambda item: item["field"]),
         "updatedAt": timestamp(profile.updated_at),
     }
 
@@ -50,7 +56,7 @@ def own_profile(db, user):
 
 
 def check_content(db, content):
-    for section in SECTIONS:
+    for section in BASE_SECTIONS:
         entries = content[section]
         ids = entries if section == "researchInterests" else [
             row["tagId" if section == "skills" else "id"] for row in entries]
@@ -100,9 +106,14 @@ def profile_put():
         if data["expectedRevision"] != profile.revision:
             raise ApiError(409, "REVISION_CONFLICT", "Your profile changed. Reload the latest version.",
                            revision=profile.revision)
-        content = data["content"]
-        check_content(db, content)
         old = serialize_profile(db, profile)
+        content = data["content"]
+        for field in COMPONENTS:
+            content.setdefault(field, old["content"][field])
+        check_content(db, content)
+        content["customInterestTags"], content["researchInterests"] = resolve_personal_tags(
+            db, profile.talent_id, content["customInterestTags"], content["researchInterests"],
+            "content.customInterestTags")
         if old["content"] == content:
             result = old
         else:
@@ -114,6 +125,9 @@ def profile_put():
             profile.updated_at = utcnow()
             for section in SECTIONS:
                 if old["content"][section] != content[section]:
+                    if section in COMPONENTS:
+                        set_component_origin(db, profile.talent_id, section, "MANUAL")
+                        continue
                     origin = db.get(ProfileOrigin, (profile.talent_id, section))
                     if origin is None:
                         origin = ProfileOrigin(talent_id=profile.talent_id, field=section)
@@ -126,6 +140,9 @@ def profile_put():
                                     claim=skill["claim"], evidence_text=skill["evidenceText"], position=position))
             for position, tag_id in enumerate(content["researchInterests"]):
                 db.add(ProfileInterest(talent_id=profile.talent_id, tag_id=tag_id, position=position))
+            for field in TEXT_FIELDS:
+                set_profile_text(db, profile.talent_id, field, content[field])
+            replace_personal_selection(db, profile.talent_id, content["customInterestTags"])
             db.flush()
             result = serialize_profile(db, profile)
     return jsonify(result)
@@ -160,7 +177,8 @@ def profile_confirm():
                 "Enter your name before confirming."
             )
 
-        if not any(content[section] for section in SECTIONS):
+        if not any(content[section].strip() if isinstance(content[section], str) else content[section]
+                   for section in SECTIONS):
             invalid(
                 "content",
                 "Add at least one academic or research record before confirming."

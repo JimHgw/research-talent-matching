@@ -86,10 +86,13 @@ try {
   const extraction = await api.extraction(uploaded.id);
   assert.deepEqual(Object.keys(extraction.suggestedSections).sort(), [
     'courses',
+    'customInterestTags',
     'education',
     'researchExperience',
+    'researchInterestText',
     'researchInterests',
     'researchOutputs',
+    'resumeDescription',
     'skills',
   ]);
   assert.ok(
@@ -110,7 +113,15 @@ try {
   assert.equal(button('Apply reviewed sections').disabled, true);
   assert.ok(text().includes('COBOL'));
 
-  for (const label of ['Education', 'Courses', 'Research experience', 'Research outputs']) {
+  for (const label of [
+    'Education',
+    'Courses',
+    'Research experience',
+    'Research outputs',
+    'Research interest description',
+    'Personal interest tags',
+    'Resume description',
+  ]) {
     await checkbox(label);
   }
 
@@ -187,6 +198,59 @@ try {
   assert.equal(confirmed.revision, imported.revision);
   assert.equal(confirmed.confirmation.status, 'CONFIRMED');
   assert.equal(confirmed.confirmation.confirmedRevision, imported.revision);
+
+  // Reuse the same real document/review workflow for US-11 text and personal tags.
+  await click('My documents');
+  await until(() => !!button('Review suggestions'));
+  await click('Review suggestions');
+  await until(() => !!button('Apply reviewed sections'));
+  assert.equal(
+    field('Research interest description').value,
+    'Machine learning; Climate-resilient urban systems'
+  );
+  assert.equal(field('Personal interest label').value, 'Climate-resilient urban systems');
+  for (const label of [
+    'Education',
+    'Courses',
+    'Research experience',
+    'Research outputs',
+    'Skills',
+    'Research interests',
+  ]) {
+    await checkbox(label);
+  }
+  await change('Research interest description', 'Reviewed ecological forecasting interests.');
+  assert.ok(field('Resume description').value.includes('Bachelor of Science'));
+  await change(
+    'Resume description',
+    'Reviewed unified resume description with Python, SQL and ecological forecasting.'
+  );
+  await change('Personal interest label', 'Ecological forecasting');
+  await checkbox(
+    'I understand that importing replaces the selected sections in my profile and requires a separate confirmation.'
+  );
+  await click('Apply reviewed sections');
+  await until(
+    () => text().includes('Tell your research story') && text().includes('Needs confirmation')
+  );
+  const withText = await api.profile();
+  assert.equal(withText.content.researchInterestText, 'Reviewed ecological forecasting interests.');
+  assert.equal(
+    withText.content.resumeDescription,
+    'Reviewed unified resume description with Python, SQL and ecological forecasting.'
+  );
+  assert.equal(withText.content.customInterestTags.length, 1);
+  assert.equal(withText.content.customInterestTags[0].label, 'Ecological forecasting');
+  assert.match(withText.content.customInterestTags[0].id, /^personal_/);
+  assert.deepEqual(withText.content.skills, confirmed.content.skills);
+  assert.deepEqual(withText.content.researchInterests, confirmed.content.researchInterests);
+  assert.equal(withText.confirmation.status, 'UNCONFIRMED');
+  assert.equal(field('Research interest description').value, withText.content.researchInterestText);
+  assert.equal(field('Personal interest label').value, 'Ecological forecasting');
+  assert.equal(
+    (await api.tags()).items.some((tag) => tag.label === 'Ecological forecasting'),
+    false
+  );
 
   console.log('US-09 real HTTP integration passed');
 } finally {

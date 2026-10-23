@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from uuid import uuid4
 
 from ...db.database import database
+from ...db.interests import resolve_personal_tags
 from ...db.models import Document, DocumentExtraction, TalentProfile, utcnow
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
@@ -238,6 +239,18 @@ def document_apply_post(document_id):
             )
 
         sections = data["sections"]
+        if "customInterestTags" in sections:
+            current = serialize_profile(db, profile)["content"]
+            personal, shared = resolve_personal_tags(
+                db, profile.talent_id, sections["customInterestTags"],
+                sections.get("researchInterests", current["researchInterests"]), "sections.customInterestTags")
+            sections["customInterestTags"] = personal
+            if "researchInterests" in sections or shared != current["researchInterests"]:
+                sections["researchInterests"] = shared
+        elif "researchInterests" in sections:
+            current = serialize_profile(db, profile)["content"]
+            if len(sections["researchInterests"]) + len(current["customInterestTags"]) > 100:
+                invalid("sections.researchInterests", "Select at most 100 shared and personal interest tags combined.")
         check_reviewed_sections(db, sections)
 
         profile.revision += 1

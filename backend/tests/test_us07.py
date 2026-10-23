@@ -21,6 +21,7 @@ PRIVACY = "/api/v1/me/privacy"
 def update_privacy(signed, fields, discoverable):
     """Update the current talent user's privacy settings."""
     client, csrf = signed
+    fields = [field for field in fields if field not in ("researchInterestText", "customInterestTags", "resumeDescription")]
 
     current = checked(
         client.get(PRIVACY),
