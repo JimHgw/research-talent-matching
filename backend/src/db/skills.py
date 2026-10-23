@@ -72,6 +72,24 @@ def upgrade_extraction_skills(db, result):
     return result
 
 
+def _negative_evidence(evidence, name):
+    """A denial must govern this skill, rather than another skill in the source."""
+    target = r"(?<![a-z0-9_])" + re.escape(name) + r"(?![a-z0-9_])"
+    experience = r"(?:(?:any|prior|practical|hands-on)\s+)*(?:(?:experience|knowledge|skills?|proficiency|familiarity)(?:\s+(?:with|in|of|using))?\s+)?"
+    denial = (r"(?:\b(?:no|without|lack(?:ing)?(?: of)?)\s+" + experience
+              + r"|\b(?:do(?:es)? not|did not|have not|has not|don't|doesn't|didn't|haven't|hasn't|not|never|cannot|can't)\s+"
+              + r"(?:(?:have|had|use|used|know|learned|learnt|possess)\s+)?" + experience
+              + r"|\bnot\s+(?:proficient|experienced|familiar|skilled)\s+(?:in|with|at)\s+"
+              + r"|(?:不会|不懂|不熟悉|不具备|没有|未曾|未)(?:使用过|使用|用过|掌握|接触过|接触|学习过|学习)?\s*)")
+    clauses = re.split(r"[,.!?;:，。！？；：]|\b(?:but|however|yet|whereas|although)\b|但是|然而|不过|但|却", evidence)
+    for clause in clauses:
+        if re.search(denial + target, clause):
+            return True
+        if re.search(target + r"\s*(?:不会|不熟悉|没有经验|尚未掌握)", clause):
+            return True
+    return False
+
+
 def matching_skills(skills, labels):
     """Resolve exact titles against existing opportunity criteria, without storing tags.
 
@@ -84,9 +102,7 @@ def matching_skills(skills, labels):
         negative = re.match(r"^(?:no|not|without|lack(?:ing)?(?: of)?|does not have)\s+(.+)$", title)
         name = negative[1] if negative else title
         evidence = normalise_title(item["evidenceText"])
-        prefix = re.split(r"(?<!\w)" + re.escape(name) + r"(?!\w)", evidence, maxsplit=1)[0]
-        evidence_negative = (prefix != evidence and re.search(
-            r"\b(?:no|not|without|lack|lacking)\b(?!\s+only\b)[^.;]*$", prefix))
+        evidence_negative = _negative_evidence(evidence, name)
         if re.search(r"\b(?:want to learn|plan to learn|interested in learning|wish to learn)\b", title + " " + evidence):
             continue
         value = {**item, "label": item["title"],

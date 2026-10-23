@@ -19,6 +19,10 @@ configuration before starting the updated API/worker. US-11 adds only
 and `profile_component_origins`; it preserves existing tables and records.
 The [free-text skill update](../docs/free-text-skills.md) additionally creates
 `profile_skill_details`, retaining legacy skill names/evidence and old extraction results.
+Existing MySQL installations must also run `upgrade-resume-text` after `init-db`
+to widen the resume column from TEXT to MEDIUMTEXT without changing stored data.
+The Docker entrypoint runs both steps automatically before serving requests.
+See [the capacity upgrade](../docs/mysql-migration.md#简历描述容量升级) for native commands.
 
 For frontend and backend containers together, use the
 [integrated Docker workflow](../docs/docker-integration.md).

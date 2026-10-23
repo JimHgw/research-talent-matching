@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, ForeignKey,
                         ForeignKeyConstraint, Index, Integer, String, Table, Text, UniqueConstraint)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.dialects.mysql import DATETIME
+from sqlalchemy.dialects.mysql import DATETIME, MEDIUMTEXT
 
 
 # Both engines store naive UTC. MySQL must retain microseconds for ordering/leases.
@@ -213,12 +213,12 @@ class ProfileInterest(Base):
 
 
 class ProfileTextDetails(Base):
-    """Additive storage: existing profile tables and rows need no ALTER."""
+    """Private descriptions; the resume permits 20,000 four-byte characters."""
 
     __tablename__ = "profile_text_details"
     talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)
     research_interest_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    resume_description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    resume_description: Mapped[str] = mapped_column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=False, default="")
     profile: Mapped[TalentProfile] = relationship()
 
 

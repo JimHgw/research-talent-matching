@@ -133,3 +133,30 @@ CI 的 `backend_mysql_test` 分为三个独立任务，每个任务使用自己�
 
 连接与事务配置参考 [SQLAlchemy MySQL 文档](https://docs.sqlalchemy.org/en/20/dialects/mysql.html)，
 时间精度参考 [MySQL 时间小数秒文档](https://dev.mysql.com/doc/refman/8.4/en/fractional-seconds.html)。
+
+## 简历描述容量升级
+
+`resumeDescription` 的接口上限是 20,000 个字符。四字节 Unicode 字符在这个
+范围内最多需要 80,000 字节，超过 MySQL TEXT 的容量，因此新表使用 MEDIUMTEXT。
+现有数据库仅重建应用镜像或执行 `init-db` 不会自动改变已有列的类型。
+
+本机部署先停止 API/worker 写入，保留数据库备份和现有配置，然后执行：
+
+```powershell
+.\.venv\Scripts\python.exe -m flask --app backend.app init-db
+.\.venv\Scripts\python.exe -m flask --app backend.app upgrade-resume-text
+```
+
+macOS/Linux 使用 `.venv/bin/python`。升级只把已有的
+`profile_text_details.resume_description` 从 TEXT 放宽为 MEDIUMTEXT，保留原有
+utf8mb4 字符集、排序规则、非空约束和数据，不修改资料版本、确认状态或来源。
+MEDIUMTEXT/LONGTEXT 已有列以及 SQLite 无需修改，命令可以重复执行。
+未知的旧列定义会停止升级，供维护者核对，避免隐式改变其他约束。
+
+Docker 入口已在 `init-db` 后显式执行此升级，然后才启动 API/worker；按现有运行
+模式重建并更新应用即可。MySQL DDL 单独提交，此步骤不是事务内的数据迁移，
+不要依赖普通业务事务回滚撤销列类型升级，也不需要删除数据卷。
+
+`backend/tests/test_us11_review_regressions.py` 在真实 MySQL 测试库中覆盖手工保存、
+审核导入、17,000/20,000 个四字节字符的完整回读、超出上限时的原子拒绝，以及
+旧 TEXT 列升级后的数据保留和重复执行。

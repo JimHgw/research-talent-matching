@@ -76,6 +76,17 @@ def migrate_sqlite(source_url, target):
 
 
 def register_migration_command(app):
+    @app.cli.command("upgrade-resume-text")
+    def upgrade_resume():
+        """Widen legacy MySQL resume storage; run before starting API/worker writes."""
+        from .schema_upgrades import upgrade_resume_text
+        try:
+            changed = upgrade_resume_text(app.extensions["database"])
+        except (ValueError, SQLAlchemyError) as error:
+            message = str(error) if isinstance(error, ValueError) else "Resume storage upgrade failed; check the schema and database connection."
+            raise click.ClickException(message) from None
+        click.echo("Resume text storage widened to MEDIUMTEXT." if changed else "Resume text storage is already sufficient.")
+
     @app.cli.command("migrate-sqlite")
     @click.option("--source", required=True, help="Existing SQLite URL, e.g. sqlite:////app/data/h18abanana.db")
     def migrate(source):

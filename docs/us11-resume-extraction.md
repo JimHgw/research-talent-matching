@@ -140,6 +140,14 @@ and selected personal labels together. Team list/detail queries require a curren
 confirmed revision and discovery consent, and select only permitted interest
 content. Hiding the group removes all three fields and their influence.
 
+The privacy page lists the eight consent groups accepted by `ProfileField` and
+`PrivacyWrite`, using its own whitelist rather than all profile display labels.
+Interest descriptions and personal labels have no independent checkbox; the
+page explains that both follow Research interests. Frontend regression tests
+compare all rendered choices and the saved request with the OpenAPI enum. The
+real HTTP workflow saves every offered choice against the actual API with the
+new profile components populated.
+
 `resumeDescription` is always owner-only because whole-resume text may contain
 contact details or information from hidden sections. It has no public visibility
 control and is excluded from team schemas, database projections and matching
@@ -160,18 +168,22 @@ configuration, and run from the repository root on Windows:
 
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app backend.app init-db
+.\.venv\Scripts\python.exe -m flask --app backend.app upgrade-resume-text
 ```
 
 On macOS/Linux, use `.venv/bin/python`. Then restart the API and document worker
 using the existing README commands. For Docker, rebuild the application images
-and use the existing startup workflow; its entrypoint creates missing tables.
+and use the existing startup workflow; its entrypoint creates missing tables and
+widens the legacy resume-text column before starting the API/worker.
 
 The upgrade is additive: `profile_text_details` stores the text components;
 `personal_interest_tags` stores owner-local labels; `profile_personal_interests`
 stores ordered selections with a same-owner foreign key;
 `profile_component_origins` stores the new components' provenance. Existing tables,
 IDs, profile revisions, confirmations, credentials and document results remain
-unchanged. No ALTER or destructive reset is required. Existing profiles default
+unchanged. The original component-table additions require no ALTER; the later
+MySQL capacity fix explicitly widens `resume_description` from TEXT to MEDIUMTEXT
+so all 20,000 four-byte Unicode characters fit. No reset is required. Existing profiles default
 to empty new fields, and old READY results can still be reviewed/imported.
 The later free-text skill update adds `profile_skill_details` as described in
 the [skill compatibility guide](free-text-skills.md).
@@ -232,3 +244,24 @@ Academic Statement fix verification on 23 October 2026:
   running worker contains the new parser. New uploads use the updated rules.
 - The six optional isolated Docker/MySQL tests were still skipped. The live
   read-only PDF check and worker update do not replace those isolated tests.
+
+MR !40 review regression verification on 23 October 2026:
+
+- Privacy choices now match the eight `ProfileField` values. Frontend tests save
+  every rendered choice, and real HTTP tests do so with all new profile components
+  populated. Interest text/personal labels remain one consent group; the resume
+  remains owner-only.
+- Skill evidence negation is target-specific. English/Chinese cases using both
+  legacy and free-text skills keep confirmed Python MATCHED with a score of 100
+  when the source denies R instead. Actual Python denials still produce a gap.
+- Resume storage uses MySQL MEDIUMTEXT. Real MySQL tests save/reload 17,000 and
+  20,000 four-byte characters through manual saves and reviewed imports, reject
+  20,001 characters atomically, and upgrade a legacy TEXT column without changing
+  its saved profile or interest description.
+- Full backend/real-HTTP regression: **501 passed, 6 skipped**. A separate isolated
+  MySQL run: **57 passed**. Frontend tests/builds: **192 passed**.
+- The existing deployment was updated after backing up its affected text rows in
+  the private data volume. Eight profile/document/provenance tables had identical
+  row counts and content checksums before and after the capacity upgrade. Public
+  page, updated bundle and session API checks returned HTTP 200. The isolated
+  test container and its temporary database were removed.

@@ -69,6 +69,12 @@ negative statements remain gaps; omitted/unmatched skills remain UNKNOWN. The
 skills privacy field governs both title and evidence. Hidden skills are excluded
 before reading matching inputs or producing team scores/explanations.
 
+Negation in evidence must govern the particular skill. For example, `No R
+experience, but used Python` denies R and does not deny Python. Punctuation and
+contrast clauses separate statements; target-specific negative phrases are
+supported in English and Chinese. The MR !40 regression cases exercise both
+legacy and free-text records through owner/team matching HTTP endpoints.
+
 ## Verification
 
 `backend/tests/test_free_text_skills.py` covers both disciplines, arbitrary titles,
