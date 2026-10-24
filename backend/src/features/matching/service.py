@@ -1,5 +1,6 @@
 from ...db.models import utcnow
 from ...shared.validation import ApiError
+from ...shared.search import opportunity_matches
 from .engine import evaluate_opportunity
 from .repository import (
     get_owner_profile,
@@ -34,7 +35,7 @@ def ranking_key(item):
     )
 
 
-def recommendations(db, user, page, page_size):
+def recommendations(db, user, page, page_size, filters=None):
     profile = get_owner_profile(db, user)
     require_confirmed(profile)
 
@@ -42,6 +43,8 @@ def recommendations(db, user, page, page_size):
     items = []
 
     for opportunity in list_published(db):
+        if not opportunity_matches(opportunity, filters or {}):
+            continue
         _, summary = evaluate_opportunity(opportunity, snapshot)
         items.append({
             "opportunity": opportunity,
@@ -67,7 +70,7 @@ def ranked_page(items, page, page_size):
 
 
 def owner_match(db, user, opportunity_id):
-    opportunity = get_published(db, opportunity_id)
+    opportunity = get_published(db, opportunity_id, active=True)
     profile = get_owner_profile(db, user)
     require_confirmed(profile)
     snapshot = read_matching_profile(db, profile)

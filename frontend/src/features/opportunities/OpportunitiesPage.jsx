@@ -6,6 +6,7 @@ import { useResource } from '../../shared/hooks.js';
 import { displayDate } from '../../shared/format.js';
 import OpportunityEditor from './OpportunityEditor.jsx';
 import OpportunityDetails from './OpportunityDetails.jsx';
+import SearchFilters from '../../shared/SearchFilters.jsx';
 
 function SelectedOpportunity({ id, editable, onBack, ...props }) {
   const { t, language } = useLanguage();
@@ -34,61 +35,86 @@ function SelectedOpportunity({ id, editable, onBack, ...props }) {
 function OpportunityList({ scope, onSelect }) {
   const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
-  const resource = useResource(() => api.opportunities(scope, page), [scope, page], true);
-  if (resource.loading) return <Loading />;
-  if (resource.error) return <ErrorNotice error={resource.error} retry={resource.refresh} />;
+  const [filters, setFilters] = useState({});
+  const resource = useResource(
+    () => api.opportunities(scope, page, filters),
+    [scope, page, filters],
+    true
+  );
   const data = resource.data;
   return (
     <>
-      <div className="opportunity-list-heading">
-        <p className="muted">{t('{count} opportunities', { count: data.total })}</p>
-        <Button variant="text" onClick={resource.refresh}>
-          {t('Refresh opportunities')}
-        </Button>
-      </div>
-      {!data.items.length && (
-        <Empty
-          icon="briefcase"
-          title={
-            page > 1
-              ? t('No opportunities on this page')
-              : scope === 'mine'
-                ? t('Create your first opportunity')
-                : t('No published opportunities yet')
-          }
-        >
-          {scope === 'mine'
-            ? t('Describe your research and the skills or interests your team is looking for.')
-            : t('Published opportunities will appear here when research teams share them.')}
-        </Empty>
-      )}
-      <div className="opportunity-list">
-        {data.items.map((item) => (
-          <article className="panel opportunity-card" key={item.id}>
-            <div className="opportunity-meta">
-              <Badge status={item.status} />
-              <span>{t(item.content.disciplineGroup)}</span>
-            </div>
-            <h2>{item.content.title}</h2>
-            <p className="muted">
-              {item.content.university} · {item.content.discipline}
-            </p>
-            <p>{item.content.researchArea}</p>
-            <p className="opportunity-excerpt">{item.content.description}</p>
-            <div className="opportunity-card-footer">
-              <small>{t('Updated {date}', { date: displayDate(item.updatedAt, language) })}</small>
-              <Button variant="secondary" onClick={() => onSelect(item.id)}>
-                {scope === 'mine' ? t('View and edit') : t('View details')}
-              </Button>
-            </div>
-          </article>
-        ))}
-      </div>
-      <Pager data={data} onPage={setPage} />
-      {!data.items.length && page > 1 && (
-        <Button variant="secondary" onClick={() => setPage(1)}>
-          {t('Back to first page')}
-        </Button>
+      <SearchFilters
+        onApply={(next) => {
+          setPage(1);
+          setFilters(next);
+        }}
+      />
+      {resource.loading ? (
+        <Loading />
+      ) : resource.error ? (
+        <ErrorNotice error={resource.error} retry={resource.refresh} />
+      ) : (
+        <>
+          <div className="opportunity-list-heading">
+            <p className="muted">{t('{count} opportunities', { count: data.total })}</p>
+            <Button variant="text" onClick={resource.refresh}>
+              {t('Refresh opportunities')}
+            </Button>
+          </div>
+          {!data.items.length && (
+            <Empty
+              icon="briefcase"
+              title={
+                Object.keys(filters).length
+                  ? t('No results match these filters.')
+                  : page > 1
+                    ? t('No opportunities on this page')
+                    : scope === 'mine'
+                      ? t('Create your first opportunity')
+                      : t('No published opportunities yet')
+              }
+            >
+              {Object.keys(filters).length
+                ? t('Try changing or clearing the filters.')
+                : scope === 'mine'
+                  ? t(
+                      'Describe your research and the skills or interests your team is looking for.'
+                    )
+                  : t('Published opportunities will appear here when research teams share them.')}
+            </Empty>
+          )}
+          <div className="opportunity-list">
+            {data.items.map((item) => (
+              <article className="panel opportunity-card" key={item.id}>
+                <div className="opportunity-meta">
+                  <Badge status={item.availabilityStatus === 'EXPIRED' ? 'EXPIRED' : item.status} />
+                  <span>{t(item.content.disciplineGroup)}</span>
+                </div>
+                <h2>{item.content.title}</h2>
+                <p className="muted">
+                  {item.content.university} · {item.content.discipline}
+                </p>
+                <p>{item.content.researchArea}</p>
+                <p className="opportunity-excerpt">{item.content.description}</p>
+                <div className="opportunity-card-footer">
+                  <small>
+                    {t('Updated {date}', { date: displayDate(item.updatedAt, language) })}
+                  </small>
+                  <Button variant="secondary" onClick={() => onSelect(item.id)}>
+                    {scope === 'mine' ? t('View and edit') : t('View details')}
+                  </Button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <Pager data={data} onPage={setPage} />
+          {!data.items.length && page > 1 && (
+            <Button variant="secondary" onClick={() => setPage(1)}>
+              {t('Back to first page')}
+            </Button>
+          )}
+        </>
       )}
     </>
   );

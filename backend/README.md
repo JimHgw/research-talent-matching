@@ -13,6 +13,11 @@ and a unified owner-only `resumeDescription`. Existing upload, worker, review an
 apply endpoints provide the complete workflow. Unmatched source text is retained.
 Other proposed Sprint 2 extensions remain subject to their own implementation.
 
+US-14 adds [combined search, talent filters and active-opportunity handling](../docs/us14-search.md)
+through existing routes. Existing installations must run `init-db` followed by
+`upgrade-opportunity-search` before serving the new version. The Docker entrypoint
+runs both automatically; the upgrade preserves existing records.
+
 US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
 The measured decision keeps the application's structured interest matcher as its
 fallback. Optional embedding dependencies are separate from API/worker dependencies.

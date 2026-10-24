@@ -1,4 +1,5 @@
 @import './shared/styles.css';
+@import './shared/search.css';
 @import './features/auth/styles.css';
 @import './layout/styles.css';
 @import './features/profile/styles.css';

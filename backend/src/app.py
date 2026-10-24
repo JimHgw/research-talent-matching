@@ -157,6 +157,16 @@ def create_app(config=None):
             raise click.ClickException(str(error)) from None
         click.echo("Tags seeded.")
 
+    @app.cli.command("upgrade-opportunity-search")
+    def upgrade_opportunity_search_command():
+        """Add nullable US-14 opportunity fields without changing existing records."""
+        from .db.opportunity_upgrade import upgrade_opportunity_search
+        try:
+            changed = upgrade_opportunity_search(app.extensions["database"])
+        except ValueError as error:
+            raise click.ClickException(str(error)) from None
+        click.echo("Opportunity search storage upgraded." if changed else "Opportunity search storage is current.")
+
     @app.cli.command("provision-user")
     @click.option("--email", required=True)
     @click.option("--display-name", required=True)

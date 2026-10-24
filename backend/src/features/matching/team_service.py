@@ -2,6 +2,7 @@
 
 from ...db.models import utcnow
 from ...db.skills import matching_skills
+from ...shared.search import talent_matches_filters
 from .engine import evaluate_opportunity, team_evidence
 from .service import ranked_page
 from .team_repository import (discoverable_profiles, own_published_opportunity,
@@ -23,12 +24,14 @@ def evaluate_visible(opportunity, talent, labels):
     return results, summary
 
 
-def talent_matches(db, user, opportunity_id, page, page_size):
+def talent_matches(db, user, opportunity_id, page, page_size, filters=None):
     opportunity = own_published_opportunity(db, user, opportunity_id)
     talents = visible_profiles(db, discoverable_profiles(db))
     labels = tag_labels(db)
     items = []
     for talent in talents:
+        if not talent_matches_filters(talent, filters or {}, labels):
+            continue
         _, summary = evaluate_visible(opportunity, talent, labels)
         items.append({"talent": talent, "summary": summary})
     return ranked_page(items, page, page_size)

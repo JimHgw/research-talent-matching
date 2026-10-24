@@ -58,6 +58,17 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
       }
     );
   }
+  function reopen() {
+    if (isPending() || needsReview || dirty || saved?.availabilityStatus !== 'EXPIRED') return;
+    run(
+      () => api.saveOpportunity(saved.id, saved.revision, content, true),
+      (result) => {
+        setSaved(result);
+        setContent(structuredClone(result.content));
+        onSaved?.(result);
+      }
+    );
+  }
   function loadRecent(page = 1) {
     run(() => api.opportunities('mine', page), setRecent);
   }
@@ -98,6 +109,7 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     recent,
     save,
     publish,
+    reopen,
     reload,
     resolve,
     openRecent,

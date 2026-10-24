@@ -13,7 +13,18 @@ import russian from './ru.js';
 // Native names keep the selector usable after an accidental language switch.
 // Each dictionary remains independently editable; English source messages are the fallback.
 export const languageCatalog = {
-  en: { label: 'English', direction: 'ltr', messages: {} },
+  en: {
+    label: 'English',
+    direction: 'ltr',
+    messages: {
+      PHD: 'PhD',
+      MASTERS: 'Masters',
+      RESEARCH_ASSISTANT: 'Research assistant',
+      POSTDOC: 'Postdoctoral',
+      OTHER: 'Other',
+      EXPIRED: 'Expired',
+    },
+  },
   'zh-CN': { label: '简体中文', direction: 'ltr', messages: simplifiedChinese },
   'zh-TW': { label: '繁體中文', direction: 'ltr', messages: traditionalChinese },
   es: { label: 'Español', direction: 'ltr', messages: spanish },

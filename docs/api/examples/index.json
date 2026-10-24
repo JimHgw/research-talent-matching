@@ -166,5 +166,21 @@
   {
     "file": "apply-tags-and-text-request.json",
     "schema": "ApplyExtractionRequest"
+  },
+  {
+    "file": "opportunity-search-create.json",
+    "schema": "OpportunityContent"
+  },
+  {
+    "file": "opportunity-search-page.json",
+    "schema": "OpportunityPage"
+  },
+  {
+    "file": "opportunity-reopen-request.json",
+    "schema": "OpportunityWrite"
+  },
+  {
+    "file": "error-search-query.json",
+    "schema": "Error"
   }
 ]

@@ -61,7 +61,11 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
                 <span className="eyebrow">
                   {opportunity.content.university} · {t(opportunity.content.disciplineGroup)}
                 </span>
-                <Badge status={opportunity.status} />
+                <Badge
+                  status={
+                    opportunity.availabilityStatus === 'EXPIRED' ? 'EXPIRED' : opportunity.status
+                  }
+                />
               </div>
               <h3>{opportunity.content.title}</h3>
               <p>{opportunity.content.description}</p>
@@ -100,6 +104,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
                     </Button>
                   ) : (
                     <Button
+                      disabled={opportunity.availabilityStatus === 'EXPIRED'}
                       onClick={() => navigate('talent', { initialOpportunity: opportunity.id })}
                     >
                       {t('Discover talent')}

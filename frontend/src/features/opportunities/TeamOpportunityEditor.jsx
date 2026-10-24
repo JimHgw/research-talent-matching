@@ -62,6 +62,11 @@ export default function TeamOpportunityEditor({
                 <Button type="submit" disabled={busy || needsReview || (saved && !dirty)}>
                   {busy ? t('Saving…') : saved ? t('Save opportunity') : t('Save draft')}
                 </Button>
+                {saved?.availabilityStatus === 'EXPIRED' && (
+                  <Button disabled={busy || dirty || needsReview} onClick={editor.reopen}>
+                    {t('Reopen opportunity')}
+                  </Button>
+                )}
               </div>
             </fieldset>
           </form>

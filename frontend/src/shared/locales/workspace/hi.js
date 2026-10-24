@@ -1,5 +1,30 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Select options': 'विकल्प चुनें',
+  'Talent filters': 'प्रतिभा फ़िल्टर',
+  'Opportunity filters': 'अवसर फ़िल्टर',
+  Search: 'खोजें',
+  'Apply filters': 'फ़िल्टर लागू करें',
+  'Clear filters': 'फ़िल्टर हटाएँ',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    'Ctrl या Command से कई विकल्प चुनें। सभी फ़ील्ड की शर्तें साथ लागू होती हैं।',
+  'Dates use {zone}; the upper bound is exclusive.':
+    'तारीखें {zone} में हैं; ऊपरी सीमा शामिल नहीं है।',
+  'Opportunity type': 'अवसर का प्रकार',
+  Deadline: 'अंतिम तिथि',
+  'Deadline from': 'अंतिम तिथि से',
+  'Deadline before': 'अंतिम तिथि से पहले',
+  'Not specified': 'निर्दिष्ट नहीं',
+  'Times shown in {zone}': 'समय {zone} में',
+  PHD: 'पीएचडी',
+  MASTERS: 'स्नातकोत्तर',
+  RESEARCH_ASSISTANT: 'शोध सहायक',
+  POSTDOC: 'पोस्टडॉक',
+  OTHER: 'अन्य',
+  EXPIRED: 'समाप्त',
+  'Reopen opportunity': 'अवसर फिर खोलें',
+  'No results match these filters.': 'इन फ़िल्टर से कोई परिणाम नहीं मिला।',
+  'Try changing or clearing the filters.': 'फ़िल्टर बदलें या हटाएँ।',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     'हर पंक्ति में एक कौशल का नाम दर्ज करें। शोध रुचियों के लिए साझा टैग उपयोग किए जाते हैं। प्रकाशित करने से पहले कम से कम एक आवश्यकता जोड़ें।',
   'Skill names for requirement {number}': 'आवश्यकता {number} के लिए कौशल के नाम',

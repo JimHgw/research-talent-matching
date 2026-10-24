@@ -8,7 +8,7 @@ Version: `0.1.2-draft`. Covers US-01–US-09 with 29 HTTP operations.
 - [Complete API contract](sprint-1-api-contract.md): request/response fields, examples, permissions, errors, workflows and integration acceptance cases. All documentation and examples are in English.
 - [OpenAPI 3.1 definition](openapi.json): machine-readable paths and public schemas.
 - [Endpoint index](endpoint-index.json): HTTP operations and related Jira implementation tasks.
-- [Example index](examples/index.json): maps 42 synthetic JSON fixtures to their schemas.
+- [Example index](examples/index.json): maps the current synthetic JSON fixtures to their schemas.
 
 ## Review before implementation
 
@@ -23,7 +23,7 @@ scores or producing evidence. Original uploaded documents remain owner-only.
 
 ## Validation
 
-The OpenAPI document and the 42 JSON fixtures were schema-validated during
+The OpenAPI document and the indexed JSON fixtures were schema-validated during
 preparation. The full Markdown contract includes integration cases for backend
 implementation. All example accounts, credentials and profile data are placeholders
 or synthetic data.
@@ -47,3 +47,9 @@ INTEREST requirements retain shared IDs. See the [requirement shape and compatib
 Free-text skill results add `ALL_SKILLS_SUPPORTED` / `SOME_SKILLS_SUPPORTED` and
 use `skill-title-interest-tags-v2`; legacy requirements retain `tag-coverage-v1`.
 US-13 is a [local executed experiment](../testing/us13-evaluation.md) and adds no endpoint.
+
+US-14 adds [search and combined filters](../us14-search.md) to opportunity lists,
+recommendations and team discovery. Existing opportunity writes support nullable
+type/deadline fields and explicit reopening. The OpenAPI and indexed
+`opportunity-search-*`, `opportunity-reopen-request` and `error-search-query`
+examples define these additive extensions without new paths.

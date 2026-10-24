@@ -13,6 +13,7 @@ import {
   Pager,
 } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
+import SearchFilters from '../../shared/SearchFilters.jsx';
 
 async function loadPublishedOpportunities() {
   const firstPage = await api.opportunities('mine');
@@ -24,20 +25,42 @@ async function loadPublishedOpportunities() {
     opportunities = opportunities.concat(nextPage.items);
   }
 
-  return opportunities.filter((opportunity) => opportunity.status === 'PUBLISHED');
+  return opportunities.filter(
+    (opportunity) =>
+      opportunity.status === 'PUBLISHED' && opportunity.availabilityStatus !== 'EXPIRED'
+  );
 }
 
-function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
+function TalentResults({
+  opportunityId,
+  tags,
+  shortlist,
+  CollectionButton,
+  filters,
+  onFiltersChange,
+}) {
   const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const resource = useResource(
-    () => (shortlist ? api.shortlist(opportunityId, page) : api.talents(opportunityId, page)),
-    [opportunityId, page, shortlist],
+    () =>
+      shortlist ? api.shortlist(opportunityId, page) : api.talents(opportunityId, page, filters),
+    [opportunityId, page, shortlist, filters],
     true
   );
   return (
     <>
+      {!shortlist && (
+        <SearchFilters
+          talent
+          initialFilters={filters}
+          onApply={(next) => {
+            setPage(1);
+            setSelected(null);
+            onFiltersChange(next);
+          }}
+        />
+      )}
       {resource.loading ? (
         <Loading />
       ) : resource.error ? (
@@ -46,11 +69,13 @@ function TalentResults({ opportunityId, tags, shortlist, CollectionButton }) {
         <Empty
           icon="user"
           title={
-            shortlist
-              ? t('No currently discoverable shortlisted candidates')
-              : page > 1
-                ? t('No talent on this page')
-                : t('No discoverable talent yet')
+            !shortlist && Object.keys(filters).length
+              ? t('No results match these filters.')
+              : shortlist
+                ? t('No currently discoverable shortlisted candidates')
+                : page > 1
+                  ? t('No talent on this page')
+                  : t('No discoverable talent yet')
           }
           action={
             page > 1 ? <Button onClick={() => setPage(1)}>{t('Back to first page')}</Button> : null
@@ -141,6 +166,7 @@ export default function TalentPage({
   const resource = useResource(loadPublishedOpportunities, [], true);
   const [selected, setSelected] = useState(initialOpportunity || '');
   const [shortlist, setShortlist] = useState(initialShortlist);
+  const [filters, setFilters] = useState({});
   const activeOpportunity = resource.data?.some((opportunity) => opportunity.id === selected)
     ? selected
     : resource.data?.[0]?.id;
@@ -199,6 +225,8 @@ export default function TalentPage({
               tags={tags}
               shortlist={shortlist}
               CollectionButton={CollectionButton}
+              filters={filters}
+              onFiltersChange={setFilters}
             />
           )}
         </>

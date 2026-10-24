@@ -2,7 +2,7 @@
 
 **🍌 Explainable Two-Sided Research Matching · Sprint 2 Backend Developer Specification**
 
-Prepared: **2026-10-22**. Updated: **2026-10-23**. Document version: **`0.2.4-draft`**.
+Prepared: **2026-10-22**. Updated: **2026-10-24**. Document version: **`0.2.5-draft`**.
 
 This README follows the structure of the [Sprint 1 developer README](README_DEVELOPER_EN.md) and gives the Python backend team a Sprint 2 implementation and acceptance guide. Continue using **Flask, MySQL 8.4, PyMySQL and SQLAlchemy**, the existing document worker and the `/api/v1` API.
 
@@ -20,6 +20,7 @@ This README follows the structure of the [Sprint 1 developer README](README_DEVE
 
 ## Change Log
 
+- **2026-10-24:** Implemented [US-14 search and combined filters](docs/us14-search.md), including type/deadline storage, authorised talent queries, availability checks, explicit reopening, UI controls and additive upgrades. The linked guide defines the implemented names and compatibility choices; other proposals retain their own scope.
 - **2026-10-23:** Delivered the [US-13 executable experiment and measured report](docs/testing/us13-evaluation.md), including pinned MiniLM inference, 84 labelled comparisons, permission checks, failure reporting and an evidence-backed decision to omit application semantic integration. Team opportunity skills now support [free-text names](docs/free-text-skills.md#opportunity-skill-requirements); interest tags retain their baseline role.
 - **2026-10-23:** Added free-text research interests and personal custom interest tags, including extraction/review, atomic saves through existing endpoints, visibility, semantic inputs, frontend coordination and acceptance cases.
 - **2026-10-23:** Clarified US-13: implementing and running an embedding-based semantic matching experiment is mandatory; adopting it in the application recommendation flow depends on measured results. Defined tag baseline/filter/fallback roles and executable delivery evidence.

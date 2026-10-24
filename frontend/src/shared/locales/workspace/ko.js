@@ -1,5 +1,30 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Select options': '옵션 선택',
+  'Talent filters': '인재 필터',
+  'Opportunity filters': '기회 필터',
+  Search: '검색',
+  'Apply filters': '필터 적용',
+  'Clear filters': '필터 초기화',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    'Ctrl 또는 Command로 여러 항목을 선택하세요. 각 필드 조건이 함께 적용됩니다.',
+  'Dates use {zone}; the upper bound is exclusive.':
+    '날짜는 {zone} 기준이며 상한 시각은 포함하지 않습니다.',
+  'Opportunity type': '기회 유형',
+  Deadline: '마감',
+  'Deadline from': '마감 시작',
+  'Deadline before': '마감 이전',
+  'Not specified': '지정 안 됨',
+  'Times shown in {zone}': '시간대: {zone}',
+  PHD: '박사',
+  MASTERS: '석사',
+  RESEARCH_ASSISTANT: '연구 보조원',
+  POSTDOC: '박사후 연구원',
+  OTHER: '기타',
+  EXPIRED: '만료됨',
+  'Reopen opportunity': '기회 다시 열기',
+  'No results match these filters.': '조건에 맞는 결과가 없습니다.',
+  'Try changing or clearing the filters.': '필터를 변경하거나 초기화하세요.',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     '스킬 이름을 한 줄에 하나씩 입력하세요. 연구 관심사는 공유 태그를 사용합니다. 게시하기 전에 요구 사항을 하나 이상 추가하세요.',
   'Skill names for requirement {number}': '요구 사항 {number}의 스킬 이름',

@@ -10,6 +10,7 @@ from ...db.models import (
 from ...db.opportunity_read import serialize, serialize_many
 from ...db.skills import matching_skills, read_skills_many
 from ...shared.validation import ApiError, validate
+from ..opportunities import availability as opportunity_availability
 
 
 def get_owner_profile(db, user):
@@ -61,18 +62,20 @@ def read_matching_profile(db, profile):
 
 def list_published(db):
     # List all published opportunities, ordered by ID.
+    now = opportunity_availability.utcnow()
     rows = list(
         db.scalars(
             select(Opportunity)
-            .where(Opportunity.status == "PUBLISHED")
+            .where(*opportunity_availability.active_predicates(now))
             .order_by(Opportunity.id)
         )
     )
 
-    return serialize_many(db, rows)
+    return serialize_many(db, rows, now)
 
 
-def get_published(db, opportunity_id):
+def get_published(db, opportunity_id, *, active=False):
+    now = opportunity_availability.utcnow()
     validate("Id", opportunity_id)
     opportunity = db.get(Opportunity, opportunity_id)
 
@@ -80,4 +83,6 @@ def get_published(db, opportunity_id):
         raise ApiError(
             404, "NOT_FOUND", "Opportunity not found."
         )
-    return serialize(db, opportunity)
+    if active:
+        opportunity_availability.require_active(opportunity, now)
+    return serialize(db, opportunity, now)
