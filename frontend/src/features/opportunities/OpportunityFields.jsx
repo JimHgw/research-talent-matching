@@ -3,6 +3,7 @@ import React from 'react';
 import { Field, Notice } from '../../shared/ui.jsx';
 import { opportunityFields } from './fields.js';
 import RequirementEditor from './RequirementEditor.jsx';
+import { dateTimeZone, localDateTime, opportunityTypes } from '../../shared/search.js';
 
 export default function OpportunityFields({
   content,
@@ -42,12 +43,34 @@ export default function OpportunityFields({
           ))}
           <Field label={t('Discipline group')}>
             <select
-              value={t(content.disciplineGroup)}
+              value={content.disciplineGroup}
               onChange={(e) => set('disciplineGroup', e.target.value)}
             >
               <option value="STEM">{t('STEM')}</option>
               <option value="BUSINESS">{t('Business')}</option>
             </select>
+          </Field>
+          <Field label={t('Opportunity type')}>
+            <select
+              value={content.opportunityType || ''}
+              onChange={(e) => set('opportunityType', e.target.value || null)}
+            >
+              <option value="">{t('Not specified')}</option>
+              {opportunityTypes.map((value) => (
+                <option key={value} value={value}>
+                  {t(value)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={t('Deadline')} hint={t('Times shown in {zone}', { zone: dateTimeZone() })}>
+            <input
+              type="datetime-local"
+              value={localDateTime(content.deadlineAt)}
+              onChange={(e) =>
+                set('deadlineAt', e.target.value ? new Date(e.target.value).toISOString() : null)
+              }
+            />
           </Field>
         </div>
       </section>

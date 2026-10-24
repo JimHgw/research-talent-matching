@@ -2138,7 +2138,7 @@
       "get": {
         "operationId": "listOpportunities",
         "summary": "List published opportunities or team-owned opportunities",
-        "description": "Published means active for this Sprint. Default scope=published. Sort updatedAt descending then id ascending. Advanced filters/archiving are outside this version.",
+        "description": "Published means active for this Sprint. Default scope=published. Sort updatedAt descending then id ascending. Advanced filters/archiving are outside this version. US-14: filters compose before counts, ranking and pagination; unknown or invalid queries return field-specific 422. Published discovery includes active opportunities only. scope=mine retains owned drafts and expired records.",
         "tags": [
           "opportunities"
         ],
@@ -2266,6 +2266,120 @@
           },
           {
             "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": "Single-valued literal substring search. NFKC, collapsed whitespace, casefold. Blank/duplicate values rejected."
+          },
+          {
+            "name": "university",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "disciplineGroup",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16,
+                "enum": [
+                  "STEM",
+                  "BUSINESS"
+                ]
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "discipline",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "researchArea",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "opportunityType",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32,
+                "enum": [
+                  "PHD",
+                  "MASTERS",
+                  "RESEARCH_ASSISTANT",
+                  "POSTDOC",
+                  "OTHER"
+                ]
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "deadlineFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Single-valued RFC3339 UTC-offset bound on deadlineAt; half-open [from,to). Excludes no-deadline records. from must precede to."
+          },
+          {
+            "name": "deadlineTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Single-valued RFC3339 UTC-offset bound on deadlineAt; half-open [from,to). Excludes no-deadline records. from must precede to."
           }
         ]
       },
@@ -2902,7 +3016,7 @@
       "get": {
         "operationId": "listMyRecommendations",
         "summary": "List ranked opportunity recommendations for the current talent",
-        "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Order score descending, unknownWeightPercent ascending, opportunityId ascending; null scores last. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route.",
+        "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Order score descending, unknownWeightPercent ascending, opportunityId ascending; null scores last. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route. US-14: the same opportunity search filters apply to active recommendations before ranking/count/pagination.",
         "tags": [
           "me"
         ],
@@ -3031,6 +3145,120 @@
           },
           {
             "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": "Single-valued literal substring search. NFKC, collapsed whitespace, casefold. Blank/duplicate values rejected."
+          },
+          {
+            "name": "university",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "disciplineGroup",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16,
+                "enum": [
+                  "STEM",
+                  "BUSINESS"
+                ]
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "discipline",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "researchArea",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "opportunityType",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32,
+                "enum": [
+                  "PHD",
+                  "MASTERS",
+                  "RESEARCH_ASSISTANT",
+                  "POSTDOC",
+                  "OTHER"
+                ]
+              }
+            },
+            "description": "Repeated values use OR; different filters use AND. Normalised exact text comparison; enum codes remain exact."
+          },
+          {
+            "name": "deadlineFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Single-valued RFC3339 UTC-offset bound on deadlineAt; half-open [from,to). Excludes no-deadline records. from must precede to."
+          },
+          {
+            "name": "deadlineTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Single-valued RFC3339 UTC-offset bound on deadlineAt; half-open [from,to). Excludes no-deadline records. from must precede to."
           }
         ]
       }
@@ -3266,7 +3494,7 @@
       "get": {
         "operationId": "listTalentMatches",
         "summary": "List matching talent for a team-owned opportunity",
-        "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Order score descending, unknownWeightPercent ascending, talentId ascending; null scores last. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner.",
+        "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Order score descending, unknownWeightPercent ascending, talentId ascending; null scores last. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner. US-14: q searches only permitted fields and interest labels/text. Unknown parameters return 422. Current consent/confirmation/visibility are applied before filtering, scoring, totals and ranks.",
         "tags": [
           "opportunities"
         ],
@@ -3357,6 +3585,44 @@
           },
           {
             "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": "Single-valued literal substring search. NFKC, collapsed whitespace, casefold. Blank/duplicate values rejected."
+          },
+          {
+            "name": "skillTagId",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              }
+            },
+            "description": "Repeated existing shared SKILL IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims."
+          },
+          {
+            "name": "interestTagId",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              }
+            },
+            "description": "Repeated existing shared INTEREST IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims."
           }
         ]
       }
@@ -4735,7 +5001,9 @@
               "VERIFICATION_CODE_INVALID",
               "EMAIL_ALREADY_REGISTERED",
               "EMAIL_DELIVERY_FAILED",
-              "PASSWORD_RESET_INVALID"
+              "PASSWORD_RESET_INVALID",
+              "OPPORTUNITY_EXPIRED",
+              "OPPORTUNITY_NOT_PUBLISHED"
             ]
           },
           "message": {
@@ -5134,6 +5402,29 @@
               "$ref": "#/components/schemas/Requirement"
             },
             "maxItems": 50
+          },
+          "opportunityType": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "PHD",
+              "MASTERS",
+              "RESEARCH_ASSISTANT",
+              "POSTDOC",
+              "OTHER",
+              null
+            ],
+            "description": "Optional type; omission preserves the stored value on update, null clears it."
+          },
+          "deadlineAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Optional RFC3339 deadline with explicit offset, at most microsecond precision. UTC on reads; omission preserves on update, null clears it. Omitted on reads when unset."
           }
         },
         "required": [
@@ -5175,6 +5466,15 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "availabilityStatus": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "EXPIRED"
+            ],
+            "description": "Current UTC availability. Present on live responses; optional for legacy fixtures/clients."
           }
         },
         "required": [
@@ -5196,6 +5496,11 @@
           },
           "content": {
             "$ref": "#/components/schemas/OpportunityContent"
+          },
+          "reopen": {
+            "type": "boolean",
+            "default": false,
+            "description": "Explicitly reopen a published opportunity with a future or null deadline; applies atomically with content."
           }
         },
         "required": [

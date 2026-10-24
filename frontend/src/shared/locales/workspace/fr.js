@@ -1,5 +1,29 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Talent filters': 'Filtres des talents',
+  'Opportunity filters': 'Filtres des opportunités',
+  Search: 'Rechercher',
+  'Apply filters': 'Appliquer les filtres',
+  'Clear filters': 'Effacer les filtres',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    'Sélectionnez plusieurs options avec Ctrl ou Command. Les champs se combinent.',
+  'Dates use {zone}; the upper bound is exclusive.':
+    'Les dates utilisent {zone} ; la borne supérieure est exclue.',
+  'Opportunity type': 'Type d’opportunité',
+  Deadline: 'Date limite',
+  'Deadline from': 'Date limite à partir de',
+  'Deadline before': 'Date limite avant',
+  'Not specified': 'Non précisé',
+  'Times shown in {zone}': 'Heures affichées en {zone}',
+  PHD: 'Doctorat',
+  MASTERS: 'Master',
+  RESEARCH_ASSISTANT: 'Assistant de recherche',
+  POSTDOC: 'Postdoctorat',
+  OTHER: 'Autre',
+  EXPIRED: 'Expirée',
+  'Reopen opportunity': 'Rouvrir l’opportunité',
+  'No results match these filters.': 'Aucun résultat ne correspond à ces filtres.',
+  'Try changing or clearing the filters.': 'Modifiez ou effacez les filtres.',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     'Saisissez un nom de compétence par ligne. Les intérêts de recherche utilisent des étiquettes partagées. Ajoutez au moins une exigence avant de publier.',
   'Skill names for requirement {number}': 'Noms des compétences pour l’exigence {number}',

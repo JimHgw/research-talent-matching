@@ -27,7 +27,9 @@ export default function OpportunityEditor({
       </Button>
       <div className="section-title">
         <h2>{saved ? t('Edit opportunity') : t('Create opportunity')}</h2>
-        <Badge status={saved?.status || 'DRAFT'} />
+        <Badge
+          status={saved?.availabilityStatus === 'EXPIRED' ? 'EXPIRED' : saved?.status || 'DRAFT'}
+        />
       </div>
       <OpportunityRecovery editor={editor} tags={tags} />
       <form onSubmit={save}>
@@ -49,6 +51,11 @@ export default function OpportunityEditor({
                 disabled={busy || dirty || needsReview || !saved.content.requirements.length}
               >
                 {t('Publish opportunity')}
+              </Button>
+            )}
+            {saved?.availabilityStatus === 'EXPIRED' && (
+              <Button disabled={busy || dirty || needsReview} onClick={editor.reopen}>
+                {t('Reopen opportunity')}
               </Button>
             )}
           </div>

@@ -5,6 +5,7 @@ import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
+import SearchFilters from '../../shared/SearchFilters.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const { t } = useLanguage();
@@ -67,7 +68,8 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState(null);
-  const resource = useResource(() => api.recommendations(page), [page], true);
+  const [filters, setFilters] = useState({});
+  const resource = useResource(() => api.recommendations(page, filters), [page, filters], true);
   return (
     <>
       <div className="section-title">
@@ -79,6 +81,14 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
           {t('{count} opportunities', { count: resource.data?.total ?? '—' })}
         </span>
       </div>
+      <SearchFilters
+        onApply={(next) => {
+          setPage(1);
+          setSelected(null);
+          setDetails(null);
+          setFilters(next);
+        }}
+      />
       {resource.loading ? (
         <Loading />
       ) : resource.error?.code === 'PROFILE_UNCONFIRMED' ? (
@@ -100,8 +110,16 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
           ))}
         </div>
       ) : (
-        <Empty title={t('No opportunities just yet')}>
-          {t('Published opportunities will appear here when teams add them.')}
+        <Empty
+          title={
+            Object.keys(filters).length
+              ? t('No results match these filters.')
+              : t('No opportunities just yet')
+          }
+        >
+          {Object.keys(filters).length
+            ? t('Try changing or clearing the filters.')
+            : t('Published opportunities will appear here when teams add them.')}
         </Empty>
       )}
       <Pager data={resource.data} onPage={setPage} />

@@ -1,0 +1,11 @@
+.search-filters {
+  margin-block: 1rem;
+}
+.search-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 1rem;
+}
+.search-filters select[multiple] {
+  min-height: 6rem;
+}

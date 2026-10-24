@@ -10,6 +10,15 @@ export function createApi({
   let csrfToken = '';
   let pendingSession = null;
   let sessionVersion = 0;
+  function searchQuery(filters = {}) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      for (const item of Array.isArray(value) ? value : [value]) {
+        if (item !== '' && item != null) query.append(key, item);
+      }
+    }
+    return query.size ? `&${query}` : '';
+  }
   function changedSession() {
     sessionVersion++;
     pendingSession = null;
@@ -116,13 +125,15 @@ export function createApi({
         body: { expectedProfileRevision, sections },
       }),
     download: (id) => request(`/me/documents/${encodeURIComponent(id)}/file`, { binary: true }),
-    opportunities: (scope = 'published', page = 1) =>
-      request(`/opportunities?scope=${scope}&page=${page}`),
+    opportunities: (scope = 'published', page = 1, filters = {}) =>
+      request(
+        `/opportunities?scope=${encodeURIComponent(scope)}&page=${page}${searchQuery(filters)}`
+      ),
     opportunity: (id) => request(`/opportunities/${encodeURIComponent(id)}`),
-    saveOpportunity: (id, expectedRevision, content) =>
+    saveOpportunity: (id, expectedRevision, content, reopen = false) =>
       request(id ? `/opportunities/${encodeURIComponent(id)}` : '/opportunities', {
         method: id ? 'PUT' : 'POST',
-        body: id ? { expectedRevision, content } : content,
+        body: id ? { expectedRevision, content, ...(reopen ? { reopen: true } : {}) } : content,
       }),
     publish: (id, expectedRevision) =>
       request(`/opportunities/${encodeURIComponent(id)}/publish`, {
@@ -145,10 +156,13 @@ export function createApi({
       ),
     shortlist: (id, page = 1) =>
       request(`/opportunities/${encodeURIComponent(id)}/shortlist?page=${page}`),
-    recommendations: (page = 1) => request(`/me/recommendations?page=${page}`),
+    recommendations: (page = 1, filters = {}) =>
+      request(`/me/recommendations?page=${page}${searchQuery(filters)}`),
     match: (id) => request(`/me/opportunity-matches/${encodeURIComponent(id)}`),
-    talents: (id, page = 1) =>
-      request(`/opportunities/${encodeURIComponent(id)}/talent-matches?page=${page}`),
+    talents: (id, page = 1, filters = {}) =>
+      request(
+        `/opportunities/${encodeURIComponent(id)}/talent-matches?page=${page}${searchQuery(filters)}`
+      ),
     talentMatch: (id, talentId) =>
       request(
         `/opportunities/${encodeURIComponent(id)}/talent-matches/${encodeURIComponent(talentId)}`

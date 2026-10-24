@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Check the submitted fields.",
+    "fieldErrors": [
+      {
+        "field": "deadlineTo",
+        "message": "The upper deadline bound must be later than the lower bound."
+      }
+    ]
+  },
+  "requestId": "req_us14_example"
+}

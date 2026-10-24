@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "opp_search_example",
+      "revision": 2,
+      "status": "PUBLISHED",
+      "availabilityStatus": "ACTIVE",
+      "content": {
+        "title": "Research assistant in data analysis",
+        "university": "UNSW",
+        "disciplineGroup": "STEM",
+        "discipline": "Computer Science",
+        "researchArea": "Research data analysis",
+        "description": "Synthetic opportunity for the prototype demonstration.",
+        "requirements": [
+          {
+            "id": "req_python",
+            "label": "Python experience",
+            "kind": "SKILL",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "skill_python"
+            ]
+          },
+          {
+            "id": "req_analysis",
+            "label": "Python and SQL",
+            "kind": "SKILL",
+            "importance": "REQUIRED",
+            "tagIds": [
+              "skill_python",
+              "skill_sql"
+            ]
+          },
+          {
+            "id": "req_interviews",
+            "label": "Research interview experience",
+            "kind": "SKILL",
+            "importance": "PREFERRED",
+            "tagIds": [
+              "skill_interviews"
+            ]
+          },
+          {
+            "id": "req_r",
+            "label": "R experience",
+            "kind": "SKILL",
+            "importance": "PREFERRED",
+            "tagIds": [
+              "skill_r"
+            ]
+          }
+        ],
+        "opportunityType": "RESEARCH_ASSISTANT",
+        "deadlineAt": "2099-11-01T00:00:00Z"
+      },
+      "createdAt": "2026-10-24T00:00:00Z",
+      "updatedAt": "2026-10-24T00:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "total": 1
+}

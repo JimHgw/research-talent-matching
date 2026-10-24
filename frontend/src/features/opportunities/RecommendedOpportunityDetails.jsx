@@ -18,7 +18,9 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
         <div className="opportunity-details">
           <div className="row-between">
             <span className="eyebrow">{opportunity.content.university}</span>
-            <Badge status={opportunity.status} />
+            <Badge
+              status={opportunity.availabilityStatus === 'EXPIRED' ? 'EXPIRED' : opportunity.status}
+            />
           </div>
           <h3>{opportunity.content.title}</h3>
           <div className="tag-row">
@@ -27,6 +29,12 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
             <span>{opportunity.content.researchArea}</span>
           </div>
           <p className="opportunity-description">{opportunity.content.description}</p>
+          {opportunity.content.opportunityType && <p>{t(opportunity.content.opportunityType)}</p>}
+          {opportunity.content.deadlineAt && (
+            <p>
+              {t('Deadline')}: {new Date(opportunity.content.deadlineAt).toISOString()}
+            </p>
+          )}
           <h4>{t('Requirements')}</h4>
           {opportunity.content.requirements.length ? (
             <ul className="requirement-list">
@@ -48,7 +56,7 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
             <Button variant="secondary" onClick={onClose}>
               {t('Close')}
             </Button>
-            <Button onClick={onMatch}>
+            <Button onClick={onMatch} disabled={opportunity.availabilityStatus === 'EXPIRED'}>
               {t('Why this match?')}
               <Icon name="arrow" size={16} />
             </Button>

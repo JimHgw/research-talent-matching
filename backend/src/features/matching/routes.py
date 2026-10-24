@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify
 
 from ...db.database import database
 from ...shared.pagination import pagination
+from ...shared.search import search_parameters
 from ...shared.security import require_user
 from .service import owner_match, recommendations
 from .team_service import talent_matches, team_match
@@ -21,7 +22,7 @@ def recommendation_list():
         page, page_size = pagination()
 
         result = recommendations(
-            db, user, page, page_size
+            db, user, page, page_size, search_parameters(db)
         )
 
     return jsonify(result)
@@ -44,7 +45,7 @@ def talent_list(opportunity_id):
     with database().transaction() as db:
         _, user = require_user(db, "RESEARCH_TEAM")
         page, page_size = pagination()
-        result = talent_matches(db, user, opportunity_id, page, page_size)
+        result = talent_matches(db, user, opportunity_id, page, page_size, search_parameters(db, talent=True))
     return jsonify(result)
 
 

@@ -1,5 +1,29 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Talent filters': 'Фильтры кандидатов',
+  'Opportunity filters': 'Фильтры предложений',
+  Search: 'Поиск',
+  'Apply filters': 'Применить фильтры',
+  'Clear filters': 'Сбросить фильтры',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    'Выберите несколько вариантов с Ctrl или Command. Условия полей объединяются.',
+  'Dates use {zone}; the upper bound is exclusive.':
+    'Даты указаны в {zone}; верхняя граница не включается.',
+  'Opportunity type': 'Тип предложения',
+  Deadline: 'Срок подачи',
+  'Deadline from': 'Срок подачи от',
+  'Deadline before': 'Срок подачи до',
+  'Not specified': 'Не указано',
+  'Times shown in {zone}': 'Часовой пояс: {zone}',
+  PHD: 'Аспирантура',
+  MASTERS: 'Магистратура',
+  RESEARCH_ASSISTANT: 'Ассистент исследователя',
+  POSTDOC: 'Постдок',
+  OTHER: 'Другое',
+  EXPIRED: 'Истекло',
+  'Reopen opportunity': 'Открыть предложение снова',
+  'No results match these filters.': 'Нет результатов для выбранных фильтров.',
+  'Try changing or clearing the filters.': 'Измените или сбросьте фильтры.',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     'Введите по одному названию навыка в строке. Для исследовательских интересов используются общие теги. Перед публикацией добавьте хотя бы одно требование.',
   'Skill names for requirement {number}': 'Названия навыков для требования {number}',

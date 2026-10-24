@@ -10,6 +10,12 @@ All application screens use the Python HTTP API. Synthetic services and data
 exist only under `tests/`; normal development and demonstrations use the real
 backend. There is no automatic mock fallback in application code.
 
+US-14 adds [search and combined filters](../docs/us14-search.md) to opportunity
+browsing, recommendations and talent discovery. Apply/clear resets pagination;
+talent filters use current confirmed visible fields on the server. Editors support
+opportunity type and zoned deadlines, with explicit reopening for expired records.
+The real HTTP workflow is `tests/us14-live.mjs`, run by the shared backend harness.
+
 ## Local tests after setup
 
 Use the existing repository-root `setup.sh` (macOS/Linux) or `setup.ps1` (Windows)

@@ -3,17 +3,19 @@
 import secrets
 import unicodedata
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from ...db.models import Opportunity, Tag, utcnow
 from ...db.skills import normalise_title
 from ...shared.validation import ApiError, invalid, validate
+from ...shared.search import opportunity_matches, parse_datetime
+from .availability import active_predicates, availability
 from .repository import replace_content, serialize, serialize_many
 
 
-def published_opportunities():
+def published_opportunities(now=None):
     """Shared selection for discovery and future matching; drafts are excluded."""
-    return select(Opportunity).where(Opportunity.status == "PUBLISHED")
+    return select(Opportunity).where(*active_predicates(now))
 
 
 def get_opportunity(db, user, opportunity_id, *, owner_only=False):
@@ -25,23 +27,28 @@ def get_opportunity(db, user, opportunity_id, *, owner_only=False):
     return opportunity
 
 
-def list_opportunities(db, user, scope, page, page_size):
+def authorise_scope(user, scope):
+    if scope == "mine" and user.role != "RESEARCH_TEAM":
+        raise ApiError(403, "FORBIDDEN", "Only research teams can view their own opportunities.")
+
+
+def list_opportunities(db, user, scope, page, page_size, filters=None):
+    now = utcnow()
+    authorise_scope(user, scope)
     if scope == "mine":
-        if user.role != "RESEARCH_TEAM":
-            raise ApiError(403, "FORBIDDEN", "Only research teams can view their own opportunities.")
         query = select(Opportunity).where(Opportunity.owner_user_id == user.id)
     else:
-        query = published_opportunities()
-    total = db.scalar(select(func.count()).select_from(query.subquery()))
-    # Avoid SQLite integer overflow for valid but extremely distant page numbers.
+        query = published_opportunities(now)
+    rows = list(db.scalars(query.order_by(Opportunity.updated_at.desc(), Opportunity.id)))
+    items = [item for item in serialize_many(db, rows, now) if opportunity_matches(item, filters or {})]
     offset = (page - 1) * page_size
-    rows = list(db.scalars(query.order_by(Opportunity.updated_at.desc(), Opportunity.id)
-                          .offset(offset).limit(page_size))) if offset < total else []
-    return {"items": serialize_many(db, rows), "page": page, "pageSize": page_size, "total": total}
+    return {"items": items[offset:offset + page_size], "page": page, "pageSize": page_size, "total": len(items)}
 
 
 def check_content(db, content, *, published=False):
     validate("OpportunityContent", content)
+    if content.get("deadlineAt") is not None:
+        parse_datetime(content["deadlineAt"], "content.deadlineAt")
     requirements = content["requirements"]
     if published and not requirements:
         invalid("content.requirements", "Published opportunities need at least one requirement.")
@@ -76,27 +83,40 @@ def create_opportunity(db, user, content):
                               revision=1, status="DRAFT", created_at=now, updated_at=now)
     db.add(opportunity)
     replace_content(db, opportunity, content)
-    return serialize(db, opportunity)
+    return serialize(db, opportunity, now)
 
 
-def save_opportunity(db, opportunity, expected, content):
+def save_opportunity(db, opportunity, expected, content, reopen=False):
     check_revision(opportunity, expected)
     check_content(db, content, published=opportunity.status == "PUBLISHED")
-    current = serialize(db, opportunity)
-    if current["content"] == content:
-        return current
-    opportunity.revision += 1
-    opportunity.updated_at = utcnow()
+    now = utcnow()
+    current = serialize(db, opportunity, now)
+    was_expired = availability(opportunity, now) == "EXPIRED"
+    if reopen and opportunity.status != "PUBLISHED":
+        raise ApiError(409, "OPPORTUNITY_NOT_PUBLISHED", "Publish this opportunity before reopening it.")
+    if was_expired:
+        opportunity.expired_at = opportunity.expired_at or opportunity.deadline_at or now
     replace_content(db, opportunity, content)
-    return serialize(db, opportunity)
+    if reopen:
+        if opportunity.deadline_at is not None and opportunity.deadline_at <= now:
+            invalid("content.deadlineAt", "Choose a future deadline before reopening.")
+        opportunity.expired_at = None
+    result = serialize(db, opportunity, now)
+    if result["content"] != current["content"] or (reopen and was_expired):
+        opportunity.revision += 1
+        opportunity.updated_at = now
+    return serialize(db, opportunity, now)
 
 
 def publish_opportunity(db, opportunity, expected):
+    now = utcnow()
     check_revision(opportunity, expected)
-    check_content(db, serialize(db, opportunity)["content"], published=True)
+    check_content(db, serialize(db, opportunity, now)["content"], published=True)
     if opportunity.status == "DRAFT":
+        if opportunity.deadline_at is not None and opportunity.deadline_at <= now:
+            invalid("content.deadlineAt", "Choose a future deadline before publishing.")
         opportunity.status = "PUBLISHED"
         opportunity.revision += 1
-        opportunity.updated_at = utcnow()
+        opportunity.updated_at = now
         db.flush()
-    return serialize(db, opportunity)
+    return serialize(db, opportunity, now)

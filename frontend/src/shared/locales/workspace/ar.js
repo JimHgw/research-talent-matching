@@ -1,5 +1,29 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Talent filters': 'مرشحات المواهب',
+  'Opportunity filters': 'مرشحات الفرص',
+  Search: 'بحث',
+  'Apply filters': 'تطبيق المرشحات',
+  'Clear filters': 'مسح المرشحات',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    'اختر عدة خيارات باستخدام Ctrl أو Command. تُجمع شروط الحقول.',
+  'Dates use {zone}; the upper bound is exclusive.':
+    'التواريخ بتوقيت {zone}؛ الحد الأعلى غير مشمول.',
+  'Opportunity type': 'نوع الفرصة',
+  Deadline: 'الموعد النهائي',
+  'Deadline from': 'الموعد النهائي من',
+  'Deadline before': 'الموعد النهائي قبل',
+  'Not specified': 'غير محدد',
+  'Times shown in {zone}': 'الأوقات بتوقيت {zone}',
+  PHD: 'دكتوراه',
+  MASTERS: 'ماجستير',
+  RESEARCH_ASSISTANT: 'مساعد بحث',
+  POSTDOC: 'ما بعد الدكتوراه',
+  OTHER: 'أخرى',
+  EXPIRED: 'منتهية',
+  'Reopen opportunity': 'إعادة فتح الفرصة',
+  'No results match these filters.': 'لا توجد نتائج مطابقة لهذه المرشحات.',
+  'Try changing or clearing the filters.': 'جرّب تغيير المرشحات أو مسحها.',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     'أدخل اسم مهارة واحدًا في كل سطر. تستخدم الاهتمامات البحثية وسومًا مشتركة. أضف متطلبًا واحدًا على الأقل قبل النشر.',
   'Skill names for requirement {number}': 'أسماء المهارات للمتطلب {number}',

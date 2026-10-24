@@ -33,6 +33,11 @@ MySQL 默认不向宿主机公开端口；后端通过内部地址 `mysql:3306` 
 迁移命令会拒绝向任何已有业务数据的 MySQL 库导入。使用原来的 Compose 项目名，
 以便挂载原 `backend_data`，不要更换项目名或删除数据卷。
 
+**US-14 兼容步骤：** 如果 SQLite 源文件来自 US-14 之前，先保留原始备份，
+在工作副本上使用该副本的 `DATABASE_URL` 运行 `init-db` 和
+`upgrade-opportunity-search`，再将升级后的副本传给 `migrate-sqlite --source`。
+迁移工具会校验源字段集合；不会跳过缺失的字段。详见 [US-14 升级说明](us14-search.md#upgrade-and-rollback)。
+
 1. 停止 API 和文档 worker，暂停业务写入，并保存当前版本与数据库配置。
 
    ```sh

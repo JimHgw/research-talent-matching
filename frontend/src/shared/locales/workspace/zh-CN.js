@@ -1,5 +1,28 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Talent filters': '人才筛选',
+  'Opportunity filters': '机会筛选',
+  Search: '搜索',
+  'Apply filters': '应用筛选',
+  'Clear filters': '清除筛选',
+  'Choose multiple options with Ctrl or Command. Filters combine across fields.':
+    '按住 Ctrl 或 Command 可多选，各字段条件同时生效。',
+  'Dates use {zone}; the upper bound is exclusive.': '日期使用 {zone} 时区，不包含上限时刻。',
+  'Opportunity type': '机会类型',
+  Deadline: '截止时间',
+  'Deadline from': '截止时间起点',
+  'Deadline before': '截止时间早于',
+  'Not specified': '未指定',
+  'Times shown in {zone}': '时间显示为 {zone}',
+  PHD: '博士',
+  MASTERS: '硕士',
+  RESEARCH_ASSISTANT: '研究助理',
+  POSTDOC: '博士后',
+  OTHER: '其他',
+  EXPIRED: '已到期',
+  'Reopen opportunity': '重新开放机会',
+  'No results match these filters.': '没有符合筛选条件的结果。',
+  'Try changing or clearing the filters.': '请调整或清除筛选条件。',
   'Enter skill names, one per line. Research interests use shared tags. Add at least one requirement before publishing.':
     '每行输入一个技能名称。研究兴趣使用共享标签。发布前请至少添加一项要求。',
   'Skill names for requirement {number}': '要求 {number} 的技能名称',

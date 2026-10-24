@@ -8,6 +8,7 @@ from ...db.models import (Opportunity, PrivacySettings, PrivacyVisibleField,
 from ...db.opportunity_read import serialize
 from ...db.skills import read_skills_many
 from ...shared.validation import ApiError, validate
+from ..opportunities import availability as opportunity_availability
 
 SCALARS = {"displayName": "display_name", "disciplineGroup": "discipline_group"}
 RECORDS = {
@@ -20,6 +21,7 @@ RECORDS = {
 
 
 def own_published_opportunity(db, user, opportunity_id):
+    now = opportunity_availability.utcnow()
     validate("Id", opportunity_id)
     opportunity = db.scalar(select(Opportunity).where(
         Opportunity.id == opportunity_id,
@@ -28,7 +30,8 @@ def own_published_opportunity(db, user, opportunity_id):
     ))
     if opportunity is None:
         raise ApiError(404, "NOT_FOUND", "Opportunity not found.")
-    return serialize(db, opportunity)
+    opportunity_availability.require_active(opportunity, now)
+    return serialize(db, opportunity, now)
 
 
 def discoverable_profiles(db, talent_id=None):

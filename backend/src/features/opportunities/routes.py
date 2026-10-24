@@ -4,10 +4,11 @@ from flask import Blueprint, jsonify, request
 
 from ...db.database import database
 from ...shared.pagination import pagination
+from ...shared.search import search_parameters
 from ...shared.security import require_csrf, require_user
 from ...shared.validation import body, invalid
 from .repository import serialize
-from .service import (create_opportunity, get_opportunity, list_opportunities,
+from .service import (authorise_scope, create_opportunity, get_opportunity, list_opportunities,
                       publish_opportunity, save_opportunity)
 
 opportunities = Blueprint("opportunities", __name__, url_prefix="/api/v1/opportunities")
@@ -21,8 +22,9 @@ def opportunity_list():
         scope = scopes[0] if scopes else "published"
         if len(scopes) > 1 or scope not in ("published", "mine"):
             invalid("scope", "Choose published or mine.")
+        authorise_scope(user, scope)
         page, page_size = pagination()
-        result = list_opportunities(db, user, scope, page, page_size)
+        result = list_opportunities(db, user, scope, page, page_size, search_parameters(db, scope=True))
     return jsonify(result)
 
 
@@ -50,7 +52,7 @@ def opportunity_put(opportunity_id):
         require_csrf(session)
         opportunity = get_opportunity(db, user, opportunity_id, owner_only=True)
         data = body("OpportunityWrite")
-        result = save_opportunity(db, opportunity, data["expectedRevision"], data["content"])
+        result = save_opportunity(db, opportunity, data["expectedRevision"], data["content"], data.get("reopen", False))
     return jsonify(result)
 
 

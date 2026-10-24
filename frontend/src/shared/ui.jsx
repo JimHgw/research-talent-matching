@@ -22,6 +22,13 @@ const fieldLabels = {
   label: 'Personal interest label',
   university: 'University',
   researchArea: 'Research area',
+  q: 'Search',
+  opportunityType: 'Opportunity type',
+  deadlineAt: 'Deadline',
+  deadlineFrom: 'Deadline from',
+  deadlineTo: 'Deadline before',
+  skillTagId: 'Skills',
+  interestTagId: 'Research interests',
 };
 
 const paths = {

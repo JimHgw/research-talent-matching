@@ -3095,7 +3095,7 @@ US-06 prepares synthetic/de-identified data and records these test results. No a
 
 ## 10. Later scope
 
-US-10 through US-16 remain in the Backlog: broader file/confirmation protection, systematic quality evaluation, favourites, semantic matching, advanced search, broader identity management and whole-project testing. Overlapping privacy and testing foundations are specified for this Sprint without bringing all those later stories into scope.
+The original Sprint 1 backlog statement is historical. Implemented later extensions include [US-11 resume extraction](../us11-resume-extraction.md), [US-13 local evaluation](../testing/us13-evaluation.md) and [US-14 search and combined filters](../us14-search.md). The US-14 guide defines query composition, Unicode normalisation, date bounds, permitted totals/ranks, nullable opportunity type/deadline metadata, availability and explicit reopening. The checked-in OpenAPI and indexed US-14 examples extend existing operations; unchanged Sprint 1 operations retain this baseline contract.
 
 When adding capabilities, update the contract version, field definitions, mock fixtures and tests before coordinating both implementations. Do not unilaterally change field casing, enums, replacement semantics, confirmation granularity or the use of hidden fields in scoring.
 
