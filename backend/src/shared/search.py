@@ -7,7 +7,8 @@ from flask import request
 from sqlalchemy import select
 
 from ..db.models import Tag
-from ..db.skills import matching_skills, normalise_title
+from ..db.skills import matching_skills, normalise_title, skill_claims
+from .universities import university_code
 from .validation import invalid
 
 OPPORTUNITY_TYPES = ("PHD", "MASTERS", "RESEARCH_ASSISTANT", "POSTDOC", "OTHER")
@@ -31,7 +32,7 @@ def parse_datetime(value, field):
 
 def search_parameters(db, *, talent=False, scope=False):
     multi = ("skillTagId", "interestTagId") if talent else ATTRIBUTES
-    singles = ("q",) if talent else ("q", "deadlineFrom", "deadlineTo")
+    singles = ("q", "skill", "university") if talent else ("q", "deadlineFrom", "deadlineTo")
     allowed = {*multi, *singles, "page", "pageSize"}
     if scope:
         allowed.add("scope")
@@ -44,7 +45,7 @@ def search_parameters(db, *, talent=False, scope=False):
             continue  # Their existing strict validators handle these values.
         if key in singles and len(values) != 1:
             invalid(key, "Supply this parameter only once.")
-        limit = 200 if key == "q" else ATTRIBUTE_LIMITS.get(key, 64)
+        limit = 200 if key in ("q", "skill") else ATTRIBUTE_LIMITS.get(key, 64)
         if key.startswith("deadline"):
             result[key] = parse_datetime(values[0], key)
             continue
@@ -54,7 +55,12 @@ def search_parameters(db, *, talent=False, scope=False):
             invalid(key, "Choose STEM or BUSINESS.")
         if key == "opportunityType" and any(v not in OPPORTUNITY_TYPES for v in values):
             invalid(key, "Choose a supported opportunity type.")
-        if key in ("skillTagId", "interestTagId"):
+        if talent and key == "university":
+            code = university_code(values[0])
+            if code is None:
+                invalid(key, "Choose a Group of Eight university.")
+            result[key] = code
+        elif key in ("skillTagId", "interestTagId"):
             kind = "SKILL" if key == "skillTagId" else "INTEREST"
             known = set(db.scalars(select(Tag.id).where(Tag.kind == kind, Tag.id.in_(values))))
             if set(values) - known:
@@ -102,6 +108,14 @@ def _searchable_text(value):
 def talent_matches_filters(talent, filters, labels):
     # This function receives ONLY the current permitted projection, never the profile.
     fields = talent["fields"]
+    if "skill" in filters:
+        claims = skill_claims(fields.get("skills", [])).values()
+        if not any(claim["claim"] == "HAS" and any(filters["skill"] in normalise_title(claim[key])
+                   for key in ("title", "evidenceText")) for claim in claims):
+            return False
+    if "university" in filters and not any(
+            university_code(row["institution"]) == filters["university"] for row in fields.get("education", [])):
+        return False
     if "skillTagId" in filters:
         skills = matching_skills(fields.get("skills", []), labels)
         if not any(skills.get(tag, {}).get("claim") == "HAS" for tag in filters["skillTagId"]):

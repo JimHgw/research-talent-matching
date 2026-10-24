@@ -1,32 +1,23 @@
 import React, { useState } from 'react';
 import { useLanguage } from './i18n.jsx';
 import { Button, Field } from './ui.jsx';
-import { dateTimeZone, opportunityTypes } from './search.js';
+import { dateTimeZone, go8Universities, opportunityTypes } from './search.js';
+import FilterSelect from './FilterSelect.jsx';
 
-export default function SearchFilters({ onApply, talent = false, tags = [], initialFilters = {} }) {
+export default function SearchFilters({ onApply, talent = false, initialFilters = {} }) {
   const { t } = useLanguage();
   const [draft, setDraft] = useState(initialFilters);
   const set = (key, value) => setDraft((previous) => ({ ...previous, [key]: value }));
-  function multiple(key, label, choices) {
+  function selection(key, label, choices, multiple = true) {
+    const value = draft[key];
     return (
-      <Field label={t(label)}>
-        <select
-          multiple
-          value={draft[key] || []}
-          onChange={(event) =>
-            set(
-              key,
-              [...event.target.selectedOptions].map((option) => option.value)
-            )
-          }
-        >
-          {choices.map(({ id, label: text }) => (
-            <option key={id} value={id}>
-              {t(text)}
-            </option>
-          ))}
-        </select>
-      </Field>
+      <FilterSelect
+        label={label}
+        choices={choices}
+        multiple={multiple}
+        value={Array.isArray(value) ? value : value ? [value] : []}
+        onChange={(next) => set(key, multiple ? next : next[0] || '')}
+      />
     );
   }
   function apply(event) {
@@ -34,7 +25,14 @@ export default function SearchFilters({ onApply, talent = false, tags = [], init
     const filters = {};
     for (const [key, value] of Object.entries(draft)) {
       if (Array.isArray(value) ? !value.length : !value.trim()) continue;
-      filters[key] = key.startsWith('deadline') ? new Date(value).toISOString() : value;
+      filters[key] =
+        talent && key === 'university'
+          ? Array.isArray(value)
+            ? value[0]
+            : value
+          : key.startsWith('deadline')
+            ? new Date(value).toISOString()
+            : value;
     }
     onApply(filters);
   }
@@ -55,16 +53,15 @@ export default function SearchFilters({ onApply, talent = false, tags = [], init
         </Field>
         {talent ? (
           <>
-            {multiple(
-              'skillTagId',
-              'Skills',
-              tags.filter((tag) => tag.kind === 'SKILL')
-            )}
-            {multiple(
-              'interestTagId',
-              'Research interests',
-              tags.filter((tag) => tag.kind === 'INTEREST')
-            )}
+            <Field label={t('Skills')}>
+              <input
+                type="search"
+                maxLength={200}
+                value={draft.skill || ''}
+                onChange={(e) => set('skill', e.target.value)}
+              />
+            </Field>
+            {selection('university', 'University', go8Universities, false)}
           </>
         ) : (
           <>
@@ -81,12 +78,12 @@ export default function SearchFilters({ onApply, talent = false, tags = [], init
                 />
               </Field>
             ))}
-            {multiple(
+            {selection(
               'disciplineGroup',
               'Discipline group',
               ['STEM', 'BUSINESS'].map((id) => ({ id, label: id }))
             )}
-            {multiple(
+            {selection(
               'opportunityType',
               'Opportunity type',
               opportunityTypes.map((id) => ({ id, label: id }))
@@ -106,9 +103,6 @@ export default function SearchFilters({ onApply, talent = false, tags = [], init
           </>
         )}
       </div>
-      <p className="help">
-        {t('Choose multiple options with Ctrl or Command. Filters combine across fields.')}
-      </p>
       {!talent && (
         <p className="help">
           {t('Dates use {zone}; the upper bound is exclusive.', { zone: dateTimeZone() })}

@@ -1,5 +1,6 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Select options': '選択してください',
   'Talent filters': '人材の絞り込み',
   'Opportunity filters': '募集の絞り込み',
   Search: '検索',

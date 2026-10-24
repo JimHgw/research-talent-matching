@@ -90,12 +90,8 @@ def _negative_evidence(evidence, name):
     return False
 
 
-def matching_skills(skills, labels):
-    """Resolve exact titles against existing opportunity criteria, without storing tags.
-
-    Unrelated prose, course names and substrings never establish a match. Explicit
-    legacy negatives remain negatives after migration to the two text fields.
-    """
+def skill_claims(skills):
+    """Resolve positive/negative skill claims independently of any vocabulary."""
     by_title = {}
     for item in skills:
         title = normalise_title(item["title"])
@@ -109,5 +105,15 @@ def matching_skills(skills, labels):
                  "claim": "DOES_NOT_HAVE" if negative or evidence_negative else "HAS"}
         if name not in by_title or value["claim"] == "DOES_NOT_HAVE":
             by_title[name] = value
+    return by_title
+
+
+def matching_skills(skills, labels):
+    """Resolve exact titles against existing criteria, without storing tags.
+
+    Unrelated prose, course names and substrings never establish a match. Explicit
+    legacy negatives remain negatives after migration to the two text fields.
+    """
+    by_title = skill_claims(skills)
     return {tag_id: {**by_title[normalise_title(label)], "label": label} for tag_id, label in labels.items()
             if normalise_title(label) in by_title}

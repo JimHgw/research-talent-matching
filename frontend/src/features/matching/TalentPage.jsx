@@ -53,7 +53,6 @@ function TalentResults({
       {!shortlist && (
         <SearchFilters
           talent
-          tags={tags}
           initialFilters={filters}
           onApply={(next) => {
             setPage(1);

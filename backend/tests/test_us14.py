@@ -8,6 +8,7 @@ from sqlalchemy import inspect
 
 from backend.src.db.models import Opportunity
 from backend.src.db.opportunity_upgrade import upgrade_opportunity_search
+from backend.src.shared.universities import GO8
 from conftest import headers, sign_in
 from test_us04 import (PROFILE, RECOMMENDATIONS, OPPORTUNITIES, checked, confirm_profile,
                        example, research_team)
@@ -180,3 +181,63 @@ def test_additive_upgrade_preserves_old_opportunities_and_is_repeatable(app, res
         row = db.get(Opportunity, item["id"])
         assert row.revision == item["revision"] and row.deadline_at is None and row.expired_at is None
     assert page(research_team[0], scope="mine")["items"] == [item]
+
+
+def test_free_text_skill_and_school_filters_are_tag_independent_and_private(signed, research_team):
+    content = deepcopy(example("profile-write.json")["content"])
+    content["education"][0]["institution"] = "  The University of New South Wales  "
+    content["skills"] = [
+        {"id": "sensor", "title": "Quantum sensor calibration", "evidenceText": "Built interferometers in a laboratory."},
+        {"id": "denial", "title": "No Audio DSP", "evidenceText": ""},
+        {"id": "contradiction", "title": "Audio DSP", "evidenceText": ""},
+        {"id": "aspiration", "title": "Haskell", "evidenceText": "I want to learn Haskell."},
+    ]
+    confirm_profile(signed, content)
+    share(signed, ["skills", "education"])
+    item = opportunity(research_team)
+    client = research_team[0]
+    url = f"{OPPORTUNITIES}/{item['id']}/talent-matches"
+    result = page(client, url, skill="ＳＥＮＳＯＲ", university="UNSW")
+    assert result["total"] == 1 and result["items"][0]["rank"] == 1
+    assert page(client, url, skill="interferometers", university="UNSW Sydney")["total"] == 1
+    assert page(client, url, skill="audio dsp")["total"] == 0
+    assert page(client, url, skill="haskell")["total"] == 0
+    assert page(client, url, university="UQ")["total"] == 0
+    assert page(client, url, skill="University")["total"] == 0
+    share(signed, ["skills"])
+    assert page(client, url, university="UNSW")["total"] == 0
+    assert page(client, url, skill="sensor")["total"] == 1
+    share(signed, ["education"])
+    assert page(client, url, skill="sensor")["total"] == 0
+    assert page(client, url, university="UNSW")["total"] == 1
+    share(signed, [])
+    before = page(client, url)
+    content["education"][0]["institution"] = "University of Queensland"
+    content["skills"][0]["title"] = "Different hidden skill"
+    confirm_profile(signed, content)
+    assert page(client, url) == before
+    assert page(client, url, university="UQ")["total"] == 0
+
+
+@pytest.mark.parametrize("code", GO8)
+def test_each_go8_school_recognises_existing_institution_names(signed, research_team, code):
+    content = deepcopy(example("profile-write.json")["content"])
+    content["education"][0]["institution"] = GO8[code][1] if len(GO8[code]) > 1 else GO8[code][0]
+    confirm_profile(signed, content)
+    share(signed, ["education"])
+    item = opportunity(research_team)
+    url = f"{OPPORTUNITIES}/{item['id']}/talent-matches"
+    assert page(research_team[0], url, university=code)["total"] == 1
+
+
+@pytest.mark.parametrize("query,field", [
+    ("skill=", "skill"), ("skill=%20", "skill"), ("skill=a&skill=b", "skill"),
+    ("skill=" + "a" * 201, "skill"), ("university=", "university"),
+    ("university=MIT", "university"), ("university=UNSW&university=missing", "university"),
+    ("university=UNSW&university=USYD", "university"),
+    ("university=UNSW&university=UNSW", "university"),
+])
+def test_invalid_new_talent_filters_are_rejected(research_team, query, field):
+    item = opportunity(research_team)
+    url = f"{OPPORTUNITIES}/{item['id']}/talent-matches"
+    error_field(research_team[0].get(url + "?" + query), field)

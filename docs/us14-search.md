@@ -5,13 +5,20 @@ Opportunity browsing, recommendations and team talent discovery have search,
 apply and clear controls. Applying/clearing filters resets to page 1. Talent
 discovery retains filters on refresh and discards open stale evidence.
 
+Multi-select controls open on click, close after each selection, and show only
+the selected labels in the closed field. Reopen to add/remove another choice;
+no Ctrl/Command modifier is needed. Escape and outside clicks/focus close the menu.
+Team discovery uses a free-text skill keyword and a single-select Go8 university
+picker in place of skill/interest tag controls. Choosing another school replaces
+the previous choice and collapses the picker; only that school's label is shown.
+
 ## API behaviour
 
 | Existing GET route | Supported search parameters |
 | --- | --- |
 | `/opportunities` | `q`, `university`, `disciplineGroup`, `discipline`, `researchArea`, `opportunityType`, `deadlineFrom`, `deadlineTo`, existing `scope` and pagination |
 | `/me/recommendations` | Same opportunity filters and pagination, without `scope`; requires the owner's current confirmed profile |
-| `/opportunities/{id}/talent-matches` | `q`, `skillTagId`, `interestTagId` and pagination; requires an active published opportunity owned by the current team |
+| `/opportunities/{id}/talent-matches` | `q`, `skill`, one Go8 `university` and pagination; requires an active published opportunity owned by the current team |
 
 Different filters combine with **AND**. Repeated opportunity attribute values and
 talent tag IDs combine with **OR** within that parameter. Examples:
@@ -19,7 +26,7 @@ talent tag IDs combine with **OR** within that parameter. Examples:
 ```text
 /api/v1/opportunities?university=UNSW&university=USYD&disciplineGroup=STEM&opportunityType=PHD
 /api/v1/me/recommendations?q=imaging&deadlineFrom=2099-01-01T00%3A00%3A00Z
-/api/v1/opportunities/opp_example/talent-matches?skillTagId=skill_python&interestTagId=interest_ml
+/api/v1/opportunities/opp_example/talent-matches?skill=quantum%20sensor&university=UNSW
 ```
 
 `q` is one literal substring, up to 200 characters. It searches title, university,
@@ -48,9 +55,21 @@ drafts, private provenance or the owner's unified resume description. Shared
 interest IDs are searched by their labels. Personal tags are searchable with `q`;
 they never become global shared-tag filters.
 
-`skillTagId` requires an exact shared-vocabulary skill supported by a visible
-positive claim, using the existing free-text skill adapter. Explicit negatives
-override positives; missing/hidden/aspirational evidence cannot pass. Hidden-field
+`skill` is a single keyword/phrase of up to 200 characters, matched as a literal
+normalised substring in visible confirmed positive skill titles or their evidence.
+It supports arbitrary free-text skills without shared tags. Explicit negatives
+override positives; missing/hidden/aspirational evidence cannot pass.
+`university` selects one of the eight current [Go8 universities](https://go8.edu.au/about)
+using `ADELAIDE`, `ANU`, `MELBOURNE`, `MONASH`, `UNSW`, `UQ`, `USYD`, `UWA`.
+The school combines with the skill/search conditions using AND. Repeated school
+parameters are rejected with 422, even if both values name the same school.
+The filter reads only visible confirmed education institution names, with exact
+normalised aliases such as UNSW/UNSW Sydney/University of New South Wales. The
+former University of Adelaide name also resolves to Adelaide University. Other
+school values return a field-specific 422. Hiding education prevents a school match.
+
+The earlier `skillTagId`/`interestTagId` parameters remain deprecated API
+compatibility inputs; the current interface does not use them. Hidden-field
 edits cannot change totals, ranks, scores or evidence. Revocation removes the
 talent immediately and direct old detail requests return 404. An eligible profile
 with no visible fields can appear anonymously in an unfiltered list but cannot
@@ -127,7 +146,13 @@ dataset; it is not a large-corpus search index. Local MySQL/Docker runtime
 validation requires a running Docker engine; SQLite results do not certify a
 live MySQL deployment.
 
-Verified on 2026-10-24: all 19 US-14 API cases, the US-14 real HTTP workflow,
+Initial verification on 2026-10-24: all 19 original US-14 API cases, the US-14 real HTTP workflow,
 229 frontend checks (including production builds), formatting and related
 opportunity/matching/privacy regression checks passed. Docker was unavailable,
 so the live MySQL upgrade/deployment remains unverified locally.
+
+Filter refinement verified on 2026-10-24: 80 related backend checks (including
+all 35 US-14 API cases), 231 frontend checks including production builds, and
+the updated US-14 real HTTP workflow passed. Browser inspection confirmed eight
+Go8 choices, automatic collapse after selection, selected-label display and
+repeatable multi-selection for discipline groups and opportunity types.

@@ -23,6 +23,7 @@ const fieldLabels = {
   university: 'University',
   researchArea: 'Research area',
   q: 'Search',
+  skill: 'Skills',
   opportunityType: 'Opportunity type',
   deadlineAt: 'Deadline',
   deadlineFrom: 'Deadline from',

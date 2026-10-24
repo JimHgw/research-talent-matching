@@ -3608,7 +3608,8 @@
                 "pattern": "^[A-Za-z0-9_-]{1,64}$"
               }
             },
-            "description": "Repeated existing shared SKILL IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims."
+            "description": "Repeated existing shared SKILL IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims. Legacy compatibility only; the team UI now uses skill free text and Go8 university selections.",
+            "deprecated": true
           },
           {
             "name": "interestTagId",
@@ -3622,7 +3623,28 @@
                 "pattern": "^[A-Za-z0-9_-]{1,64}$"
               }
             },
-            "description": "Repeated existing shared INTEREST IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims."
+            "description": "Repeated existing shared INTEREST IDs use OR; across filters use AND. Only current confirmed visible evidence qualifies; skills require positive claims. Legacy compatibility only; the team UI now uses skill free text and Go8 university selections.",
+            "deprecated": true
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": "Single free-text keyword/phrase matched as a normalised literal substring in visible confirmed positive skill titles or evidence. No shared vocabulary or tag required. Negative and aspirational claims cannot qualify."
+          },
+          {
+            "name": "university",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": "Select one Go8 school: ADELAIDE, ANU, MELBOURNE, MONASH, UNSW, UQ, USYD, UWA. Recognised full-name aliases are also accepted. Repeated university parameters return 422, including identical values. Match only visible confirmed education institution names using exact normalised aliases. AND with other filters."
           }
         ]
       }

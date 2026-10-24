@@ -27,13 +27,19 @@ try {
   await owner.login('talent@example.test', 'Test-password-123!');
   const profile = await owner.saveProfile(0, {
     ...(await fixture('profile-write')).content,
+    education: [
+      {
+        ...(await fixture('profile-write')).content.education[0],
+        institution: 'The University of New South Wales',
+      },
+    ],
     researchInterestText: 'Rare disease imaging',
   });
   await owner.confirm(profile.revision);
   await owner.savePrivacy({
     expectedRevision: 0,
     discoverable: true,
-    visibleFields: ['skills', 'researchInterests'],
+    visibleFields: ['skills', 'researchInterests', 'education'],
   });
   await team.session();
   await team.login('team@example.test', 'Test-password-123!');
@@ -78,17 +84,32 @@ try {
   await change('Match talent to this opportunity', opportunity.id);
   await until(() => !!document.querySelector('.talent-card'));
   await change('Search', 'rare disease');
-  await act(async () => {
-    const skills = field('Skills');
-    skills.querySelector('option[value="skill_python"]').selected = true;
-    skills.dispatchEvent(new window.Event('change', { bubbles: true }));
-  });
+  await change('Skills', 'python');
+  await click('University');
+  assert.equal(document.querySelectorAll('[role="option"]').length, 8);
+  await act(async () =>
+    [...document.querySelectorAll('[role="option"]')]
+      .find((item) => item.textContent.trim() === 'University of Sydney')
+      .click()
+  );
+  await click('University');
+  await act(async () =>
+    [...document.querySelectorAll('[role="option"]')]
+      .find((item) => item.textContent.trim() === 'UNSW Sydney')
+      .click()
+  );
+  assert.equal(document.querySelector('[role="listbox"]'), null);
   await click('Apply filters');
   await until(() => requests.some((r) => r.url.includes('q=rare+disease')));
   await until(() => !!document.querySelector('.talent-card'));
   assert.equal(
-    (await team.talents(opportunity.id, 1, { q: 'rare disease', skillTagId: ['skill_python'] }))
-      .total,
+    (
+      await team.talents(opportunity.id, 1, {
+        q: 'rare disease',
+        skill: 'python',
+        university: 'UNSW',
+      })
+    ).total,
     1
   );
   let privacy = await owner.privacy();
