@@ -32,7 +32,7 @@ The [free-text skill update](../docs/free-text-skills.md) additionally creates
 Existing MySQL installations must also run `upgrade-resume-text` after `init-db`
 to widen the resume column from TEXT to MEDIUMTEXT without changing stored data.
 The Docker entrypoint runs both steps automatically before serving requests.
-See [the capacity upgrade](../docs/mysql-migration.md#简历描述容量升级) for native commands.
+See [the capacity upgrade](../docs/mysql-migration.md#resume-description-capacity-upgrade) for native commands.
 
 For frontend and backend containers together, use the
 [integrated Docker workflow](../docs/docker-integration.md).
