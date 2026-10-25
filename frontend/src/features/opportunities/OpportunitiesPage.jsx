@@ -7,10 +7,11 @@ import { displayDate } from '../../shared/format.js';
 import OpportunityEditor from './OpportunityEditor.jsx';
 import OpportunityDetails from './OpportunityDetails.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
+import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 function SelectedOpportunity({ id, editable, onBack, ...props }) {
   const { t, language } = useLanguage();
-  const resource = useResource(() => api.opportunity(id), [id]);
+  const resource = useResource(() => api.opportunity(id), [id], !editable);
   if (resource.loading) return <Loading />;
   if (resource.error)
     return (
@@ -97,6 +98,7 @@ function OpportunityList({ scope, onSelect }) {
                 </p>
                 <p>{item.content.researchArea}</p>
                 <p className="opportunity-excerpt">{item.content.description}</p>
+                <OpportunityMetadata content={item.content} />
                 <div className="opportunity-card-footer">
                   <small>
                     {t('Updated {date}', { date: displayDate(item.updatedAt, language) })}

@@ -1,5 +1,11 @@
 import workspaceMessages from './workspace/hi.js';
 export default {
+  'Source URL (optional)': 'स्रोत URL (वैकल्पिक)',
+  'Opportunity source (opens in a new tab)': 'अवसर का स्रोत (नए टैब में खुलता है)',
+  'Save and reopen opportunity': 'सहेजें और अवसर फिर खोलें',
+  'Active filters': 'लागू फ़िल्टर',
+  'The upper deadline bound must be later than the lower bound.':
+    'अंतिम समय सीमा शुरुआती सीमा के बाद होनी चाहिए।',
   ...workspaceMessages,
   Language: 'इंटरफ़ेस की भाषा',
   'RESEARCH, CONNECTED': 'शोध को जोड़ें',

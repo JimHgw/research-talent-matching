@@ -1,5 +1,11 @@
 import workspaceMessages from './workspace/ja.js';
 export default {
+  'Source URL (optional)': '参照URL（任意）',
+  'Opportunity source (opens in a new tab)': '募集の参照元（新しいタブで開く）',
+  'Save and reopen opportunity': '保存して募集を再開',
+  'Active filters': '適用中のフィルター',
+  'The upper deadline bound must be later than the lower bound.':
+    '終了日時は開始日時より後にしてください。',
   ...workspaceMessages,
   Language: '表示言語',
   'RESEARCH, CONNECTED': '研究をつなぐ',

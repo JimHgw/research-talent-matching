@@ -20,6 +20,7 @@
     "test:21": "node scripts/test.js 21",
     "test:22": "node scripts/test.js 22",
     "test:41": "node scripts/test.js 20 21 22 41",
+    "test:47": "node scripts/test.js 19 47",
     "test:49": "node scripts/test.js 49",
     "test:61": "node scripts/test.js 22 41 61",
     "format": "prettier --write src tests scripts *.json *.js *.html *.md",

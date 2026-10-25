@@ -54,8 +54,8 @@ export default function OpportunityEditor({
               </Button>
             )}
             {saved?.availabilityStatus === 'EXPIRED' && (
-              <Button disabled={busy || dirty || needsReview} onClick={editor.reopen}>
-                {t('Reopen opportunity')}
+              <Button disabled={busy || needsReview} onClick={editor.reopen}>
+                {dirty ? t('Save and reopen opportunity') : t('Reopen opportunity')}
               </Button>
             )}
           </div>

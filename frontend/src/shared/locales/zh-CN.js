@@ -1,6 +1,11 @@
 import workspaceMessages from './workspace/zh-CN.js';
 // English source messages are stable keys. Domain data and API payloads are never translated.
 export default {
+  'Source URL (optional)': '来源网址（可选）',
+  'Opportunity source (opens in a new tab)': '机会来源（在新标签页打开）',
+  'Save and reopen opportunity': '保存并重新开放机会',
+  'Active filters': '已应用筛选',
+  'The upper deadline bound must be later than the lower bound.': '截止时间上限必须晚于下限。',
   ...workspaceMessages,
   Language: '界面语言',
   'RESEARCH, CONNECTED': '连接科研，发现机遇',

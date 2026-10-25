@@ -1,5 +1,11 @@
 import workspaceMessages from './workspace/de.js';
 export default {
+  'Source URL (optional)': 'Quell-URL (optional)',
+  'Opportunity source (opens in a new tab)': 'Quelle des Angebots (öffnet neuen Tab)',
+  'Save and reopen opportunity': 'Speichern und Angebot erneut öffnen',
+  'Active filters': 'Aktive Filter',
+  'The upper deadline bound must be later than the lower bound.':
+    'Die obere Fristgrenze muss nach der unteren liegen.',
   ...workspaceMessages,
   Language: 'Sprache',
   'RESEARCH, CONNECTED': 'FORSCHUNG VERBINDET',
