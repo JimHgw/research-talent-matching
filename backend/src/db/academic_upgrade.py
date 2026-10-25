@@ -21,7 +21,11 @@ KINDS = (
 
 def kind_values(sql):
     # MySQL may include charset introducers in reflected CHECK expressions.
-    expression = re.sub(r"_[a-zA-Z0-9]+(?=')", "", sql)
+    expression = re.sub(
+        r"(?<![\w'])_[a-zA-Z0-9]+(?=')",
+        "",
+        sql,
+    )
     expression = re.sub(r"[\s`()]", "", expression)
 
     if not re.fullmatch(
