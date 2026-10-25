@@ -1,6 +1,6 @@
 from copy import deepcopy
 from sqlalchemy import inspect, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import OperationalError
 
 from backend.src.db.academic_upgrade import (
     KINDS,
@@ -138,8 +138,8 @@ def academic_schema(request, app, research_team):
     with database.engine.connect() as connection:
         assert read_children(connection) == children_before
 
-    # Verify that the new kind constraint is enforced.
-    with pytest.raises(IntegrityError):
+    # MySQL/PyMySQL reports CHECK violations as OperationalError.
+    with pytest.raises(OperationalError) as error:
         with database.engine.begin() as connection:
             connection.execute(
                 text("""
@@ -149,6 +149,11 @@ def academic_schema(request, app, research_team):
                 """),
                 {"id": legacy["id"]},
             )
+    assert error.value.orig.args[0] == 3819
+    assert (
+        "ck_opportunity_requirement_kind"
+        in str(error.value.orig)
+    )
 
 @pytest.mark.parametrize(
     "kind,section,criteria,status,score,record_id",
