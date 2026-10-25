@@ -1,5 +1,10 @@
 import workspaceMessages from './workspace/zh-TW.js';
 export default {
+  'Source URL (optional)': '來源網址（選填）',
+  'Opportunity source (opens in a new tab)': '機會來源（在新分頁開啟）',
+  'Save and reopen opportunity': '儲存並重新開放機會',
+  'Active filters': '已套用篩選',
+  'The upper deadline bound must be later than the lower bound.': '截止時間上限必須晚於下限。',
   ...workspaceMessages,
   Language: '介面語言',
   'RESEARCH, CONNECTED': '連結研究，發現機會',

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useLanguage } from './i18n.jsx';
-import { Button, Field } from './ui.jsx';
+import { Button, Field, ErrorNotice } from './ui.jsx';
 import { dateTimeZone, go8Universities, opportunityTypes } from './search.js';
 import FilterSelect from './FilterSelect.jsx';
 
 export default function SearchFilters({ onApply, talent = false, initialFilters = {} }) {
   const { t } = useLanguage();
   const [draft, setDraft] = useState(initialFilters);
+  const [applied, setApplied] = useState(initialFilters);
+  const [error, setError] = useState(null);
   const set = (key, value) => setDraft((previous) => ({ ...previous, [key]: value }));
   function selection(key, label, choices, multiple = true) {
     const value = draft[key];
@@ -22,6 +24,18 @@ export default function SearchFilters({ onApply, talent = false, initialFilters 
   }
   function apply(event) {
     event.preventDefault();
+    setError(null);
+    if (
+      draft.deadlineFrom &&
+      draft.deadlineTo &&
+      new Date(draft.deadlineFrom) >= new Date(draft.deadlineTo)
+    ) {
+      setError({
+        code: 'VALIDATION_ERROR',
+        message: t('The upper deadline bound must be later than the lower bound.'),
+      });
+      return;
+    }
     const filters = {};
     for (const [key, value] of Object.entries(draft)) {
       if (Array.isArray(value) ? !value.length : !value.trim()) continue;
@@ -34,6 +48,7 @@ export default function SearchFilters({ onApply, talent = false, initialFilters 
             ? new Date(value).toISOString()
             : value;
     }
+    setApplied(structuredClone(draft));
     onApply(filters);
   }
   return (
@@ -42,6 +57,14 @@ export default function SearchFilters({ onApply, talent = false, initialFilters 
       aria-label={t(talent ? 'Talent filters' : 'Opportunity filters')}
       onSubmit={apply}
     >
+      <ErrorNotice error={error} />
+      {Object.entries(applied).some(([, value]) =>
+        Array.isArray(value) ? value.length : value
+      ) && (
+        <p role="status">
+          {t('Active filters')}: {Object.values(applied).flat().filter(Boolean).join(' · ')}
+        </p>
+      )}
       <div className="search-filter-grid">
         <Field label={t('Search')}>
           <input
@@ -114,6 +137,8 @@ export default function SearchFilters({ onApply, talent = false, initialFilters 
           variant="secondary"
           onClick={() => {
             setDraft({});
+            setApplied({});
+            setError(null);
             onApply({});
           }}
         >

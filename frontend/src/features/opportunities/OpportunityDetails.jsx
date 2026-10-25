@@ -2,6 +2,7 @@ import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Badge } from '../../shared/ui.jsx';
 import { displayDate } from '../../shared/format.js';
+import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 export function OpportunityContent({ content, tags }) {
   const { t } = useLanguage();
@@ -15,11 +16,7 @@ export function OpportunityContent({ content, tags }) {
       <h4>{t('Research area')}</h4>
       <p>{content.researchArea}</p>
       {content.opportunityType && <p>{t(content.opportunityType)}</p>}
-      {content.deadlineAt && (
-        <p>
-          {t('Deadline')}: {new Date(content.deadlineAt).toISOString()}
-        </p>
-      )}
+      <OpportunityMetadata content={content} />
       <h4>{t('Description')}</h4>
       <p className="opportunity-description">{content.description}</p>
       <h4>{t('Requirements')}</h4>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Field, Notice } from '../../shared/ui.jsx';
 import { opportunityFields } from './fields.js';
 import RequirementEditor from './RequirementEditor.jsx';
+import { sourceUrlsEnabled } from './metadata.js';
 import { dateTimeZone, localDateTime, opportunityTypes } from '../../shared/search.js';
 
 export default function OpportunityFields({
@@ -11,6 +12,7 @@ export default function OpportunityFields({
   tags,
   status,
   requiredLabels = false,
+  sourceEnabled = sourceUrlsEnabled || Object.hasOwn(content, 'sourceUrl'),
 }) {
   const { t } = useLanguage();
   const set = (key, value) => onChange({ ...content, [key]: value });
@@ -63,6 +65,16 @@ export default function OpportunityFields({
               ))}
             </select>
           </Field>
+          {sourceEnabled && (
+            <Field label={t('Source URL (optional)')}>
+              <input
+                type="url"
+                maxLength={2048}
+                value={content.sourceUrl || ''}
+                onChange={(e) => set('sourceUrl', e.target.value || null)}
+              />
+            </Field>
+          )}
           <Field label={t('Deadline')} hint={t('Times shown in {zone}', { zone: dateTimeZone() })}>
             <input
               type="datetime-local"

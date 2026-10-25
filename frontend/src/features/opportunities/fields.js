@@ -1,3 +1,4 @@
+import { validSourceUrl } from './metadata.js';
 // Form metadata stays in one place; the API contract is authoritative on the server.
 export const opportunityFields = [
   { key: 'title', label: 'Opportunity title', maxLength: 200 },
@@ -26,6 +27,10 @@ export const newRequirement = () => ({
 });
 
 export function validateOpportunity(content, tags, status) {
+  if (!validSourceUrl(content.sourceUrl))
+    return 'Enter an absolute HTTP or HTTPS source URL (up to 2048 characters).';
+  if (content.deadlineAt && Number.isNaN(new Date(content.deadlineAt).getTime()))
+    return 'Enter a valid deadline.';
   for (const { key, maxLength } of opportunityFields) {
     if (!content[key].trim()) return 'Complete all required fields with non-blank text.';
     if (content[key].length > maxLength) return `Shorten ${key} to ${maxLength} characters.`;

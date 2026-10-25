@@ -1,5 +1,11 @@
 import workspaceMessages from './workspace/ko.js';
 export default {
+  'Source URL (optional)': '출처 URL (선택 사항)',
+  'Opportunity source (opens in a new tab)': '모집 출처 (새 탭에서 열기)',
+  'Save and reopen opportunity': '저장하고 모집 재개',
+  'Active filters': '적용된 필터',
+  'The upper deadline bound must be later than the lower bound.':
+    '종료 기한은 시작 기한보다 늦어야 합니다.',
   ...workspaceMessages,
   Language: '표시 언어',
   'RESEARCH, CONNECTED': '연구를 연결하다',

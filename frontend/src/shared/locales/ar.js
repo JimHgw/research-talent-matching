@@ -1,5 +1,11 @@
 import workspaceMessages from './workspace/ar.js';
 export default {
+  'Source URL (optional)': 'رابط المصدر (اختياري)',
+  'Opportunity source (opens in a new tab)': 'مصدر الفرصة (يفتح في علامة تبويب جديدة)',
+  'Save and reopen opportunity': 'حفظ الفرصة وإعادة فتحها',
+  'Active filters': 'عوامل التصفية النشطة',
+  'The upper deadline bound must be later than the lower bound.':
+    'يجب أن يكون الحد الأعلى للموعد بعد الحد الأدنى.',
   ...workspaceMessages,
   Language: 'لغة الواجهة',
   'RESEARCH, CONNECTED': 'البحث يجمعنا',

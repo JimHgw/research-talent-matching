@@ -3,6 +3,7 @@ import React from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import { Badge, Button, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
+import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 export default function OpportunityDetails({ opportunityId, onClose, onMatch, CollectionButton }) {
   const { t } = useLanguage();
@@ -30,11 +31,7 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
           </div>
           <p className="opportunity-description">{opportunity.content.description}</p>
           {opportunity.content.opportunityType && <p>{t(opportunity.content.opportunityType)}</p>}
-          {opportunity.content.deadlineAt && (
-            <p>
-              {t('Deadline')}: {new Date(opportunity.content.deadlineAt).toISOString()}
-            </p>
-          )}
+          <OpportunityMetadata content={opportunity.content} />
           <h4>{t('Requirements')}</h4>
           {opportunity.content.requirements.length ? (
             <ul className="requirement-list">
