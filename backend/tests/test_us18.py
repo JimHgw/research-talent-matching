@@ -1,5 +1,12 @@
 from copy import deepcopy
+from sqlalchemy import inspect, text
+from sqlalchemy.exc import IntegrityError
 
+from backend.src.db.academic_upgrade import (
+    KINDS,
+    kind_values,
+    upgrade_academic_requirements,
+)
 import pytest
 
 from test_us04 import (
@@ -11,7 +18,137 @@ from test_us04 import (
     research_team,
 )
 from test_us05 import share
+@pytest.fixture(
+    params=[False, True],
+    ids=["fresh-schema", "upgraded-legacy-schema"],
+)
+def academic_schema(request, app, research_team):
+    if not request.param:
+        return
 
+    database = app.extensions["database"]
+
+    if database.engine.dialect.name != "mysql":
+        pytest.skip("Run with --run-mysql to test the legacy upgrade.")
+
+    assert database.engine.url.database.endswith("_test")
+    # Create a legacy opportunity with a narrow kind column, no criteria column, and a check constraint that only allows SKILL and INTEREST.
+    legacy = make_opportunity(
+        research_team,
+        [
+            {
+                "id": "legacy_tag",
+                "label": "Python",
+                "kind": "SKILL",
+                "importance": "REQUIRED",
+                "tagIds": ["skill_python"],
+            },
+            {
+                "id": "legacy_text",
+                "label": "Python research",
+                "kind": "SKILL",
+                "importance": "PREFERRED",
+                "tagIds": [],
+                "skillTitles": ["Python"],
+            },
+        ],
+    )
+    # The legacy opportunity has a narrow kind column, no criteria column, and a check constraint that only allows SKILL and INTEREST.
+    team = research_team[0]
+    url = f"{OPPORTUNITIES}/{legacy['id']}"
+    before = checked(team.get(url), "Opportunity")
+
+    def read_children(connection):
+        return {
+            table: [
+                dict(row)
+                for row in connection.execute(
+                    text(
+                        f"SELECT * FROM {table} "
+                        "WHERE opportunity_id = :id "
+                        "ORDER BY requirement_id"
+                    ),
+                    {"id": legacy["id"]},
+                ).mappings()
+            ]
+            for table in (
+                "requirement_tags",
+                "opportunity_skill_details",
+            )
+        }
+    # Simulate a legacy schema with a narrow kind column, no criteria column, and a check constraint that only allows SKILL and INTEREST.
+    with database.engine.begin() as connection:
+        children_before = read_children(connection)
+
+        
+        connection.exec_driver_sql("""
+            ALTER TABLE opportunity_requirements
+                DROP CHECK ck_opportunity_requirement_kind,
+                DROP COLUMN criteria,
+                MODIFY COLUMN kind VARCHAR(16) NOT NULL,
+                ADD CONSTRAINT ck_legacy_requirement_kind
+                    CHECK (kind IN ('SKILL', 'INTEREST'))
+        """)
+
+    old_columns = {
+        column["name"]: column
+        for column in inspect(database.engine).get_columns(
+            "opportunity_requirements"
+        )
+    }
+
+    assert "criteria" not in old_columns
+    assert old_columns["kind"]["type"].length == 16
+
+    command = app.test_cli_runner().invoke(
+        args=["upgrade-academic-requirements"]
+    )
+
+    assert command.exit_code == 0, command.output
+    assert "storage upgraded" in command.output
+
+    
+    assert upgrade_academic_requirements(database) is False
+
+    inspector = inspect(database.engine)
+
+    columns = {
+        column["name"]: column
+        for column in inspector.get_columns("opportunity_requirements")
+    }
+    # Verify that the kind column is widened and the criteria column is added.
+    assert columns["kind"]["type"].length >= 32
+    assert "criteria" in columns
+    assert columns["criteria"]["nullable"] is True
+
+    checks = [
+        check
+        for check in inspector.get_check_constraints(
+            "opportunity_requirements"
+        )
+        if "kind" in check["sqltext"].lower()
+    ]
+
+    assert len(checks) == 1
+    assert kind_values(checks[0]["sqltext"]) == set(KINDS)
+
+    # Verify that the opportunity and its children are unchanged.
+    assert checked(team.get(url), "Opportunity") == before
+
+    with database.engine.connect() as connection:
+        assert read_children(connection) == children_before
+
+    # Verify that the new kind constraint is enforced.
+    with pytest.raises(IntegrityError):
+        with database.engine.begin() as connection:
+            connection.execute(
+                text("""
+                    UPDATE opportunity_requirements
+                    SET kind = 'UNSUPPORTED'
+                    WHERE opportunity_id = :id
+                """),
+                {"id": legacy["id"]},
+            )
 
 @pytest.mark.parametrize(
     "kind,section,criteria,status,score,record_id",
@@ -56,6 +193,7 @@ from test_us05 import share
 def test_academic_evidence_api(
     signed,
     research_team,
+    academic_schema,
     kind,
     section,
     criteria,
@@ -124,6 +262,13 @@ def test_academic_evidence_api(
     result = detail["requirements"][0]
 
     assert result["status"] == status
+    expected_codes = {
+        "MATCHED": "ACADEMIC_CRITERIA_SUPPORTED",
+        "PARTIAL": "ACADEMIC_CRITERIA_PARTIAL",
+        "UNKNOWN": "INSUFFICIENT_EVIDENCE",
+    }
+
+    assert result["reasonCode"] == expected_codes[status]
     assert detail["summary"]["score"] == score
     assert detail["summary"]["algorithmVersion"] == "academic-evidence-v3"
 
@@ -131,7 +276,42 @@ def test_academic_evidence_api(
         assert result["evidence"] == []
     else:
         evidence = result["evidence"][0]
+        expected_summaries = {
+            "edu_test": (
+                "Master of Data Science. Supporting fields: "
+                "qualification: Master of Data Science"
+            ),
+            "exp_test": (
+                "Research Assistant. Supporting fields: "
+                "title: Research Assistant"
+            ),
+            "output_test": (
+                "Stored publication title. Supporting fields: "
+                "type: PUBLICATION"
+            ),
+        }
 
+        assert (
+            evidence["valueSummary"]
+            == expected_summaries[record_id]
+        )
+
+        stored_record = next(
+            record
+            for record in profile["content"][section]
+            if record["id"] == record_id
+        )
+
+        if section == "education":
+            assert (
+                stored_record["qualification"]
+                in evidence["valueSummary"]
+            )
+        else:
+            assert stored_record["title"] in evidence["valueSummary"]
+
+        if status == "PARTIAL":
+            assert "Another laboratory" not in evidence["valueSummary"]
         assert evidence["field"] == section
         assert evidence["recordId"] == record_id
         assert set(evidence) == {
@@ -148,3 +328,7 @@ def test_academic_evidence_api(
     assert hidden["requirements"][0]["status"] == "UNKNOWN"
     assert hidden["requirements"][0]["evidence"] == []
     assert hidden["summary"]["score"] == 0
+    assert (
+        hidden["requirements"][0]["reasonCode"]
+        == "INSUFFICIENT_EVIDENCE"
+    )
