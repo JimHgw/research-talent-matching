@@ -33,6 +33,11 @@ def serialize_many(db, opportunities, now=None):
             "tagIds": tags[(row.opportunity_id, row.id)],
             **({"skillTitles": skill_titles[(row.opportunity_id, row.id)]}
                if (row.opportunity_id, row.id) in skill_titles else {}),
+            **(
+                {"criteria": row.criteria}
+                if row.criteria is not None
+                else {}
+            ),
         })
     return [{
         "id": row.id, "revision": row.revision, "status": row.status,

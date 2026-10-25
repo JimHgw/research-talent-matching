@@ -1,7 +1,7 @@
 from decimal import Decimal, ROUND_HALF_UP
 
 from ...db.skills import matching_skills
-
+from .academic_evidence import ACADEMIC_FIELDS, evaluate_academic
 
 REASONS = {
     "MATCHED": (
@@ -58,6 +58,12 @@ def team_evidence(profile, field, tag_id, value_summary):
 
 
 def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
+    if requirement["kind"] in ACADEMIC_FIELDS:
+        return evaluate_academic(
+            requirement,
+            profile,
+            evidence_factory,
+    )
     positive = []
     negative = []
 
@@ -94,7 +100,7 @@ def evaluate_requirement(requirement, profile, evidence_factory=owner_evidence):
                     evidence_factory(profile, "skills", skill.get("id", tag_id), summary)
                 )
 
-    else:
+    elif requirement["kind"] == "INTEREST":
         for tag_id in requirement["tagIds"]:
             label = profile["researchInterests"].get(tag_id)
 
@@ -205,4 +211,9 @@ def evaluate_opportunity(opportunity, profile, evidence_factory=owner_evidence):
     summary = summarize(results)
     if any("skillTitles" in result["requirement"] for result in results):
         summary["algorithmVersion"] = "skill-title-interest-tags-v2"
+    if any(
+        result["requirement"]["kind"] in ACADEMIC_FIELDS
+        for result in results
+    ):
+        summary["algorithmVersion"] = "academic-evidence-v3"
     return results, summary

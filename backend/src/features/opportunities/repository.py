@@ -21,8 +21,14 @@ def replace_content(db, opportunity, content):
     db.execute(delete(OpportunityRequirement).where(OpportunityRequirement.opportunity_id == opportunity.id))
     for position, requirement in enumerate(content["requirements"]):
         db.add(OpportunityRequirement(
-            opportunity_id=opportunity.id, id=requirement["id"], label=requirement["label"],
-            kind=requirement["kind"], importance=requirement["importance"], position=position))
+            opportunity_id=opportunity.id,
+            id=requirement["id"],
+            label=requirement["label"],
+            kind=requirement["kind"],
+            importance=requirement["importance"],
+            position=position,
+            criteria=requirement.get("criteria"),
+        ))
     db.flush()
     for requirement in content["requirements"]:
         if "skillTitles" in requirement:
