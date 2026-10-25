@@ -6,6 +6,7 @@ import { useMutation } from '../../shared/useMutation.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import OpportunityEditor from './TeamOpportunityEditor.jsx';
+import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 export default function TeamOpportunities({ tags, notify, navigate, onDirty, onPending }) {
   const { t, language } = useLanguage();
@@ -69,6 +70,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
               </div>
               <h3>{opportunity.content.title}</h3>
               <p>{opportunity.content.description}</p>
+              <OpportunityMetadata content={opportunity.content} />
               <div className="tag-row">
                 <span>{opportunity.content.researchArea}</span>
                 <span>

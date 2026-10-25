@@ -3,6 +3,7 @@ import { api } from '../../api/client.js';
 import { usePageGuard } from '../../shared/hooks.js';
 import { useMutation } from '../../shared/useMutation.js';
 import { emptyContent, validateOpportunity } from './fields.js';
+import { futureDeadline } from './metadata.js';
 
 export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, onSaved, notify }) {
   const [saved, setSaved] = useState(opportunity);
@@ -59,12 +60,28 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     );
   }
   function reopen() {
-    if (isPending() || needsReview || dirty || saved?.availabilityStatus !== 'EXPIRED') return;
+    if (
+      isPending() ||
+      needsReview ||
+      saved?.status !== 'PUBLISHED' ||
+      saved?.availabilityStatus !== 'EXPIRED'
+    )
+      return;
+    const message = validateOpportunity(content, tags, saved.status);
+    if (message || !futureDeadline(content.deadlineAt)) {
+      setError({
+        code: 'VALIDATION_ERROR',
+        message: message || 'Choose a future deadline or remove it before reopening.',
+      });
+      return;
+    }
+    clearError();
     run(
       () => api.saveOpportunity(saved.id, saved.revision, content, true),
       (result) => {
         setSaved(result);
         setContent(structuredClone(result.content));
+        notify?.('Opportunity reopened.');
         onSaved?.(result);
       }
     );
