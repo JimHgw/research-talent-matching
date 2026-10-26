@@ -364,21 +364,13 @@ class OpportunityRequirement(Base):
     opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), primary_key=True)
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     label: Mapped[str] = mapped_column(String(300), nullable=False)
-    kind: Mapped[str] = mapped_column(String(32), nullable=False)
-    criteria: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON(none_as_null=True),
-        nullable=True,
-    )
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)
     importance: Mapped[str] = mapped_column(String(16), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
 
     opportunity: Mapped[Opportunity] = relationship()
     __table_args__ = (
-        CheckConstraint(
-            "kind IN ('SKILL', 'INTEREST', 'EDUCATION', "
-            "'RESEARCH_EXPERIENCE', 'RESEARCH_OUTPUT')",
-            name="ck_opportunity_requirement_kind",
-        ),
+        CheckConstraint("kind IN ('SKILL', 'INTEREST')"),
         CheckConstraint("importance IN ('REQUIRED', 'PREFERRED')"),
         CheckConstraint("position >= 0"),
         UniqueConstraint("opportunity_id", "position"),
