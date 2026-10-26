@@ -204,6 +204,27 @@
 .shared-profile p {
   font-size: 12px;
 }
+.shared-record {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-inline-start: 2px solid var(--line);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.shared-record > div {
+  margin-bottom: 7px;
+}
+.shared-record dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+.shared-record dd {
+  margin: 3px 0 0;
+  white-space: pre-wrap;
+}
+.supporting-record + .supporting-record {
+  margin-top: 12px;
+}
 @media (max-width: 1250px) {
   .card-grid,
   .talent-grid {

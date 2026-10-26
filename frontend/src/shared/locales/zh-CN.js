@@ -1,6 +1,9 @@
 import workspaceMessages from './workspace/zh-CN.js';
 // English source messages are stable keys. Domain data and API payloads are never translated.
 export default {
+  'A confirmed record supports all structured criteria.': '一条已确认的记录支持所有结构化条件。',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    '部分条件有证据支持，但没有单条记录能确认全部条件。',
   'Source URL (optional)': '来源网址（可选）',
   'Opportunity source (opens in a new tab)': '机会来源（在新标签页打开）',
   'Save and reopen opportunity': '保存并重新开放机会',

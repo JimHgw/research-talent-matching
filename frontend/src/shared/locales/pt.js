@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/pt.js';
 export default {
+  'A confirmed record supports all structured criteria.':
+    'Um registro confirmado sustenta todos os critérios estruturados.',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    'Alguns critérios têm evidências, mas nenhum registro confirma todos os critérios.',
   'Source URL (optional)': 'URL de origem (opcional)',
   'Opportunity source (opens in a new tab)': 'Origem da oportunidade (abre nova aba)',
   'Save and reopen opportunity': 'Salvar e reabrir oportunidade',

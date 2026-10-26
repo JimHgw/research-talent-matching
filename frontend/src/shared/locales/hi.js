@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/hi.js';
 export default {
+  'A confirmed record supports all structured criteria.':
+    'एक पुष्ट रिकॉर्ड सभी संरचित मानदंडों का समर्थन करता है।',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    'कुछ मानदंडों के प्रमाण हैं, लेकिन कोई एक रिकॉर्ड सभी की पुष्टि नहीं करता।',
   'Source URL (optional)': 'स्रोत URL (वैकल्पिक)',
   'Opportunity source (opens in a new tab)': 'अवसर का स्रोत (नए टैब में खुलता है)',
   'Save and reopen opportunity': 'सहेजें और अवसर फिर खोलें',

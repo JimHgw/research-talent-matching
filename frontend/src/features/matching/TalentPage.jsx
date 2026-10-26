@@ -144,7 +144,7 @@ function TalentResults({
           setPage(nextPage);
         }}
       />
-      {selected && (
+      {resource.data && selected && (
         <MatchDetails
           opportunityId={opportunityId}
           talentId={selected}

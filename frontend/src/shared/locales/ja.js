@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ja.js';
 export default {
+  'A confirmed record supports all structured criteria.':
+    '確認済みの記録がすべての構造化条件を裏付けています。',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    '一部の条件には根拠がありますが、すべてを確認できる単一の記録はありません。',
   'Source URL (optional)': '参照URL（任意）',
   'Opportunity source (opens in a new tab)': '募集の参照元（新しいタブで開く）',
   'Save and reopen opportunity': '保存して募集を再開',

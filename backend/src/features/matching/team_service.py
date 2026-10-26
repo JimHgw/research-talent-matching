@@ -16,9 +16,6 @@ def evaluate_visible(opportunity, talent, labels):
         "skillRecords": fields.get("skills", []),
         "researchInterests": {tag_id: labels[tag_id]
                               for tag_id in fields.get("researchInterests", [])},
-        "education": fields.get("education", []),
-        "researchExperience": fields.get("researchExperience", []),
-        "researchOutputs": fields.get("researchOutputs", []),
     }
     results, summary = evaluate_opportunity(opportunity, snapshot, team_evidence)
     for result in results:

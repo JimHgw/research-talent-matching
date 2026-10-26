@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ru.js';
 export default {
+  'A confirmed record supports all structured criteria.':
+    'Подтверждённая запись обосновывает все структурированные критерии.',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    'Часть критериев подтверждена, но ни одна запись не подтверждает их все.',
   'Source URL (optional)': 'URL источника (необязательно)',
   'Opportunity source (opens in a new tab)': 'Источник предложения (в новой вкладке)',
   'Save and reopen opportunity': 'Сохранить и снова открыть предложение',
