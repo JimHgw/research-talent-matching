@@ -46,6 +46,7 @@ def serialize_many(db, opportunities, now=None):
                     **({"opportunityType": row.opportunity_type} if row.opportunity_type is not None else {}),
                     **({"deadlineAt": row.deadline_at.isoformat(timespec="microseconds") + "Z"}
                        if row.deadline_at is not None else {}),
+                    **({"sourceUrl": row.source_url} if row.source_url is not None else {}),
                     "requirements": requirements[row.id]},
         "createdAt": row.created_at.isoformat(timespec="microseconds") + "Z",
         "updatedAt": row.updated_at.isoformat(timespec="microseconds") + "Z",

@@ -344,6 +344,7 @@ class Opportunity(Base):
     research_area: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     opportunity_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     deadline_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
     expired_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, nullable=False, default=utcnow)
