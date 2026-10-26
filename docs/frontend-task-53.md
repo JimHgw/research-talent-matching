@@ -25,9 +25,11 @@ The page uses the existing US-14 filters: search text (`q`), a skill keyword
 (`skill`) and one Go8 university (`university`). The backend combines them.
 Research interests can be searched with `q` when the talent has shared them.
 
-BE-54 was merged into main at `b122a71` and is now included in this branch.
-Evidence uses `{field, recordId, valueSummary}`. The new academic reason codes
-are `ACADEMIC_CRITERIA_SUPPORTED` and `ACADEMIC_CRITERIA_PARTIAL`.
+BE-54 was merged at `b122a71`, then reverted on main at `103de0f`.
+This branch includes that revert. Academic evidence therefore needs the backend
+work to be restored before it can be used again. The frontend is ready for
+`{field, recordId, valueSummary}` and the reason codes
+`ACADEMIC_CRITERIA_SUPPORTED` and `ACADEMIC_CRITERIA_PARTIAL`.
 
 The display tests use sample responses. `tests/us53-live.mjs` also checks the
 React pages against the real Python API and a temporary SQLite database.
@@ -55,7 +57,10 @@ From the project root, run the real HTTP check with:
 .venv\Scripts\python.exe -m pytest backend/tests/test_frontend_integration.py -k 53 --require-frontend -q
 ```
 
-This check passed on 2026-10-26. It uses jsdom for the React page, with real HTTP,
+This check passed on 2026-10-26 before the backend revert. It now reports a skip
+when the checked-in API contract lacks the academic requirement types; it is not
+a passing academic integration result. Once those types are restored, the test
+runs normally and API or UI failures still fail it. It uses jsdom, real HTTP,
 cookies and CSRF. A visual browser check and the MySQL upgrade are separate checks.
 
 The new tests check the supporting records, missing references, hidden fields,
