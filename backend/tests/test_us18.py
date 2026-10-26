@@ -1,4 +1,9 @@
 from copy import deepcopy
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
 
@@ -18,11 +23,15 @@ from test_us04 import (
     research_team,
 )
 from test_us05 import share
+from test_docker_backend import posix_shell
+from backend.src.shared.paths import ROOT
+
+
 @pytest.fixture(
-    params=[False, True],
-    ids=["fresh-schema", "upgraded-legacy-schema"],
+    params=[False, True, "startup"],
+    ids=["fresh-schema", "upgraded-legacy-schema", "upgraded-startup-schema"],
 )
-def academic_schema(request, app, research_team):
+def academic_schema(request, app, research_team, tmp_path):
     if not request.param:
         return
 
@@ -100,12 +109,34 @@ def academic_schema(request, app, research_team):
     assert "criteria" not in old_columns
     assert old_columns["kind"]["type"].length == 16
 
-    command = app.test_cli_runner().invoke(
-        args=["upgrade-academic-requirements"]
-    )
-
-    assert command.exit_code == 0, command.output
-    assert "storage upgraded" in command.output
+    if request.param == "startup":
+        # Exercise the same startup path used by both API and worker images,
+        # against the old table and persistent MySQL data above.
+        tools_dir = tmp_path / "startup tools"
+        tools_dir.mkdir()
+        python = tools_dir / "python"
+        python.write_text(
+            f"#!/bin/sh\nexec {shlex.quote(Path(sys.executable).as_posix())} \"$@\"\n",
+            encoding="utf-8", newline="\n",
+        )
+        python.chmod(0o755)
+        command = subprocess.run(
+            [posix_shell(), (ROOT / "backend/docker/entrypoint.sh").as_posix(),
+             sys.executable, "-c", "print('SERVER STARTED')"],
+            cwd=ROOT,
+            env={**os.environ, "DATABASE_URL": database.engine.url.render_as_string(hide_password=False),
+                 "PATH": str(tools_dir) + os.pathsep + os.environ.get("PATH", ""),
+                 "FLASK_SKIP_DOTENV": "1"},
+            capture_output=True, text=True, timeout=60,
+        )
+        output = command.stdout + command.stderr
+        assert command.returncode == 0, output
+        assert "SERVER STARTED" in output
+        assert "storage upgraded" in output
+    else:
+        command = app.test_cli_runner().invoke(args=["upgrade-academic-requirements"])
+        assert command.exit_code == 0, command.output
+        assert "storage upgraded" in command.output
 
     
     assert upgrade_academic_requirements(database) is False

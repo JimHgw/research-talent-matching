@@ -103,14 +103,22 @@ def register_migration_command(app):
         for name, count in counts.items():
             click.echo(f"{name}: {count} rows verified")
         click.echo("Migration committed. SQLite was left unchanged. Copy/retain DOCUMENT_STORAGE_DIR separately.")
-    
+
     @app.cli.command("upgrade-academic-requirements")
-    def upgrade_academic():
+    @click.option("--if-mysql", is_flag=True,
+                  help="Skip non-MySQL databases when running container startup.")
+    def upgrade_academic(if_mysql):
+        """Upgrade existing MySQL academic criteria before API/worker startup."""
         from .academic_upgrade import upgrade_academic_requirements
+
+        database = app.extensions["database"]
+        if if_mysql and database.engine.dialect.name != "mysql":
+            click.echo("Academic requirement upgrade skipped for non-MySQL database.")
+            return
 
         try:
             changed = upgrade_academic_requirements(
-                app.extensions["database"]
+                database
             )
         except (ValueError, SQLAlchemyError) as error:
             message = (

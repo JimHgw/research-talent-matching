@@ -94,6 +94,7 @@ def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(
 
     first = start()
     assert first.returncode == 0, first.stdout + first.stderr
+    assert "Academic requirement upgrade skipped for non-MySQL database." in first.stdout
     assert "SERVER STARTED" in first.stdout
     expected_tags = json.loads((ROOT / "docs/api/examples/tags.json").read_text(encoding="utf-8"))["items"]
     with sqlite3.connect(database_path) as db:
@@ -127,6 +128,54 @@ def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(
     assert "An existing tag differs" in failed.stdout + failed.stderr
     with sqlite3.connect(database_path) as db:
         assert db.execute("SELECT email FROM users").fetchall() == [("persist@example.test",)]
+
+
+@pytest.mark.parametrize("upgrade_failure", [False, True])
+def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_path, upgrade_failure):
+    shell = posix_shell()
+    tools_dir = tmp_path / "tools"
+    tools_dir.mkdir()
+    events = tmp_path / "commands.jsonl"
+    probe = tmp_path / "probe.py"
+    probe.write_text(
+        "import json, os, sys\n"
+        "with open(os.environ['STARTUP_COMMANDS'], 'a') as log:\n"
+        "    log.write(json.dumps(sys.argv[1:]) + '\\n')\n"
+        "if 'upgrade-academic-requirements' in sys.argv and os.environ['FAIL_UPGRADE'] == '1':\n"
+        "    sys.exit(19)\n",
+        encoding="utf-8",
+    )
+    python = tools_dir / "python"
+    python.write_text(
+        f"#!/bin/sh\nexec {shlex.quote(Path(sys.executable).as_posix())} "
+        f"{shlex.quote(probe.as_posix())} \"$@\"\n",
+        encoding="utf-8", newline="\n",
+    )
+    python.chmod(0o755)
+    result = subprocess.run(
+        [shell, (ROOT / "backend/docker/entrypoint.sh").as_posix(),
+         sys.executable, "-c", "print('SERVER STARTED')"],
+        env={**os.environ, "PATH": str(tools_dir) + os.pathsep + os.environ.get("PATH", ""),
+             "STARTUP_COMMANDS": str(events), "FAIL_UPGRADE": str(int(upgrade_failure))},
+        capture_output=True, text=True, timeout=30,
+    )
+    commands = [json.loads(line) for line in events.read_text().splitlines()]
+    expected = [
+        ["-m", "flask", "--app", "backend.app", "init-db"],
+        ["-m", "flask", "--app", "backend.app", "upgrade-opportunity-search"],
+        ["-m", "flask", "--app", "backend.app", "upgrade-academic-requirements", "--if-mysql"],
+    ]
+    if upgrade_failure:
+        assert result.returncode == 19
+        assert "SERVER STARTED" not in result.stdout
+        assert commands == expected
+    else:
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "SERVER STARTED" in result.stdout
+        assert commands == expected + [
+            ["-m", "flask", "--app", "backend.app", "upgrade-resume-text"],
+            ["-m", "flask", "--app", "backend.app", "seed-tags"],
+        ]
 
 
 @pytest.mark.parametrize("launcher", ["powershell", "shell"])
