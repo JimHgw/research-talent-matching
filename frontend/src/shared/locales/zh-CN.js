@@ -1,6 +1,10 @@
 import workspaceMessages from './workspace/zh-CN.js';
 // English source messages are stable keys. Domain data and API payloads are never translated.
 export default {
+  'Check the academic requirement criteria.': '请检查学术要求的条件。',
+  'Complete at least one criterion. Matches use the exact text.':
+    '至少填写一个条件，匹配时会按完整文本比较。',
+
   'A confirmed record supports all structured criteria.': '一条已确认的记录支持所有结构化条件。',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':
     '部分条件有证据支持，但没有单条记录能确认全部条件。',

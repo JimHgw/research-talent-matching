@@ -1,3 +1,4 @@
+import { academicFields, requirementKinds, outputTypes } from './academic.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Badge } from '../../shared/ui.jsx';
@@ -11,7 +12,7 @@ export function OpportunityContent({ content, tags }) {
     <div className="opportunity-content">
       <h3>{content.title || t('Untitled opportunity')}</h3>
       <p className="muted">
-        {content.university} · {t(content.disciplineGroup)} · {content.discipline}
+        {content.university} 路 {t(content.disciplineGroup)} 路 {content.discipline}
       </p>
       <h4>{t('Research area')}</h4>
       <p>{content.researchArea}</p>
@@ -26,10 +27,27 @@ export function OpportunityContent({ content, tags }) {
           <li key={row.id}>
             <strong>{row.label}</strong>
             <p>
-              {row.importance === 'REQUIRED' ? t('Required') : t('Preferred')} ·{' '}
-              {row.kind === 'SKILL' ? t('Skill') : t('Research interest')}
+              {row.importance === 'REQUIRED' ? t('Required') : t('Preferred')} 路{' '}
+              {t(requirementKinds[row.kind] || row.kind)}
             </p>
-            <p>{(row.skillTitles || row.tagIds.map((id) => labels.get(id) || id)).join(' + ')}</p>
+            {academicFields[row.kind] ? (
+              <dl>
+                {academicFields[row.kind]
+                  .filter((field) => row.criteria?.[field.key])
+                  .map((field) => (
+                    <React.Fragment key={field.key}>
+                      <dt>{t(field.label)}</dt>
+                      <dd>
+                        {field.options
+                          ? t(outputTypes[row.criteria[field.key]] || row.criteria[field.key])
+                          : row.criteria[field.key]}
+                      </dd>
+                    </React.Fragment>
+                  ))}
+              </dl>
+            ) : (
+              <p>{(row.skillTitles || row.tagIds.map((id) => labels.get(id) || id)).join(' + ')}</p>
+            )}
           </li>
         ))}
       </ol>

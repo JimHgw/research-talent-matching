@@ -1,3 +1,8 @@
+import {
+  academicFields,
+  requirementKinds,
+  outputTypes,
+} from '../src/features/opportunities/academic.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -26,6 +31,11 @@ test('every visible JSX message, field, notification and status has translations
   assert.deepEqual(problems, []);
   const messages = new Set([
     ...keys,
+    ...Object.values(requirementKinds),
+    ...Object.values(academicFields)
+      .flat()
+      .flatMap((f) => [f.label, ...(f.options || []).map((value) => outputTypes[value])]),
+    'Check the academic requirement criteria.',
     ...Object.values(labels),
     ...Object.values(fieldConfigs)
       .flat()

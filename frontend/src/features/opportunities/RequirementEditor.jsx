@@ -1,3 +1,4 @@
+import { academicFields, requirementKinds, outputTypes } from './academic.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { Button, Field } from '../../shared/ui.jsx';
@@ -42,7 +43,7 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               <select
                 value={row.kind}
                 onChange={(e) => {
-                  const { skillTitles, ...rest } = row;
+                  const { skillTitles, criteria, ...rest } = row;
                   onChange(
                     value.map((item) =>
                       item.id === row.id
@@ -51,14 +52,18 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
                             kind: e.target.value,
                             tagIds: [],
                             ...(e.target.value === 'SKILL' ? { skillTitles: [] } : {}),
+                            ...(academicFields[e.target.value] ? { criteria: {} } : {}),
                           }
                         : item
                     )
                   );
                 }}
               >
-                <option value="SKILL">{t('Skill')}</option>
-                <option value="INTEREST">{t('Research interest')}</option>
+                {Object.entries(requirementKinds).map(([kind, label]) => (
+                  <option key={kind} value={kind}>
+                    {t(label)}
+                  </option>
+                ))}
               </select>
             </Field>
             <Field
@@ -77,7 +82,42 @@ export default function RequirementEditor({ value, onChange, tags, numberedLabel
               </select>
             </Field>
           </div>
-          {row.kind === 'SKILL' ? (
+          {academicFields[row.kind] ? (
+            <div className="opportunity-fields">
+              {academicFields[row.kind].map((field) => {
+                const value = row.criteria?.[field.key] || '';
+                function setCriterion(next) {
+                  const criteria = { ...row.criteria };
+                  if (next === '') delete criteria[field.key];
+                  else criteria[field.key] = next;
+                  update(row.id, { criteria });
+                }
+                return (
+                  <Field key={field.key} label={t(field.label)}>
+                    {field.options ? (
+                      <select value={value} onChange={(e) => setCriterion(e.target.value)}>
+                        <option value="">—</option>
+                        {field.options.map((option) => (
+                          <option key={option} value={option}>
+                            {t(outputTypes[option])}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        maxLength={field.maxLength}
+                        value={value}
+                        onChange={(e) => setCriterion(e.target.value)}
+                      />
+                    )}
+                  </Field>
+                );
+              })}
+              <p className="muted">
+                {t('Complete at least one criterion. Matches use the exact text.')}
+              </p>
+            </div>
+          ) : row.kind === 'SKILL' ? (
             <Field label={t('Skill names for requirement {number}', { number: index + 1 })}>
               <textarea
                 required

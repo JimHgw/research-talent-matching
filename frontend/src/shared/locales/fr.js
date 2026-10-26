@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/fr.js';
 export default {
+  'Check the academic requirement criteria.': 'Vérifiez les critères de l’exigence académique.',
+  'Complete at least one criterion. Matches use the exact text.':
+    'Renseignez au moins un critère. La comparaison utilise le texte exact.',
+
   'A confirmed record supports all structured criteria.':
     'Un dossier confirmé justifie tous les critères structurés.',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':
