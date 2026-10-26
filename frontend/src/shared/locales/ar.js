@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ar.js';
 export default {
+  'Check the academic requirement criteria.': 'تحقق من معايير المتطلب الأكاديمي.',
+  'Complete at least one criterion. Matches use the exact text.':
+    'أكمل معيارًا واحدًا على الأقل. تستخدم المطابقة النص المطابق تمامًا.',
+
   'A confirmed record supports all structured criteria.': 'يدعم سجل مؤكد جميع المعايير المنظمة.',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':
     'توجد أدلة لبعض المعايير، لكن لا يوجد سجل واحد يؤكدها جميعاً.',

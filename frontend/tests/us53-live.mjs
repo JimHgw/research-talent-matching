@@ -6,6 +6,7 @@ import {
   cleanup,
   login,
   click,
+  change,
   until,
   text,
   act,
@@ -105,6 +106,17 @@ try {
   ];
   const draft = await team.saveOpportunity(null, null, opportunityContent);
   const opportunity = await team.publish(draft.id, draft.revision);
+  // Edit a real published opportunity through React, preserving all academic criteria.
+  await click('My opportunities');
+  await until(() => document.querySelector('.team-opportunity'));
+  await click('Edit');
+  await change('Opportunity title *', 'Updated academic evidence integration');
+  await change('Qualification', 'Master of Data Science');
+  await click('Save opportunity');
+  await until(() => !document.querySelector('dialog'));
+  const savedOpportunity = await team.opportunity(opportunity.id);
+  assert.equal(savedOpportunity.content.title, 'Updated academic evidence integration');
+  assert.deepEqual(savedOpportunity.content.requirements, opportunityContent.requirements);
   await click('Discover talent');
   await until(() => !!document.querySelector('.talent-card'));
   await click('View evidence');
@@ -169,7 +181,7 @@ try {
     (error) => error.status === 404
   );
 
-  await team.saveOpportunity(opportunity.id, opportunity.revision, {
+  await team.saveOpportunity(opportunity.id, savedOpportunity.revision, {
     ...opportunityContent,
     deadlineAt: '2000-01-01T00:00:00Z',
   });

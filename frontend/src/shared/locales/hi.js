@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/hi.js';
 export default {
+  'Check the academic requirement criteria.': 'शैक्षणिक आवश्यकता के मानदंड जाँचें।',
+  'Complete at least one criterion. Matches use the exact text.':
+    'कम से कम एक मानदंड भरें। मिलान में सटीक पाठ का उपयोग होता है।',
+
   'A confirmed record supports all structured criteria.':
     'एक पुष्ट रिकॉर्ड सभी संरचित मानदंडों का समर्थन करता है।',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':

@@ -1,3 +1,4 @@
+import { academicFields, validAcademicRequirement } from './academic.js';
 import { validSourceUrl } from './metadata.js';
 // Form metadata stays in one place; the API contract is authoritative on the server.
 export const opportunityFields = [
@@ -38,6 +39,15 @@ export function validateOpportunity(content, tags, status) {
   if (content.requirements.length > limits.requirements)
     return `Use at most ${limits.requirements} requirements.`;
   for (const [index, requirement] of content.requirements.entries()) {
+    if (academicFields[requirement.kind]) {
+      if (
+        !requirement.label.trim() ||
+        requirement.label.length > limits.requirementLabel ||
+        !validAcademicRequirement(requirement)
+      )
+        return 'Check the academic requirement criteria.';
+      continue;
+    }
     if (requirement.kind === 'SKILL' && requirement.skillTitles) {
       const names = requirement.skillTitles.map((title) =>
         title.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ')

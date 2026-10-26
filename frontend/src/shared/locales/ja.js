@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ja.js';
 export default {
+  'Check the academic requirement criteria.': '学術要件の条件を確認してください。',
+  'Complete at least one criterion. Matches use the exact text.':
+    '条件を少なくとも1つ入力してください。照合には完全一致のテキストを使います。',
+
   'A confirmed record supports all structured criteria.':
     '確認済みの記録がすべての構造化条件を裏付けています。',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':

@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/zh-TW.js';
 export default {
+  'Check the academic requirement criteria.': '請檢查學術要求的條件。',
+  'Complete at least one criterion. Matches use the exact text.':
+    '至少填寫一個條件，配對時會按完整文字比較。',
+
   'A confirmed record supports all structured criteria.': '一筆已確認的紀錄支持所有結構化條件。',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':
     '部分條件有證據支持，但沒有單筆紀錄能確認全部條件。',

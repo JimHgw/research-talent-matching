@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ko.js';
 export default {
+  'Check the academic requirement criteria.': '학술 요건의 조건을 확인하세요.',
+  'Complete at least one criterion. Matches use the exact text.':
+    '조건을 하나 이상 입력하세요. 일치는 정확한 텍스트를 기준으로 합니다.',
+
   'A confirmed record supports all structured criteria.':
     '확인된 기록이 모든 구조화된 기준을 뒷받침합니다.',
   'Some criteria have supporting evidence, but no single record confirms all criteria.':
