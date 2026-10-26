@@ -25,6 +25,37 @@ from test_us04 import (
 from test_us05 import share
 from test_docker_backend import posix_shell
 from backend.src.shared.paths import ROOT
+from conftest import headers
+from test_us04 import MATCHES, PROFILE, assert_error
+
+
+@pytest.mark.parametrize("values", [("SKILL", "INTEREST"), KINDS])
+@pytest.mark.parametrize("charset", ["", "_utf8mb4", "_utf8mb3"])
+def test_reflected_kind_constraint_preserves_underscores(values, charset):
+    literals = ", ".join(f"{charset}'{value}'" for value in values)
+    assert kind_values(f"(`kind` in ({literals}))") == set(values)
+
+
+@pytest.mark.parametrize("expression", [
+    "kind IN ('SKILL', 'UNSUPPORTED')",
+    "other_kind IN ('SKILL', 'INTEREST')",
+    "kind IN ('SKILL', 'INTEREST') OR 1=1",
+])
+def test_unrecognised_kind_constraints_are_not_silently_replaced(expression):
+    with pytest.raises(ValueError, match="Unrecognised"):
+        kind_values(expression)
+
+
+def test_academic_upgrade_explicitly_skips_only_when_requested(app):
+    if app.extensions["database"].engine.dialect.name == "mysql":
+        pytest.skip("This test exercises the non-MySQL startup path.")
+    runner = app.test_cli_runner()
+    skipped = runner.invoke(args=["upgrade-academic-requirements", "--if-mysql"])
+    assert skipped.exit_code == 0, skipped.output
+    assert "skipped for non-MySQL" in skipped.output
+    explicit = runner.invoke(args=["upgrade-academic-requirements"])
+    assert explicit.exit_code != 0
+    assert "targets existing MySQL databases" in explicit.output
 
 
 @pytest.fixture(
@@ -289,6 +320,16 @@ def test_academic_evidence_api(
 
     assert saved["content"]["requirements"][0] == requirement
 
+    # Updating only the title must preserve academic criteria with empty tagIds.
+    updated_content = deepcopy(saved["content"])
+    updated_content["title"] = "Updated research opportunity title"
+    saved = checked(team.put(
+        f"{OPPORTUNITIES}/{opportunity['id']}",
+        json={"expectedRevision": saved["revision"], "content": updated_content},
+        headers=headers(research_team[1]),
+    ), "Opportunity")
+    assert saved["content"]["requirements"][0] == requirement
+
     url = (
         f"{OPPORTUNITIES}/{opportunity['id']}"
         f"/talent-matches/{profile['talentId']}"
@@ -307,6 +348,23 @@ def test_academic_evidence_api(
     assert result["reasonCode"] == expected_codes[status]
     assert detail["summary"]["score"] == score
     assert detail["summary"]["algorithmVersion"] == "academic-evidence-v3"
+
+    owner = checked(signed[0].get(f"{MATCHES}/{opportunity['id']}"), "OwnerMatch")
+    owner_result = owner["requirements"][0]
+    assert owner_result["status"] == status
+    assert owner_result["reasonCode"] == expected_codes[status]
+    assert owner["summary"] == detail["summary"]
+    assert [
+        {key: evidence[key] for key in ("field", "recordId", "valueSummary")}
+        for evidence in owner_result["evidence"]
+    ] == result["evidence"]
+    for evidence in owner_result["evidence"]:
+        assert evidence["confirmedRevision"] == profile["revision"]
+
+    page = checked(team.get(
+        f"{OPPORTUNITIES}/{opportunity['id']}/talent-matches"
+    ), "TalentMatchPage")
+    assert page["items"][0]["summary"] == detail["summary"]
 
     if record_id is None:
         assert result["evidence"] == []
@@ -368,3 +426,81 @@ def test_academic_evidence_api(
         hidden["requirements"][0]["reasonCode"]
         == "INSUFFICIENT_EVIDENCE"
     )
+
+    share(signed, [section])
+    restored = checked(team.get(url), "TeamMatch")
+    assert restored["requirements"] == detail["requirements"]
+
+    changed_content = deepcopy(saved["content"])
+    changed_content["requirements"][0]["criteria"] = {
+        "EDUCATION": {"qualification": "A different qualification"},
+        "RESEARCH_EXPERIENCE": {"title": "A different title"},
+        "RESEARCH_OUTPUT": {"type": "OTHER"},
+    }[kind]
+    changed = checked(team.put(
+        f"{OPPORTUNITIES}/{opportunity['id']}",
+        json={"expectedRevision": saved["revision"], "content": changed_content},
+        headers=headers(research_team[1]),
+    ), "Opportunity")
+    refreshed = checked(team.get(url), "TeamMatch")
+    assert refreshed["opportunityRevision"] == changed["revision"]
+    assert refreshed["requirements"][0]["status"] == "UNKNOWN"
+    assert refreshed["requirements"][0]["reasonCode"] == "INSUFFICIENT_EVIDENCE"
+    assert refreshed["requirements"][0]["evidence"] == []
+    assert refreshed["summary"]["score"] == 0
+
+
+@pytest.mark.parametrize("kind,criteria", [
+    ("EDUCATION", {}),
+    ("EDUCATION", {"qualification": "   "}),
+    ("EDUCATION", {"type": "PUBLICATION"}),
+    ("RESEARCH_EXPERIENCE", {"organisation": 123}),
+    ("RESEARCH_OUTPUT", {"type": "JOURNAL"}),
+    ("RESEARCH_OUTPUT", {"title": "x" * 301}),
+])
+def test_invalid_academic_criteria_are_rejected(research_team, kind, criteria):
+    team, csrf = research_team
+    content = example("opportunity-create.json")
+    content["requirements"] = [{
+        "id": "invalid", "label": "Academic requirement", "kind": kind,
+        "importance": "REQUIRED", "tagIds": [], "criteria": criteria,
+    }]
+    assert_error(team.post(OPPORTUNITIES, json=content, headers=headers(csrf)),
+                 422, "VALIDATION_ERROR")
+
+
+def test_academic_profile_edits_require_confirmation_and_refresh_evidence(signed, research_team):
+    content = deepcopy(example("profile-write.json")["content"])
+    content["education"] = [{
+        "id": "edu_refresh", "institution": "Example University",
+        "qualification": "Master of Data Science", "discipline": "Data Science",
+        "startYear": 2020, "endYear": 2022,
+    }]
+    profile = confirm_profile(signed, content)
+    share(signed, ["education"])
+    opportunity = make_opportunity(research_team, [{
+        "id": "education", "label": "Master's degree", "kind": "EDUCATION",
+        "importance": "REQUIRED", "tagIds": [],
+        "criteria": {"qualification": "Master of Data Science"},
+    }])
+    team = research_team[0]
+    base = f"{OPPORTUNITIES}/{opportunity['id']}/talent-matches"
+    url = f"{base}/{profile['talentId']}"
+    assert checked(team.get(url), "TeamMatch")["summary"]["score"] == 100
+
+    content["education"][0]["qualification"] = "Bachelor of Science"
+    saved = checked(signed[0].put(PROFILE, json={
+        "expectedRevision": profile["revision"], "content": content,
+    }, headers=headers(signed[1])), "Profile")
+    assert checked(team.get(base), "TalentMatchPage")["items"] == []
+    assert_error(team.get(url), 404, "NOT_FOUND")
+    checked(signed[0].post(PROFILE + "/confirmation", json={
+        "expectedRevision": saved["revision"],
+    }, headers=headers(signed[1])), "Profile")
+
+    refreshed = checked(team.get(url), "TeamMatch")
+    result = refreshed["requirements"][0]
+    assert result["status"] == "UNKNOWN"
+    assert result["reasonCode"] == "INSUFFICIENT_EVIDENCE"
+    assert result["evidence"] == []
+    assert refreshed["summary"]["score"] == 0
