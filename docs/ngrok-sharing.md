@@ -1,40 +1,45 @@
-# 使用 ngrok 的固定免费网址
+# Using a fixed free ngrok URL
 
-前端在 Windows 上是 `http://127.0.0.1:5173`，在 Docker 网络里是
-`http://frontend:80`。ngrok Docker Desktop 扩展 1.0.0 使用固定的
-`172.17.0.1:<映射端口>` 作为上游。在本项目只绑定回环地址的配置下，这个地址
-可能拒绝连接，即使控制台显示端点在线，网页也会返回 `ERR_NGROK_3004`。
+The frontend is available at `http://127.0.0.1:5173` on Windows and
+`http://frontend:80` within the Docker network. Version 1.0.0 of the ngrok Docker Desktop extension
+uses the fixed upstream address `172.17.0.1:<mapped-port>`. With this project's configuration,
+which binds only to the loopback address, that address may refuse connections. The page can return
+`ERR_NGROK_3004` even when the dashboard shows the endpoint as online.
 
-这里使用官方 ngrok 代理容器，与前端加入同一 Docker 网络，并明确连接
-`http://frontend:80`，无需修改路由器或将本机端口开放到其他网卡。
+This workflow uses the official ngrok agent container on the same Docker network as the frontend,
+explicitly connecting to `http://frontend:80`. No router changes or exposure of local ports on other network interfaces are required.
 
-先在 Docker Desktop 的 ngrok 扩展中关闭相同网址的端点开关。
-保留扩展中已有的账号配置，脚本首次运行会从本机扩展读取已有令牌，保存到
-被 Git 忽略的 `data/public-sharing/ngrok-agent.env`。令牌不作为命令行参数，
-也不打印到输出。没有配置扩展时，可以在本机设置 `NGROK_AUTHTOKEN` 后启动。
+First, switch off the endpoint for the same URL in the ngrok extension in Docker Desktop.
+Keep the extension's existing account configuration. On its first run, the script reads the existing token
+from the local extension and saves it to the Git-ignored `data/public-sharing/ngrok-agent.env`.
+The token is not passed as a command-line argument or printed in the output.
+If the extension is not configured, set `NGROK_AUTHTOKEN` locally before starting.
 
-在项目根目录运行，使用账号实际分配的地址替换示例：
+Run the following from the project root, replacing the example with the actual URL assigned to your account:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Url https://your-name.ngrok-free.dev
 ```
 
-网址末尾带 `/` 也可以，脚本会自动移除。请使用网站根网址，不要附带页面路径或查询参数。
+A trailing `/` is accepted and removed automatically. Use the site's root URL without page paths or query parameters.
 
-启动时会构建最新应用镜像，自动启动 MySQL 8.4，等待数据库就绪，然后初始化表和标签、
-启动 API、文档 worker 及前端，并更新允许来源和 HTTPS cookie。无需先运行另一条 Compose 启动命令。
-不需要旧数据时，直接运行本脚本即可；首次创建的 MySQL 业务库为空，需要重新注册账号。
-旧 SQLite 不会自动导入或删除；如需保留其中的数据，应先按 [迁移指南](mysql-migration.md) 导入。
-已有 MySQL 数据和上传文件会保留，后续启动不会清空数据。脚本保留已记录的 Cloudflare 临时网址
-作为另一个允许来源，也保留本机 `http://127.0.0.1:5173` 和
-`http://localhost:5173` 的访问及登录配置（端口会跟随 `FRONTEND_PORT`）。
-不同网址使用各自的浏览器会话，需要分别登录。
+Startup builds the latest application images, automatically starts MySQL 8.4, waits for the database to be ready,
+initializes tables and tags, starts the API, document worker and frontend, and updates allowed origins and HTTPS cookies.
+There is no need to run a separate Compose startup command first.
+If you do not need old data, run this script directly. A newly created MySQL database has no business records,
+so accounts must be registered again. Old SQLite data is not automatically imported or deleted;
+to preserve it, import it first using the [migration guide](mysql-migration.md).
+Existing MySQL data and uploaded files are preserved, and later startups do not clear them.
+The script keeps any recorded temporary Cloudflare URL as another allowed origin, and also preserves access
+and login configuration for the local addresses `http://127.0.0.1:5173` and
+`http://localhost:5173`; the port follows `FRONTEND_PORT`.
+Different URLs use separate browser sessions, so you must sign in separately at each one.
 
-脚本成功检查公网前端和会话接口后会显示 `Share this URL`。
-ngrok 免费方案的提示页需要访客点击 **Visit Site** 才能进入网站。
-注册和密码重置继续使用根目录 `.env` 中已有的 SMTP 配置。
+The script displays `Share this URL` after successfully checking the public frontend and session endpoint.
+On the ngrok free plan's interstitial page, visitors must click **Visit Site** to enter the website.
+Registration and password reset continue to use the existing SMTP configuration in the root `.env`.
 
-以后启动、检查和停止：
+For subsequent starts, status checks, logs and stops:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1
@@ -43,10 +48,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Action lo
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Action stop
 ```
 
-保持电脑联网、不休眠并运行 Docker Desktop。ngrok 容器设为自动重启，所以
-Docker 重启后会恢复连接；主动停止后，需要重新运行启动命令。
-停止 ngrok 不会停止原有 Cloudflare 隧道。如需关闭后者，使用 `share.ps1 -Action stop`；
-该操作也会恢复普通本地登录配置，随后再启动 ngrok 时，脚本会重新配置公网登录。
+Keep the computer connected to the network, awake and running Docker Desktop. The ngrok container is configured
+to restart automatically, so the connection is restored after Docker restarts. After an explicit stop,
+run the startup command again.
+Stopping ngrok does not stop an existing Cloudflare tunnel. To stop that tunnel, use `share.ps1 -Action stop`.
+That operation also restores the normal local login configuration; the next ngrok startup configures public login again.
 
-相关说明：[ngrok Docker 镜像](https://github.com/ngrok/docker-ngrok)、
-[ERR_NGROK_3004](https://ngrok.com/docs/errors/err_ngrok_3004)。
+References: [ngrok Docker image](https://github.com/ngrok/docker-ngrok),
+[ERR_NGROK_3004](https://ngrok.com/docs/errors/err_ngrok_3004).

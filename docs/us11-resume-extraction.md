@@ -37,8 +37,9 @@ or external-model generation. Headings and content outside recognised sections
 remain available. Longer text is shortened with an explicit uncertainty warning;
 the owner can consult the private original file.
 
-The parser recognises the documented English headings and common Chinese headings
-such as 教育背景, 科研经历, 技能, 研究兴趣 and 研究成果, including full-width colons.
+The parser recognises the documented English headings and common Chinese equivalents
+of Education, Research Experience, Skills, Research Interests and Research Outputs,
+including full-width colons.
 Interest tags use whole-word label mentions. Skill titles now preserve the source
 wording without a vocabulary lookup; `Pythonic` and `SQLAlchemy` remain those
 titles, and do not establish Python/SQL matches. Explicit negative skill wording

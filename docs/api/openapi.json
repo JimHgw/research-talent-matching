@@ -2259,7 +2259,7 @@
                 "mine"
               ]
             },
-            "description": "Default published. mine requires RESEARCH_TEAM and includes only that account鈥檚 drafts/published opportunities."
+            "description": "Default published. mine requires RESEARCH_TEAM and includes only that account's drafts/published opportunities."
           },
           {
             "$ref": "#/components/parameters/Page"

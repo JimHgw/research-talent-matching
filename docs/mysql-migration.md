@@ -1,167 +1,181 @@
-# SQLite 转 MySQL
+# Migrating from SQLite to MySQL
 
-项目默认使用 **MySQL 8.4 + PyMySQL + SQLAlchemy**。前端和 HTTP API 不需要更改。
-SQLite 连接仍可显式配置，供旧数据迁移、回退和快速回归测试使用。
+The project uses **MySQL 8.4 + PyMySQL + SQLAlchemy** by default. No changes to the frontend or HTTP API are required.
+SQLite connections can still be configured explicitly for legacy data migration, rollback and quick regression tests.
 
-## 不保留旧数据：直接启动空的 MySQL
+## Starting MySQL without migrating old data
 
-新环境，或明确不需要旧 SQLite 账号、资料及其他记录时，直接使用本节即可。
-**跳过后面的迁移命令，无需删除旧 SQLite 文件或数据卷。**
-确认进程环境及根目录 `.env` 中没有仍指向 SQLite 的 `DATABASE_URL`；如有，移除该覆盖，
-使用下面的 `MYSQL_*` 设置。此方式在首次创建 `mysql_data` 时得到空的业务数据库；
-若已有 MySQL 数据卷，普通启动会继续使用其中的数据，不会自动清空。
+Use this section for a new environment or when you do not need the old SQLite accounts, profiles or other records.
+**Skip the migration commands below; there is no need to delete old SQLite files or data volumes.**
+Check that neither the process environment nor the root `.env` contains a `DATABASE_URL` that still points to SQLite.
+If one exists, remove that override and use the `MYSQL_*` settings described below. This creates an application database
+with no business records when `mysql_data` is first created. If a MySQL data volume already exists, normal startup
+continues to use its data and does not clear it automatically.
 
-在项目根目录检查 `.env.example`。已有 `.env` 时，将新增的 `MYSQL_*` 配置合并进去，
-保留原来的 SMTP、端口和其他设置。示例密码仅用于本地开发，部署时须设置自己的密码。
-MySQL 镜像仅在数据卷第一次初始化时创建库和账号；已有 MySQL 卷时，修改 `.env`
-不会自动更改库内密码，应先在 MySQL 中更新账号，再同步 API/worker 配置。
+Review `.env.example` in the project root. If you already have a `.env`, merge in the new `MYSQL_*` settings
+while keeping your existing SMTP, port and other settings. The example passwords are for local development only;
+set your own passwords for deployment. The MySQL image creates the database and accounts only when the data volume
+is first initialized. With an existing MySQL volume, editing `.env` does not automatically change database passwords.
+Update the accounts in MySQL first, then update the API/worker configuration to match.
 
 ```sh
 docker compose up --build --detach --wait --wait-timeout 180
 ```
 
-Compose 先等待 MySQL 可连接，再初始化后端和词表，最后启动前端和文档 worker。
-MySQL 默认不向宿主机公开端口；后端通过内部地址 `mysql:3306` 连接。
-`mysql_data` 存放数据库，原 `backend_data` 保留上传文件及旧 SQLite 文件。
-新 MySQL 库不会自动导入旧账号，也不会创建默认账号。
-启动时会自动创建表并初始化标签词表；账号需要重新注册或通过 `provision-user` 创建。
-旧上传文件即使仍在 `backend_data` 中，也不会自动出现在新的数据库或用户界面里。
+Compose waits until MySQL accepts connections, initializes the backend and vocabulary, then starts the frontend and document worker.
+MySQL does not expose a host port by default; the backend connects through the internal address `mysql:3306`.
+`mysql_data` stores the database, while the existing `backend_data` retains uploaded files and old SQLite files.
+A new MySQL database does not automatically import old accounts or create default accounts.
+Startup automatically creates tables and initializes the tag vocabulary; accounts must be registered again or created with `provision-user`.
+Old uploaded files do not automatically appear in the new database or user interface, even if they remain in `backend_data`.
 
-## 迁移现有 Docker 环境
+## Migrating an existing Docker environment
 
-**需要保留旧 SQLite 数据时，先完成本节，再启动新版本 API。** 普通启动会初始化词表，
-迁移命令会拒绝向任何已有业务数据的 MySQL 库导入。使用原来的 Compose 项目名，
-以便挂载原 `backend_data`，不要更换项目名或删除数据卷。
+**To preserve old SQLite data, complete this section before starting the updated API.** Normal startup initializes
+the vocabulary, and the migration command refuses to import into any MySQL database that already contains business data.
+Keep the original Compose project name so that the original `backend_data` is mounted. Do not change the project name
+or delete the data volumes.
 
-**US-14 兼容步骤：** 如果 SQLite 源文件来自 US-14 之前，先保留原始备份，
-在工作副本上使用该副本的 `DATABASE_URL` 运行 `init-db` 和
-`upgrade-opportunity-search`，再将升级后的副本传给 `migrate-sqlite --source`。
-迁移工具会校验源字段集合；不会跳过缺失的字段。详见 [US-14 升级说明](us14-search.md#upgrade-and-rollback)。
+**US-14 compatibility step:** If the source SQLite file predates US-14, keep an original backup first.
+On a working copy, use that copy's `DATABASE_URL` to run `init-db` and
+`upgrade-opportunity-search`, then pass the upgraded copy to `migrate-sqlite --source`.
+The migration tool validates the source column set and does not skip missing columns. See the [US-14 upgrade notes](us14-search.md#upgrade-and-rollback).
 
-1. 停止 API 和文档 worker，暂停业务写入，并保存当前版本与数据库配置。
+1. Stop the API and document worker to pause application writes, and save the current version and database configuration.
 
    ```sh
    docker compose stop backend document-worker
    docker compose build backend
    ```
 
-2. 在仍挂载旧数据卷的临时容器中创建 SQLite 一致性备份。备份保存在原数据卷，
-   文件名带时间戳。上传文件继续保留在 `/app/data/documents`；应另外备份整个文档目录。
+2. Create a consistent SQLite backup in a temporary container that still mounts the old data volume.
+   The backup is saved in the original volume with a timestamped filename. Uploaded files remain in
+   `/app/data/documents`; back up the entire documents directory separately.
 
    ```sh
    docker compose run --rm --no-deps --entrypoint python backend -c "import sqlite3; from datetime import datetime, timezone; source = sqlite3.connect('file:/app/data/h18abanana.db?mode=ro', uri=True); name = '/app/data/h18abanana-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ') + '.backup.db'; target = sqlite3.connect(name); source.backup(target); target.close(); source.close(); print(name)"
    ```
 
-3. 启动 MySQL，然后直接运行迁移命令。这里覆盖容器入口，避免预先运行 `seed-tags`。
+3. Start MySQL, then run the migration command directly. Override the container entrypoint here to avoid running `seed-tags` beforehand.
 
    ```sh
    docker compose up --detach --wait --wait-timeout 180 mysql
    docker compose run --rm --no-deps --entrypoint python backend -m flask --app backend.app migrate-sqlite --source sqlite:////app/data/h18abanana.db
    ```
 
-   迁移按外键顺序复制所有已知业务表，包括账号和密码哈希、会话、资料、隐私、
-   机会、收藏、短名单、文档元数据、提取结果和 worker 租约。保留 ID、JSON、空值和 UTC 微秒时间。
-   每张表按主键计算行数和内容校验值，全部一致后才提交。任何失败都会回滚已复制数据；
-   MySQL 建表操作可能保留空表。原 SQLite 文件不被修改。
+   The migration copies all known application tables in foreign-key order, including accounts and password hashes,
+   sessions, profiles, privacy settings, opportunities, saved items, shortlists, document metadata, extraction results
+   and worker leases. IDs, JSON, null values and UTC timestamps with microsecond precision are preserved.
+   Row counts and content checksums are calculated in primary-key order for each table; the migration commits only
+   after all values match. Any failure rolls back the copied data, although MySQL table creation may leave empty tables.
+   The original SQLite file is not modified.
 
-   目标库非空、源字段不匹配或出现未知表时会停止。不要通过清空有数据的目标库来重试；
-   应先核对配置，或由数据库管理员准备独立的空库。旧版本缺少后续新增的整张表时，
-   迁移会将其作为空表处理。请确认这些表确实尚未使用。
+   Migration stops if the target database is not empty, source columns do not match or unknown tables are present.
+   Do not clear an existing target database to retry. Check the configuration first, or have a database administrator
+   prepare a separate empty database. If an older version lacks an entire table added by a later version, the migration
+   treats it as empty. Confirm that these tables have not yet been used.
 
-4. 看到 `Migration committed` 后再启动全部服务。
+4. Start all services only after seeing `Migration committed`.
 
    ```sh
    docker compose up --build --detach --wait --wait-timeout 180
    docker compose ps
    ```
 
-   使用原账号登录，检查资料、隐私、机会、收藏和短名单；上传文档并等待提取，
-   同时确认旧文件可下载。重启后再次检查持久化。
+   Sign in with an existing account and check profiles, privacy settings, opportunities, saved items and shortlists.
+   Upload a document and wait for extraction, and confirm that old files can still be downloaded.
+   Restart the services and check again that the data persists.
 
-回退：停止 API/worker，将根 `.env` 的 `DATABASE_URL` 显式设为
-`sqlite:////app/data/h18abanana.db`，再启动服务。旧 SQLite 仅包含切换前的数据；
-MySQL 切换后的新增/修改不会自动同步回 SQLite，已有新写入时应先制定反向迁移方案。
-不要删除两个数据卷。`docker compose down` 保留数据，`down -v` 会删除数据。
+Rollback: stop the API/worker, explicitly set `DATABASE_URL` in the root `.env` to
+`sqlite:////app/data/h18abanana.db`, then start the services. The old SQLite database contains only data from before
+the switch. Additions and changes made after switching to MySQL are not automatically synchronized back to SQLite;
+if new writes have occurred, plan a reverse migration first.
+Do not delete either data volume. `docker compose down` preserves data; `down -v` deletes it.
 
-## 本机 Flask 开发或迁移本机 SQLite
+## Local Flask development or local SQLite migration
 
-重新安装后端依赖，然后仅公开本机回环地址上的 MySQL 端口：
+Reinstall the backend dependencies, then expose the MySQL port only on the local loopback address:
 
 ```sh
 docker compose -f compose.yaml -f compose.mysql-local.yaml up --detach --wait --wait-timeout 180 mysql
 ```
 
-本机 Flask 默认连接 `127.0.0.1:3306`。默认用户名、密码、库名和 `.env.example` 相同。
-自定义设置时，将 `backend/.env.example` 的变量导出到 API 和 worker 进程；Flask 不会自动加载它。
-也可以使用 `DATABASE_URL=mysql+pymysql://用户:已URL编码的密码@地址:3306/数据库?charset=utf8mb4`。
-`MYSQL_*` 独立配置通过 SQLAlchemy 构造 URL，密码中的特殊字符无需手动编码。
+Local Flask connects to `127.0.0.1:3306` by default. The default username, password and database name match `.env.example`.
+For custom settings, export the variables from `backend/.env.example` to the API and worker processes; Flask does not load that file automatically.
+You can also use `DATABASE_URL=mysql+pymysql://user:url-encoded-password@host:3306/database?charset=utf8mb4`.
+Separate `MYSQL_*` settings construct the URL through SQLAlchemy, so special characters in passwords do not need manual encoding.
 
-Windows，迁移前先停止本机 Flask/worker，并备份 `data/`：
+On Windows, stop the local Flask/worker processes and back up `data/` before migrating:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r backend/requirements-dev.txt
 .\.venv\Scripts\python.exe -m flask --app backend.app migrate-sqlite --source sqlite:///data/h18abanana.db
 ```
 
-macOS/Linux 将 Python 路径换为 `.venv/bin/python`。迁移前不要运行 `seed-tags`；
-迁移成功后按原来的后端启动说明启动 API/worker。本机迁移和 Docker 迁移的源数据库不同，
-请以实际业务使用的数据源为准。迁移命令只移动数据库记录，不复制上传文件；改变存储目录时
-需完整复制文件并保持 storage key 对应关系。
+On macOS/Linux, replace the Python path with `.venv/bin/python`. Do not run `seed-tags` before migrating.
+After a successful migration, start the API/worker using the existing backend startup instructions.
+Local and Docker migrations use different source databases; choose the data source actually used by your application.
+The migration command transfers database records only and does not copy uploaded files. If the storage directory changes,
+copy all files and preserve their storage-key mappings.
 
-## 数据库行为与验证
+## Database behavior and verification
 
-- 字符串采用明确的长度，证据/描述使用长文本，JSON 保留结构。
-- 表使用 InnoDB、`utf8mb4` 和区分大小写的 `utf8mb4_0900_bin`，避免 ID 比较发生变化。
-- 时间为 UTC `DATETIME(6)`；外键、唯一约束、CHECK 约束继续生效。
-- MySQL 写事务首先锁定 `database_write_lock` 的单行，保留现有 SQLite 串行写入语义，
-  保护版本校验、限流和文档租约。事务提交或回滚时释放锁。只读事务使用一致性快照。
-  当前实现优先保持行为一致；写入并发能力仍受这一全局锁限制，后续可按资源细化锁。
-- `init-db` 只创建缺少的表，不负责修改已有表结构。未来 schema 升级仍需单独的迁移。
+- Strings have explicit lengths, evidence and descriptions use long text, and JSON retains its structure.
+- Tables use InnoDB, `utf8mb4` and the case-sensitive `utf8mb4_0900_bin` collation to preserve ID comparison behavior.
+- Timestamps use UTC `DATETIME(6)`; foreign keys, unique constraints and CHECK constraints remain enforced.
+- MySQL write transactions first lock the single row in `database_write_lock`, preserving SQLite's existing serialized
+  write behavior to protect revision checks, rate limits and document leases. The lock is released on commit or rollback.
+  Read-only transactions use a consistent snapshot. The current implementation prioritizes consistent behavior;
+  write concurrency remains limited by this global lock, which could later be replaced with locks for individual resources.
+- `init-db` creates missing tables only and does not alter existing table structures. Future schema upgrades still require separate migrations.
 
-默认测试使用临时 SQLite。真实 MySQL 回归需要一个专用测试库，名称必须以 `_test` 结尾。
-该模式会清理测试库的项目表，不能使用业务库。
+Tests use temporary SQLite databases by default. Regression tests against a real MySQL instance require a dedicated
+test database whose name ends with `_test`. This mode clears the project's tables in the test database; do not use an application database.
 
 ```powershell
-$env:MYSQL_TEST_DATABASE_URL='mysql+pymysql://banana:测试密码@127.0.0.1:3306/banana_test'
+$env:MYSQL_TEST_DATABASE_URL='mysql+pymysql://banana:test-password@127.0.0.1:3306/banana_test'
 .\.venv\Scripts\python.exe -m pytest backend/tests --run-mysql -q
 ```
 
-CI 的 `backend_mysql_test` 分为三个独立任务，每个任务使用自己的 MySQL 8.4 服务。
-按测试 ID 稳定分配，合计仍执行完整测试集，不遗漏或重复用例，避免单任务触及 Runner 的 10 分钟时限。
-本地不传分组参数时仍运行全部测试；可用 `--shard-index 1 --shard-total 3` 单独复现第一个任务。
-每个测试进程只在开始和结束时重建表，用例之间按外键顺序删除记录并保留事务锁行，
-兼顾数据隔离和测试速度。CI 同时保存 JUnit 报告及最慢的十项耗时，方便定位后续性能问题。
-分组使用 [GitLab parallel jobs](https://docs.gitlab.com/ci/yaml/#parallel)。
-测试包含迁移成功、
-逐值校验、失败回滚、拒绝覆盖、原密码登录，以及现有业务并发/权限回归。
-`--run-docker` 另行验证完整容器栈、自动文档处理和容器重建后的持久化。
+The CI `backend_mysql_test` runs as three independent jobs, each with its own MySQL 8.4 service.
+Tests are assigned deterministically by test ID. Together, the jobs still run the complete suite without missing or
+duplicating cases, while avoiding the Runner's 10-minute limit for an individual job.
+Local runs without sharding arguments still execute all tests; use `--shard-index 1 --shard-total 3` to reproduce the first job separately.
+Each test process recreates tables only at the beginning and end. Between cases, records are deleted in foreign-key
+order while retaining the transaction-lock row, balancing data isolation and test speed. CI saves JUnit reports and
+the ten slowest test durations to help investigate future performance issues.
+Sharding uses [GitLab parallel jobs](https://docs.gitlab.com/ci/yaml/#parallel).
+Tests cover successful migration, value-by-value verification, rollback on failure, refusal to overwrite existing data,
+login with original passwords, and existing application concurrency and permission regressions.
+`--run-docker` separately verifies the complete container stack, automatic document processing and persistence after container recreation.
 
-连接与事务配置参考 [SQLAlchemy MySQL 文档](https://docs.sqlalchemy.org/en/20/dialects/mysql.html)，
-时间精度参考 [MySQL 时间小数秒文档](https://dev.mysql.com/doc/refman/8.4/en/fractional-seconds.html)。
+For connection and transaction configuration, see the [SQLAlchemy MySQL documentation](https://docs.sqlalchemy.org/en/20/dialects/mysql.html).
+For timestamp precision, see the [MySQL fractional seconds documentation](https://dev.mysql.com/doc/refman/8.4/en/fractional-seconds.html).
 
-## 简历描述容量升级
+## Resume description capacity upgrade
 
-`resumeDescription` 的接口上限是 20,000 个字符。四字节 Unicode 字符在这个
-范围内最多需要 80,000 字节，超过 MySQL TEXT 的容量，因此新表使用 MEDIUMTEXT。
-现有数据库仅重建应用镜像或执行 `init-db` 不会自动改变已有列的类型。
+The API limit for `resumeDescription` is 20,000 characters. Four-byte Unicode characters can require up to
+80,000 bytes within this limit, exceeding MySQL TEXT capacity, so new tables use MEDIUMTEXT.
+For existing databases, rebuilding the application image or running `init-db` does not automatically change existing column types.
 
-本机部署先停止 API/worker 写入，保留数据库备份和现有配置，然后执行：
+For local deployments, stop API/worker writes, keep a database backup and the existing configuration, then run:
 
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app backend.app init-db
 .\.venv\Scripts\python.exe -m flask --app backend.app upgrade-resume-text
 ```
 
-macOS/Linux 使用 `.venv/bin/python`。升级只把已有的
-`profile_text_details.resume_description` 从 TEXT 放宽为 MEDIUMTEXT，保留原有
-utf8mb4 字符集、排序规则、非空约束和数据，不修改资料版本、确认状态或来源。
-MEDIUMTEXT/LONGTEXT 已有列以及 SQLite 无需修改，命令可以重复执行。
-未知的旧列定义会停止升级，供维护者核对，避免隐式改变其他约束。
+On macOS/Linux, use `.venv/bin/python`. The upgrade only widens the existing
+`profile_text_details.resume_description` column from TEXT to MEDIUMTEXT, preserving its utf8mb4 character set,
+collation, NOT NULL constraint and data. It does not change profile revisions, confirmation status or provenance.
+Existing MEDIUMTEXT/LONGTEXT columns and SQLite require no changes, and the command is safe to repeat.
+An unrecognized existing column definition stops the upgrade for maintainer review, avoiding implicit changes to other constraints.
 
-Docker 入口已在 `init-db` 后显式执行此升级，然后才启动 API/worker；按现有运行
-模式重建并更新应用即可。MySQL DDL 单独提交，此步骤不是事务内的数据迁移，
-不要依赖普通业务事务回滚撤销列类型升级，也不需要删除数据卷。
+The Docker entrypoint explicitly runs this upgrade after `init-db` and before starting the API/worker;
+rebuild and update the application using the existing workflow. MySQL DDL commits separately, so this step is not
+a data migration within a transaction. Do not rely on an ordinary application transaction rollback to undo the column-type
+upgrade. There is no need to delete data volumes.
 
-`backend/tests/test_us11_review_regressions.py` 在真实 MySQL 测试库中覆盖手工保存、
-审核导入、17,000/20,000 个四字节字符的完整回读、超出上限时的原子拒绝，以及
-旧 TEXT 列升级后的数据保留和重复执行。
+`backend/tests/test_us11_review_regressions.py` covers manual saves, reviewed imports, complete round trips of
+17,000/20,000 four-byte characters, atomic rejection when the limit is exceeded, and data preservation and repeated
+execution after upgrading an old TEXT column, using a real MySQL test database.
