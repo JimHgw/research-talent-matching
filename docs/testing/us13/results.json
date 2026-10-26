@@ -1496,18 +1496,18 @@
     }
   },
   "costs": {
-    "comparisonWallMs": 88.21899999747984,
-    "comparisonCpuMs": 92.28600000000009,
-    "baselineTotalMs": 0.8509939652867615,
-    "baselineMedianPairMs": 0.0025420013116672635,
-    "semanticEncodingMs": 77.16870799777098,
+    "comparisonWallMs": 89.32499999991705,
+    "comparisonCpuMs": 93.75,
+    "baselineTotalMs": 0.30470000456261914,
+    "baselineMedianPairMs": 0.0029000002541579306,
+    "semanticEncodingMs": 72.21669999944424,
     "uniqueTexts": 23,
     "encodedTexts": 23,
     "truncatedTexts": 0,
     "modelArtifactBytes": 90871461,
     "paidApiCalls": 0,
-    "modelLoadAndOptionalDownloadMs": 57937.3795829888,
-    "processPeakRssMiB": 340.640625
+    "modelLoadAndOptionalDownloadMs": 351.9079999996393,
+    "processPeakRssMiB": 313.2421875
   },
   "errors": [],
   "modelError": null,
@@ -1585,8 +1585,8 @@
         ]
       },
       "semantic": {
-        "score": 0.905728539577344,
-        "similarity": 0.905728539577344,
+        "score": 0.905728519235612,
+        "similarity": 0.905728519235612,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -1650,8 +1650,8 @@
         ]
       },
       "semantic": {
-        "score": 0.05549016750155166,
-        "similarity": 0.05549016750155166,
+        "score": 0.055490124985815334,
+        "similarity": 0.055490124985815334,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -1711,8 +1711,8 @@
         ]
       },
       "semantic": {
-        "score": 0.024289053490087975,
-        "similarity": 0.024289053490087975,
+        "score": 0.02428906105511605,
+        "similarity": 0.02428906105511605,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -1776,8 +1776,8 @@
         ]
       },
       "semantic": {
-        "score": 0.07631676373561633,
-        "similarity": 0.07631676373561633,
+        "score": 0.07631668941341532,
+        "similarity": 0.07631668941341532,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -1841,8 +1841,8 @@
         ]
       },
       "semantic": {
-        "score": 0.765360235858158,
-        "similarity": 0.765360235858158,
+        "score": 0.7653602852270247,
+        "similarity": 0.7653602852270247,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -1902,8 +1902,8 @@
         ]
       },
       "semantic": {
-        "score": -0.006792099709509148,
-        "similarity": -0.006792099709509148,
+        "score": -0.00679212438970834,
+        "similarity": -0.00679212438970834,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -1967,8 +1967,8 @@
         ]
       },
       "semantic": {
-        "score": 0.03701833740888035,
-        "similarity": 0.03701833740888035,
+        "score": 0.03701833466876572,
+        "similarity": 0.03701833466876572,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2032,8 +2032,8 @@
         ]
       },
       "semantic": {
-        "score": 0.04964160833639824,
-        "similarity": 0.04964160833639824,
+        "score": 0.049641701161835985,
+        "similarity": 0.049641701161835985,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2093,8 +2093,8 @@
         ]
       },
       "semantic": {
-        "score": 0.8017249787448548,
-        "similarity": 0.8017249787448548,
+        "score": 0.8017249752260274,
+        "similarity": 0.8017249752260274,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -2162,8 +2162,8 @@
         ]
       },
       "semantic": {
-        "score": 0.46911822057151104,
-        "similarity": 0.46911822057151104,
+        "score": 0.4691184148373081,
+        "similarity": 0.4691184148373081,
         "state": "EVALUATED",
         "label": "PARTIAL"
       },
@@ -2231,8 +2231,8 @@
         ]
       },
       "semantic": {
-        "score": 0.027463388614504387,
-        "similarity": 0.027463388614504387,
+        "score": 0.027463469178900937,
+        "similarity": 0.027463469178900937,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2296,8 +2296,8 @@
         ]
       },
       "semantic": {
-        "score": 0.05853635336151722,
-        "similarity": 0.05853635336151722,
+        "score": 0.05853631847509362,
+        "similarity": 0.05853631847509362,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2361,8 +2361,8 @@
         ]
       },
       "semantic": {
-        "score": 0.10850189108612257,
-        "similarity": 0.10850189108612257,
+        "score": 0.10850189075717878,
+        "similarity": 0.10850189075717878,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2426,8 +2426,8 @@
         ]
       },
       "semantic": {
-        "score": 0.03387564654413881,
-        "similarity": 0.03387564654413881,
+        "score": 0.03387569435244108,
+        "similarity": 0.03387569435244108,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2487,8 +2487,8 @@
         ]
       },
       "semantic": {
-        "score": 0.06746753648925376,
-        "similarity": 0.06746753648925376,
+        "score": 0.06746748469837807,
+        "similarity": 0.06746748469837807,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2728,8 +2728,8 @@
         ]
       },
       "semantic": {
-        "score": 0.7849903098586365,
-        "similarity": 0.7849903098586365,
+        "score": 0.784990341737427,
+        "similarity": 0.784990341737427,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -2789,8 +2789,8 @@
         ]
       },
       "semantic": {
-        "score": 0.1977594476067282,
-        "similarity": 0.1977594476067282,
+        "score": 0.1977593857013193,
+        "similarity": 0.1977593857013193,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2854,8 +2854,8 @@
         ]
       },
       "semantic": {
-        "score": 0.31125529479356606,
-        "similarity": 0.31125529479356606,
+        "score": 0.3112553103610337,
+        "similarity": 0.3112553103610337,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2919,8 +2919,8 @@
         ]
       },
       "semantic": {
-        "score": 0.1954752445616105,
-        "similarity": 0.1954752445616105,
+        "score": 0.1954752312461304,
+        "similarity": 0.1954752312461304,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -2984,8 +2984,8 @@
         ]
       },
       "semantic": {
-        "score": 0.07891580986763463,
-        "similarity": 0.07891580986763463,
+        "score": 0.07891580099398197,
+        "similarity": 0.07891580099398197,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3045,8 +3045,8 @@
         ]
       },
       "semantic": {
-        "score": 0.038275371346475816,
-        "similarity": 0.038275371346475816,
+        "score": 0.038275305598721956,
+        "similarity": 0.038275305598721956,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3110,8 +3110,8 @@
         ]
       },
       "semantic": {
-        "score": 0.2614209591671461,
-        "similarity": 0.2614209591671461,
+        "score": 0.26142083132381827,
+        "similarity": 0.26142083132381827,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3171,8 +3171,8 @@
         ]
       },
       "semantic": {
-        "score": 0.6571032108628129,
-        "similarity": 0.6571032108628129,
+        "score": 0.6571030782713282,
+        "similarity": 0.6571030782713282,
         "state": "EVALUATED",
         "label": "PARTIAL"
       },
@@ -3236,8 +3236,8 @@
         ]
       },
       "semantic": {
-        "score": 0.11447359017263654,
-        "similarity": 0.11447359017263654,
+        "score": 0.11447357962196614,
+        "similarity": 0.11447357962196614,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3301,8 +3301,8 @@
         ]
       },
       "semantic": {
-        "score": 0.34082394746780126,
-        "similarity": 0.34082394746780126,
+        "score": 0.34082404175439845,
+        "similarity": 0.34082404175439845,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3366,8 +3366,8 @@
         ]
       },
       "semantic": {
-        "score": 0.042096998358175514,
-        "similarity": 0.042096998358175514,
+        "score": 0.04209697209516008,
+        "similarity": 0.04209697209516008,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3427,8 +3427,8 @@
         ]
       },
       "semantic": {
-        "score": 0.101664285622241,
-        "similarity": 0.101664285622241,
+        "score": 0.10166423804629313,
+        "similarity": 0.10166423804629313,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3492,8 +3492,8 @@
         ]
       },
       "semantic": {
-        "score": 0.30163189508054017,
-        "similarity": 0.30163189508054017,
+        "score": 0.3016318919534597,
+        "similarity": 0.3016318919534597,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3553,8 +3553,8 @@
         ]
       },
       "semantic": {
-        "score": 0.12372443496717951,
-        "similarity": 0.12372443496717951,
+        "score": 0.12372432038270985,
+        "similarity": 0.12372432038270985,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3618,8 +3618,8 @@
         ]
       },
       "semantic": {
-        "score": 0.7876341664406841,
-        "similarity": 0.7876341664406841,
+        "score": 0.7876342188765013,
+        "similarity": 0.7876342188765013,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -3683,8 +3683,8 @@
         ]
       },
       "semantic": {
-        "score": 0.22432365206324167,
-        "similarity": 0.22432365206324167,
+        "score": 0.22432346477667855,
+        "similarity": 0.22432346477667855,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3748,8 +3748,8 @@
         ]
       },
       "semantic": {
-        "score": 0.10476528685993963,
-        "similarity": 0.10476528685993963,
+        "score": 0.10476525581204531,
+        "similarity": 0.10476525581204531,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3809,8 +3809,8 @@
         ]
       },
       "semantic": {
-        "score": 0.13285339317565353,
-        "similarity": 0.13285339317565353,
+        "score": 0.13285332417724194,
+        "similarity": 0.13285332417724194,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3878,8 +3878,8 @@
         ]
       },
       "semantic": {
-        "score": 0.082020154672433,
-        "similarity": 0.082020154672433,
+        "score": 0.08202013679035709,
+        "similarity": 0.08202013679035709,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -3943,8 +3943,8 @@
         ]
       },
       "semantic": {
-        "score": 0.29871662219540773,
-        "similarity": 0.29871662219540773,
+        "score": 0.2987165981986398,
+        "similarity": 0.2987165981986398,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4012,8 +4012,8 @@
         ]
       },
       "semantic": {
-        "score": 0.1845344871401141,
-        "similarity": 0.1845344871401141,
+        "score": 0.1845345258533964,
+        "similarity": 0.1845345258533964,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4081,8 +4081,8 @@
         ]
       },
       "semantic": {
-        "score": 0.8295479436414221,
-        "similarity": 0.8295479436414221,
+        "score": 0.8295479368755861,
+        "similarity": 0.8295479368755861,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -4150,8 +4150,8 @@
         ]
       },
       "semantic": {
-        "score": 0.23366370443129397,
-        "similarity": 0.23366370443129397,
+        "score": 0.23366368835335044,
+        "similarity": 0.23366368835335044,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4215,8 +4215,8 @@
         ]
       },
       "semantic": {
-        "score": 0.06348649611821974,
-        "similarity": 0.06348649611821974,
+        "score": 0.06348640257889532,
+        "similarity": 0.06348640257889532,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4284,8 +4284,8 @@
         ]
       },
       "semantic": {
-        "score": 0.2525017256653045,
-        "similarity": 0.2525017256653045,
+        "score": 0.25250162285634853,
+        "similarity": 0.25250162285634853,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4349,8 +4349,8 @@
         ]
       },
       "semantic": {
-        "score": 0.2953298832522267,
-        "similarity": 0.2953298832522267,
+        "score": 0.2953298641260097,
+        "similarity": 0.2953298641260097,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4418,8 +4418,8 @@
         ]
       },
       "semantic": {
-        "score": 0.2533820742800795,
-        "similarity": 0.2533820742800795,
+        "score": 0.2533820938314105,
+        "similarity": 0.2533820938314105,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4487,8 +4487,8 @@
         ]
       },
       "semantic": {
-        "score": 0.4231918663040138,
-        "similarity": 0.4231918663040138,
+        "score": 0.42319181635133585,
+        "similarity": 0.42319181635133585,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4556,8 +4556,8 @@
         ]
       },
       "semantic": {
-        "score": 0.3689942587866106,
-        "similarity": 0.3689942587866106,
+        "score": 0.3689942353980793,
+        "similarity": 0.3689942353980793,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4621,8 +4621,8 @@
         ]
       },
       "semantic": {
-        "score": 0.08509963610378142,
-        "similarity": 0.08509963610378142,
+        "score": 0.08509961036230403,
+        "similarity": 0.08509961036230403,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4686,8 +4686,8 @@
         ]
       },
       "semantic": {
-        "score": -0.037102596622429485,
-        "similarity": -0.037102596622429485,
+        "score": -0.037102625823552,
+        "similarity": -0.037102625823552,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4747,8 +4747,8 @@
         ]
       },
       "semantic": {
-        "score": 0.011191425689421683,
-        "similarity": 0.011191425689421683,
+        "score": 0.011191400482401949,
+        "similarity": 0.011191400482401949,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4812,8 +4812,8 @@
         ]
       },
       "semantic": {
-        "score": 0.04023848204024019,
-        "similarity": 0.04023848204024019,
+        "score": 0.04023848696309191,
+        "similarity": 0.04023848696309191,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4877,8 +4877,8 @@
         ]
       },
       "semantic": {
-        "score": -0.01131780830898462,
-        "similarity": -0.01131780830898462,
+        "score": -0.011317802015109303,
+        "similarity": -0.011317802015109303,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -4942,8 +4942,8 @@
         ]
       },
       "semantic": {
-        "score": 0.03617511095448882,
-        "similarity": 0.03617511095448882,
+        "score": 0.036175091950658,
+        "similarity": 0.036175091950658,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5003,8 +5003,8 @@
         ]
       },
       "semantic": {
-        "score": 0.9237530494932557,
-        "similarity": 0.9237530494932557,
+        "score": 0.9237531043436225,
+        "similarity": 0.9237531043436225,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -5420,8 +5420,8 @@
         ]
       },
       "semantic": {
-        "score": 0.018800207604889266,
-        "similarity": 0.018800207604889266,
+        "score": 0.01880019056454755,
+        "similarity": 0.01880019056454755,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5481,8 +5481,8 @@
         ]
       },
       "semantic": {
-        "score": 0.09979967190869188,
-        "similarity": 0.09979967190869188,
+        "score": 0.09979969453972498,
+        "similarity": 0.09979969453972498,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5546,8 +5546,8 @@
         ]
       },
       "semantic": {
-        "score": 0.021195839352979334,
-        "similarity": 0.021195839352979334,
+        "score": 0.021195817804964493,
+        "similarity": 0.021195817804964493,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5611,8 +5611,8 @@
         ]
       },
       "semantic": {
-        "score": 0.12141153036557635,
-        "similarity": 0.12141153036557635,
+        "score": 0.12141149103151778,
+        "similarity": 0.12141149103151778,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5676,8 +5676,8 @@
         ]
       },
       "semantic": {
-        "score": 0.8441309975956486,
-        "similarity": 0.8441309975956486,
+        "score": 0.8441310281165292,
+        "similarity": 0.8441310281165292,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -5737,8 +5737,8 @@
         ]
       },
       "semantic": {
-        "score": 0.05695790838755974,
-        "similarity": 0.05695790838755974,
+        "score": 0.05695789543484172,
+        "similarity": 0.05695789543484172,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5806,8 +5806,8 @@
         ]
       },
       "semantic": {
-        "score": 0.7783633003506826,
-        "similarity": 0.7783633003506826,
+        "score": 0.7783633744430435,
+        "similarity": 0.7783633744430435,
         "state": "EVALUATED",
         "label": "RELEVANT"
       },
@@ -5871,8 +5871,8 @@
         ]
       },
       "semantic": {
-        "score": 0.14475552512539197,
-        "similarity": 0.14475552512539197,
+        "score": 0.14475548025131674,
+        "similarity": 0.14475548025131674,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -5940,8 +5940,8 @@
         ]
       },
       "semantic": {
-        "score": 0.3232273974905763,
-        "similarity": 0.3232273974905763,
+        "score": 0.3232273518676532,
+        "similarity": 0.3232273518676532,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6009,8 +6009,8 @@
         ]
       },
       "semantic": {
-        "score": 0.07120694769352769,
-        "similarity": 0.07120694769352769,
+        "score": 0.07120701009641506,
+        "similarity": 0.07120701009641506,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6078,8 +6078,8 @@
         ]
       },
       "semantic": {
-        "score": 0.022431565616801482,
-        "similarity": 0.022431565616801482,
+        "score": 0.02243155319274932,
+        "similarity": 0.02243155319274932,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6143,8 +6143,8 @@
         ]
       },
       "semantic": {
-        "score": 0.03568409731775561,
-        "similarity": 0.03568409731775561,
+        "score": 0.035684076094470676,
+        "similarity": 0.035684076094470676,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6208,8 +6208,8 @@
         ]
       },
       "semantic": {
-        "score": 0.46036045431621153,
-        "similarity": 0.46036045431621153,
+        "score": 0.4603604366823965,
+        "similarity": 0.4603604366823965,
         "state": "EVALUATED",
         "label": "PARTIAL"
       },
@@ -6269,8 +6269,8 @@
         ]
       },
       "semantic": {
-        "score": 0.08213450806127749,
-        "similarity": 0.08213450806127749,
+        "score": 0.08213444541414645,
+        "similarity": 0.08213444541414645,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6334,8 +6334,8 @@
         ]
       },
       "semantic": {
-        "score": 0.15266139517738622,
-        "similarity": 0.15266139517738622,
+        "score": 0.15266142856731463,
+        "similarity": 0.15266142856731463,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6399,8 +6399,8 @@
         ]
       },
       "semantic": {
-        "score": 0.029165435039136774,
-        "similarity": 0.029165435039136774,
+        "score": 0.029165533444361735,
+        "similarity": 0.029165533444361735,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6464,8 +6464,8 @@
         ]
       },
       "semantic": {
-        "score": 0.07741606399805247,
-        "similarity": 0.07741606399805247,
+        "score": 0.0774159768232472,
+        "similarity": 0.0774159768232472,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6525,8 +6525,8 @@
         ]
       },
       "semantic": {
-        "score": 0.21261579355928925,
-        "similarity": 0.21261579355928925,
+        "score": 0.2126156945356024,
+        "similarity": 0.2126156945356024,
         "state": "EVALUATED",
         "label": "UNRELATED"
       },
@@ -6898,7 +6898,7 @@
       }
     }
   ],
-  "createdAt": "2026-10-25T11:15:49.789372+00:00",
+  "createdAt": "2026-10-23T08:48:59.085902+00:00",
   "datasetVersion": "us13-interest-corpus-v1",
   "configuration": {
     "version": "us13-config-v1",
@@ -6944,76 +6944,79 @@
   "datasetSha256": "4332e76ef1f7c83c4fd17db63afc4ddc34a39402cbdff793d82c02017d97d6e8",
   "configSha256": "dc10e5eb025074df9deb0eaf2304217b97d4b9f886b66ea0c9b4e8fa61333f24",
   "implementationSha256": {
-    "engine.py": "7014d865b4709ea5d63c410cdb6be93ff9f7b2fffddaee6966f4ae9ee87e8bd0",
+    "engine.py": "2415c77404f040d7b6c72c877882dd9f07a507de2085bb769058d85514ee3ed2",
     "semantic.py": "ca3c567c5687a4cc2b23513407bf37c366a665e9ed682742ac8c9f7fe6c56c29",
     "evaluate_semantic.py": "7c1cc8fa2a7b4d6b09e8b27b40cb3af7aea1cbbab22d5effdca1222fe354b9b7"
   },
   "environment": {
-    "python": "3.13.9",
-    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
-    "machine": "arm64",
-    "processor": "arm",
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
     "packages": {
-      "filelock": "4.2.4",
-      "coloredlogs": "15.0.1",
-      "uri-template": "1.3.0",
-      "humanfriendly": "10.0",
-      "rfc3339-validator": "0.1.4",
-      "pip": "25.2",
-      "tokenizers": "0.22.1",
-      "lxml": "6.1.3",
-      "click": "8.5.0",
-      "packaging": "26.3",
-      "isoduration": "20.11.0",
-      "protobuf": "7.36.2",
-      "numpy": "2.3.4",
-      "Pygments": "2.21.0",
-      "jsonschema-specifications": "2025.9.1",
-      "fqdn": "1.6.0",
-      "certifi": "2026.10.23",
-      "blinker": "1.9.0",
-      "Flask": "3.1.2",
-      "itsdangerous": "2.2.0",
-      "iniconfig": "2.3.1",
-      "httpcore": "1.0.9",
-      "cryptography": "50.0.2",
-      "webcolors": "25.10.0",
-      "SQLAlchemy": "2.0.44",
-      "tzdata": "2026.5",
-      "onnxruntime": "1.23.2",
-      "PyMySQL": "1.1.2",
-      "sympy": "1.14.0",
-      "jsonschema": "4.25.1",
-      "hf-xet": "1.7.0",
-      "tqdm": "4.70.1",
-      "argon2-cffi-bindings": "26.1.0",
-      "h11": "0.16.0",
-      "pycparser": "3.0",
-      "python-dateutil": "2.9.0.post0",
-      "mpmath": "1.3.0",
-      "PyYAML": "6.0.3",
-      "pytest": "8.4.2",
-      "fsspec": "2026.9.0",
-      "jsonpointer": "3.2.0",
-      "cffi": "2.1.1",
-      "argon2-cffi": "25.1.0",
-      "Jinja2": "3.1.6",
-      "referencing": "0.37.0",
-      "pypdf": "6.20.0",
-      "rpds-py": "2026.9.1",
-      "flatbuffers": "25.12.19",
-      "pluggy": "1.6.0",
-      "python-docx": "1.2.0",
-      "attrs": "26.1.0",
-      "rfc3987": "1.3.8",
-      "httpx": "0.28.1",
-      "typing_extensions": "4.16.0",
-      "MarkupSafe": "3.0.4",
       "anyio": "4.15.1",
+      "argon2-cffi": "25.1.0",
+      "argon2-cffi-bindings": "26.1.0",
       "arrow": "1.4.0",
-      "six": "1.17.0",
+      "attrs": "26.1.0",
+      "blinker": "1.9.0",
+      "certifi": "2026.10.19",
+      "cffi": "2.1.1",
+      "click": "8.5.0",
+      "colorama": "0.4.6",
+      "coloredlogs": "15.0.1",
+      "cryptography": "50.0.2",
+      "filelock": "4.2.4",
+      "Flask": "3.1.2",
+      "flatbuffers": "25.12.19",
+      "fqdn": "1.6.0",
+      "fsspec": "2026.9.0",
+      "greenlet": "3.5.6",
+      "h11": "0.16.0",
+      "hf-xet": "1.7.0",
+      "httpcore": "1.0.9",
+      "httpx": "0.28.1",
       "huggingface_hub": "1.33.0",
+      "humanfriendly": "10.0",
       "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "isoduration": "20.11.0",
+      "itsdangerous": "2.2.0",
+      "Jinja2": "3.1.6",
+      "jsonpointer": "3.1.1",
+      "jsonschema": "4.25.1",
+      "jsonschema-specifications": "2025.9.1",
+      "lxml": "6.1.3",
+      "MarkupSafe": "3.0.4",
+      "mpmath": "1.3.0",
+      "numpy": "2.3.4",
+      "onnxruntime": "1.23.2",
+      "packaging": "26.3",
+      "pip": "25.0.1",
+      "pluggy": "1.6.0",
+      "protobuf": "7.36.2",
+      "pycparser": "3.0",
+      "Pygments": "2.21.0",
+      "PyMySQL": "1.1.2",
+      "pypdf": "6.20.0",
+      "pyreadline3": "3.5.6",
+      "pytest": "8.4.2",
+      "python-dateutil": "2.9.0.post0",
+      "python-docx": "1.2.0",
+      "PyYAML": "6.0.3",
+      "referencing": "0.37.0",
+      "rfc3339-validator": "0.1.4",
+      "rfc3987": "1.3.8",
+      "rpds-py": "2026.9.1",
+      "six": "1.17.0",
+      "SQLAlchemy": "2.0.44",
+      "sympy": "1.14.0",
+      "tokenizers": "0.22.1",
+      "tqdm": "4.70.1",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "uri-template": "1.3.0",
+      "webcolors": "25.10.0",
       "Werkzeug": "3.1.9"
     }
   }

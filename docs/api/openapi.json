@@ -5314,10 +5314,7 @@
             "type": "string",
             "enum": [
               "SKILL",
-              "INTEREST",
-              "EDUCATION",
-              "RESEARCH_EXPERIENCE",
-              "RESEARCH_OUTPUT"
+              "INTEREST"
             ]
           },
           "importance": {
@@ -5347,10 +5344,6 @@
               "minLength": 1,
               "maxLength": 350
             }
-          },
-          "criteria": {
-            "type": "object",
-            "minProperties": 1
           }
         },
         "required": [
@@ -5361,7 +5354,7 @@
           "tagIds"
         ],
         "additionalProperties": false,
-        "description": "SKILL requirements use skillTitles or legacy skill tags. INTEREST requirements use shared interest tags. Academic requirements use non-empty structured criteria and empty tagIds.",
+        "description": "SKILL requirements use skillTitles (all names required) and empty tagIds. Existing tag-backed records remain readable/writable for compatibility. INTEREST requirements keep shared tag IDs. Stable requirement IDs identify explanations.",
         "oneOf": [
           {
             "required": [
@@ -5374,16 +5367,7 @@
               "tagIds": {
                 "maxItems": 0
               }
-            },
-            "allOf": [
-              {
-                "not": {
-                  "required": [
-                    "criteria"
-                  ]
-                }
-              }
-            ]
+            }
           },
           {
             "not": {
@@ -5395,128 +5379,6 @@
               "tagIds": {
                 "minItems": 1
               }
-            },
-            "allOf": [
-              {
-                "not": {
-                  "required": [
-                    "criteria"
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "required": [
-              "criteria"
-            ],
-            "properties": {
-              "kind": {
-                "const": "EDUCATION"
-              },
-              "tagIds": {
-                "maxItems": 0
-              },
-              "criteria": {
-                "type": "object",
-                "minProperties": 1,
-                "properties": {
-                  "qualification": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200,
-                    "pattern": "\\S"
-                  },
-                  "discipline": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200,
-                    "pattern": "\\S"
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "not": {
-              "required": [
-                "skillTitles"
-              ]
-            }
-          },
-          {
-            "required": [
-              "criteria"
-            ],
-            "properties": {
-              "kind": {
-                "const": "RESEARCH_EXPERIENCE"
-              },
-              "tagIds": {
-                "maxItems": 0
-              },
-              "criteria": {
-                "type": "object",
-                "minProperties": 1,
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200,
-                    "pattern": "\\S"
-                  },
-                  "organisation": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200,
-                    "pattern": "\\S"
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "not": {
-              "required": [
-                "skillTitles"
-              ]
-            }
-          },
-          {
-            "required": [
-              "criteria"
-            ],
-            "properties": {
-              "kind": {
-                "const": "RESEARCH_OUTPUT"
-              },
-              "tagIds": {
-                "maxItems": 0
-              },
-              "criteria": {
-                "type": "object",
-                "minProperties": 1,
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "PUBLICATION",
-                      "PROJECT",
-                      "OTHER"
-                    ]
-                  },
-                  "title": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 300,
-                    "pattern": "\\S"
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "not": {
-              "required": [
-                "skillTitles"
-              ]
             }
           }
         ]
@@ -5765,9 +5627,7 @@
               "EXPLICIT_NEGATIVE_CLAIM",
               "INSUFFICIENT_EVIDENCE",
               "ALL_SKILLS_SUPPORTED",
-              "SOME_SKILLS_SUPPORTED",
-              "ACADEMIC_CRITERIA_SUPPORTED",
-              "ACADEMIC_CRITERIA_PARTIAL"
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5806,9 +5666,7 @@
               "EXPLICIT_NEGATIVE_CLAIM",
               "INSUFFICIENT_EVIDENCE",
               "ALL_SKILLS_SUPPORTED",
-              "SOME_SKILLS_SUPPORTED",
-              "ACADEMIC_CRITERIA_SUPPORTED",
-              "ACADEMIC_CRITERIA_PARTIAL"
+              "SOME_SKILLS_SUPPORTED"
             ]
           },
           "reason": {
@@ -5872,8 +5730,7 @@
             "type": "string",
             "enum": [
               "tag-coverage-v1",
-              "skill-title-interest-tags-v2",
-              "academic-evidence-v3"
+              "skill-title-interest-tags-v2"
             ]
           }
         },

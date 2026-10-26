@@ -57,9 +57,6 @@ def read_matching_profile(db, profile):
         "skillRecords": skill_records,
         "researchInterests": interests,
         "origins": origins,
-        "education": profile.education,
-        "researchExperience": profile.research_experience,
-        "researchOutputs": profile.research_outputs,
     }
 
 
