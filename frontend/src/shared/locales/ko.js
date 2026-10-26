@@ -1,5 +1,9 @@
 import workspaceMessages from './workspace/ko.js';
 export default {
+  'A confirmed record supports all structured criteria.':
+    '확인된 기록이 모든 구조화된 기준을 뒷받침합니다.',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    '일부 기준에는 근거가 있지만 모든 기준을 확인하는 단일 기록은 없습니다.',
   'Source URL (optional)': '출처 URL (선택 사항)',
   'Opportunity source (opens in a new tab)': '모집 출처 (새 탭에서 열기)',
   'Save and reopen opportunity': '저장하고 모집 재개',

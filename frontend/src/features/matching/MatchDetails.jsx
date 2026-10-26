@@ -6,6 +6,7 @@ import { displayDate } from '../../shared/format.js';
 import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
 import { labels } from '../../shared/profile-labels.js';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
+import SharedRecord, { supportingRecord, sharedRecordFields } from './SharedRecord.jsx';
 
 const matchReasons = {
   ALL_SKILLS_SUPPORTED: 'All requested skills have confirmed supporting evidence.',
@@ -16,6 +17,9 @@ const matchReasons = {
     'Some requested tags have confirmed evidence; the remaining tags have insufficient evidence.',
   EXPLICIT_NEGATIVE_CLAIM: 'A requested skill has an explicit confirmed negative claim.',
   INSUFFICIENT_EVIDENCE: 'There is insufficient confirmed evidence for this requirement.',
+  ACADEMIC_CRITERIA_SUPPORTED: 'A confirmed record supports all structured criteria.',
+  ACADEMIC_CRITERIA_PARTIAL:
+    'Some criteria have supporting evidence, but no single record confirms all criteria.',
 };
 
 export default function MatchDetails({ opportunityId, talentId, onClose, navigate, tags = [] }) {
@@ -102,19 +106,27 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
                     <Icon name="file" size={16} />
                     <div>
                       {item.evidence.map((e, i) => (
-                        <p key={i}>
-                          {language === 'en' ? (
-                            e.valueSummary
-                          ) : (
-                            <EvidenceSummary evidence={e} t={t} />
+                        <div key={i} className="supporting-record">
+                          <p>
+                            {language === 'en' ? (
+                              e.valueSummary
+                            ) : (
+                              <EvidenceSummary evidence={e} t={t} />
+                            )}
+                            <small>
+                              {t(labels[e.field])}
+                              {e.sourceType === 'USER_REVIEWED_DOCUMENT'
+                                ? t(' · Reviewed document import')
+                                : ''}
+                            </small>
+                          </p>
+                          {result.talent && supportingRecord(result.talent, e) && (
+                            <SharedRecord
+                              field={e.field}
+                              record={supportingRecord(result.talent, e)}
+                            />
                           )}
-                          <small>
-                            {t(labels[e.field])}
-                            {e.sourceType === 'USER_REVIEWED_DOCUMENT'
-                              ? t(' · Reviewed document import')
-                              : ''}
-                          </small>
-                        </p>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -171,12 +183,30 @@ function VisibleTalent({ talent, tags }) {
       {Object.keys(fields).length === 0 ? (
         <p className="muted">{t('This talent has not shared any profile fields.')}</p>
       ) : (
-        Object.entries(fields).map(([key, value]) => (
-          <div key={key}>
-            <strong>{t(labels[key])}</strong>
-            <p>{formatField(value, key)}</p>
-          </div>
-        ))
+        Object.entries(fields)
+          .filter(([key]) =>
+            [
+              'displayName',
+              'disciplineGroup',
+              'researchInterests',
+              'researchInterestText',
+              'customInterestTags',
+              ...sharedRecordFields,
+            ].includes(key)
+          )
+          .map(([key, value]) => (
+            <div key={key}>
+              <strong>{t(labels[key])}</strong>
+              {key !== 'skills' &&
+              sharedRecordFields.includes(key) &&
+              Array.isArray(value) &&
+              value.length ? (
+                value.map((record) => <SharedRecord key={record.id} field={key} record={record} />)
+              ) : (
+                <p>{formatField(value, key)}</p>
+              )}
+            </div>
+          ))
       )}
     </section>
   );

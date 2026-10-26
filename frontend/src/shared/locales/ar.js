@@ -1,5 +1,8 @@
 import workspaceMessages from './workspace/ar.js';
 export default {
+  'A confirmed record supports all structured criteria.': 'يدعم سجل مؤكد جميع المعايير المنظمة.',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    'توجد أدلة لبعض المعايير، لكن لا يوجد سجل واحد يؤكدها جميعاً.',
   'Source URL (optional)': 'رابط المصدر (اختياري)',
   'Opportunity source (opens in a new tab)': 'مصدر الفرصة (يفتح في علامة تبويب جديدة)',
   'Save and reopen opportunity': 'حفظ الفرصة وإعادة فتحها',

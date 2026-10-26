@@ -1,42 +1,42 @@
-# H18ABANANA-47: opportunity search, source links and deadlines
+# Task 47: opportunity pages
 
-This frontend change extends the shared Sprint 1 opportunity components. It uses
-the US-14 search and lifecycle APIs already on main. It does not change the backend.
+This task builds on the opportunity pages from Sprint 1 and uses the existing
+US-14 APIs for search and deadlines.
 
-## Delivered
+## Changes
 
-- Existing combined filters and page reset are reused. Applied values are shown;
-  equal or reversed deadline ranges are rejected before a search request.
-- The list/detail views share a source-link and deadline component. Deadlines
-  display in the browser's named time zone, while API values remain UTC.
-- Owner editors can save changes and explicitly reopen an expired opportunity
-  in one PUT with `expectedRevision` and `reopen: true`. A future or cleared
-  deadline is required. Ordinary saving does not request reopening.
-- Existing pending-write guards and revision-conflict recovery are retained.
-- Read-only details refresh on window focus. Availability remains authoritative
-  on the server; the frontend does not infer reopening from a changed date.
+- Show the filters that have been applied. If the end date is the same as or
+  earlier than the start date, show an error before sending the search request.
+- Use the same component to show source links and deadlines on lists and details.
+  Dates are shown in the user's time zone. Requests still send UTC values.
+- Add a "Save and reopen opportunity" button. Owners can change the deadline
+  and reopen an expired opportunity in one request. The deadline must be in the
+  future or left empty. Saving normally keeps the opportunity expired.
+- Keep the existing checks for repeated submissions and version conflicts.
+  Read-only details reload when the user returns to the window. The backend
+  decides whether an opportunity is active or expired.
 
-## BE-56 dependency: source URL
+## Source links still need BE-56
 
-`README_SPRINT2_BACKEND_EN.md` specifies the proposed `content.sourceUrl` field:
-optional absolute HTTP/HTTPS URL, maximum 2048 characters, explicit `null` to
-remove. Current main's OpenAPI and backend do not yet accept or persist this field.
+The backend README proposes `content.sourceUrl`: an optional HTTP/HTTPS URL,
+up to 2048 characters. Sending `null` removes the link. When this frontend work
+was added, the backend and OpenAPI did not support saving this field yet.
 
-The source input is therefore disabled by default for legacy records. Enable
-`VITE_OPPORTUNITY_SOURCE_URLS=true` at build/dev-server startup only after BE-56
-deploys the agreed contract. Existing responses containing `sourceUrl` also enable
-editing that field. Omitted legacy fields stay omitted on ordinary saves.
+The input is hidden by default for older records. Once BE-56 is available, set
+`VITE_OPPORTUNITY_SOURCE_URLS=true` and restart the dev server or rebuild.
+Records that already return a `sourceUrl` field also show the input. Older
+records keep this field out of ordinary save requests.
 
-Links use a separate tab with `noopener noreferrer`; missing or invalid links
-are not rendered. No URL is fetched, scraped or imported by this frontend.
+Valid links open in a new tab with `noopener noreferrer`. Empty or invalid links
+are not shown. Adding a link does not fetch or import anything from that website.
 
-URL DOM tests use synthetic responses, so they do not certify backend persistence.
-Before marking US-19 complete, run create, edit, remove and reload against the
-BE-56 service, including malformed URLs and another owner's write attempt.
+The source-link tests use sample API responses. Add, edit, remove and reload
+still need to be checked against BE-56, along with invalid URLs and attempts to
+edit another team's opportunity. US-19 should stay open until those checks pass.
 
-## Verification
+## Tests
 
-Run from `frontend`:
+Run these commands in `frontend`:
 
 ```text
 pnpm test:47
@@ -45,8 +45,7 @@ pnpm build
 pnpm format:check
 ```
 
-Task 47 covers URL validation and add/edit/remove payloads, separate-tab links,
-deadline boundaries, explicit reopening, retained expiry after ordinary saves,
-revision conflicts, invalid filter ranges and stale search responses. Existing
-US-14 tests cover composed queries, pagination reset, clear/error/empty states.
-QA-51 should reuse these cases rather than duplicate them.
+The task tests cover source URLs, deadline boundaries, reopening, version
+conflicts and old search responses arriving late. The existing US-14 tests
+already cover combined filters, pagination, clearing filters and error/empty
+results. These cases can also be used for task 51.

@@ -28,7 +28,7 @@ def frontend_node(required=False):
     return node
 
 
-@pytest.mark.parametrize("story", ["01", "02", "03", "05", "14", "19", "01-register", "01-reset", "41", "49", "i18n"])
+@pytest.mark.parametrize("story", ["01", "02", "03", "05", "14", "19", "01-register", "01-reset", "41", "49", "53", "i18n"])
 def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
     node = frontend_node(required=request.config.getoption("--require-frontend"))
     if story == "02":

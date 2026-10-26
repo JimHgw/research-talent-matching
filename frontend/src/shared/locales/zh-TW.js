@@ -1,5 +1,8 @@
 import workspaceMessages from './workspace/zh-TW.js';
 export default {
+  'A confirmed record supports all structured criteria.': '一筆已確認的紀錄支持所有結構化條件。',
+  'Some criteria have supporting evidence, but no single record confirms all criteria.':
+    '部分條件有證據支持，但沒有單筆紀錄能確認全部條件。',
   'Source URL (optional)': '來源網址（選填）',
   'Opportunity source (opens in a new tab)': '機會來源（在新分頁開啟）',
   'Save and reopen opportunity': '儲存並重新開放機會',
