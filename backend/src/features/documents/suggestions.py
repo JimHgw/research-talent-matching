@@ -22,7 +22,11 @@ SCHEMAS = {
     "researchExperience": "ResearchExperience", "researchOutputs": "ResearchOutput",
 }
 DEGREE = re.compile(r"\b(bachelor|master|doctor|ph\.?d|bsc|msc|beng|meng|diploma|certificate)\b", re.I)
-YEAR_RANGE = re.compile(r"\b(\d{4})\s*[-–—]\s*(\d{4}|present|current)\b", re.I)
+YEAR_RANGE = re.compile(
+    r"\b(?:(?:0?[1-9]|1[0-2])[./])?(\d{4})\s*[-–—]\s*"
+    r"(?:(?:0?[1-9]|1[0-2])[./])?(\d{4}|present|current)\b",
+    re.I,
+)
 COURSE = re.compile(r"^([A-Z]{2,8}\s?\d{3,5})\s*(?:[-–—:]\s*|\s+)(.+)$")
 KEYS = {
     "institution": "institution", "university": "institution",
@@ -37,7 +41,7 @@ OTHER_HEADINGS = {"work experience", "employment", "professional experience", "a
                   "contact", "personal information", "references", "languages", "certifications",
                   "工作经历", "联系方式", "个人信息", "获奖经历", "自我评价"}
 
-
+OTHER_HEADINGS |= {"additional information", "availability"}
 def new_extraction_result(document_id):
     return {"documentId": document_id, "status": "READY", "suggestedSections": {},
             "uncertainFields": [], "warnings": ["Review all suggestions before saving."],
@@ -45,28 +49,49 @@ def new_extraction_result(document_id):
 
 
 def _clean(value):
-    return re.sub(r"^[\s•*\-]+", "", value).strip()
+    return re.sub(r"^[\s•●⚫▪◦*\-]+", "", value).strip()
 
+def _heading(line, names):
+    for name in sorted(names, key=len, reverse=True):
+        if line.casefold().rstrip(":：").strip() == name:
+            return name, ""
+
+        match = re.match(
+            re.escape(name) + r"(?:\s*[:：]\s*|\t+| {2,})(.*)$",
+            line,
+            re.I,
+        )
+        if match:
+            return name, match[1].strip()
+
+    return None, ""
 
 def _sections(text):
-    """Accept heading-only paragraphs, heading:value and Word table cells."""
-    aliases = {alias: section for section, names in HEADINGS.items() for alias in names}
+    aliases = {
+        alias: section
+        for section, names in HEADINGS.items()
+        for alias in names
+    }
     sections = {section: [] for section in HEADINGS}
     active = None
+
     for raw in text.splitlines():
         line = _clean(raw)
-        parts = re.split(r"[:：\t]", line, maxsplit=1)
-        heading = parts[0].strip().casefold()
-        if heading in aliases:
-            active = aliases[heading]
-            if len(parts) == 2 and parts[1].strip():
-                sections[active].append((parts[1].strip(), line))
-            continue
-        if heading in OTHER_HEADINGS:
-            active = None
-            continue
-        if active:
+        heading, remainder = _heading(
+            line, set(aliases) | OTHER_HEADINGS
+        )
+
+        if active == "skills" and heading == "languages" and remainder:
             sections[active].append((line, line))
+        elif heading in aliases:
+            active = aliases[heading]
+            if remainder:
+                sections[active].append((remainder, line))
+        elif heading in OTHER_HEADINGS:
+            active = None
+        elif active:
+            sections[active].append((line, line))
+
     return sections
 
 
@@ -203,7 +228,33 @@ def _education(rows, fields):
                     return None
                 result[key] = int(value) if value.isdigit() else None
     else:
-        cells = [part.strip() for row in rows for part in re.split(r"[|\t]", row) if part.strip()]
+        joined = " ".join(rows)
+        compact = re.fullmatch(
+            r"(.+?)\s*(?:—{2,}|–{2,})\s*(.+)", joined
+        )
+
+        if (
+            compact
+            and not DEGREE.search(compact[1])
+            and len(DEGREE.findall(compact[2])) == 1
+        ):
+            dates = YEAR_RANGE.search(compact[2])
+            qualification = (
+                compact[2][:dates.start()] if dates else compact[2]
+            )
+            cells = [
+                compact[1].strip(),
+                qualification.strip(" ,()"),
+            ]
+            if dates:
+                cells.append(dates[0])
+        else:
+            cells = [
+                part.strip()
+                for row in rows
+                for part in re.split(r"[|\t]", row)
+                if part.strip()
+            ]
         degree_index = next((i for i, cell in enumerate(cells) if DEGREE.search(cell)), None)
         if degree_index is None or len(cells) < 2 or sum(bool(DEGREE.search(cell)) for cell in cells) > 1:
             return None
@@ -261,9 +312,126 @@ def _output(rows, fields):
 PARSERS = {"education": _education, "courses": _course,
            "researchExperience": _experience, "researchOutputs": _output}
 
+def _cv_lines(section, lines):
+    values = [value for value, _ in lines if value]
+
+    if section == "courses" and values:
+        source = " ".join(values)
+        labelled = any(
+            re.split(r"[:\t]", value, maxsplit=1)[0]
+            .strip().casefold() in KEYS
+            for value in values
+        )
+
+        if (
+            not labelled
+            and not any(
+                COURSE.match(value) or "|" in value or "\t" in value
+                for value in values
+            )
+            and re.search(r"[,;、，；]", source)
+            and not re.search(r"[:：]", source)
+        ):
+            names = [
+                name.strip()
+                for name in re.split(r"[,;、，；]", source)
+                if name.strip()
+            ]
+
+            if names and all(len(name) <= 200 for name in names):
+                converted = []
+
+                for name in names:
+                    converted.extend([
+                        ("Name: " + name, source),
+                        ("Description: " + source[:5000], source),
+                        ("", ""),
+                    ])
+
+                issues = [
+                    "Review course boundaries split from the source list."
+                ]
+                if len(source) > 5000:
+                    issues.append(
+                        "Course source description was shortened to "
+                        "5000 characters; consult the original file."
+                    )
+
+                return converted, issues
+
+    if section != "researchOutputs":
+        return lines, []
+
+    date = r"\d{4}(?:[./]\d{1,2})?"
+    marker = re.compile(
+        rf"^(?:team\s+)?project\s*\|\s*{date}\s*[-–—]\s*"
+        rf"(?:{date}|present|current)"
+        rf"(?:\s*\(expected\))?$",
+        re.I,
+    )
+
+    rows = [(value, source) for value, source in lines if value]
+    converted, issues = [], []
+    index = 0
+
+    while index < len(rows):
+        if (
+            index + 1 >= len(rows)
+            or not marker.fullmatch(rows[index + 1][0])
+        ):
+            converted.append(rows[index])
+            index += 1
+            continue
+
+        title = rows[index][0]
+        end = index + 2
+
+        while end < len(rows):
+            if (
+                end + 1 < len(rows)
+                and marker.fullmatch(rows[end + 1][0])
+            ):
+                break
+
+            key = (
+                re.split(r"[:\t]", rows[end][0], maxsplit=1)[0]
+                .strip().casefold()
+            )
+            if key in ("title", "type") or re.match(
+                r"^(PUBLICATION|PROJECT|OTHER)\s*\|",
+                rows[end][0],
+                re.I,
+            ):
+                break
+
+            end += 1
+
+        source = " ".join(value for value, _ in rows[index:end])
+        converted.extend([
+            ("", ""),
+            ("Title: " + title, title),
+            ("Type: PROJECT", rows[index + 1][0]),
+            ("Description: " + source[:5000], source),
+            ("", ""),
+        ])
+
+        if len(source) > 5000:
+            issues.append(
+                "Project description was shortened to "
+                "5000 characters; consult the original file."
+            )
+
+        issues.append(
+            "Review the project record against the source "
+            "title, dates and description."
+        )
+        index = end
+
+    return converted, issues
 
 def _structured(section, lines):
-    found, issues, seen = [], [], set()
+    lines, layout_issues = _cv_lines(section, lines)
+    found, issues, seen = [], list(layout_issues), set()
     for rows in _records(section, lines):
         # Skip transcript column labels, while retaining the actual course rows.
         if section == "courses" and re.match(r"^(course )?code[\t|]", rows[0], re.I):
@@ -288,6 +456,13 @@ def _structured(section, lines):
         unused = [key for key in fields if key not in item]
         if unused:
             issues.append("Additional details need review: " + ", ".join(unused))
+        if section == "education" and re.search(
+            r"\bexpected\b", source, re.I
+        ):
+            issues.append(
+                "The source gives an expected date; "
+                "qualification completion has not been verified."
+            )
         if section == "education" and not fields:
             cells = [part for row in rows for part in re.split(r"[|\t]", row) if part.strip()]
             if len(cells) > 4:

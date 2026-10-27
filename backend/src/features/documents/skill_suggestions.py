@@ -4,12 +4,24 @@ import re
 
 from ...db.skills import normalise_title, skill_id
 
+SKILL_CATEGORIES = {
+    "languages",
+    "programming languages",
+    "backend & data",
+    "web development",
+    "tools & systems",
+    "core concepts",
+    "frameworks",
+    "databases",
+    "tools",
+    "methods",
+}
 
 def free_skill_suggestions(lines):
     found, issues, conflicts = {}, [], set()
 
     def add(title, evidence):
-        title = title.strip(" \t•*-")
+        title = title.strip(" \t•●⚫▪◦*-")
         if not title:
             return
         if re.search(r"\b(?:want to learn|plan to learn|interested in learning|wish to learn)\b", title + " " + evidence, re.I):
@@ -51,6 +63,15 @@ def free_skill_suggestions(lines):
             else:
                 add(*pending)
                 pending = None
+            continue
+        category = re.match(r"^([^:：]+)[:：]\s*(.+)$", value)
+
+        if (
+            category
+            and normalise_title(category[1]) in SKILL_CATEGORIES
+        ):
+            for title in re.split(r"[,;\t|、，；]", category[2]):
+                add(title, source)
             continue
         # Sentences with commas remain a single free-text statement. Explicit
         # short lists can contain arbitrary tools, methods or business skills.

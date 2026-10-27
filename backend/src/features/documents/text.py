@@ -19,25 +19,50 @@ def extract_pdf_text(path):
     return "\n".join(parts).strip()
 
 def extract_docx_text(path):
-    parts = []
+    document = DocxDocument(path)
+    word = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    markup = "{http://schemas.openxmlformats.org/markup-compatibility/2006}"
 
-    with path.open("rb") as stream:
-        document = DocxDocument(stream)
+    def read(node):
+        if node.tag == markup + "AlternateContent":
+            choices = [
+                child for child in node
+                if child.tag == markup + "Choice"
+            ]
+            fallbacks = [
+                child for child in node
+                if child.tag == markup + "Fallback"
+            ]
+            selected = choices or fallbacks
+            return read(selected[0]) if selected else ""
 
-        for block in document.iter_inner_content():
-            if isinstance(block, Paragraph):
-                parts.append(block.text)
+        if node.tag == word + "t":
+            return node.text or ""
 
-            elif isinstance(block, Table):
-                for row in block.rows:
-                    cells = []
+        if node.tag == word + "tab":
+            return "\t"
 
-                    for cell in row.cells:
-                        cells.append(cell.text.strip())
+        if node.tag in (word + "br", word + "cr"):
+            return "\n"
 
-                    parts.append("\t".join(cells))
+        if node.tag == word + "tr":
+            return "\t".join(
+                read(cell).strip()
+                for cell in node
+                if cell.tag == word + "tc"
+            ) + "\n"
 
-    return "\n".join(parts).strip()
+        content = "".join(read(child) for child in node)
+
+        if node.tag == word + "txbxContent":
+            return "\n" + content + "\n"
+
+        if node.tag == word + "p":
+            return content + "\n"
+
+        return content
+
+    return read(document.element.body).strip()
 
 def extract_document_text(path, media_type):
     if media_type == "application/pdf":
