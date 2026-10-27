@@ -2,12 +2,15 @@
 
 import secrets
 import unicodedata
+from urllib.parse import urlsplit
+
+from jsonschema import FormatChecker
 
 from sqlalchemy import select
 
 from ...db.models import Opportunity, Tag, utcnow
 from ...db.skills import normalise_title
-from ...shared.validation import ApiError, invalid, validate
+from ...shared.validation import ApiError, SOURCE_URL_ERROR, invalid, validate
 from ...shared.search import opportunity_matches, parse_datetime
 from .availability import active_predicates, availability
 from .repository import replace_content, serialize, serialize_many
@@ -45,8 +48,32 @@ def list_opportunities(db, user, scope, page, page_size, filters=None):
     return {"items": items[offset:offset + page_size], "page": page, "pageSize": page_size, "total": len(items)}
 
 
+def check_source_url(value):
+    """Validate only the saved address; never request the linked resource."""
+    if value is None:
+        return
+    valid = False
+    if (isinstance(value, str) and 0 < len(value) <= 2048
+            and not any(char.isspace() or char == "\\"
+                        or unicodedata.category(char).startswith("C")
+                        for char in value)):
+        try:
+            parsed = urlsplit(value)
+            parsed.port  # Raises for malformed/out-of-range ports.
+            valid = (parsed.scheme in {"http", "https"}
+                     and bool(parsed.netloc) and bool(parsed.hostname)
+                     and parsed.username is None and parsed.password is None
+                     and FormatChecker().conforms(value, "iri"))
+        except (ValueError, UnicodeError):
+            valid = False
+    if not valid:
+        invalid("content.sourceUrl", SOURCE_URL_ERROR)
+
+
 def check_content(db, content, *, published=False):
     validate("OpportunityContent", content)
+    if "sourceUrl" in content:
+        check_source_url(content["sourceUrl"])
     if content.get("deadlineAt") is not None:
         parse_datetime(content["deadlineAt"], "content.deadlineAt")
     requirements = content["requirements"]

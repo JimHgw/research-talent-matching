@@ -9,6 +9,8 @@ from ...shared.search import parse_datetime
 def replace_content(db, opportunity, content):
     for field, attr in CONTENT_FIELDS.items():
         setattr(opportunity, attr, content[field])
+    if "sourceUrl" in content:
+        opportunity.source_url = content["sourceUrl"]
     if "opportunityType" in content:
         opportunity.opportunity_type = content["opportunityType"]
     if "deadlineAt" in content:

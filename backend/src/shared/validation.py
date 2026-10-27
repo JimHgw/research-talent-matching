@@ -9,6 +9,8 @@ from referencing.jsonschema import DRAFT202012
 
 from .paths import ROOT
 
+SOURCE_URL_ERROR = "Enter a valid HTTP or HTTPS URL (maximum 2048 characters)."
+
 CONTRACT = json.loads((ROOT / "docs/api/openapi.json").read_text(encoding="utf-8"))
 REGISTRY = Registry().with_resource(
     "urn:h18:contract", Resource.from_contents(CONTRACT, default_specification=DRAFT202012)
@@ -42,14 +44,25 @@ def _field_path(parts):
     return path or "$"
 
 
+def validation_field(error):
+    parts = list(error.absolute_path)
+    if parts and parts[-1] == "sourceUrl":
+        return {"field": "content.sourceUrl", "message": SOURCE_URL_ERROR}
+    return {"field": _field_path(parts),
+            "message": f"Does not satisfy {error.validator}."}
+
+
 def validate(name, value):
     errors = list(validator(name).iter_errors(value))
     if errors:
         # Do not echo submitted values (especially passwords) into errors or logs.
-        raise ApiError(422, "VALIDATION_ERROR", "Check the submitted fields.", fields=[
-            {"field": _field_path(error.absolute_path),
-             "message": f"Does not satisfy {error.validator}."} for error in errors[:20]
-        ])
+        fields = []
+        for error in errors[:20]:
+            field = validation_field(error)
+            if field not in fields:
+                fields.append(field)
+        raise ApiError(422, "VALIDATION_ERROR", "Check the submitted fields.",
+                       fields=fields)
     try:
         json.dumps(value, ensure_ascii=False).encode("utf-8")
     except UnicodeEncodeError:

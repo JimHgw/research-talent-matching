@@ -5585,6 +5585,17 @@
             ],
             "format": "date-time",
             "description": "Optional RFC3339 deadline with explicit offset, at most microsecond precision. UTC on reads; omission preserves on update, null clears it. Omitted on reads when unset."
+          },
+          "sourceUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 2048,
+            "format": "iri",
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://",
+            "description": "Optional absolute HTTP/HTTPS source URL. Omission preserves it on update; null removes it. Omitted on reads when unset. Links are never fetched, imported or used as matching evidence."
           }
         },
         "required": [

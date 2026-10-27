@@ -1,4 +1,4 @@
-"""Idempotent, additive upgrade for pre-US-14 opportunity tables."""
+"""Idempotent, additive upgrade for US-14 and US-19 opportunity fields."""
 
 from hashlib import sha256
 
@@ -20,7 +20,8 @@ def upgrade_opportunity_search(database):
                 raise ValueError("Run init-db before upgrading opportunity search storage.")
             columns = {column["name"] for column in inspector.get_columns("opportunities")}
             timestamp = "DATETIME(6)" if mysql else "DATETIME"
-            additions = {"opportunity_type": "VARCHAR(32)", "deadline_at": timestamp, "expired_at": timestamp}
+            additions = {"opportunity_type": "VARCHAR(32)", "deadline_at": timestamp,
+                         "expired_at": timestamp, "source_url": "VARCHAR(2048)"}
             changed = False
             for name, kind in additions.items():
                 if name not in columns:
