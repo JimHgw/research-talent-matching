@@ -51,6 +51,16 @@ Type: PUBLICATION
 Description: Second paper.
 """
 
+SPACED_PUBLICATION_SOURCE = """Research outputs
+Title: Paper A
+
+Type: PUBLICATION
+
+Description: First paper.
+
+URL: https://example.test/paper-a
+"""
+
 
 def hyphenated_skill_docx():
     document = DocxDocument()
@@ -186,6 +196,32 @@ def test_blank_lines_keep_publication_urls_with_their_record():
     assert [row["description"] for row in outputs] == ["First paper.", "Second paper."]
 
 
+@pytest.mark.parametrize("spacing", ["\n\n", "\n\n\n", "\n \n"])
+def test_layout_gaps_inside_one_publication_preserve_all_fields(spacing):
+    source = SPACED_PUBLICATION_SOURCE.replace("\n\n", spacing)
+    result = build_extraction_result("doc_spaced_publication", source, [])
+    validator("Extraction").validate(result)
+    output, = result["suggestedSections"]["researchOutputs"]
+    assert {key: output[key] for key in ("title", "type", "description", "url")} == {
+        "title": "Paper A", "type": "PUBLICATION",
+        "description": "First paper.", "url": "https://example.test/paper-a",
+    }
+
+
+def test_spaced_fields_do_not_merge_separate_publications():
+    source = SPACED_PUBLICATION_SOURCE + "\n" + "\n\n".join([
+        "Title: Paper B", "Type: PUBLICATION", "Description: Second paper.",
+        "URL: https://example.test/paper-b",
+    ])
+    result = build_extraction_result("doc_spaced_publications", source, [])
+    validator("Extraction").validate(result)
+    outputs = result["suggestedSections"]["researchOutputs"]
+    assert [(row["title"], row["type"], row["description"], row["url"]) for row in outputs] == [
+        ("Paper A", "PUBLICATION", "First paper.", "https://example.test/paper-a"),
+        ("Paper B", "PUBLICATION", "Second paper.", "https://example.test/paper-b"),
+    ]
+
+
 def test_project_date_spacing_and_description_paragraphs_are_preserved():
     source = PROJECT_SOURCE.replace("Data explorer\n", "Data explorer\n\n")
     source += "\nEvaluated the results.\n\nSecond project\n\nProject | 2025 - current\nBuilt a tool."
@@ -214,8 +250,12 @@ def test_word_nonbreaking_hyphen_preserves_skill_name():
         {"title": "Paper A", "type": "PUBLICATION", "url": None},
         {"title": "Paper B", "type": "PUBLICATION", "url": "https://example.test/paper-b"},
     ]),
+    ("spaced_publication", "researchOutputs", [{
+        "title": "Paper A", "type": "PUBLICATION",
+        "description": "First paper.", "url": "https://example.test/paper-a",
+    }]),
     ("skill_hyphen", "skills", [{"title": "scikit-learn"}]),
-], ids=["mixed-outputs", "publication-links", "skill-hyphen"])
+], ids=["mixed-outputs", "publication-links", "spaced-publication", "skill-hyphen"])
 def test_layout_fixes_survive_reviewed_import(app, signed, tmp_path, case, field, expected):
     client, csrf = signed
     app.config["DOCUMENT_STORAGE_DIR"] = str(tmp_path / "documents")
@@ -223,8 +263,12 @@ def test_layout_fixes_survive_reviewed_import(app, signed, tmp_path, case, field
     if case == "skill_hyphen":
         content = hyphenated_skill_docx()
     else:
-        source = PROJECT_SOURCE + "\nPublication: Graph paper" if case == "mixed_outputs" else PUBLICATIONS_SOURCE
-        content = text_docx(source)
+        sources = {
+            "mixed_outputs": PROJECT_SOURCE + "\nPublication: Graph paper",
+            "publication_links": PUBLICATIONS_SOURCE,
+            "spaced_publication": SPACED_PUBLICATION_SOURCE,
+        }
+        content = text_docx(sources[case])
     document_id = upload(client, csrf, content, "review.docx")
     process(app)
     extraction = client.get(f"/api/v1/me/documents/{document_id}/extraction").json
