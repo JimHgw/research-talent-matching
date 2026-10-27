@@ -28,6 +28,8 @@ services:
     build:
       context: ./frontend
       target: runtime
+      args:
+        VITE_OPPORTUNITY_SOURCE_URLS: "${VITE_OPPORTUNITY_SOURCE_URLS:-false}"
     init: true
     restart: unless-stopped
     ports:

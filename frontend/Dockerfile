@@ -11,6 +11,8 @@ COPY src ./src
 COPY public ./public
 # Keep browser requests on the same origin as the page.
 ENV VITE_API_BASE_URL=/api/v1
+ARG VITE_OPPORTUNITY_SOURCE_URLS=false
+ENV VITE_OPPORTUNITY_SOURCE_URLS=${VITE_OPPORTUNITY_SOURCE_URLS}
 RUN pnpm build
 
 FROM nginx:1.30.5-alpine AS runtime

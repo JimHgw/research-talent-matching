@@ -16,23 +16,42 @@ US-14 APIs for search and deadlines.
   Read-only details reload when the user returns to the window. The backend
   decides whether an opportunity is active or expired.
 
-## Source links still need BE-56
+## Source links
 
 The backend README proposes `content.sourceUrl`: an optional HTTP/HTTPS URL,
 up to 2048 characters. Sending `null` removes the link. When this frontend work
 was added, the backend and OpenAPI did not support saving this field yet.
 
-The input is hidden by default for older records. Once BE-56 is available, set
-`VITE_OPPORTUNITY_SOURCE_URLS=true` and restart the dev server or rebuild.
-Records that already return a `sourceUrl` field also show the input. Older
-records keep this field out of ordinary save requests.
+The US-19 backend is now merged into main and accepts this field. The frontend build flag still defaults to false.
+After deploying the US-19 backend, enable it in the repository root `.env`:
 
-Valid links open in a new tab with `noopener noreferrer`. Empty or invalid links
-are not shown. Adding a link does not fetch or import anything from that website.
+```text
+VITE_OPPORTUNITY_SOURCE_URLS=true
+```
 
-The source-link tests use sample API responses. Add, edit, remove and reload
-still need to be checked against BE-56, along with invalid URLs and attempts to
-edit another team's opportunity. US-19 should stay open until those checks pass.
+Then run `docker compose up -d --build frontend`. Both Compose files pass this
+setting as a build argument. Dockerfile applies it before `pnpm build`; changing
+a running container's environment without rebuilding will not change the UI.
+For native Vite development, use the same setting in `frontend/.env` and restart.
+Do not copy `.env` into the image; the build needs only this non-secret flag.
+
+With the flag enabled, new records and records whose link has been cleared both
+show the input, even when the API omits `sourceUrl`. Empty input sends explicit
+`null`; unchanged older records do not acquire a source URL field automatically.
+Valid links open in a new tab with `noopener noreferrer`. Adding a link does not
+fetch or import anything from that website.
+
+`us19-source-live.mjs` checks create, edit, clear, reload and re-add through the
+React editor and real HTTP API. It also checks a talent's read-only link and
+rejected writes by a different team. Run it with:
+
+```text
+python -m pytest backend/tests/test_frontend_integration.py -k 19-source --require-frontend
+```
+
+This test skips explicitly until the backend's OpenAPI includes `sourceUrl`.
+To test MySQL, add `--run-mysql` and configure `MYSQL_TEST_DATABASE_URL` for an
+isolated database ending in `_test`, as required by the existing test fixtures.
 
 ## Tests
 
