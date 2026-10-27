@@ -370,27 +370,33 @@ def _cv_lines(section, lines):
         re.I,
     )
 
-    rows = [(value, source) for value, source in lines if value]
+    # Blank lines delimit existing labelled records and must reach _records.
+    rows = list(lines)
     converted, issues = [], []
     index = 0
 
+    def project_date_index(title_index):
+        if not rows[title_index][0]:
+            return None
+        date_index = title_index + 1
+        while date_index < len(rows) and not rows[date_index][0]:
+            date_index += 1
+        if date_index < len(rows) and marker.fullmatch(rows[date_index][0]):
+            return date_index
+        return None
+
     while index < len(rows):
-        if (
-            index + 1 >= len(rows)
-            or not marker.fullmatch(rows[index + 1][0])
-        ):
+        date_index = project_date_index(index)
+        if date_index is None:
             converted.append(rows[index])
             index += 1
             continue
 
         title = rows[index][0]
-        end = index + 2
+        end = date_index + 1
 
         while end < len(rows):
-            if (
-                end + 1 < len(rows)
-                and marker.fullmatch(rows[end + 1][0])
-            ):
+            if project_date_index(end) is not None:
                 break
 
             key = (
@@ -398,7 +404,7 @@ def _cv_lines(section, lines):
                 .strip().casefold()
             )
             if key in ("title", "type") or re.match(
-                r"^(PUBLICATION|PROJECT|OTHER)\s*\|",
+                r"^(PUBLICATION|PROJECT|OTHER)\s*[:|\t]",
                 rows[end][0],
                 re.I,
             ):
@@ -406,11 +412,11 @@ def _cv_lines(section, lines):
 
             end += 1
 
-        source = " ".join(value for value, _ in rows[index:end])
+        source = " ".join(value for value, _ in rows[index:end] if value)
         converted.extend([
             ("", ""),
             ("Title: " + title, title),
-            ("Type: PROJECT", rows[index + 1][0]),
+            ("Type: PROJECT", rows[date_index][0]),
             ("Description: " + source[:5000], source),
             ("", ""),
         ])

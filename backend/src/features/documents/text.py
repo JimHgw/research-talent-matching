@@ -39,6 +39,9 @@ def extract_docx_text(path):
         if node.tag == word + "t":
             return node.text or ""
 
+        if node.tag == word + "noBreakHyphen":
+            return "-"
+
         if node.tag == word + "tab":
             return "\t"
 
