@@ -12,7 +12,7 @@ export function OpportunityContent({ content, tags }) {
     <div className="opportunity-content">
       <h3>{content.title || t('Untitled opportunity')}</h3>
       <p className="muted">
-        {content.university} 路 {t(content.disciplineGroup)} 路 {content.discipline}
+        {content.university} · {t(content.disciplineGroup)} · {content.discipline}
       </p>
       <h4>{t('Research area')}</h4>
       <p>{content.researchArea}</p>
@@ -27,7 +27,7 @@ export function OpportunityContent({ content, tags }) {
           <li key={row.id}>
             <strong>{row.label}</strong>
             <p>
-              {row.importance === 'REQUIRED' ? t('Required') : t('Preferred')} 路{' '}
+              {row.importance === 'REQUIRED' ? t('Required') : t('Preferred')} ·{' '}
               {t(requirementKinds[row.kind] || row.kind)}
             </p>
             {academicFields[row.kind] ? (

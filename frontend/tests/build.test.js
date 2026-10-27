@@ -62,3 +62,31 @@ test('the core page configuration builds without opportunity or matching feature
       assert.doesNotMatch(module, /\/features\/(matching|opportunities)\//);
   }
 });
+
+for (const enabled of ['true', 'false']) {
+  test(`source URL switch is embedded in the production bundle: ${enabled}`, async () => {
+    const result = await build({
+      configFile: false,
+      envFile: false,
+      logLevel: 'silent',
+      define: { 'import.meta.env.VITE_OPPORTUNITY_SOURCE_URLS': JSON.stringify(enabled) },
+      build: {
+        write: false,
+        lib: {
+          entry: fileURLToPath(
+            new URL('../src/features/opportunities/metadata.js', import.meta.url)
+          ),
+          formats: ['es'],
+          fileName: 'metadata',
+        },
+      },
+    });
+    const code = (Array.isArray(result) ? result : [result])
+      .flatMap((item) => item.output)
+      .find((item) => item.type === 'chunk').code;
+    const built = await import(
+      `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+    );
+    assert.equal(built.sourceUrlsEnabled, enabled === 'true');
+  });
+}

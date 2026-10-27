@@ -3,6 +3,8 @@ services:
     build:
       context: .
       target: runtime
+      args:
+        VITE_OPPORTUNITY_SOURCE_URLS: "${VITE_OPPORTUNITY_SOURCE_URLS:-false}"
     ports:
       - '127.0.0.1:5173:80'
     environment:

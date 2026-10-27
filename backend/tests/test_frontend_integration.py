@@ -29,15 +29,19 @@ def frontend_node(required=False):
     return node
 
 
-@pytest.mark.parametrize("story", ["01", "02", "03", "05", "14", "19", "01-register", "01-reset", "41", "49", "53", "i18n"])
+@pytest.mark.parametrize("story", ["01", "02", "03", "05", "14", "19", "01-register", "01-reset", "41", "49", "53", "19-source", "i18n"])
 def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
+    if story == "19-source":
+        contract = json.loads((ROOT / "docs/api/openapi.json").read_text(encoding="utf-8"))
+        if "sourceUrl" not in contract["components"]["schemas"]["OpportunityContent"]["properties"]:
+            pytest.skip("Source URL integration requires the US-19 backend contract.")
     if story == "53":
         contract = json.loads((ROOT / "docs/api/openapi.json").read_text(encoding="utf-8"))
         kinds = contract["components"]["schemas"]["Requirement"]["properties"]["kind"]["enum"]
         if not {"EDUCATION", "RESEARCH_EXPERIENCE", "RESEARCH_OUTPUT"}.issubset(kinds):
             pytest.skip("Task 53 academic integration needs BE-54; its API was reverted on main.")
     node = frontend_node(required=request.config.getoption("--require-frontend"))
-    if story == "02":
+    if story in ("02", "19-source"):
         with app.app_context():
             provision_user("team2@example.test", PASSWORD, "Second team", "RESEARCH_TEAM")
     outbox = []
@@ -47,7 +51,7 @@ def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
     if story == "01-reset":
         monkeypatch.setattr("backend.src.features.auth.reset.secrets.randbelow", lambda _: 12345)
         app.extensions["password_reset_mailer"] = lambda email, code: outbox.append((email, code))
-    extra_env = {}
+    extra_env = {"VITE_OPPORTUNITY_SOURCE_URLS": "true"} if story == "19-source" else {}
     if story in ("41", "i18n"):
         from io import BytesIO
         from docx import Document
