@@ -14,7 +14,7 @@ from .matching.repository import get_published
 from .matching.service import ranked_page
 from .matching.team_repository import (discoverable_profiles, own_published_opportunity,
                                        tag_labels, visible_profiles)
-from .matching.team_service import evaluate_visible
+from .matching.team_service import evaluate_talents
 
 collections = Blueprint("collections", __name__, url_prefix="/api/v1")
 
@@ -70,10 +70,7 @@ def shortlist_list(opportunity_id):
         profiles = [profile for profile in discoverable_profiles(db) if profile.talent_id in ids]
         talents = visible_profiles(db, profiles)
         labels = tag_labels(db)
-        items = []
-        for talent in talents:
-            _, summary = evaluate_visible(opportunity, talent, labels)
-            items.append({"talent": talent, "summary": summary})
+        items = evaluate_talents(opportunity, talents, labels)
         result = ranked_page(items, page, size)
     return jsonify(result)
 

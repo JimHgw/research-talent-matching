@@ -36,9 +36,9 @@ React pages against the real Python API and a temporary SQLite database.
 It checks the education, experience and publication records, hidden fields,
 withdrawn sharing, unconfirmed edits and an expired opportunity.
 
-The US-13 evaluation chose to keep semantic matching out of the application.
-This frontend keeps the current matching method. A high similarity score on
-its own is not proof of a qualification, experience or publication.
+The application now includes [semantic interest ranking](semantic-matching.md)
+on cards and matching details, alongside the existing evidence coverage. A high
+similarity score on its own is not proof of a qualification, experience or publication.
 
 ## Tests
 

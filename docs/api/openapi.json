@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H18ABANANA Sprint 1 API Contract",
-    "version": "0.1.2-draft",
+    "version": "0.1.3-draft",
     "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase. US-01 supplement adds verified-email registration and email/account-ID login."
   },
   "servers": [
@@ -5886,6 +5886,28 @@
               "skill-title-interest-tags-v2",
               "academic-evidence-v3"
             ]
+          },
+          "recommendationScore": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Ranking score: 70% structured score + 30% unrounded semantic percentage by default. Configurable semantic weight [0,1]; use semantic percentage alone when structured score is null; fallback to structured score when semantic input/model is unavailable. Rounded HALF_UP to two decimals."
+          },
+          "rankingAlgorithmVersion": {
+            "type": "string",
+            "enum": [
+              "hybrid-interest-v1"
+            ]
+          },
+          "semanticInterest": {
+            "$ref": "#/components/schemas/SemanticInterest"
           }
         },
         "required": [
@@ -5896,7 +5918,7 @@
           "algorithmVersion"
         ],
         "additionalProperties": false,
-        "description": "Draft scoring: REQUIRED weight 2, PREFERRED 1; MATCHED=1, PARTIAL=.5, GAP/UNKNOWN=0. Score is evidence coverage, not a probability. No criteria -> null score and null unknown percentage."
+        "description": "Draft scoring: REQUIRED weight 2, PREFERRED 1; MATCHED=1, PARTIAL=.5, GAP/UNKNOWN=0. Score is evidence coverage, not a probability. No criteria -> null score and null unknown percentage. Application semantic matching adds recommendationScore, rankingAlgorithmVersion and semanticInterest. score and algorithmVersion still describe structured evidence coverage. New fields are omitted when semantic matching is disabled. Lists sort by recommendationScore when present, then lower unknown weight, then stable ID; filters and privacy apply before inference and pagination."
       },
       "OwnerMatch": {
         "type": "object",
@@ -6631,6 +6653,73 @@
         ],
         "additionalProperties": false,
         "description": "A free-text skill title and supporting evidence. No vocabulary tag or claim selector. ID identifies the profile record, not a shared tag. Explicit legacy negative statements retain their wording when upgraded."
+      },
+      "SemanticInterest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "MISSING_EVIDENCE",
+              "UNAVAILABLE"
+            ]
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relevance": {
+            "type": "string",
+            "enum": [
+              "RELEVANT",
+              "PARTIAL",
+              "UNRELATED",
+              "UNKNOWN"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "modelVersion": {
+            "type": "string",
+            "enum": [
+              "minilm-interest-onnx-v1"
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "similarity",
+          "score",
+          "relevance",
+          "weight",
+          "modelVersion"
+        ],
+        "additionalProperties": false,
+        "description": "Local cosine similarity over current permitted research interest text/shared/personal labels and opportunity research area/INTEREST labels. score=max(0,similarity)*100, rounded to two decimals. relevance thresholds: PARTIAL >=0.45; RELEVANT >=0.75. Missing input or unavailable model yields null similarity/score, UNKNOWN relevance, weight zero. No qualification or requirement status is inferred from similarity."
       }
     },
     "parameters": {

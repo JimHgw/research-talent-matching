@@ -6,6 +6,7 @@ import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/u
 import MatchDetails from './MatchDetails.jsx';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
+import SemanticInterest from './SemanticInterest.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const { t } = useLanguage();
@@ -29,8 +30,11 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
           <span className="card-category">{t(content.disciplineGroup)}</span>
         </div>
         {summary && (
-          <span className="score-chip">
-            {summary.score ?? '—'}
+          <span
+            className="score-chip"
+            title={t(summary.semanticInterest ? 'Recommendation score' : 'Evidence coverage')}
+          >
+            {summary.recommendationScore ?? summary.score ?? '—'}
             <small>/100</small>
           </span>
         )}
@@ -41,6 +45,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
         <span>{content.discipline}</span>
         <span>{content.researchArea}</span>
       </div>
+      {summary && <SemanticInterest summary={summary} compact />}
       {CollectionButton && <CollectionButton opportunityId={opportunity.id} />}
       <div className="card-bottom">
         <span className="muted">

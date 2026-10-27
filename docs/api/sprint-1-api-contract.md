@@ -1,10 +1,17 @@
 # H18ABANANA — Sprint 1 Frontend and Backend API Contract
 
-Version: `0.1.2-draft`
+Version: `0.1.3-draft`
 
 Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
+
+Implemented extension, 2026-10-27: [semantic interest ranking](../semantic-matching.md)
+adds `recommendationScore`, `rankingAlgorithmVersion` and `semanticInterest` to
+matching summaries on existing recommendation, team matching and shortlist routes.
+Ranking defaults to 70% evidence coverage plus 30% interest similarity, with
+structured fallback and current visibility checks before inference. Structured
+coverage, requirement statuses and qualification evidence retain their meaning.
 
 Implemented extension, 2026-10-23: opportunity SKILL requirements support
 `skillTitles: ["Financial modelling"]` with `tagIds: []`; all titles in a
@@ -2796,7 +2803,10 @@ Display the backend summary rather than recalculating from a page of results. Va
 | `unknownWeightPercent` | number / null | Yes | Percentage of requirement weight classified UNKNOWN; null if there are no criteria; minimum: 0; maximum: 100 |
 | `requiredGapCount` | integer | Yes | Number of REQUIRED requirements classified GAP; minimum: 0 |
 | `evaluationStatus` | `EVALUATED` / `INSUFFICIENT_CRITERIA` | Yes | Evaluated or insufficient criteria |
-| `algorithmVersion` | `tag-coverage-v1` | Yes | Version of the matching rules |
+| `algorithmVersion` | `tag-coverage-v1` / `skill-title-interest-tags-v2` / `academic-evidence-v3` | Yes | Version of the structured evidence rules |
+| `recommendationScore` | number / null | When semantic matching is enabled | Ranking score from 0 to 100; defaults to 70% coverage + 30% semantic interest percentage; structured fallback when input/model is unavailable |
+| `rankingAlgorithmVersion` | `hybrid-interest-v1` | When semantic matching is enabled | Version of recommendation ranking, separate from structured evidence rules |
+| `semanticInterest` | object | When semantic matching is enabled | Status, raw cosine, semantic percentage, relevance, actual weight and model version; see [semantic ranking contract](../semantic-matching.md#scores-and-response-fields) |
 
 <a id="model-ownermatch"></a>
 

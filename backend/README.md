@@ -22,9 +22,12 @@ US-19 adds [optional opportunity source URLs](../docs/us19-source-urls.md). Exis
 installations must run `upgrade-opportunity-search` before serving the updated API.
 The Docker entrypoint already runs this additive upgrade.
 
-US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
-The measured decision keeps the application's structured interest matcher as its
-fallback. Optional embedding dependencies are separate from API/worker dependencies.
+Recommendations, team discovery and matching details now use [semantic interest
+ranking](../docs/semantic-matching.md), enabled by default with 70% evidence coverage
+and 30% local MiniLM similarity. Structured coverage remains visible and supplies
+the fallback when interest input or the model is unavailable. Native setup and
+Docker builds prepare the pinned model; inference makes no external API calls.
+The [historical US-13 comparison](../docs/testing/us13-evaluation.md) remains reproducible.
 Team opportunities additionally support [free-text skill requirements](../docs/free-text-skills.md#opportunity-skill-requirements).
 
 For an existing installation, rerun `init-db` using its existing database

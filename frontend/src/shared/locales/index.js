@@ -9,6 +9,7 @@ import korean from './ko.js';
 import arabic from './ar.js';
 import hindi from './hi.js';
 import russian from './ru.js';
+import { semanticMessages } from './semantic.js';
 
 // Native names keep the selector usable after an accidental language switch.
 // Each dictionary remains independently editable; English source messages are the fallback.
@@ -37,6 +38,10 @@ export const languageCatalog = {
   hi: { label: 'हिन्दी', direction: 'ltr', messages: hindi },
   ru: { label: 'Русский', direction: 'ltr', messages: russian },
 };
+
+for (const [locale, messages] of Object.entries(semanticMessages)) {
+  languageCatalog[locale].messages = { ...languageCatalog[locale].messages, ...messages };
+}
 
 export const supportsLanguage = (value) => Object.hasOwn(languageCatalog, value);
 export const languageDefinition = (value) =>

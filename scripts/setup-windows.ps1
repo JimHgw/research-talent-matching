@@ -121,6 +121,8 @@ function Initialize-Project {
         Invoke-Checked $python @('-m', 'pip', '--disable-pip-version-check', 'install', '-r',
             (Join-Path $RepoRoot 'backend/requirements-dev.txt'))
         Invoke-Checked $python @('-m', 'pip', 'check')
+        Write-Host 'Preparing the local semantic interest model...'
+        Invoke-Checked $python @('-m', 'backend.src.features.matching.prepare_semantic')
 
         Write-Host '[4/6] Preparing the pinned project-local pnpm...'
         $package = Get-Content -LiteralPath (Join-Path $frontend 'package.json') -Raw | ConvertFrom-Json

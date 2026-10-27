@@ -56,6 +56,7 @@ def setup(root=ROOT):
     print("[2/5] Installing backend dependencies...", flush=True)
     run([python, "-m", "pip", "install", "-r", root / "backend/requirements-dev.txt"], cwd=root, env=env)
     run([python, "-m", "pip", "check"], cwd=root, env=env)
+    run([python, "-m", "backend.src.features.matching.prepare_semantic"], cwd=root, env=env)
 
     print("[3/5] Preparing the pinned project-local pnpm...", flush=True)
     tools = venv / "node-tools"

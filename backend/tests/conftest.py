@@ -107,7 +107,9 @@ def clear_mysql_data(database):
 def app(tmp_path, request, mysql_schema):
     mysql = request.config.getoption("--run-mysql")
     url = os.environ["MYSQL_TEST_DATABASE_URL"] if mysql else f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
-    app = create_app({"TESTING": True, "DATABASE_URL": url,
+    # Baseline suites retain deterministic structured scores; application semantic
+    # integration tests explicitly enable the real or substituted encoder.
+    app = create_app({"TESTING": True, "DATABASE_URL": url, "SEMANTIC_MATCHING_ENABLED": False,
                       "COOKIE_SECURE": False, "LOGIN_EMAIL_LIMIT": 100, "LOGIN_IP_LIMIT": 100})
     database = app.extensions["database"]
     if not mysql:

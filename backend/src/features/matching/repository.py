@@ -9,6 +9,7 @@ from ...db.models import (
 )
 from ...db.opportunity_read import serialize, serialize_many
 from ...db.skills import matching_skills, read_skills_many
+from ...db.interests import profile_components
 from ...shared.validation import ApiError, validate
 from ..opportunities import availability as opportunity_availability
 
@@ -52,6 +53,8 @@ def read_matching_profile(db, profile):
         )
     }
     return {
+        **{key: value for key, value in profile_components(db, profile.talent_id).items()
+           if key in ("researchInterestText", "customInterestTags")},
         "revision": profile.revision,
         "skills": skills,
         "skillRecords": skill_records,

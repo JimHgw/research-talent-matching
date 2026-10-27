@@ -113,7 +113,7 @@ semantic_evaluation:
     - python -m pip install -r backend/requirements-dev.txt -r backend/requirements-semantic.txt
   script:
     - python -m backend.src.features.matching.evaluate_semantic --download-model --output reports/us13-results.json
-    - python -m pytest backend/tests/test_us13.py -q
+    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py -q
   cache:
     key: us13-minilm-1110a243
     paths:

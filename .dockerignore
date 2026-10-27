@@ -4,6 +4,7 @@
 !backend/Dockerfile
 !backend/requirements.txt
 !backend/requirements-docker.txt
+!backend/requirements-semantic.txt
 !backend/__init__.py
 !backend/app.py
 !backend/src/

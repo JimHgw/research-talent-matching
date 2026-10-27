@@ -2,6 +2,7 @@ from ...db.models import utcnow
 from ...shared.validation import ApiError
 from ...shared.search import opportunity_matches
 from .engine import evaluate_opportunity
+from .semantic_runtime import enrich_matches
 from .repository import (
     get_owner_profile,
     get_published,
@@ -24,7 +25,7 @@ def require_confirmed(profile):
 
 def ranking_key(item):
     summary = item["summary"]
-    score = summary["score"]
+    score = summary.get("recommendationScore", summary["score"])
     unknown = summary["unknownWeightPercent"]
     return (
         score is None,
@@ -41,16 +42,19 @@ def recommendations(db, user, page, page_size, filters=None):
 
     snapshot = read_matching_profile(db, profile)
     items = []
+    pairs = []
 
     for opportunity in list_published(db):
         if not opportunity_matches(opportunity, filters or {}):
             continue
         _, summary = evaluate_opportunity(opportunity, snapshot)
+        pairs.append((opportunity, snapshot, summary))
         items.append({
             "opportunity": opportunity,
             "summary": summary,
         })
 
+    enrich_matches(pairs)
     return ranked_page(items, page, page_size)
 
 
@@ -75,6 +79,7 @@ def owner_match(db, user, opportunity_id):
     require_confirmed(profile)
     snapshot = read_matching_profile(db, profile)
     results, summary = evaluate_opportunity(opportunity, snapshot)
+    enrich_matches([(opportunity, snapshot, summary)])
     return {
         "opportunity": opportunity,
         "profileRevision": profile.revision,

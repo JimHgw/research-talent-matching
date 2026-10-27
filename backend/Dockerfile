@@ -3,11 +3,12 @@ FROM python:3.13-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     FLASK_SKIP_DOTENV=1 \
-    FLASK_DEBUG=0
+    FLASK_DEBUG=0 \
+    SEMANTIC_MODEL_DIR=/app/models/minilm
 
 WORKDIR /app
 
-COPY backend/requirements.txt backend/requirements-docker.txt ./backend/
+COPY backend/requirements.txt backend/requirements-docker.txt backend/requirements-semantic.txt ./backend/
 RUN python -m pip install --no-cache-dir -r backend/requirements-docker.txt
 
 COPY backend/__init__.py backend/app.py ./backend/
@@ -15,6 +16,8 @@ COPY backend/src/ ./backend/src/
 COPY backend/docker/ ./backend/docker/
 COPY docs/api/openapi.json ./docs/api/openapi.json
 COPY docs/api/examples/tags.json ./docs/api/examples/tags.json
+
+RUN python -m backend.src.features.matching.prepare_semantic --model-dir /app/models/minilm
 
 RUN groupadd --gid 10001 app \
     && useradd --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app \

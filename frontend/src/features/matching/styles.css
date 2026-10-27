@@ -136,6 +136,25 @@
 .match-metrics strong {
   color: var(--ink);
 }
+.semantic-interest {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  background: #f8f7fb;
+  font-size: 12px;
+}
+.semantic-interest.compact {
+  padding: 12px;
+  margin: 12px 0;
+}
+.semantic-interest .row-between {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.semantic-interest p:last-child {
+  margin-bottom: 0;
+}
 .evidence-row {
   border: 1px solid var(--line);
   padding: 23px;

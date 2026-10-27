@@ -1,7 +1,7 @@
 # Sprint 1 API contract
 
 Proposed API contract for the H18ABANANA JavaScript frontend and Python backend.
-Version: `0.1.2-draft`. Covers US-01–US-09 with 29 HTTP operations.
+Version: `0.1.3-draft`. Covers US-01–US-09 and the implemented extensions below.
 
 ## Start here
 
@@ -46,7 +46,12 @@ Opportunity SKILL requirements now accept `skillTitles` with empty `tagIds`;
 INTEREST requirements retain shared IDs. See the [requirement shape and compatibility rules](../free-text-skills.md#opportunity-skill-requirements).
 Free-text skill results add `ALL_SKILLS_SUPPORTED` / `SOME_SKILLS_SUPPORTED` and
 use `skill-title-interest-tags-v2`; legacy requirements retain `tag-coverage-v1`.
-US-13 is a [local executed experiment](../testing/us13-evaluation.md) and adds no endpoint.
+US-13's [local executed experiment](../testing/us13-evaluation.md) is retained.
+Application [semantic interest ranking](../semantic-matching.md) adds
+`recommendationScore`, `rankingAlgorithmVersion` and `semanticInterest` to matching
+summaries on existing routes. Coverage and qualification evidence remain separate;
+model/input failures preserve structured ranking. The indexed `*-semantic` examples
+show the additive response fields.
 
 US-14 adds [search and combined filters](../us14-search.md) to opportunity lists,
 recommendations and team discovery. Existing opportunity writes support nullable
