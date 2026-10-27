@@ -170,11 +170,36 @@ def find_interest_suggestions(text, tags):
     return _tags(_sections(text)["researchInterests"], tags, "INTEREST")[0]
 
 
+def _output_fields_continue(block_keys, lines, start):
+    """Complementary labelled paragraphs can be one output with layout gaps."""
+    following_keys = set()
+    for index in range(start, len(lines)):
+        value = lines[index][0]
+        if not value:
+            if following_keys:
+                break
+            continue
+        parts = re.split(r"[:\t]", value, maxsplit=1)
+        key = KEYS.get(parts[0].strip().casefold())
+        if (len(parts) != 2 or key not in ("title", "type", "description", "url")
+                or key in following_keys):
+            return False
+        following_keys.add(key)
+    return bool(following_keys) and block_keys.isdisjoint(following_keys)
+
+
 def _records(section, lines):
-    """Keep labelled blocks together; delimited table/pipe rows are separate records."""
+    """Keep labelled blocks together; output layout gaps need not start a record."""
     block = []
     block_keys = set()
-    for value, _ in lines:
+    for index, (value, _) in enumerate(lines):
+        if not value and section == "researchOutputs" and block_keys:
+            # Inspect the next paragraph once per run of blank lines. A repeated
+            # field marks a new record, including URL-first paragraphs with a title.
+            if index and not lines[index - 1][0]:
+                continue
+            if _output_fields_continue(block_keys, lines, index + 1):
+                continue
         key = KEYS.get(re.split(r"[:\t]", value, maxsplit=1)[0].strip().casefold())
         repeated = key is not None and key in block_keys
         delimited = key is None and ("|" in value or "\t" in value
@@ -370,27 +395,33 @@ def _cv_lines(section, lines):
         re.I,
     )
 
-    rows = [(value, source) for value, source in lines if value]
+    # Retain gaps so _records can distinguish layout spacing from a new output.
+    rows = list(lines)
     converted, issues = [], []
     index = 0
 
+    def project_date_index(title_index):
+        if not rows[title_index][0]:
+            return None
+        date_index = title_index + 1
+        while date_index < len(rows) and not rows[date_index][0]:
+            date_index += 1
+        if date_index < len(rows) and marker.fullmatch(rows[date_index][0]):
+            return date_index
+        return None
+
     while index < len(rows):
-        if (
-            index + 1 >= len(rows)
-            or not marker.fullmatch(rows[index + 1][0])
-        ):
+        date_index = project_date_index(index)
+        if date_index is None:
             converted.append(rows[index])
             index += 1
             continue
 
         title = rows[index][0]
-        end = index + 2
+        end = date_index + 1
 
         while end < len(rows):
-            if (
-                end + 1 < len(rows)
-                and marker.fullmatch(rows[end + 1][0])
-            ):
+            if project_date_index(end) is not None:
                 break
 
             key = (
@@ -398,7 +429,7 @@ def _cv_lines(section, lines):
                 .strip().casefold()
             )
             if key in ("title", "type") or re.match(
-                r"^(PUBLICATION|PROJECT|OTHER)\s*\|",
+                r"^(PUBLICATION|PROJECT|OTHER)\s*[:|\t]",
                 rows[end][0],
                 re.I,
             ):
@@ -406,11 +437,11 @@ def _cv_lines(section, lines):
 
             end += 1
 
-        source = " ".join(value for value, _ in rows[index:end])
+        source = " ".join(value for value, _ in rows[index:end] if value)
         converted.extend([
             ("", ""),
             ("Title: " + title, title),
-            ("Type: PROJECT", rows[index + 1][0]),
+            ("Type: PROJECT", rows[date_index][0]),
             ("Description: " + source[:5000], source),
             ("", ""),
         ])
