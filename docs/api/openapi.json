@@ -5584,7 +5584,7 @@
               "null"
             ],
             "format": "date-time",
-            "description": "Optional RFC3339 deadline with explicit offset, at most microsecond precision. UTC on reads; omission preserves on update, null clears it. Omitted on reads when unset."
+            "description": "Optional RFC3339 deadline with explicit offset, at most microsecond precision. UTC on reads; omission preserves on update, null clears it. Omitted on reads when unset. Published opportunities expire at and after this instant and are excluded from active browsing, search and both matching directions. Editing or clearing a deadline after expiry requires explicit reopen to restore availability."
           },
           "sourceUrl": {
             "type": [
@@ -5645,7 +5645,7 @@
               "ACTIVE",
               "EXPIRED"
             ],
-            "description": "Current UTC availability. Present on live responses; optional for legacy fixtures/clients."
+            "description": "Current UTC availability. EXPIRED at and after the deadline, or while a retained expiry marker awaits explicit reopen. Expired published records remain readable through direct details and owner listings. Present on live responses; optional for legacy fixtures/clients."
           }
         },
         "required": [

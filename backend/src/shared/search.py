@@ -9,7 +9,7 @@ from sqlalchemy import select
 from ..db.models import Tag
 from ..db.skills import matching_skills, normalise_title, skill_claims
 from .universities import university_code
-from .validation import invalid
+from .validation import DEADLINE_ERROR, invalid
 
 OPPORTUNITY_TYPES = ("PHD", "MASTERS", "RESEARCH_ASSISTANT", "POSTDOC", "OTHER")
 ATTRIBUTES = ("university", "disciplineGroup", "discipline", "researchArea", "opportunityType")
@@ -22,12 +22,18 @@ def parse_datetime(value, field):
     # RFC3339 requires a time and explicit offset; fromisoformat alone is more permissive.
     if not isinstance(value, str) or not re.fullmatch(
             r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:[Zz]|[+-](?:[01]\d|2[0-3]):[0-5]\d)", value):
-        invalid(field, "Use an RFC3339 date-time with an explicit UTC offset.")
+        invalid(field, DEADLINE_ERROR if field == "content.deadlineAt" else
+                "Use an RFC3339 date-time with an explicit UTC offset.")
     try:
         result = datetime.fromisoformat(value.upper().replace("Z", "+00:00"))
-        return result.astimezone(timezone.utc).replace(tzinfo=None)
+        result = result.astimezone(timezone.utc).replace(tzinfo=None)
+        # MySQL DATETIME starts at year 1000; reject before attempting a write.
+        if field == "content.deadlineAt" and result.year < 1000:
+            invalid(field, DEADLINE_ERROR)
+        return result
     except (ValueError, OverflowError):
-        invalid(field, "Use a valid RFC3339 date-time.")
+        invalid(field, DEADLINE_ERROR if field == "content.deadlineAt" else
+                "Use a valid RFC3339 date-time.")
 
 
 def search_parameters(db, *, talent=False, scope=False):

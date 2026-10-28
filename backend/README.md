@@ -28,6 +28,14 @@ and 30% local MiniLM similarity. Structured coverage remains visible and supplie
 the fallback when interest input or the model is unavailable. Native setup and
 Docker builds prepare the pinned model; inference makes no external API calls.
 The [historical US-13 comparison](../docs/testing/us13-evaluation.md) remains reproducible.
+
+US-20 adds [deadline validation and expiry acceptance coverage](../docs/us20-deadlines.md)
+to the existing UTC availability and explicit reopening flow. The same
+`upgrade-opportunity-search` command upgrades legacy deadline columns; no new
+schema change or expiry scheduler is required.
+US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
+The measured decision keeps the application's structured interest matcher as its
+fallback. Optional embedding dependencies are separate from API/worker dependencies.
 Team opportunities additionally support [free-text skill requirements](../docs/free-text-skills.md#opportunity-skill-requirements).
 
 For an existing installation, rerun `init-db` using its existing database
