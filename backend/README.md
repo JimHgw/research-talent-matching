@@ -22,6 +22,10 @@ US-19 adds [optional opportunity source URLs](../docs/us19-source-urls.md). Exis
 installations must run `upgrade-opportunity-search` before serving the updated API.
 The Docker entrypoint already runs this additive upgrade.
 
+US-20 adds [deadline validation and expiry acceptance coverage](../docs/us20-deadlines.md)
+to the existing UTC availability and explicit reopening flow. The same
+`upgrade-opportunity-search` command upgrades legacy deadline columns; no new
+schema change or expiry scheduler is required.
 US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
 The measured decision keeps the application's structured interest matcher as its
 fallback. Optional embedding dependencies are separate from API/worker dependencies.
