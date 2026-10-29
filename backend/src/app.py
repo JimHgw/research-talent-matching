@@ -28,6 +28,7 @@ from .features.opportunities.routes import opportunities
 from .shared.paths import ROOT
 from .shared.validation import ApiError
 from .features.matching.routes import matching
+from .features.matching.semantic_runtime import configure_semantic
 from .features.privacy.routes import privacy
 from .features.documents.routes import documents
 from .features.documents.worker import process_next_document
@@ -64,8 +65,12 @@ def create_app(config=None):
         DOCUMENT_STORAGE_DIR=os.getenv("DOCUMENT_STORAGE_DIR", str(ROOT / "data" / "documents"),),
         DOCUMENT_PROCESSING_TIMEOUT=os.getenv("DOCUMENT_PROCESSING_TIMEOUT", "300"),
         DOCUMENT_PROCESSING_MAX_ATTEMPTS=os.getenv("DOCUMENT_PROCESSING_MAX_ATTEMPTS", "3"),
+        SEMANTIC_MATCHING_ENABLED=os.getenv("SEMANTIC_MATCHING_ENABLED", "true"),
+        SEMANTIC_MATCHING_WEIGHT=os.getenv("SEMANTIC_MATCHING_WEIGHT", "0.3"),
+        SEMANTIC_MODEL_DIR=os.getenv("SEMANTIC_MODEL_DIR", str(ROOT / "data/us13/model")),
     )
     app.config.update(config or {})
+    configure_semantic(app)
     for name in ("DOCUMENT_PROCESSING_TIMEOUT", "DOCUMENT_PROCESSING_MAX_ATTEMPTS"):
         try:
             app.config[name] = int(app.config[name])

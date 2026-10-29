@@ -14,6 +14,7 @@ import {
 } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
+import SemanticInterest from './SemanticInterest.jsx';
 
 async function loadPublishedOpportunities() {
   const firstPage = await api.opportunities('mine');
@@ -95,8 +96,13 @@ function TalentResults({
                     .join('')
                     .slice(0, 2)}
                 </span>
-                <span className="score-chip">
-                  {item.summary.score ?? '—'}
+                <span
+                  className="score-chip"
+                  title={t(
+                    item.summary.semanticInterest ? 'Recommendation score' : 'Evidence coverage'
+                  )}
+                >
+                  {item.summary.recommendationScore ?? item.summary.score ?? '—'}
                   <small>/100</small>
                 </span>
               </div>
@@ -112,6 +118,7 @@ function TalentResults({
                   <span key={s.id}>{s.title}</span>
                 ))}
               </div>
+              <SemanticInterest summary={item.summary} compact />
               <p className="help">
                 {item.summary.unknownWeightPercent == null
                   ? t('Not available')

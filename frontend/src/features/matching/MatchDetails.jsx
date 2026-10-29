@@ -7,6 +7,7 @@ import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
 import { labels } from '../../shared/profile-labels.js';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 import SharedRecord, { supportingRecord, sharedRecordFields } from './SharedRecord.jsx';
+import SemanticInterest from './SemanticInterest.jsx';
 
 const matchReasons = {
   ALL_SKILLS_SUPPORTED: 'All requested skills have confirmed supporting evidence.',
@@ -63,11 +64,18 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
               </p>
             </div>
             <div className="score-large">
-              {result.summary.score ?? '—'}
-              <small>{t('coverage / 100')}</small>
+              {result.summary.recommendationScore ?? result.summary.score ?? '—'}
+              <small>
+                {t(result.summary.semanticInterest ? 'ranking / 100' : 'coverage / 100')}
+              </small>
             </div>
           </div>
           <div className="match-metrics">
+            {result.summary.semanticInterest && (
+              <span>
+                <strong>{result.summary.score ?? '—'}</strong> {t('Evidence coverage')}
+              </span>
+            )}
             <span>
               <strong>
                 {result.summary.unknownWeightPercent == null
@@ -85,6 +93,7 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
               'Coverage reflects the available evidence, not the probability of being selected. Missing information is shown as Unknown.'
             )}
           </p>
+          <SemanticInterest summary={result.summary} />
           {result.talent && <VisibleTalent talent={result.talent} tags={tags} />}
           <div className="evidence-list">
             {result.requirements.map((item) => (

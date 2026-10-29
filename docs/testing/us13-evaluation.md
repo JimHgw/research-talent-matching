@@ -1,5 +1,10 @@
 # US-13 / BE-46: executed semantic interest comparison
 
+Historical benchmark record. On 27 October 2026, [application semantic interest
+ranking](../semantic-matching.md) was added as a separate integration. The original
+experiment's outputs and OMIT decision below are retained unchanged as evidence
+of its limitations; they do not describe the current application's feature state.
+
 Implemented and executed on **23 October 2026**. The experiment is complete;
 **omit semantic integration from application recommendations** for this delivery.
 The current interest baseline remains available without a model or embedding

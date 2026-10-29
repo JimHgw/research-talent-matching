@@ -22,6 +22,13 @@ US-19 adds [optional opportunity source URLs](../docs/us19-source-urls.md). Exis
 installations must run `upgrade-opportunity-search` before serving the updated API.
 The Docker entrypoint already runs this additive upgrade.
 
+Recommendations, team discovery and matching details now use [semantic interest
+ranking](../docs/semantic-matching.md), enabled by default with 70% evidence coverage
+and 30% local MiniLM similarity. Structured coverage remains visible and supplies
+the fallback when interest input or the model is unavailable. Native setup and
+Docker builds prepare the pinned model; inference makes no external API calls.
+The [historical US-13 comparison](../docs/testing/us13-evaluation.md) remains reproducible.
+
 US-20 adds [deadline validation and expiry acceptance coverage](../docs/us20-deadlines.md)
 to the existing UTC availability and explicit reopening flow. The same
 `upgrade-opportunity-search` command upgrades legacy deadline columns; no new

@@ -182,5 +182,13 @@
   {
     "file": "error-search-query.json",
     "schema": "Error"
+  },
+  {
+    "file": "recommendations-semantic.json",
+    "schema": "RecommendationPage"
+  },
+  {
+    "file": "owner-match-semantic.json",
+    "schema": "OwnerMatch"
   }
 ]

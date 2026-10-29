@@ -136,15 +136,18 @@ def test_saved_evidence_matches_inputs_and_metrics():
     assert "PRIVATE_" not in json.dumps(report)
 
 
-def test_application_baseline_works_without_optional_semantic_packages(confirmed, research_team, monkeypatch):
+def test_application_baseline_works_without_optional_semantic_packages(app, confirmed, research_team, monkeypatch):
     import sys
     for name in ("onnxruntime", "numpy", "tokenizers"):
         monkeypatch.setitem(sys.modules, name, None)
+    app.config["SEMANTIC_MATCHING_ENABLED"] = True
     (client, _), _ = confirmed
     opportunity = make_opportunity(research_team)
     detail = checked(client.get(f"/api/v1/me/opportunity-matches/{opportunity['id']}"), "OwnerMatch")
     assert detail["summary"]["algorithmVersion"] == "tag-coverage-v1"
     assert detail["summary"]["score"] == 50
+    assert detail["summary"]["recommendationScore"] == 50
+    assert detail["summary"]["semanticInterest"]["status"] == "UNAVAILABLE"
 
 
 @pytest.mark.skipif(not (ROOT / "data/us13/model/onnx/model.onnx").is_file()
