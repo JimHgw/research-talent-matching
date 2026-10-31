@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="33" time="34.865" timestamp="2026-10-31T14:08:56.332232+11:00">
+    <testcase classname="tests.test_semantic_matching" name="test_owner_recommendations_and_details_use_text_without_shared_tag_gate" line="52" time="0.580" />
+    <testcase classname="tests.test_semantic_matching" name="test_all_interest_inputs_participate_without_creating_skill_or_interest_evidence[personal-only]" line="78" time="0.396" />
+    <testcase classname="tests.test_semantic_matching" name="test_all_interest_inputs_participate_without_creating_skill_or_interest_evidence[text-only]" line="78" time="0.534" />
+    <testcase classname="tests.test_semantic_matching" name="test_all_interest_inputs_participate_without_creating_skill_or_interest_evidence[shared-only]" line="78" time="0.613" />
+    <testcase classname="tests.test_semantic_matching" name="test_team_lists_details_and_shortlists_use_current_visible_interest_fields" line="101" time="0.618" />
+    <testcase classname="tests.test_semantic_matching" name="test_team_semantic_ranking_happens_before_pagination_and_batches_text" line="139" time="0.642" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[missing]" line="157" time="0.554" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[exception]" line="157" time="0.837" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[nan]" line="157" time="0.550" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[zero]" line="157" time="0.342" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[short_batch]" line="157" time="0.585" />
+    <testcase classname="tests.test_semantic_matching" name="test_model_failures_keep_http_matching_available_and_scores_consistent[dimensions]" line="157" time="0.370" />
+    <testcase classname="tests.test_semantic_matching" name="test_empty_interest_is_unknown_and_does_not_load_model" line="187" time="0.545" />
+    <testcase classname="tests.test_semantic_matching" name="test_configurable_blend_and_missing_structured_criteria[0-50-50]" line="198" time="0.355" />
+    <testcase classname="tests.test_semantic_matching" name="test_configurable_blend_and_missing_structured_criteria[0.25-50-62.5]" line="198" time="0.197" />
+    <testcase classname="tests.test_semantic_matching" name="test_configurable_blend_and_missing_structured_criteria[1-50-100]" line="198" time="0.194" />
+    <testcase classname="tests.test_semantic_matching" name="test_configurable_blend_and_missing_structured_criteria[0.3-None-100]" line="198" time="0.195" />
+    <testcase classname="tests.test_semantic_matching" name="test_configurable_blend_and_missing_structured_criteria[0-None-None]" line="198" time="0.195" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_WEIGHT--0.1]" line="214" time="0.195" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_WEIGHT-1.1]" line="214" time="0.213" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_WEIGHT-nan]" line="214" time="0.397" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_WEIGHT-inf]" line="214" time="0.206" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_WEIGHT-bad]" line="214" time="0.402" />
+    <testcase classname="tests.test_semantic_matching" name="test_invalid_semantic_configuration_fails_at_startup[SEMANTIC_MATCHING_ENABLED-maybe]" line="214" time="0.205" />
+    <testcase classname="tests.test_semantic_matching" name="test_failed_encoder_retries_after_cooldown_and_batches_inference" line="225" time="0.004" />
+    <testcase classname="tests.test_semantic_matching" name="test_profile_edit_requires_confirmation_and_new_text_replaces_old_semantics" line="251" time="0.595" />
+    <testcase classname="tests.test_semantic_matching" name="test_real_minilm_runs_in_owner_and_team_http_matching" line="271" time="1.289" />
+    <testcase classname="tests.test_us16" name="test_independent_sessions_privacy_and_logout" line="37" time="2.096" />
+    <testcase classname="tests.test_us16" name="test_edit_reload_reconfirm_and_matching" line="65" time="2.044" />
+    <testcase classname="tests.test_us16" name="test_search_combinations_on_prepared_records" line="89" time="2.077" />
+    <testcase classname="tests.test_us16" name="test_source_deadline_publication_and_boundary" line="107" time="2.355" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[pdf]" line="136" time="7.289" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[docx]" line="136" time="7.143" />
+  </testsuite>
+</testsuites>

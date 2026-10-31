@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="25.573" timestamp="2026-10-31T14:03:36.126405+11:00">
+    <testcase classname="tests.test_us16" name="test_independent_sessions_privacy_and_logout" time="2.212" />
+    <testcase classname="tests.test_us16" name="test_edit_reload_reconfirm_and_matching" time="2.041" />
+    <testcase classname="tests.test_us16" name="test_search_combinations_on_prepared_records" time="2.012">
+      <failure message="Test used unsupported skills query parameter: expected 200, actual 422. Correct parameter is skill.">Initial search test failure retained; see US16-TEST-01.</failure>
+    </testcase>
+    <testcase classname="tests.test_us16" name="test_source_deadline_publication_and_boundary" time="1.999" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[pdf]" time="10.408" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[docx]" time="6.777" />
+  </testsuite>
+</testsuites>

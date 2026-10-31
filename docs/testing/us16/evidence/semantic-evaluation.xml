@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="12" time="1.219" timestamp="2026-10-31T14:09:36.186546+11:00">
+    <testcase classname="tests.test_us13" name="test_corpus_has_disjoint_complete_labelled_pools_and_all_input_modes" line="23" time="0.002" />
+    <testcase classname="tests.test_us13" name="test_interest_projection_deduplicates_and_never_reads_resume_or_skills" line="38" time="0.000" />
+    <testcase classname="tests.test_us13" name="test_permission_checks_happen_before_baseline_or_model_input_construction" line="52" time="0.001" />
+    <testcase classname="tests.test_us13" name="test_semantic_unavailable_is_incomplete_with_actual_baseline_and_explicit_fallback" line="60" time="0.003" />
+    <testcase classname="tests.test_us13" name="test_cli_missing_model_returns_failure_and_saves_incomplete_evidence" line="72" time="0.179" />
+    <testcase classname="tests.test_us13" name="test_cli_text_fingerprints_are_portable[LF]" line="81" time="0.057" />
+    <testcase classname="tests.test_us13" name="test_cli_text_fingerprints_are_portable[CRLF]" line="81" time="0.066" />
+    <testcase classname="tests.test_us13" name="test_checksum_failure_is_detected_before_loading_graph" line="104" time="0.002" />
+    <testcase classname="tests.test_us13" name="test_cosine_and_missing_evidence_boundaries" line="110" time="0.000" />
+    <testcase classname="tests.test_us13" name="test_saved_evidence_matches_inputs_and_metrics" line="121" time="0.003" />
+    <testcase classname="tests.test_us13" name="test_application_baseline_works_without_optional_semantic_packages" line="138" time="0.496" />
+    <testcase classname="tests.test_us13" name="test_real_model_reproduces_saved_semantic_outputs" line="152" time="0.381" />
+  </testsuite>
+</testsuites>

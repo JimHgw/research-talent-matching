@@ -1,0 +1,110 @@
+{
+  "productDefectsConfirmed": 0,
+  "records": [
+    {
+      "defectId": "US16-TEST-01",
+      "relatedTestIds": [
+        "E2E-SEARCH-02"
+      ],
+      "relatedStory": "US-14 / US-16",
+      "affectedComponent": "New prepared-data search test",
+      "environment": "Windows; isolated SQLite; sprint2-synthetic-v2; base 999291aa5d8da20861e62f6d5376487ceb4a21ec",
+      "preconditions": "Fresh prepared dataset; signed-in team",
+      "reproductionSteps": [
+        "Request talent matches with q and skills parameters."
+      ],
+      "expectedResult": "Valid combined filter returns zero records.",
+      "observedResult": "422 Unsupported search parameter; test supplied skills instead of documented skill.",
+      "severity": "Low",
+      "classification": "Test implementation defect",
+      "rootCause": "Confirmed: invalid test request parameter.",
+      "suspectedCause": "No additional cause established.",
+      "reproducibility": "Observed in the recorded run; see retest status.",
+      "evidence": [
+        "evidence/cases-initial.xml",
+        "evidence/cases.xml"
+      ],
+      "suggestedInvestigation": "Use the documented singular skill parameter; keep expected zero unchanged.",
+      "retestStatus": "RESOLVED: exact test passed in six-case retest and subsequent runtime run; no product change."
+    },
+    {
+      "defectId": "US16-ENV-01",
+      "relatedTestIds": [
+        "E2E-ENV-01",
+        "E2E-MATCH-02"
+      ],
+      "relatedStory": "US-16 / US-18",
+      "affectedComponent": "Docker/MySQL deployment and upgrade validation",
+      "environment": "Windows; isolated SQLite; sprint2-synthetic-v2; base 999291aa5d8da20861e62f6d5376487ceb4a21ec",
+      "preconditions": "Docker executable installed; no available engine",
+      "reproductionSteps": [
+        "Run docker version --format server-version.",
+        "Inspect optional MySQL test outcomes."
+      ],
+      "expectedResult": "Disposable MySQL environment available for deployment and legacy-schema tests.",
+      "observedResult": "Docker Desktop Linux engine pipe missing; 14 Docker/MySQL tests remain skipped. SQLite academic explanations and live workflow passed.",
+      "severity": "Medium",
+      "classification": "Environment limitation",
+      "rootCause": "Confirmed engine unavailable; underlying host setup cause unconfirmed.",
+      "suspectedCause": "No additional cause established.",
+      "reproducibility": "Observed in the recorded run; see retest status.",
+      "evidence": [
+        "evidence/baseline.xml"
+      ],
+      "suggestedInvestigation": "Provide a disposable Docker/MySQL service and run existing --run-mysql / --run-docker checks. Never target a shared database.",
+      "retestStatus": "BLOCKED: no deployment or migration acceptance claimed."
+    },
+    {
+      "defectId": "US16-DEP-01",
+      "relatedTestIds": [
+        "E2E-DATA-01"
+      ],
+      "relatedStory": "H18ABANANA-40",
+      "affectedComponent": "Dataset provenance",
+      "environment": "Windows; isolated SQLite; sprint2-synthetic-v2; base 999291aa5d8da20861e62f6d5376487ceb4a21ec",
+      "preconditions": "Version sprint2-synthetic-v2",
+      "reproductionSteps": [
+        "Inspect manifest sourceStatus and source counts."
+      ],
+      "expectedResult": "Approved real talent and opportunity examples available.",
+      "observedResult": "0 authorised real examples; AUTHORIZED input requirement remains unmet.",
+      "severity": "Medium",
+      "classification": "Dependency limitation",
+      "rootCause": "Confirmed source manifest records synthetic input only.",
+      "suspectedCause": "No additional cause established.",
+      "reproducibility": "Observed in the recorded run; see retest status.",
+      "evidence": [
+        "../../../../backend/tests/data/sprint2/manifest.json"
+      ],
+      "suggestedInvestigation": "Request approved/de-identified talent and opportunity examples with source permission and independent expected labels; version the dataset.",
+      "retestStatus": "BLOCKED: synthetic coverage passed; real-input acceptance pending."
+    },
+    {
+      "defectId": "US16-ENV-02",
+      "relatedTestIds": [
+        "E2E-SOURCE-02"
+      ],
+      "relatedStory": "US-19",
+      "affectedComponent": "External source destination",
+      "environment": "Windows; isolated SQLite; sprint2-synthetic-v2; base 999291aa5d8da20861e62f6d5376487ceb4a21ec",
+      "preconditions": "Disposable application at 127.0.0.1:5176; source feature enabled",
+      "reproductionSteps": [
+        "Sign into prepared talent.",
+        "Open Synthetic perfect match opportunity.",
+        "Activate https://example.org/ source link."
+      ],
+      "expectedResult": "Source opens in separate tab and loads; original app stays usable.",
+      "observedResult": "New tab targets exact URL but displays ERR_NAME_NOT_RESOLVED; original application still lists six opportunities.",
+      "severity": "Low",
+      "classification": "Environment limitation",
+      "rootCause": "DNS resolution failure observed; underlying network cause unconfirmed.",
+      "suspectedCause": "No additional cause established.",
+      "reproducibility": "Observed in the recorded run; see retest status.",
+      "evidence": [
+        "results.json#E2E-SOURCE-02"
+      ],
+      "suggestedInvestigation": "Repeat safe destination navigation in an environment with working DNS; preserve browser restrictions.",
+      "retestStatus": "BLOCKED for destination loading; link activation/new tab observed."
+    }
+  ]
+}

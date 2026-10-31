@@ -1,0 +1,2557 @@
+{
+  "environment": {
+    "date": "2026-10-31T14:10:08.107177+11:00",
+    "branch": "test/us16-e2e-validation",
+    "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+    "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+    "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+    "datasetVersion": "sprint2-synthetic-v2",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.12.14",
+    "mode": "Non-Docker; isolated file-backed SQLite",
+    "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+    "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+    "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+  },
+  "sources": [
+    {
+      "file": "docs/testing/us16/evidence/baseline.xml",
+      "sha256": "0bb9262e3d2fb48b8425754ee23e47ca4eb8d20a9344dcfe7fe31c1cf6dc77de"
+    },
+    {
+      "file": "docs/testing/us16/evidence/cases.xml",
+      "sha256": "e8fbe920dc034c82dbafbdf8d7403c8026778d1c20510c2e1eca84f45f575c65"
+    },
+    {
+      "file": "docs/testing/us16/evidence/runtime.xml",
+      "sha256": "4557d437b24b37b5ab4654ed726f114c6ce5bac3643e3457b7025d3e10f52526"
+    },
+    {
+      "file": "docs/testing/us16/evidence/semantic-evaluation.xml",
+      "sha256": "91d223eb428842577b13033a5a1403002336eb8256b2e619209897f203fd9243"
+    }
+  ],
+  "totals": {
+    "PASS": 20,
+    "FAIL": 0,
+    "BLOCKED": 4,
+    "NOT READY": 0,
+    "NOT APPLICABLE": 0
+  },
+  "automatedTotals": {
+    "PASS": 736,
+    "BLOCKED": 14
+  },
+  "cases": [
+    {
+      "testId": "E2E-AUTH-01",
+      "relatedStory": "US-15 / US-01",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and RESEARCH_TEAM",
+      "startingState": "Anonymous, unused synthetic email addresses",
+      "steps": [
+        "Request a code through the registration page.",
+        "Complete both role registrations.",
+        "Reject missing/invalid inputs and duplicate accounts."
+      ],
+      "expectedResult": "Both roles register; invalid requests leave accounts unchanged; codes remain session-bound.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[01-register]"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_register_both_roles*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_invalid_registration_payloads*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_duplicate_email*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 12}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[01-register]",
+          "status": "PASS",
+          "seconds": 3.184,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_register_both_roles_atomic_defaults_and_email_id_login[TALENT]",
+          "status": "PASS",
+          "seconds": 0.665,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_register_both_roles_atomic_defaults_and_email_id_login[RESEARCH_TEAM]",
+          "status": "PASS",
+          "seconds": 0.913,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes0]",
+          "status": "PASS",
+          "seconds": 0.205,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes1]",
+          "status": "PASS",
+          "seconds": 0.336,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes2]",
+          "status": "PASS",
+          "seconds": 0.206,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes3]",
+          "status": "PASS",
+          "seconds": 0.272,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes4]",
+          "status": "PASS",
+          "seconds": 0.21,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes5]",
+          "status": "PASS",
+          "seconds": 0.208,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes6]",
+          "status": "PASS",
+          "seconds": 0.207,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_invalid_registration_payloads_do_not_send_or_write[changes7]",
+          "status": "PASS",
+          "seconds": 0.21,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_duplicate_email_and_signed_in_registration_are_rejected",
+          "status": "PASS",
+          "seconds": 0.416,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-AUTH-02",
+      "relatedStory": "US-15",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Existing accounts; separate cookie jars",
+      "steps": [
+        "Reveal and hide the password without changing it.",
+        "Login by email and account ID; reject invalid credentials.",
+        "Reload/focus the page and inspect account ID.",
+        "Switch account, logout and verify private content disappears."
+      ],
+      "expectedResult": "Server role is authoritative; passwords remain intact; logout clears private UI and awaits anonymous session readiness.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[01]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[49]"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_wrong_and_unknown_credentials*"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_us15_client_role*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 5}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[01]",
+          "status": "PASS",
+          "seconds": 4.121,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[49]",
+          "status": "PASS",
+          "seconds": 3.093,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_wrong_and_unknown_credentials_are_indistinguishable",
+          "status": "PASS",
+          "seconds": 0.315,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_us15_client_role_cannot_override_stored_role[talent@example.test-TALENT-RESEARCH_TEAM-/api/v1/opportunities?scope=mine&role=RESEARCH_TEAM]",
+          "status": "PASS",
+          "seconds": 0.416,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_us15_client_role_cannot_override_stored_role[team@example.test-RESEARCH_TEAM-TALENT-/api/v1/me/profile?role=TALENT]",
+          "status": "PASS",
+          "seconds": 0.263,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-AUTH-03",
+      "relatedStory": "US-15 / US-01",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Anonymous",
+      "startingState": "Local loopback SMTP capture; no external mailbox",
+      "steps": [
+        "Deliver a registration code through a local SMTP listener.",
+        "Complete registration; test unconfigured SMTP failure."
+      ],
+      "expectedResult": "Local SMTP delivery succeeds; absent configuration returns 503 without exposing the code. External inbox delivery is outside this case.",
+      "checks": [
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_registration_delivers_real_smtp*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_unconfigured_smtp*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 2}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us01_registration::test_registration_delivers_real_smtp_message_to_local_server",
+          "status": "PASS",
+          "seconds": 1.675,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01_registration::test_unconfigured_smtp_fails_without_exposing_code",
+          "status": "PASS",
+          "seconds": 0.408,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-PROFILE-01",
+      "relatedStory": "US-03 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Empty or unconfirmed owner profile",
+      "steps": [
+        "Edit and save profile; reload.",
+        "Review and confirm saved revision.",
+        "Try empty, missing and invalid fields.",
+        "Edit confirmed content and reconfirm."
+      ],
+      "expectedResult": "Valid content persists; invalid writes do not replace saved data; real edits invalidate confirmation.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[03]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[41]"
+        },
+        {
+          "class": "tests.test_us03",
+          "name": "test_confirm_rejects_empty*"
+        },
+        {
+          "class": "tests.test_us03",
+          "name": "test_confirm_rejects_blank*"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_invalid_profiles*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 13}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[03]",
+          "status": "PASS",
+          "seconds": 2.538,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[41]",
+          "status": "PASS",
+          "seconds": 4.713,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us03::test_confirm_rejects_empty_sections",
+          "status": "PASS",
+          "seconds": 0.29,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us03::test_confirm_rejects_blank_name[]",
+          "status": "PASS",
+          "seconds": 0.305,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us03::test_confirm_rejects_blank_name[   ]",
+          "status": "PASS",
+          "seconds": 0.29,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[skills-value0]",
+          "status": "PASS",
+          "seconds": 0.366,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[researchInterests-value1]",
+          "status": "PASS",
+          "seconds": 0.283,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[researchInterests-value2]",
+          "status": "PASS",
+          "seconds": 0.273,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[researchInterests-value3]",
+          "status": "PASS",
+          "seconds": 0.266,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[disciplineGroup-ARTS]",
+          "status": "PASS",
+          "seconds": 0.265,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[displayName-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]",
+          "status": "PASS",
+          "seconds": 0.264,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[education-value6]",
+          "status": "PASS",
+          "seconds": 0.265,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_invalid_profiles_do_not_write[displayName-\\ud800]",
+          "status": "PASS",
+          "seconds": 0.267,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-DOC-01",
+      "relatedStory": "US-09 / US-11",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Synthetic selectable PDF and DOCX; real worker process",
+      "steps": [
+        "Upload each format.",
+        "Wait for processing and READY.",
+        "Review, correct and select sections.",
+        "Apply, verify revision and reconfirm."
+      ],
+      "expectedResult": "Only reviewed sections change; upload alone does not modify profile; import requires confirmation.",
+      "checks": [
+        {
+          "class": "tests.test_us09_frontend_integration",
+          "name": "test_us09_real_frontend_workflow*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 2}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us09_frontend_integration::test_us09_real_frontend_workflow[pdf]",
+          "status": "PASS",
+          "seconds": 5.441,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09_frontend_integration::test_us09_real_frontend_workflow[docx]",
+          "status": "PASS",
+          "seconds": 5.649,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-DOC-02",
+      "relatedStory": "US-09 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Owner, second talent and team",
+      "startingState": "Prepared queued, empty, failed and ready private documents",
+      "steps": [
+        "Exercise missing, unsupported and oversized upload.",
+        "Inspect queued/failed/review-required states.",
+        "Read/download documents from non-owner sessions."
+      ],
+      "expectedResult": "Invalid upload rejected; failure/review recovery shown; non-owners cannot access documents.",
+      "checks": [
+        {
+          "class": "tests.test_us09_frontend_integration",
+          "name": "test_task61_review_states_and_accounts"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_upload_rejects_invalid_content*"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_document_read_endpoints_reject*"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_document_download_rejects_unauthorized*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 17}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us09_frontend_integration::test_task61_review_states_and_accounts",
+          "status": "PASS",
+          "seconds": 3.817,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[missing-file]",
+          "status": "PASS",
+          "seconds": 0.267,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[empty-file]",
+          "status": "PASS",
+          "seconds": 0.267,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[invalid-kind]",
+          "status": "PASS",
+          "seconds": 0.268,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[fake-pdf]",
+          "status": "PASS",
+          "seconds": 0.271,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[fake-docx]",
+          "status": "PASS",
+          "seconds": 0.275,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[legacy-doc]",
+          "status": "PASS",
+          "seconds": 0.504,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_upload_rejects_invalid_content[oversized-file]",
+          "status": "PASS",
+          "seconds": 0.293,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[None-401-UNAUTHENTICATED-]",
+          "status": "PASS",
+          "seconds": 0.387,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[None-401-UNAUTHENTICATED-/extraction]",
+          "status": "PASS",
+          "seconds": 0.388,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[team@example.test-403-FORBIDDEN-]",
+          "status": "PASS",
+          "seconds": 0.335,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[team@example.test-403-FORBIDDEN-/extraction]",
+          "status": "PASS",
+          "seconds": 0.338,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[other@example.test-404-NOT_FOUND-]",
+          "status": "PASS",
+          "seconds": 0.333,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_read_endpoints_reject_unauthorized_access[other@example.test-404-NOT_FOUND-/extraction]",
+          "status": "PASS",
+          "seconds": 0.333,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_download_rejects_unauthorized_access[None-401-UNAUTHENTICATED]",
+          "status": "PASS",
+          "seconds": 0.279,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_download_rejects_unauthorized_access[team@example.test-403-FORBIDDEN]",
+          "status": "PASS",
+          "seconds": 0.331,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us09::test_document_download_rejects_unauthorized_access[other@example.test-404-NOT_FOUND]",
+          "status": "PASS",
+          "seconds": 0.356,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-REGRESSION-35",
+      "relatedStory": "H18ABANANA-35",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Prepared unconfirmed profile reset through owner API inside fresh test database",
+      "steps": [
+        "Upload synthetic PDF and DOCX using existing real HTTP workflow.",
+        "Assert review dialog contains suggestions and no not-recording placeholder.",
+        "Correct evidence; select skills; apply.",
+        "Verify imported revision, unchanged unselected sections and reconfirm."
+      ],
+      "expectedResult": "Both formats complete review/correction/selection/application/reconfirmation with no not-recording placeholder.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_regression_35_review_correct_apply_reconfirm*"
+        }
+      ],
+      "datasetUsage": "prepare_run: s2_unconfirmed_profile; explicit empty-profile scenario; existing synthetic CV helper.",
+      "relatedDefect": [],
+      "retestResult": "Fix history present on base main (07f3ffc merged by 56cfeb5); both supported document formats executed, not inferred from story status.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 2}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us16::test_regression_35_review_correct_apply_reconfirm[pdf]",
+          "status": "PASS",
+          "seconds": 7.289,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_us16::test_regression_35_review_correct_apply_reconfirm[docx]",
+          "status": "PASS",
+          "seconds": 7.143,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-PRIVACY-01",
+      "relatedStory": "US-05 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Independent talent and team sessions",
+      "startingState": "Private by default; confirmed profile and published opportunity",
+      "steps": [
+        "Enable discovery and select fields.",
+        "Inspect team explanations.",
+        "Hide evidence, then revoke discovery.",
+        "Refresh results and retry old detail URL."
+      ],
+      "expectedResult": "Hidden fields contribute no team evidence; revocation removes result and denies old detail access.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[05]"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_initial_profile_and_privacy_defaults"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 2}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[05]",
+          "status": "PASS",
+          "seconds": 4.632,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us01::test_initial_profile_and_privacy_defaults",
+          "status": "PASS",
+          "seconds": 0.28,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-OPP-01",
+      "relatedStory": "US-02",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "RESEARCH_TEAM",
+      "startingState": "No owned opportunity in isolated fixture",
+      "steps": [
+        "Create draft; save and reload; edit.",
+        "Reject invalid or missing fields.",
+        "Try publication with empty requirements.",
+        "Publish valid opportunity and inspect as talent."
+      ],
+      "expectedResult": "Draft stays owner-only; valid publication becomes visible; stale/invalid writes preserve current content.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[02]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[19]"
+        },
+        {
+          "class": "tests.test_us02",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 51}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[02]",
+          "status": "PASS",
+          "seconds": 3.174,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[19]",
+          "status": "PASS",
+          "seconds": 2.845,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_lifecycle_noops_and_persistence",
+          "status": "PASS",
+          "seconds": 0.584,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_drafts_and_owner_permissions",
+          "status": "PASS",
+          "seconds": 0.582,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_authentication_required[get-]",
+          "status": "PASS",
+          "seconds": 0.222,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_authentication_required[get-/missing]",
+          "status": "PASS",
+          "seconds": 0.215,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_authentication_required[post-]",
+          "status": "PASS",
+          "seconds": 0.2,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_authentication_required[put-/missing]",
+          "status": "PASS",
+          "seconds": 0.2,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_authentication_required[post-/missing/publish]",
+          "status": "PASS",
+          "seconds": 0.2,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_all_mutations_require_csrf[bad_headers0]",
+          "status": "PASS",
+          "seconds": 0.276,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_all_mutations_require_csrf[bad_headers1]",
+          "status": "PASS",
+          "seconds": 0.368,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_all_mutations_require_csrf[bad_headers2]",
+          "status": "PASS",
+          "seconds": 0.325,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[scope=all]",
+          "status": "PASS",
+          "seconds": 0.399,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[scope=]",
+          "status": "PASS",
+          "seconds": 0.358,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[scope=mine&scope=published]",
+          "status": "PASS",
+          "seconds": 0.349,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=0]",
+          "status": "PASS",
+          "seconds": 0.263,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=-1]",
+          "status": "PASS",
+          "seconds": 0.263,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=1.5]",
+          "status": "PASS",
+          "seconds": 0.272,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=1e2]",
+          "status": "PASS",
+          "seconds": 0.432,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=abc]",
+          "status": "PASS",
+          "seconds": 0.273,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=]",
+          "status": "PASS",
+          "seconds": 0.272,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[page=1&page=2]",
+          "status": "PASS",
+          "seconds": 0.264,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[pageSize=0]",
+          "status": "PASS",
+          "seconds": 0.263,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[pageSize=101]",
+          "status": "PASS",
+          "seconds": 0.264,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[pageSize=20.0]",
+          "status": "PASS",
+          "seconds": 0.265,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_list_parameters[pageSize=true]",
+          "status": "PASS",
+          "seconds": 0.263,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_filter_count_order_and_pagination",
+          "status": "PASS",
+          "seconds": 0.524,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>0]",
+          "status": "PASS",
+          "seconds": 0.269,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>1]",
+          "status": "PASS",
+          "seconds": 0.259,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>2]",
+          "status": "PASS",
+          "seconds": 0.36,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>3]",
+          "status": "PASS",
+          "seconds": 0.32,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>4]",
+          "status": "PASS",
+          "seconds": 0.366,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>5]",
+          "status": "PASS",
+          "seconds": 0.4,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>6]",
+          "status": "PASS",
+          "seconds": 0.374,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>7]",
+          "status": "PASS",
+          "seconds": 0.276,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>8]",
+          "status": "PASS",
+          "seconds": 0.285,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>9]",
+          "status": "PASS",
+          "seconds": 0.371,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>10]",
+          "status": "PASS",
+          "seconds": 0.382,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>11]",
+          "status": "PASS",
+          "seconds": 0.389,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>12]",
+          "status": "PASS",
+          "seconds": 0.26,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>13]",
+          "status": "PASS",
+          "seconds": 0.257,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>14]",
+          "status": "PASS",
+          "seconds": 0.262,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>15]",
+          "status": "PASS",
+          "seconds": 0.267,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_invalid_creation_is_atomic[<lambda>16]",
+          "status": "PASS",
+          "seconds": 0.265,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_ordered_replacement_ids_and_failed_updates",
+          "status": "PASS",
+          "seconds": 0.308,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_stale_revision_is_rejected_even_for_noop_or_republish",
+          "status": "PASS",
+          "seconds": 0.292,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_concurrent_writers_cannot_overwrite_each_other[save]",
+          "status": "PASS",
+          "seconds": 0.424,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_concurrent_writers_cannot_overwrite_each_other[publish]",
+          "status": "PASS",
+          "seconds": 0.483,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_concurrent_writers_cannot_overwrite_each_other[mixed]",
+          "status": "PASS",
+          "seconds": 0.433,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_rollback_after_child_write_failure",
+          "status": "PASS",
+          "seconds": 0.419,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us02::test_foreign_keys_restrict_independent_resource_deletion",
+          "status": "PASS",
+          "seconds": 0.308,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-MATCH-01",
+      "relatedStory": "US-04 / US-05 / H18ABANANA-40",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and RESEARCH_TEAM",
+      "startingState": "Versioned labels and confirmed/discoverable states",
+      "steps": [
+        "Prepare versioned dataset.",
+        "Evaluate the 12 independently labelled cases.",
+        "Compare requirement statuses, summary, access restrictions and evidence."
+      ],
+      "expectedResult": "MATCHED, PARTIAL, GAP and UNKNOWN follow independent labels; privacy and confirmation exclusions hold.",
+      "checks": [
+        {
+          "class": "tests.test_sprint2_data_preparation",
+          "name": "test_prepared_matching_against_manual_labels*"
+        },
+        {
+          "class": "tests.test_sprint2_data_preparation",
+          "name": "test_discovery_exclusions*"
+        }
+      ],
+      "datasetUsage": "prepare_run; original 10 talents, 7 opportunities and 12 manual labels unchanged.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 13}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[perfect_match]",
+          "status": "PASS",
+          "seconds": 0.006,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[partial_multi_tag_requirement]",
+          "status": "PASS",
+          "seconds": 0.007,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[explicit_negative_gap]",
+          "status": "PASS",
+          "seconds": 0.006,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[missing_information]",
+          "status": "PASS",
+          "seconds": 0.006,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[unmatched_tags]",
+          "status": "PASS",
+          "seconds": 0.007,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[incomplete_profile]",
+          "status": "PASS",
+          "seconds": 0.006,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[no_matching_criteria]",
+          "status": "PASS",
+          "seconds": 0.0,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[hidden_information]",
+          "status": "PASS",
+          "seconds": 0.006,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[private_profile]",
+          "status": "PASS",
+          "seconds": 0.004,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[unconfirmed_profile]",
+          "status": "PASS",
+          "seconds": 0.004,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[reverse_discovery]",
+          "status": "PASS",
+          "seconds": 0.008,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_prepared_matching_against_manual_labels[unconfirmed_owner]",
+          "status": "PASS",
+          "seconds": 0.004,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_sprint2_data_preparation::test_discovery_exclusions_and_no_source_metadata",
+          "status": "PASS",
+          "seconds": 0.024,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-MATCH-02",
+      "relatedStory": "US-18",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "RESEARCH_TEAM",
+      "startingState": "Academic requirements and visible confirmed records",
+      "steps": [
+        "Open ranked discovery and talent details.",
+        "Inspect education, experience and output explanations.",
+        "Change privacy/revision and refresh."
+      ],
+      "expectedResult": "Explanations reference eligible evidence; hidden/stale records do not remain exposed.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[53]"
+        },
+        {
+          "class": "tests.test_us18",
+          "name": "test_academic_evidence_api*"
+        },
+        {
+          "class": "tests.test_us18",
+          "name": "test_academic_profile_edits*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-ENV-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "BLOCKED",
+      "actualResult": "Executed assertions: {'PASS': 6, 'BLOCKED': 8}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[53]",
+          "status": "PASS",
+          "seconds": 5.95,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[fresh-schema-EDUCATION-education-criteria0-MATCHED-100-edu_test]",
+          "status": "PASS",
+          "seconds": 0.509,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[fresh-schema-RESEARCH_EXPERIENCE-researchExperience-criteria1-PARTIAL-50-exp_test]",
+          "status": "PASS",
+          "seconds": 0.595,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[fresh-schema-RESEARCH_OUTPUT-researchOutputs-criteria2-MATCHED-100-output_test]",
+          "status": "PASS",
+          "seconds": 0.54,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[fresh-schema-RESEARCH_OUTPUT-researchOutputs-criteria3-UNKNOWN-0-None]",
+          "status": "PASS",
+          "seconds": 0.509,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-legacy-schema-EDUCATION-education-criteria0-MATCHED-100-edu_test]",
+          "status": "BLOCKED",
+          "seconds": 0.335,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-legacy-schema-RESEARCH_EXPERIENCE-researchExperience-criteria1-PARTIAL-50-exp_test]",
+          "status": "BLOCKED",
+          "seconds": 0.332,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-legacy-schema-RESEARCH_OUTPUT-researchOutputs-criteria2-MATCHED-100-output_test]",
+          "status": "BLOCKED",
+          "seconds": 0.344,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-legacy-schema-RESEARCH_OUTPUT-researchOutputs-criteria3-UNKNOWN-0-None]",
+          "status": "BLOCKED",
+          "seconds": 0.335,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-startup-schema-EDUCATION-education-criteria0-MATCHED-100-edu_test]",
+          "status": "BLOCKED",
+          "seconds": 0.344,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-startup-schema-RESEARCH_EXPERIENCE-researchExperience-criteria1-PARTIAL-50-exp_test]",
+          "status": "BLOCKED",
+          "seconds": 0.495,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-startup-schema-RESEARCH_OUTPUT-researchOutputs-criteria2-MATCHED-100-output_test]",
+          "status": "BLOCKED",
+          "seconds": 0.339,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_evidence_api[upgraded-startup-schema-RESEARCH_OUTPUT-researchOutputs-criteria3-UNKNOWN-0-None]",
+          "status": "BLOCKED",
+          "seconds": 0.408,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us18::test_academic_profile_edits_require_confirmation_and_refresh_evidence",
+          "status": "PASS",
+          "seconds": 0.453,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SEARCH-01",
+      "relatedStory": "US-14",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Multiple published records and opted-in talent",
+      "steps": [
+        "Search with one and multiple filters.",
+        "Use no-result query; clear filters and empty input.",
+        "Hide shared fields and refresh filtered team results."
+      ],
+      "expectedResult": "Search composes before ranking/pagination; empty UI input clears query; explicit empty API q is invalid; hidden fields cannot satisfy filters.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[14]"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_opportunity_filters_compose*"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_talent_filters*"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_strict_opportunity_queries*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 17}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[14]",
+          "status": "PASS",
+          "seconds": 3.195,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_opportunity_filters_compose_before_total_and_recommendation_ranking",
+          "status": "PASS",
+          "seconds": 0.704,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_talent_filters_use_only_positive_visible_confirmed_fields",
+          "status": "PASS",
+          "seconds": 0.63,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[q=-q]",
+          "status": "PASS",
+          "seconds": 0.389,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[q=%20%20-q]",
+          "status": "PASS",
+          "seconds": 0.392,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[q=a&q=b-q]",
+          "status": "PASS",
+          "seconds": 0.358,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[q=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-q]",
+          "status": "PASS",
+          "seconds": 0.343,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[university=-university]",
+          "status": "PASS",
+          "seconds": 0.304,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[disciplineGroup=ARTS-disciplineGroup]",
+          "status": "PASS",
+          "seconds": 0.307,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[opportunityType=phd-opportunityType]",
+          "status": "PASS",
+          "seconds": 0.318,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[unknown=a-unknown]",
+          "status": "PASS",
+          "seconds": 0.306,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-01-01-deadlineFrom]",
+          "status": "PASS",
+          "seconds": 0.314,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-01-01T00:00:00-deadlineFrom]",
+          "status": "PASS",
+          "seconds": 0.306,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-02-30T00:00:00Z-deadlineFrom]",
+          "status": "PASS",
+          "seconds": 0.31,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-01-01T00:00:00Z&deadlineFrom=2099-01-02T00:00:00Z-deadlineFrom]",
+          "status": "PASS",
+          "seconds": 0.312,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-01-01T00:00:00Z&deadlineTo=2099-01-01T00:00:00Z-deadlineTo]",
+          "status": "PASS",
+          "seconds": 0.313,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us14::test_strict_opportunity_queries[deadlineFrom=2099-01-02T00:00:00Z&deadlineTo=2099-01-01T00:00:00Z-deadlineTo]",
+          "status": "PASS",
+          "seconds": 0.303,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SOURCE-01",
+      "relatedStory": "US-19",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Team owner and talent",
+      "startingState": "Source URL feature enabled explicitly for live test",
+      "steps": [
+        "Create, reload and edit safe source URL.",
+        "Clear optional URL and restore it.",
+        "Reject invalid protocols and unauthorized edits.",
+        "Inspect rendered link target and security attributes."
+      ],
+      "expectedResult": "URL persists and link points to intended safe destination; no external site is contacted by automation.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[19-source]"
+        },
+        {
+          "class": "tests.test_us19",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 30}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[19-source]",
+          "status": "PASS",
+          "seconds": 4.666,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[https://www.unsw.edu.au/research]",
+          "status": "PASS",
+          "seconds": 0.517,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[http://www.google.com/search?q=research#details]",
+          "status": "PASS",
+          "seconds": 0.515,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[https://www.linkedin.com/jobs/view/123/]",
+          "status": "PASS",
+          "seconds": 0.481,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[HTTPS://example.org/search?q=\\u7814\\u7a76]",
+          "status": "PASS",
+          "seconds": 0.494,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[http://[::1]:8000/path]",
+          "status": "PASS",
+          "seconds": 0.482,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_add_edit_omit_remove_and_restart[https://example.org/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]",
+          "status": "PASS",
+          "seconds": 0.522,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[]",
+          "status": "PASS",
+          "seconds": 0.308,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[   ]",
+          "status": "PASS",
+          "seconds": 0.31,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[javascript:alert(1)]",
+          "status": "PASS",
+          "seconds": 0.303,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[ftp://example.org/file]",
+          "status": "PASS",
+          "seconds": 0.299,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[//example.org/path]",
+          "status": "PASS",
+          "seconds": 0.449,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://]",
+          "status": "PASS",
+          "seconds": 0.351,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org:99999]",
+          "status": "PASS",
+          "seconds": 0.404,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org:abc]",
+          "status": "PASS",
+          "seconds": 0.331,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://user:password@example.org]",
+          "status": "PASS",
+          "seconds": 0.306,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org/a b]",
+          "status": "PASS",
+          "seconds": 0.305,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org/\\\\path]",
+          "status": "PASS",
+          "seconds": 0.307,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org/%ZZ]",
+          "status": "PASS",
+          "seconds": 0.297,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org/\\npath]",
+          "status": "PASS",
+          "seconds": 0.323,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[https://example.org/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]",
+          "status": "PASS",
+          "seconds": 0.31,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[42]",
+          "status": "PASS",
+          "seconds": 0.46,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[False]",
+          "status": "PASS",
+          "seconds": 0.406,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[url16]",
+          "status": "PASS",
+          "seconds": 0.315,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_invalid_source_is_clear_and_atomic[url17]",
+          "status": "PASS",
+          "seconds": 0.413,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_only_owner_can_change_source",
+          "status": "PASS",
+          "seconds": 0.64,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_stale_source_write_cannot_overwrite_current_value",
+          "status": "PASS",
+          "seconds": 0.314,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_unset_and_explicit_null_sources_work",
+          "status": "PASS",
+          "seconds": 0.437,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_source_is_not_fetched_or_used_as_evidence",
+          "status": "PASS",
+          "seconds": 0.438,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us19::test_old_opportunity_table_upgrade_preserves_records_and_allows_source",
+          "status": "PASS",
+          "seconds": 0.343,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-EXPIRY-01",
+      "relatedStory": "US-20",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Team and talent",
+      "startingState": "Controlled opportunity clock independent of authentication",
+      "steps": [
+        "Check future, absent and expired deadlines.",
+        "Evaluate one microsecond before/at/after boundary.",
+        "Inspect list/search/recommendations/discovery.",
+        "Edit expired record and reopen explicitly."
+      ],
+      "expectedResult": "Active strictly before deadline; expired excluded from lists, matching returns 409, retained detail remains readable; reopening explicit.",
+      "checks": [
+        {
+          "class": "tests.test_us20",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 36}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[-1-2099-01-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.474,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[-1-2099-01-01T11:00:00+11:00]",
+          "status": "PASS",
+          "seconds": 0.528,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[-1-None]",
+          "status": "PASS",
+          "seconds": 0.706,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[0-2099-01-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.508,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[0-2099-01-01T11:00:00+11:00]",
+          "status": "PASS",
+          "seconds": 0.582,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[0-None]",
+          "status": "PASS",
+          "seconds": 0.579,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[1-2099-01-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.532,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[1-2099-01-01T11:00:00+11:00]",
+          "status": "PASS",
+          "seconds": 0.456,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_before_at_after_and_no_deadline[1-None]",
+          "status": "PASS",
+          "seconds": 0.459,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[]",
+          "status": "PASS",
+          "seconds": 0.327,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[not-a-date]",
+          "status": "PASS",
+          "seconds": 0.342,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-01-01]",
+          "status": "PASS",
+          "seconds": 0.452,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-01-01T00:00:00]",
+          "status": "PASS",
+          "seconds": 0.462,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-02-30T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.431,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-01-01T24:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.619,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-01-01T00:00:00+25:00]",
+          "status": "PASS",
+          "seconds": 0.459,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[2099-01-01T00:00:00.1234567Z]",
+          "status": "PASS",
+          "seconds": 0.536,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[0001-01-01T00:00:00+01:00]",
+          "status": "PASS",
+          "seconds": 0.322,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[0001-01-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.322,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[1000-01-01T00:00:00+01:00]",
+          "status": "PASS",
+          "seconds": 0.336,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[42]",
+          "status": "PASS",
+          "seconds": 0.326,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[False]",
+          "status": "PASS",
+          "seconds": 0.317,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[value13]",
+          "status": "PASS",
+          "seconds": 0.339,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_invalid_deadline_create_and_edit_are_clear_and_atomic[value14]",
+          "status": "PASS",
+          "seconds": 0.336,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_saved_deadline_change_survives_restart_and_controls_expiry",
+          "status": "PASS",
+          "seconds": 0.693,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_edit_requires_explicit_reopening[2099-02-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.525,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_deadline_edit_requires_explicit_reopening[None]",
+          "status": "PASS",
+          "seconds": 0.533,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_reopening_applies_new_deadline_in_one_save[2099-02-01T00:00:00Z]",
+          "status": "PASS",
+          "seconds": 0.473,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_reopening_applies_new_deadline_in_one_save[None]",
+          "status": "PASS",
+          "seconds": 0.488,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_active_deadline_can_be_cleared_without_reopening",
+          "status": "PASS",
+          "seconds": 0.451,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_reopen_at_or_before_now_is_rejected_atomically[-1]",
+          "status": "PASS",
+          "seconds": 0.593,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_reopen_at_or_before_now_is_rejected_atomically[0]",
+          "status": "PASS",
+          "seconds": 0.446,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_only_authorised_owner_can_change_deadline_or_reopen[False]",
+          "status": "PASS",
+          "seconds": 0.495,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_only_authorised_owner_can_change_deadline_or_reopen[True]",
+          "status": "PASS",
+          "seconds": 0.471,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_draft_cannot_be_reopened_or_published_with_expired_deadline",
+          "status": "PASS",
+          "seconds": 0.302,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_us20::test_legacy_database_upgrade_supports_deadline_and_retains_expired_record",
+          "status": "PASS",
+          "seconds": 0.462,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-LANG-01",
+      "relatedStory": "US-21",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "English default; unsaved verbatim multilingual content",
+      "steps": [
+        "Switch among supported languages on opportunity/profile/document/privacy screens.",
+        "Verify navigation changes and actions still work.",
+        "Refresh and switch back."
+      ],
+      "expectedResult": "Locale persists; user-entered content and account identity remain unchanged.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[i18n]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[49]"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 2}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[i18n]",
+          "status": "PASS",
+          "seconds": 3.163,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        },
+        {
+          "test": "tests.test_frontend_integration::test_real_frontend_workflow[49]",
+          "status": "PASS",
+          "seconds": 3.093,
+          "evidence": "docs/testing/us16/evidence/baseline.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SESSION-01",
+      "relatedStory": "US-15 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Concurrent TALENT and RESEARCH_TEAM",
+      "startingState": "s2_perfect_match and s2_team signed in",
+      "steps": [
+        "Reject team write to private talent profile.",
+        "Hide fields and revoke discovery; refresh team results.",
+        "Logout talent and inspect team session."
+      ],
+      "expectedResult": "Team cannot modify private profile; hidden evidence is UNKNOWN; revoked detail is 404; talent logout leaves team authenticated.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_independent_sessions_privacy_and_logout"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 1}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us16::test_independent_sessions_privacy_and_logout",
+          "status": "PASS",
+          "seconds": 2.096,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-PROFILE-02",
+      "relatedStory": "US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and team",
+      "startingState": "Confirmed s2_perfect_match",
+      "steps": [
+        "Edit and save.",
+        "Verify recommendation/discovery exclusion.",
+        "Login with second owner client and reconfirm."
+      ],
+      "expectedResult": "Saved revision persists across sessions; unconfirmed matching is blocked; reconfirm restores eligibility.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_edit_reload_reconfirm_and_matching"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 1}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us16::test_edit_reload_reconfirm_and_matching",
+          "status": "PASS",
+          "seconds": 2.044,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SEARCH-02",
+      "relatedStory": "US-14",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "6 published opportunities; 4 opted-in confirmed profiles",
+      "steps": [
+        "Query plain, single and combined filters.",
+        "Check no-result and invalid-empty query.",
+        "Clear filters."
+      ],
+      "expectedResult": "Opportunity totals 6/1/6/1/0; team totals 4/0/4; explicit empty q returns 422.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_search_combinations_on_prepared_records"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [
+        "US16-TEST-01"
+      ],
+      "retestResult": "Initial test used unsupported skills parameter and received 422. Corrected to documented skill parameter; the unchanged expected zero-result assertion passed on exact retest.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 1}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us16::test_search_combinations_on_prepared_records",
+          "status": "PASS",
+          "seconds": 2.077,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-EXPIRY-02",
+      "relatedStory": "US-19 / US-20",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Copy one prepared opportunity into isolated scenario",
+      "steps": [
+        "Create with safe URL/deadline; publish.",
+        "Reject invalid URL without replacing record.",
+        "Move availability clock across exact boundary."
+      ],
+      "expectedResult": "Search/recommendation totals 1/0/0; discovery becomes 409; published record and source retained.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_source_deadline_publication_and_boundary"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 1}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_us16::test_source_deadline_publication_and_boundary",
+          "status": "PASS",
+          "seconds": 2.355,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SEMANTIC-01",
+      "relatedStory": "US-13",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Deterministic test encoder and unavailable-model scenarios",
+      "steps": [
+        "Request owner and team recommendations.",
+        "Change privacy and profile text.",
+        "Force unavailable encoder and inspect fallback."
+      ],
+      "expectedResult": "Audience-permitted interests only; unavailable model reports fallback explicitly; no qualification evidence fabricated.",
+      "checks": [
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_owner_recommendations*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_team_lists*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_model_failures*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_profile_edit*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 9}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_semantic_matching::test_owner_recommendations_and_details_use_text_without_shared_tag_gate",
+          "status": "PASS",
+          "seconds": 0.58,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_team_lists_details_and_shortlists_use_current_visible_interest_fields",
+          "status": "PASS",
+          "seconds": 0.618,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[missing]",
+          "status": "PASS",
+          "seconds": 0.554,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[exception]",
+          "status": "PASS",
+          "seconds": 0.837,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[nan]",
+          "status": "PASS",
+          "seconds": 0.55,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[zero]",
+          "status": "PASS",
+          "seconds": 0.342,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[short_batch]",
+          "status": "PASS",
+          "seconds": 0.585,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_model_failures_keep_http_matching_available_and_scores_consistent[dimensions]",
+          "status": "PASS",
+          "seconds": 0.37,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        },
+        {
+          "test": "tests.test_semantic_matching::test_profile_edit_requires_confirmation_and_new_text_replaces_old_semantics",
+          "status": "PASS",
+          "seconds": 0.595,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SEMANTIC-02",
+      "relatedStory": "US-13",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Pinned local model and runtime required",
+      "steps": [
+        "Run real encoder through owner and team HTTP matching."
+      ],
+      "expectedResult": "Real model available, finite similarity scores and privacy-respecting evidence.",
+      "checks": [
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_real_minilm_runs*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "PASS",
+      "actualResult": "Executed assertions: {'PASS': 1}; unmatched selectors: 0.",
+      "evidence": [
+        {
+          "test": "tests.test_semantic_matching::test_real_minilm_runs_in_owner_and_team_http_matching",
+          "status": "PASS",
+          "seconds": 1.289,
+          "evidence": "docs/testing/us16/evidence/runtime.xml"
+        }
+      ],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-DATA-01",
+      "relatedStory": "H18ABANANA-40",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "QA",
+      "startingState": "Manifest sourceStatus=AUTHORISED_REAL_INPUT_REQUIRED",
+      "steps": [
+        "Inspect provenance and approved real-example count."
+      ],
+      "expectedResult": "Authorised talent and opportunity examples available for client acceptance.",
+      "checks": [],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-DEP-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "Manifest contains 0 authorised real examples; only synthetic cases available.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "BLOCKED",
+      "actualResult": "Manifest contains 0 authorised real examples; only synthetic cases available.",
+      "evidence": [],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-ENV-01",
+      "relatedStory": "US-16",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "QA",
+      "startingState": "Docker deployment environment",
+      "steps": [
+        "Probe Docker server availability before any stack operation."
+      ],
+      "expectedResult": "Disposable Docker/MySQL acceptance environment available.",
+      "checks": [],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-ENV-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "Docker executable exists but Docker Desktop Linux engine pipe is absent; no stack or existing database was started or modified.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "BLOCKED",
+      "actualResult": "Docker executable exists but Docker Desktop Linux engine pipe is absent; no stack or existing database was started or modified.",
+      "evidence": [],
+      "missingChecks": []
+    },
+    {
+      "testId": "E2E-SOURCE-02",
+      "relatedStory": "US-19",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Full browser test against disposable local deployment; safe example.org destination only.",
+      "accountRole": "TALENT",
+      "startingState": "Published opportunity with safe source URL",
+      "steps": [
+        "Open opportunity detail.",
+        "Activate source link in graphical browser and inspect new tab."
+      ],
+      "expectedResult": "Intended source opens independently while the application remains available.",
+      "checks": [],
+      "datasetUsage": "Prepared opportunity with scenario URL.",
+      "relatedDefect": [
+        "US16-ENV-02"
+      ],
+      "retestResult": "Real browser attempt completed; repeat after DNS/network access is restored.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "At http://127.0.0.1:5176, signed into isolated prepared talent, opened the published opportunity detail and activated https://example.org/. A separate tab targeted the exact URL; destination failed with ERR_NAME_NOT_RESOLVED. Original application remained usable with 6 opportunities. Destination loading remains blocked by network resolution.",
+      "environment": {
+        "date": "2026-10-31T14:10:08.107177+11:00",
+        "branch": "test/us16-e2e-validation",
+        "codeCommit": "368849bb062519e73f9a265b625cb8cc9d1ea9f8",
+        "workingTree": "?? docs/testing/us16/defects.json\n?? docs/testing/us16/evidence/\n?? docs/testing/us16/results.json\n?? test-output/",
+        "baseMainCommit": "999291aa5d8da20861e62f6d5376487ceb4a21ec",
+        "datasetVersion": "sprint2-synthetic-v2",
+        "platform": "Windows-10-10.0.19045-SP0",
+        "python": "3.12.14",
+        "mode": "Non-Docker; isolated file-backed SQLite",
+        "frontendUrl": "http://127.0.0.1:5173 (DOM origin; no deployed site)",
+        "backendMode": "Flask test clients and real loopback HTTP on allocated ports",
+        "browser": "Node.js/jsdom automated workflows; supplemental in-app browser at port 5176 for source link only"
+      },
+      "status": "BLOCKED",
+      "actualResult": "At http://127.0.0.1:5176, signed into isolated prepared talent, opened the published opportunity detail and activated https://example.org/. A separate tab targeted the exact URL; destination failed with ERR_NAME_NOT_RESOLVED. Original application remained usable with 6 opportunities. Destination loading remains blocked by network resolution.",
+      "evidence": [],
+      "missingChecks": []
+    }
+  ]
+}
