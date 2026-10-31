@@ -25,7 +25,7 @@ const documentType =
 try {
   // Prepare and confirm a profile through the React page.
   await mount();
-  await login('talent@example.test');
+  await login(process.env.TEST_TALENT_IDENTIFIER || 'talent@example.test');
   await until(() => text().includes('Tell your research story'));
 
   await change('Display name', 'US-09 HTTP talent');
