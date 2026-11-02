@@ -155,7 +155,8 @@
       "checks": [
         {
           "class": "tests.test_us09_frontend_integration",
-          "name": "test_us09_real_frontend_workflow*"
+          "name": "test_us09_real_frontend_workflow*",
+          "minimumMatches": 2
         }
       ],
       "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
@@ -214,7 +215,8 @@
       "checks": [
         {
           "class": "tests.test_us16",
-          "name": "test_regression_35_review_correct_apply_reconfirm*"
+          "name": "test_regression_35_review_correct_apply_reconfirm*",
+          "minimumMatches": 2
         }
       ],
       "datasetUsage": "prepare_run: s2_unconfirmed_profile; explicit empty-profile scenario; existing synthetic CV helper.",
