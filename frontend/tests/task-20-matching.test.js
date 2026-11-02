@@ -45,6 +45,69 @@ test('recommendations open full opportunity details and then matching evidence',
   assert.equal(document.querySelectorAll('.evidence-row').length, 4);
 });
 
+test('talent opportunity details display all requirement kinds and update their translations', async () => {
+  const detail = await fixture('opportunity-published');
+  detail.content.requirements = [
+    { kind: 'SKILL', tagIds: [], skillTitles: ['Python'] },
+    { kind: 'INTEREST', tagIds: ['interest_ml'] },
+    { kind: 'EDUCATION', tagIds: [], criteria: { qualification: 'Master' } },
+    { kind: 'RESEARCH_EXPERIENCE', tagIds: [], criteria: { title: 'Research Assistant' } },
+    { kind: 'RESEARCH_OUTPUT', tagIds: [], criteria: { type: 'PUBLICATION' } },
+  ].map((requirement, index) => ({
+    ...requirement,
+    id: `req_${index}`,
+    label: `Original requirement ${index + 1}`,
+    importance: index % 2 ? 'PREFERRED' : 'REQUIRED',
+  }));
+  state.intercept = (path, options) =>
+    options.method === 'GET' && /^\/opportunities\/[^/?]+$/.test(path) ? json(detail) : null;
+  await mount();
+  await click('Recommended opportunities');
+  await click('View opportunity');
+  const rows = [...document.querySelectorAll('dialog .requirement-list li')];
+  assert.deepEqual(
+    rows.map((row) => row.querySelector('span').textContent),
+    [
+      'Required · Skill',
+      'Preferred · Research interest',
+      'Required · Education',
+      'Preferred · Research experience',
+      'Required · Research outputs',
+    ]
+  );
+  const before = state.requests.length;
+  await change('Language', 'zh-CN');
+  assert.deepEqual(
+    rows.map((row) => row.querySelector('span').textContent),
+    [
+      '必需条件 · 技能',
+      '优先条件 · 研究兴趣',
+      '必需条件 · 教育经历',
+      '优先条件 · 研究经历',
+      '必需条件 · 研究成果',
+    ]
+  );
+  assert.deepEqual(
+    rows.map((row) => row.querySelector('strong').textContent),
+    detail.content.requirements.map((requirement) => requirement.label)
+  );
+  assert.equal(state.requests.length, before);
+});
+
+test('talent opportunity details do not mislabel an unknown requirement kind as an interest', async () => {
+  const detail = await fixture('opportunity-published');
+  detail.content.requirements[0].kind = 'FUTURE_REQUIREMENT';
+  state.intercept = (path, options) =>
+    options.method === 'GET' && /^\/opportunities\/[^/?]+$/.test(path) ? json(detail) : null;
+  await mount();
+  await click('Recommended opportunities');
+  await click('View opportunity');
+  assert.equal(
+    document.querySelector('dialog .requirement-list li span').textContent,
+    'Required · FUTURE_REQUIREMENT'
+  );
+});
+
 test('unavailable opportunity details show an error and retry without stale content', async () => {
   let missing = true;
   const detail = await fixture('opportunity-published');
