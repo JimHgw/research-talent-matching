@@ -32,7 +32,11 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
         {summary && (
           <span
             className="score-chip"
-            title={t(summary.semanticInterest ? 'Recommendation score' : 'Evidence coverage')}
+            title={t(
+              summary.semanticRequirements || summary.semanticInterest
+                ? 'Recommendation score'
+                : 'Evidence coverage'
+            )}
           >
             {summary.recommendationScore ?? summary.score ?? '—'}
             <small>/100</small>

@@ -190,5 +190,9 @@
   {
     "file": "owner-match-semantic.json",
     "schema": "OwnerMatch"
+  },
+  {
+    "file": "owner-match-requirement-semantic.json",
+    "schema": "OwnerMatch"
   }
 ]

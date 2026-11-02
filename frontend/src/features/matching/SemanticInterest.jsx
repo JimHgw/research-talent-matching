@@ -3,6 +3,30 @@ import { useLanguage } from '../../shared/i18n.jsx';
 
 export default function SemanticInterest({ summary, compact = false }) {
   const { t } = useLanguage();
+  if (summary.semanticRequirements) {
+    const status = summary.semanticRequirements.status;
+    return (
+      <section className={`semantic-interest ${compact ? 'compact' : ''}`}>
+        <strong>{t('Weighted requirement score')}</strong>
+        <p className="help">
+          {t(
+            'Total = sum of requirement score × weight ÷ sum of weights. Required: 2; preferred: 1.'
+          )}
+        </p>
+        {status === 'UNAVAILABLE' && (
+          <p className="help">{t('Model unavailable; using structured evidence')}</p>
+        )}
+        {status === 'MISSING_EVIDENCE' && (
+          <p className="help">{t('No available information for this requirement')}</p>
+        )}
+        {!compact && (
+          <p className="help">
+            {t('Semantic scores describe relevance; evidence badges describe confirmed support.')}
+          </p>
+        )}
+      </section>
+    );
+  }
   const interest = summary.semanticInterest;
   if (!interest) return null;
   const available = interest.status === 'AVAILABLE';

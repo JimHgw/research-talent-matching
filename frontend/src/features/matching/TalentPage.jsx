@@ -99,7 +99,9 @@ function TalentResults({
                 <span
                   className="score-chip"
                   title={t(
-                    item.summary.semanticInterest ? 'Recommendation score' : 'Evidence coverage'
+                    item.summary.semanticRequirements || item.summary.semanticInterest
+                      ? 'Recommendation score'
+                      : 'Evidence coverage'
                   )}
                 >
                   {item.summary.recommendationScore ?? item.summary.score ?? '—'}

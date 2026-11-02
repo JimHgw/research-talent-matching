@@ -1,7 +1,7 @@
 # Sprint 1 API contract
 
 Proposed API contract for the H18ABANANA JavaScript frontend and Python backend.
-Version: `0.1.3-draft`. Covers US-01–US-09 and the implemented extensions below.
+Version: `0.1.4-draft`. Covers US-01–US-09 and the implemented extensions below.
 
 ## Start here
 
@@ -47,11 +47,14 @@ INTEREST requirements retain shared IDs. See the [requirement shape and compatib
 Free-text skill results add `ALL_SKILLS_SUPPORTED` / `SOME_SKILLS_SUPPORTED` and
 use `skill-title-interest-tags-v2`; legacy requirements retain `tag-coverage-v1`.
 US-13's [local executed experiment](../testing/us13-evaluation.md) is retained.
-Application [semantic interest ranking](../semantic-matching.md) adds
-`recommendationScore`, `rankingAlgorithmVersion` and `semanticInterest` to matching
-summaries on existing routes. Coverage and qualification evidence remain separate;
-model/input failures preserve structured ranking. The indexed `*-semantic` examples
-show the additive response fields.
+Application [requirement-level semantic scoring](../semantic-matching.md) adds
+individual `scoring` fields and `semanticRequirements` to existing matching routes.
+`recommendationScore` is the importance-weighted mean of the individual scores;
+`rankingAlgorithmVersion` is `requirement-semantic-v1`. Structured coverage and
+qualification evidence remain separate; model/input failures preserve structured
+scores. `semanticInterest` is now a diagnostic with zero ranking weight. The
+indexed `owner-match-requirement-semantic` fixture shows the current response;
+older `*-semantic` fixtures retain the legacy blend for compatibility checks.
 
 US-14 adds [search and combined filters](../us14-search.md) to opportunity lists,
 recommendations and team discovery. Existing opportunity writes support nullable

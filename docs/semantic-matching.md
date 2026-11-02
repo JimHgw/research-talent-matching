@@ -1,133 +1,122 @@
-# Semantic interest ranking in the application
+# Requirement-level semantic scoring
 
-Implemented on 27 October 2026. Application recommendations, team discovery,
-shortlisted candidates and both matching-detail endpoints now run the existing
-local MiniLM interest encoder. This application integration supersedes the
-historical US-13 decision to omit integration; the frozen experiment and its
-recorded metrics remain unchanged.
+Implemented on 2 November 2026. Recommendation lists, discovery, shortlists and
+both match-detail endpoints now score each published requirement separately.
+This replaces the former global 70% coverage / 30% interest blend.
 
-## Inputs and privacy
+## Scoring
 
-The talent input combines the current confirmed `researchInterestText`, shared
-interest labels and selected personal interest labels. Text is primary and
-duplicate labels add no weight. Text-only and personal-only profiles participate
-without an exact shared-tag gate. The opportunity input combines `researchArea`
-and INTEREST requirement labels. Skills, education, full resumes and original
-documents are not model inputs.
+Each requirement has `scoring.score` from 0 to 100, a `weight`, a `contribution`,
+a scoring `method`, optional similarity and the permitted source records used.
 
-Owner recommendations use the owner's current confirmed interests. Team lists,
-details and shortlists first check active accounts, current confirmation,
-discovery consent and the existing `researchInterests` visibility group, which
-also controls interest text and personal labels. Hidden interests never enter
-inference. Profile changes require reconfirmation; privacy changes apply on the
-next request. Text and vectors are deduplicated within each request and never
-cached across requests or persisted. Only the encoder is shared across requests,
-with a lock protecting initialization and tokenization/inference.
+```
+weight(REQUIRED) = 2
+weight(PREFERRED) = 1
+recommendationScore = sum(requirement score * weight) / sum(weights)
+contribution = requirement score * weight / sum(weights)
+```
 
-Filters run before model input construction. Eligible matches are evaluated and
-sorted before pagination, so ranks and counts describe the whole filtered pool.
+Individual scores and the final total are rounded HALF_UP to two decimals.
+Displayed contributions may differ from their sum by a rounding cent. Missing
+requirements remain in the denominator and contribute zero. No requirements
+means a null total; an opportunity's general research area cannot add a bonus.
+For example, scores 80 (required), 60 (preferred) and 0 (required) yield 44.
 
-## Scores and response fields
+Confirmed complete structured matches score 100. An explicit confirmed skill gap
+scores zero. Other requirements compare their individual criteria with permitted
+records of the corresponding kind. Each skill/interest criterion uses its best
+matching source; their scores are averaged. Semantic similarity below 0.45
+contributes zero; otherwise its nonnegative cosine similarity is multiplied by
+100. Existing structured partial credit provides a floor. Relevance is RELEVANT
+at 0.75+, PARTIAL at 0.45+, otherwise UNRELATED. These thresholds are product
+rules and have not been calibrated against a new labelled multilingual corpus.
 
-The existing `summary.score`, `algorithmVersion`, requirement statuses and
-supporting evidence keep their structured coverage meaning. Semantic similarity
-does not create a skill, qualification or MATCHED/GAP result.
+Academic requirements choose the best single record after scoring its criteria;
+criteria cannot be assembled from unrelated degrees or projects. Qualification,
+organisation identity and output type require exact normalized equality. Project
+and output descriptions can explain the title criterion. A similar subject does
+not establish a different degree level or output type.
 
-When semantic matching is enabled, every matching summary also includes:
+Skill denials and statements about wanting to learn do not supply positive
+semantic skill evidence. Interests cannot supply skill or qualification credit.
 
-| Field | Meaning |
-|---|---|
-| `recommendationScore` | Score used for sorting and displayed on recommendation/talent cards |
-| `rankingAlgorithmVersion` | `hybrid-interest-v1` |
-| `semanticInterest.status` | `AVAILABLE`, `MISSING_EVIDENCE` or `UNAVAILABLE` |
-| `semanticInterest.similarity` | Raw cosine similarity from -1 to 1; null when unavailable |
-| `semanticInterest.score` | `max(0, similarity) × 100`, rounded to two decimals |
-| `semanticInterest.relevance` | `RELEVANT` at 0.75+, `PARTIAL` at 0.45+, otherwise `UNRELATED`; `UNKNOWN` when no result |
-| `semanticInterest.weight` | Actual semantic weight used for this result; zero on fallback |
-| `semanticInterest.modelVersion` | `minilm-interest-onnx-v1` |
+## Inputs and evidence
 
-Default ranking is **70% structured coverage + 30% semantic percentage**.
-For example, 50 coverage and cosine 0.8 produce 59 recommendation points. The
-blend uses the unrounded semantic percentage and rounds the final result to two
-decimals with HALF_UP. If structured coverage is null, the semantic percentage
-alone supplies the recommendation score. A configured weight of zero preserves
-structured ranking, including a null score when there are no criteria.
+- SKILL: confirmed positive skill titles, with denials considered separately.
+- INTEREST: confirmed research interest text, shared labels and personal labels.
+- EDUCATION: qualification and discipline from a permitted education record.
+- RESEARCH_EXPERIENCE: title/description and organisation from a permitted record.
+- RESEARCH_OUTPUT: title/description and type from a permitted output record.
 
-Missing interest text on either side uses `MISSING_EVIDENCE`. Missing/corrupt
-model artifacts, missing packages or inference errors use `UNAVAILABLE`. Both
-fall back to the structured score and return null semantic similarity/score,
-UNKNOWN relevance and semantic weight zero. A failed batch falls back as a whole
-to avoid inconsistent partial rankings. Loader failures are retried after a
-60-second cooldown, allowing a repaired installation to recover without a
-process restart. Exception messages and input content are not exposed or logged.
+Full resumes, original documents, unrelated profile fields and hidden records are
+not model inputs. Active accounts, current confirmation, discovery consent,
+visibility and filters are checked before constructing model inputs. Profile
+changes require reconfirmation; visibility changes apply on the next request.
+No texts or vectors are persisted or cached between requests.
 
-Sorting uses descending recommendation score, ascending unknown-evidence weight,
-then stable opportunity/talent ID. Null scores sort last. When the feature is
-disabled, the three new summary fields are omitted and structured ranking is used.
+`summary.score`, `algorithmVersion`, requirement `status` and `evidence` retain
+their structured evidence meaning. The separately displayed requirement score
+can therefore be high while the structured evidence badge remains UNKNOWN.
+The interface explicitly distinguishes semantic relevance from confirmed support.
+`recommendationScore` is the weighted requirement total used by cards and sorting;
+`rankingAlgorithmVersion` is `requirement-semantic-v1`. `semanticRequirements`
+reports the model status, total importance weight and model version.
+`semanticInterest` remains an explanatory diagnostic with weight zero; it is not
+added again to the total. The API contract is `0.1.4-draft`; see the synthetic
+[detail example](api/examples/owner-match-requirement-semantic.json).
 
-The UI shows recommendation score, interest similarity/relevance and fallback
-state on cards. Details additionally show structured coverage, blend weights and
-the existing per-requirement evidence. All shipped interface languages include
-the new system messages; source profile text remains verbatim.
+## Model and installation
 
-The additive contract is version `0.1.3-draft`. See [OpenAPI](api/openapi.json),
-[recommendation example](api/examples/recommendations-semantic.json) and
-[detail example](api/examples/owner-match-semantic.json). These examples are
-synthetic interface fixtures, not benchmark measurements.
+The application uses the pinned public
+[paraphrase-multilingual-MiniLM-L12-v2 model](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2),
+with its official CPU uint8 ONNX export, 384-dimensional vectors, masked mean
+pooling and L2 normalization. Model identity, revision, SHA-256 checksums, token
+limits and thresholds are in `backend/src/features/matching/semantic_config.json`.
+The tokenizer uses its own `<pad>` token and ID. Each distinct text is inferred
+separately because dynamic int8 batch activation ranges otherwise change scores
+between list and detail requests. Request-level text deduplication and a shared
+encoder lock remain in place.
 
-## Installation and configuration
-
-Normal backend requirements now include `requirements-semantic.txt`. Both native
-setup programs install these packages and prepare the pinned public model. The
-Docker image downloads and verifies its model during build, stores it outside the
-persistent data volume at `/app/models/minilm`, and runs inference without network
-access. No request or application startup downloads anything.
-
-Existing native environments can prepare their model from the repository root:
+Native environments can install/prepare from the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
 .\.venv\Scripts\python.exe -m backend.src.features.matching.prepare_semantic
 ```
 
-On macOS/Linux, substitute `.venv/bin/python`. The preparation command reuses
-matching files, downloads missing/corrupt artifacts, verifies SHA-256 checksums
-and executes a real encoding. It accepts `--model-dir` for a custom location.
-It neither reads the application database nor rewrites historical benchmark data.
+Use `.venv/bin/python` on macOS/Linux. The default native model directory is now
+`data/semantic/model`; frozen US-13 artifacts in `data/us13/model` are preserved.
+`SEMANTIC_MODEL_DIR` can override the location. Docker continues to prepare its
+model at build time in `/app/models/minilm`, outside the persistent data volume.
+No startup or request downloads models. Restart native backends and rebuild
+existing Docker images after updating. No database migration is needed.
 
-| Setting | Default | Meaning |
-|---|---|---|
-| `SEMANTIC_MATCHING_ENABLED` | `true` | Enable application semantic ranking; accepts true/false |
-| `SEMANTIC_MATCHING_WEIGHT` | `0.3` | Semantic share of hybrid ranking, from 0 to 1 |
-| `SEMANTIC_MODEL_DIR` | `data/us13/model` (native); `/app/models/minilm` (Docker) | Local verified model directory; relative paths resolve from repository root |
+`SEMANTIC_MATCHING_ENABLED` defaults to true. Disabling it preserves structured
+matching and omits the additional scoring fields. `SEMANTIC_MATCHING_WEIGHT`
+remains accepted/validated for configuration compatibility, but no longer blends
+an extra global interest score into the requirement total.
 
-Restart an existing backend after updating source or configuration. Rebuild
-existing Docker images. No database migration or new endpoint is required.
-
-The fixed model/revision/checksums, tokenizer limits, batch size and relevance
-thresholds live in `backend/src/features/matching/semantic_config.json`, which is
-packaged with the application. They match the original experiment's model and
-selected thresholds. Ranking weights are a product rule rather than a newly
-measured quality claim. The original small synthetic corpus, partial-relevance
-errors and untested languages remain limitations of the model.
+Missing evidence uses structured scores. Missing/corrupt artifacts, dependency
+failures or inference errors fall back to structured per-requirement scores for
+the entire batch, preserving consistent ordering and HTTP availability. Failures
+retry after 60 seconds. Private content and exception messages are not logged or
+returned. Sorting happens before pagination and uses the weighted total, lower
+unknown-evidence weight, then stable ID; null totals sort last.
 
 ## Verification
 
-`backend/tests/test_semantic_matching.py` covers actual owner/team HTTP endpoints,
-ranking before pagination, request batching, all interest representations,
-visibility/consent changes, reconfirmation, fallback and a real pinned MiniLM run.
-Deterministic encoder doubles isolate plumbing and failure paths; the separately
-marked real-model test does not replace inference with a double. CI downloads the
-model and runs both the historical US-13 suite and application integration tests.
+`backend/tests/test_requirement_scoring.py` covers every requirement kind,
+importance weighting, missing-input denominators, multi-skill criteria, academic
+record boundaries, fixed degree/type constraints, denials, privacy,
+reconfirmation, real Chinese synonym inference, unrelated controls and
+list/detail consistency. `backend/tests/test_semantic_matching.py` covers HTTP
+recommendations, discovery, shortlists, all interest representations, atomic
+fallback and recovery. Frontend tests cover scores, contributions, sources,
+English/Chinese wording and model fallback. Legacy fixtures and the frozen US-13
+experiment remain available for independent regression checks.
 
-`frontend/tests/task-20-semantic.test.js` covers card/detail scores, English/Chinese
-messages, team matching and missing-input/model fallback. Existing baseline
-fixtures explicitly disable semantic matching to retain independent structured
-coverage checks.
-
-Executed verification on 27 October 2026: full backend suite with required real
-frontend integration **694 passed, 14 skipped**; full frontend suite **260 passed**;
-frontend production-build assertions, formatting and all **48 indexed API examples**
-passed. The real Linux Docker image built successfully, and its non-root user
-executed the bundled model in a read-only temporary container with networking
-disabled. Existing application containers and databases were not changed.
+Executed verification on 2 November 2026: full backend suite with required real
+frontend integration **743 passed, 14 skipped**; full frontend suite **262 passed**;
+production build, formatting and all **49 indexed API examples** passed. The real
+multilingual model ran in the Chinese HTTP regression and produced stable scores
+across list/detail requests. Docker image execution was not part of this run.

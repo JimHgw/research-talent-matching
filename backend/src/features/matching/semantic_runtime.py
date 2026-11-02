@@ -1,4 +1,4 @@
-"""Request-scoped semantic ranking over current, audience-permitted interests.
+"""Request-scoped requirement scoring over current, audience-permitted records.
 
 The encoder is reused per application. Text and vectors are never retained across
 requests, so a privacy or profile change takes effect on the very next request.
@@ -14,7 +14,9 @@ from time import monotonic
 from flask import current_app, has_app_context
 
 from ...shared.paths import ROOT
-from .semantic import VERSION, MiniLMEncoder, cosine, interest_input, opportunity_input, relevance
+from .semantic import cosine, interest_input, opportunity_input, relevance
+from .multilingual_encoder import MultilingualEncoder as MiniLMEncoder
+from .requirement_scoring import VERSION, plan_requirement, model_texts, enrich_requirements
 
 CONFIG_PATH = Path(__file__).with_name("semantic_config.json")
 
@@ -67,6 +69,8 @@ def configure_semantic(app):
         enabled = enabled.lower() == "true"
     if not isinstance(enabled, bool):
         raise ValueError("SEMANTIC_MATCHING_ENABLED must be true or false.")
+    # Validate the legacy option for deployment compatibility. Requirement weights
+    # now come from importance; this setting no longer blends a global interest score.
     try:
         weight = float(app.config["SEMANTIC_MATCHING_WEIGHT"])
     except (ValueError, TypeError):
@@ -90,20 +94,26 @@ def rounded(value):
 
 
 def enrich_matches(pairs):
-    """Enrich (opportunity, permitted snapshot, summary) tuples as one atomic batch.
+    """Score (opportunity, permitted snapshot, results, summary) in one batch.
 
-    Structured coverage/status/evidence remain intact. Only recommendationScore
-    combines coverage and semantic interest; missing input/model uses coverage.
+    Recommendation score is the weighted mean of individual requirement scores.
+    Structured evidence/status remains available separately; interest similarity
+    is an explanatory diagnostic and receives no additional ranking weight.
     """
     if not pairs or not has_app_context() or not current_app.config["SEMANTIC_MATCHING_ENABLED"]:
         return
     inputs = [(profile_input(profile), opportunity_input(opportunity))
-              for opportunity, profile, _ in pairs]
-    texts = list(dict.fromkeys(item["text"] for left, right in inputs
-                               if left["text"] and right["text"] for item in (left, right)))
+              for opportunity, profile, _, _ in pairs]
+    plans = [[plan_requirement(result, profile) for result in results]
+             for _, profile, results, _ in pairs]
+    texts = list(dict.fromkeys([
+        *(item["text"] for left, right in inputs if left["text"] and right["text"]
+          for item in (left, right)),
+        *(text for group in plans for plan in group for text in model_texts(plan)),
+    ]))
     runtime = current_app.extensions["semantic_matching"]
     vectors = {}
-    similarities = []
+    failed = False
     try:
         if texts:
             vectors = dict(zip(texts, runtime.encode(texts), strict=True))
@@ -114,28 +124,31 @@ def enrich_matches(pairs):
         current_app.logger.warning("Semantic matching unavailable (%s); using evidence coverage.",
                                    type(error).__name__)
         similarities = [None] * len(pairs)
-    for (_, _, summary), (left, right), similarity in zip(pairs, inputs, similarities, strict=True):
+        failed = True
+        vectors = None
+    for (_, _, results, summary), group, (left, right), similarity in zip(pairs, plans, inputs, similarities, strict=True):
         status = ("MISSING_EVIDENCE" if not left["text"] or not right["text"]
                   else "UNAVAILABLE" if similarity is None else "AVAILABLE")
         semantic_score = max(0, similarity) * 100 if similarity is not None else None
-        coverage = summary["score"]
-        weight = current_app.config["SEMANTIC_MATCHING_WEIGHT"]
-        if coverage is None and weight > 0:
-            weight = 1.0
-        if semantic_score is None or weight == 0:
-            weight = 0.0
-            ranking_score = coverage
-        else:
-            ranking_score = rounded((1 - weight) * (coverage or 0) + weight * semantic_score)
+        ranking_score, total_weight = enrich_requirements(
+            results, group, vectors, runtime.config["thresholds"], failed=failed)
+        methods = {result["scoring"]["method"] for result in results}
+        matching_status = ("UNAVAILABLE" if "UNAVAILABLE" in methods else
+                           "MISSING_EVIDENCE" if methods <= {"MISSING_EVIDENCE"} else "AVAILABLE")
         summary.update({
             "recommendationScore": ranking_score,
-            "rankingAlgorithmVersion": "hybrid-interest-v1",
+            "rankingAlgorithmVersion": VERSION,
+            "semanticRequirements": {
+                "status": matching_status,
+                "totalWeight": total_weight,
+                "modelVersion": runtime.config["modelVersion"],
+            },
             "semanticInterest": {
                 "status": status,
                 "similarity": similarity,
                 "score": rounded(semantic_score) if semantic_score is not None else None,
                 "relevance": relevance(similarity, runtime.config["thresholds"]),
-                "weight": weight,
-                "modelVersion": VERSION,
+                "weight": 0.0,
+                "modelVersion": runtime.config["modelVersion"],
             },
         })

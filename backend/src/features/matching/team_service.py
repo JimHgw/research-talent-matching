@@ -15,6 +15,7 @@ def visible_snapshot(talent, labels):
     return {
         "skills": matching_skills(fields.get("skills", []), labels),
         "skillRecords": fields.get("skills", []),
+        "tagLabels": labels,
         "researchInterests": {tag_id: labels[tag_id]
                               for tag_id in fields.get("researchInterests", [])},
         "researchInterestText": fields.get("researchInterestText", ""),
@@ -28,7 +29,7 @@ def visible_snapshot(talent, labels):
 def evaluate_visible(opportunity, talent, labels):
     snapshot = visible_snapshot(talent, labels)
     results, summary = evaluate_opportunity(opportunity, snapshot, team_evidence)
-    enrich_matches([(opportunity, snapshot, summary)])
+    enrich_matches([(opportunity, snapshot, results, summary)])
     for result in results:
         if result["status"] == "UNKNOWN":
             result["reason"] = "There is insufficient shared evidence for this requirement."
@@ -48,8 +49,8 @@ def evaluate_talents(opportunity, talents, labels):
     items, pairs = [], []
     for talent in talents:
         snapshot = visible_snapshot(talent, labels)
-        _, summary = evaluate_opportunity(opportunity, snapshot, team_evidence)
-        pairs.append((opportunity, snapshot, summary))
+        results, summary = evaluate_opportunity(opportunity, snapshot, team_evidence)
+        pairs.append((opportunity, snapshot, results, summary))
         items.append({"talent": talent, "summary": summary})
     enrich_matches(pairs)
     return items

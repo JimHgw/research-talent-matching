@@ -1,0 +1,222 @@
+{
+  "opportunity": {
+    "id": "opp_demo_001",
+    "revision": 2,
+    "status": "PUBLISHED",
+    "content": {
+      "title": "Research assistant in data analysis",
+      "university": "UNSW",
+      "disciplineGroup": "STEM",
+      "discipline": "Computer Science",
+      "researchArea": "Research data analysis",
+      "description": "Synthetic opportunity for the prototype demonstration.",
+      "requirements": [
+        {
+          "id": "req_python",
+          "label": "Python experience",
+          "kind": "SKILL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python"
+          ]
+        },
+        {
+          "id": "req_analysis",
+          "label": "Python and SQL",
+          "kind": "SKILL",
+          "importance": "REQUIRED",
+          "tagIds": [
+            "skill_python",
+            "skill_sql"
+          ]
+        },
+        {
+          "id": "req_interviews",
+          "label": "Research interview experience",
+          "kind": "SKILL",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "skill_interviews"
+          ]
+        },
+        {
+          "id": "req_r",
+          "label": "R experience",
+          "kind": "SKILL",
+          "importance": "PREFERRED",
+          "tagIds": [
+            "skill_r"
+          ]
+        }
+      ]
+    },
+    "createdAt": "2026-10-03T00:00:00Z",
+    "updatedAt": "2026-10-03T00:00:00Z"
+  },
+  "profileRevision": 3,
+  "summary": {
+    "score": 50,
+    "unknownWeightPercent": 16.67,
+    "requiredGapCount": 0,
+    "evaluationStatus": "EVALUATED",
+    "algorithmVersion": "tag-coverage-v1",
+    "recommendationScore": 70,
+    "rankingAlgorithmVersion": "requirement-semantic-v1",
+    "semanticInterest": {
+      "status": "AVAILABLE",
+      "similarity": 0.8,
+      "score": 80,
+      "relevance": "RELEVANT",
+      "weight": 0,
+      "modelVersion": "multilingual-minilm-requirements-onnx-v1"
+    },
+    "semanticRequirements": {
+      "status": "AVAILABLE",
+      "totalWeight": 6,
+      "modelVersion": "multilingual-minilm-requirements-onnx-v1"
+    }
+  },
+  "requirements": [
+    {
+      "requirement": {
+        "id": "req_python",
+        "label": "Python experience",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python"
+        ]
+      },
+      "status": "MATCHED",
+      "reasonCode": "ALL_TAGS_SUPPORTED",
+      "reason": "Confirmed Python claim supports this requirement.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_python",
+          "valueSummary": "Has Python experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ],
+      "scoring": {
+        "score": 100,
+        "weight": 2,
+        "contribution": 33.33,
+        "method": "EXACT",
+        "similarity": null,
+        "relevance": "UNKNOWN",
+        "matches": []
+      }
+    },
+    {
+      "requirement": {
+        "id": "req_analysis",
+        "label": "Python and SQL",
+        "kind": "SKILL",
+        "importance": "REQUIRED",
+        "tagIds": [
+          "skill_python",
+          "skill_sql"
+        ]
+      },
+      "status": "PARTIAL",
+      "reasonCode": "SOME_TAGS_SUPPORTED",
+      "reason": "Python is supported; there is insufficient evidence for SQL.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_python",
+          "valueSummary": "Has Python experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ],
+      "scoring": {
+        "score": 80,
+        "weight": 2,
+        "contribution": 26.67,
+        "method": "SEMANTIC",
+        "similarity": 0.8,
+        "relevance": "RELEVANT",
+        "matches": [
+          {
+            "field": "skills",
+            "recordId": "skill_demo_related",
+            "text": "Related confirmed skill title",
+            "criterion": "Python and SQL",
+            "similarity": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "requirement": {
+        "id": "req_interviews",
+        "label": "Research interview experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_interviews"
+        ]
+      },
+      "status": "GAP",
+      "reasonCode": "EXPLICIT_NEGATIVE_CLAIM",
+      "reason": "The user explicitly confirmed no research interview experience.",
+      "evidence": [
+        {
+          "field": "skills",
+          "recordId": "skill_interviews",
+          "valueSummary": "Explicitly reports no research interview experience.",
+          "confirmedRevision": 3,
+          "sourceType": "MANUAL",
+          "documentId": null
+        }
+      ],
+      "scoring": {
+        "score": 0,
+        "weight": 1,
+        "contribution": 0.0,
+        "method": "EXPLICIT_GAP",
+        "similarity": null,
+        "relevance": "UNKNOWN",
+        "matches": []
+      }
+    },
+    {
+      "requirement": {
+        "id": "req_r",
+        "label": "R experience",
+        "kind": "SKILL",
+        "importance": "PREFERRED",
+        "tagIds": [
+          "skill_r"
+        ]
+      },
+      "status": "UNKNOWN",
+      "reasonCode": "INSUFFICIENT_EVIDENCE",
+      "reason": "There is insufficient confirmed evidence for this requirement.",
+      "evidence": [],
+      "scoring": {
+        "score": 60,
+        "weight": 1,
+        "contribution": 10.0,
+        "method": "SEMANTIC",
+        "similarity": 0.6,
+        "relevance": "PARTIAL",
+        "matches": [
+          {
+            "field": "skills",
+            "recordId": "skill_demo_related",
+            "text": "Related confirmed skill title",
+            "criterion": "R experience",
+            "similarity": 0.6
+          }
+        ]
+      }
+    }
+  ],
+  "evaluatedAt": "2026-10-03T00:00:00Z"
+}

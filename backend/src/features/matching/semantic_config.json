@@ -1,11 +1,15 @@
 {
-  "model": "sentence-transformers/all-MiniLM-L6-v2",
-  "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+  "modelFile": "onnx/model_quint8_avx2.onnx",
+  "padId": 1,
+  "padToken": "<pad>",
+  "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
   "artifacts": {
-    "tokenizer.json": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
-    "onnx/model.onnx": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452"
+    "tokenizer.json": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8",
+    "onnx/model_quint8_avx2.onnx": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
   },
-  "maxTokens": 256,
+  "maxTokens": 128,
   "threads": 1,
   "batchSize": 16,
   "thresholds": {"partial": 0.45, "relevant": 0.75}
