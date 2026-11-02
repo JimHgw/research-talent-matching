@@ -3,6 +3,7 @@ import React from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import { Badge, Button, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
+import { requirementKinds } from './academic.js';
 import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 export default function OpportunityDetails({ opportunityId, onClose, onMatch, CollectionButton }) {
@@ -40,7 +41,7 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
                   <strong>{requirement.label}</strong>
                   <span>
                     {requirement.importance === 'REQUIRED' ? t('Required') : t('Preferred')} ·{' '}
-                    {requirement.kind === 'SKILL' ? t('Skill') : t('Research interest')}
+                    {t(requirementKinds[requirement.kind] || requirement.kind)}
                   </span>
                 </li>
               ))}
