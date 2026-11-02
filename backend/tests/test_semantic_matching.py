@@ -54,25 +54,28 @@ def test_owner_recommendations_and_details_use_text_without_shared_tag_gate(sema
     _, encoder = semantic_app
     saved = profile(signed)
     # Equal structured scores must be reordered by semantic relevance before pagination.
-    unrelated = opportunity(research_team, title="History", researchArea=HISTORY)
-    related = opportunity(research_team, title="Graph research", researchArea=GRAPH)
+    unrelated = opportunity(research_team, title="History", researchArea=HISTORY,
+                            requirements=[{**interest_requirement(), "label": HISTORY}])
+    related = opportunity(research_team, title="Graph research", researchArea=GRAPH,
+                          requirements=[interest_requirement()])
     client, _ = signed
     page = checked(client.get(RECOMMENDATIONS + "?pageSize=1"), "RecommendationPage")
     item = page["items"][0]
     assert page["total"] == 2
     assert item["opportunity"]["id"] == related["id"]
-    assert item["summary"]["score"] == 50
-    assert item["summary"]["recommendationScore"] == 65
+    assert item["summary"]["score"] == 0
+    assert item["summary"]["recommendationScore"] == 100
     assert item["summary"]["semanticInterest"]["relevance"] == "RELEVANT"
     assert len(encoder.calls) == 1
     assert len(encoder.calls[0]) == len(set(encoder.calls[0])) == 2
     detail = checked(client.get(f"{MATCHES}/{related['id']}"), "OwnerMatch")
     assert detail["summary"] == item["summary"]
     assert detail["profileRevision"] == saved["revision"]
-    assert [row["status"] for row in detail["requirements"]] == ["MATCHED", "PARTIAL", "GAP", "UNKNOWN"]
+    assert detail["requirements"][0]["scoring"]["score"] == 100
+    assert detail["requirements"][0]["status"] == "UNKNOWN"
     second = checked(client.get(RECOMMENDATIONS + "?page=2&pageSize=1"), "RecommendationPage")
     assert second["items"][0]["opportunity"]["id"] == unrelated["id"]
-    assert second["items"][0]["summary"]["recommendationScore"] == 35
+    assert second["items"][0]["summary"]["recommendationScore"] == 0
     assert "PRIVATE_RESUME_SENTINEL" not in str(encoder.calls)
 
 
@@ -95,7 +98,8 @@ def test_all_interest_inputs_participate_without_creating_skill_or_interest_evid
     if mode != "shared-only":
         assert row["evidence"] == []
         assert summary["score"] == 0
-        assert summary["recommendationScore"] == 30
+        assert summary["recommendationScore"] == 100
+        assert row["scoring"]["score"] == 100
     assert "PRIVATE_RESUME_SENTINEL" not in str(encoder.calls)
 
 
@@ -110,7 +114,7 @@ def test_team_lists_details_and_shortlists_use_current_visible_interest_fields(s
     checked(team.put(f"{shortlist}/{saved['talentId']}", headers=headers(token)), "CollectionState")
     page = checked(team.get(url), "TalentMatchPage")
     summary = page["items"][0]["summary"]
-    assert summary["recommendationScore"] == 30
+    assert summary["recommendationScore"] == 100
     detail = checked(team.get(f"{url}/{saved['talentId']}"), "TeamMatch")
     assert detail["summary"] == summary
     assert checked(team.get(shortlist), "TalentMatchPage")["items"][0]["summary"] == summary
@@ -150,7 +154,7 @@ def test_team_semantic_ranking_happens_before_pagination_and_batches_text(semant
     data = checked(research_team[0].get(url), "TalentMatchPage")
     assert data["total"] == 2
     assert data["items"][0]["talent"]["talentId"] == related_profile["talentId"]
-    assert data["items"][0]["summary"]["recommendationScore"] == 30
+    assert data["items"][0]["summary"]["recommendationScore"] == 100
     assert len(encoder.calls) == 1
     assert len(encoder.calls[0]) == 2
 
@@ -188,7 +192,7 @@ def test_model_failures_keep_http_matching_available_and_scores_consistent(seman
 def test_empty_interest_is_unknown_and_does_not_load_model(semantic_app, signed, research_team):
     _, encoder = semantic_app
     profile(signed, text="")
-    published = opportunity(research_team, researchArea=GRAPH)
+    published = opportunity(research_team, researchArea=GRAPH, requirements=[interest_requirement()])
     summary = checked(signed[0].get(f"{MATCHES}/{published['id']}"), "OwnerMatch")["summary"]
     assert summary["semanticInterest"]["status"] == "MISSING_EVIDENCE"
     assert summary["semanticInterest"]["relevance"] == "UNKNOWN"
@@ -196,20 +200,19 @@ def test_empty_interest_is_unknown_and_does_not_load_model(semantic_app, signed,
     assert encoder.calls == []
 
 
-@pytest.mark.parametrize("weight,coverage,expected", [
-    (0, 50, 50), (0.25, 50, 62.5), (1, 50, 100), (0.3, None, 100), (0, None, None),
-])
-def test_configurable_blend_and_missing_structured_criteria(semantic_app, weight, coverage, expected):
+@pytest.mark.parametrize("weight", [0, 0.25, 1])
+def test_no_criteria_has_no_score_or_global_interest_bonus(semantic_app, weight):
     app, _ = semantic_app
     app.config["SEMANTIC_MATCHING_WEIGHT"] = weight
-    summary = {**summarize([]), "score": coverage}
+    summary = summarize([])
     published = {"content": {"researchArea": GRAPH, "requirements": []}}
     snapshot = {"researchInterests": {}, "researchInterestText": GRAPH}
     with app.app_context():
-        semantic_runtime.enrich_matches([(published, snapshot, summary)])
-    assert summary["score"] == coverage
-    assert summary["recommendationScore"] == expected
-    assert summary["semanticInterest"]["weight"] == (1 if coverage is None and weight else weight)
+        semantic_runtime.enrich_matches([(published, snapshot, [], summary)])
+    assert summary["score"] is None
+    assert summary["recommendationScore"] is None
+    assert summary["semanticInterest"]["weight"] == 0
+    assert summary["semanticRequirements"]["totalWeight"] == 0
 
 
 @pytest.mark.parametrize("setting,value", [
@@ -253,7 +256,7 @@ def test_profile_edit_requires_confirmation_and_new_text_replaces_old_semantics(
     _, encoder = semantic_app
     saved = profile(signed)
     share(signed, ["researchInterests"])
-    published = opportunity(research_team, researchArea=GRAPH)
+    published = opportunity(research_team, researchArea=GRAPH, requirements=[interest_requirement()])
     client, token = signed
     path = f"{MATCHES}/{published['id']}"
     assert checked(client.get(path), "OwnerMatch")["summary"]["semanticInterest"]["score"] == 100
@@ -269,15 +272,16 @@ def test_profile_edit_requires_confirmation_and_new_text_replaces_old_semantics(
     assert GRAPH in encoder.calls[-1]  # Opportunity text, not a cached profile.
 
 
-@pytest.mark.skipif(not (ROOT / "data/us13/model/onnx/model.onnx").is_file()
+@pytest.mark.skipif(not (ROOT / "data/semantic/model/onnx/model_quint8_avx2.onnx").is_file()
                     or importlib.util.find_spec("onnxruntime") is None,
                     reason="Pinned MiniLM artifacts are required for real application inference.")
 def test_real_minilm_runs_in_owner_and_team_http_matching(app, signed, research_team):
     # No encoder substitution in this case.
     app.config["SEMANTIC_MATCHING_ENABLED"] = True
     saved = profile(signed, text="Using graph based neural models to discover new molecules.")
-    related = opportunity(research_team, researchArea=GRAPH)
-    unrelated = opportunity(research_team, researchArea=HISTORY)
+    related = opportunity(research_team, researchArea=GRAPH, requirements=[interest_requirement()])
+    unrelated = opportunity(research_team, researchArea=HISTORY,
+                            requirements=[{**interest_requirement(), "label": HISTORY}])
     data = checked(signed[0].get(RECOMMENDATIONS), "RecommendationPage")
     assert data["items"][0]["opportunity"]["id"] == related["id"]
     scores = {item["opportunity"]["id"]: item["summary"]["semanticInterest"]["similarity"] for item in data["items"]}
@@ -289,4 +293,5 @@ def test_real_minilm_runs_in_owner_and_team_http_matching(app, signed, research_
     owner = checked(signed[0].get(f"{MATCHES}/{related['id']}"), "OwnerMatch")
     assert detail["summary"] == owner["summary"]
     assert detail["summary"]["semanticInterest"]["status"] == "AVAILABLE"
-    assert [row["status"] for row in owner["requirements"]] == ["MATCHED", "PARTIAL", "GAP", "UNKNOWN"]
+    assert owner["requirements"][0]["scoring"]["score"] > 45
+    assert owner["summary"]["rankingAlgorithmVersion"] == "requirement-semantic-v1"

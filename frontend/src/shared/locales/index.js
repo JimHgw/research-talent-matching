@@ -10,6 +10,7 @@ import arabic from './ar.js';
 import hindi from './hi.js';
 import russian from './ru.js';
 import { semanticMessages } from './semantic.js';
+import { requirementScoringMessages } from './requirement-scoring.js';
 
 // Native names keep the selector usable after an accidental language switch.
 // Each dictionary remains independently editable; English source messages are the fallback.
@@ -40,6 +41,9 @@ export const languageCatalog = {
 };
 
 for (const [locale, messages] of Object.entries(semanticMessages)) {
+  languageCatalog[locale].messages = { ...languageCatalog[locale].messages, ...messages };
+}
+for (const [locale, messages] of Object.entries(requirementScoringMessages)) {
   languageCatalog[locale].messages = { ...languageCatalog[locale].messages, ...messages };
 }
 

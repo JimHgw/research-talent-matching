@@ -47,8 +47,8 @@ def recommendations(db, user, page, page_size, filters=None):
     for opportunity in list_published(db):
         if not opportunity_matches(opportunity, filters or {}):
             continue
-        _, summary = evaluate_opportunity(opportunity, snapshot)
-        pairs.append((opportunity, snapshot, summary))
+        results, summary = evaluate_opportunity(opportunity, snapshot)
+        pairs.append((opportunity, snapshot, results, summary))
         items.append({
             "opportunity": opportunity,
             "summary": summary,
@@ -79,7 +79,7 @@ def owner_match(db, user, opportunity_id):
     require_confirmed(profile)
     snapshot = read_matching_profile(db, profile)
     results, summary = evaluate_opportunity(opportunity, snapshot)
-    enrich_matches([(opportunity, snapshot, summary)])
+    enrich_matches([(opportunity, snapshot, results, summary)])
     return {
         "opportunity": opportunity,
         "profileRevision": profile.revision,

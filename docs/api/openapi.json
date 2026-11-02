@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H18ABANANA Sprint 1 API Contract",
-    "version": "0.1.3-draft",
+    "version": "0.1.4-draft",
     "description": "Proposed implementation contract, not an implemented service or team-approved agreement. Based on Sprint 1 US-01..US-09, the 2026-09-30 client minutes and current Jira subtasks. See sprint-1-api-contract.md for assumptions and workflows. JSON field names use camelCase; timestamps use UTC RFC3339; role/status enum values are uppercase. US-01 supplement adds verified-email registration and email/account-ID login."
   },
   "servers": [
@@ -5789,6 +5789,9 @@
             "items": {
               "$ref": "#/components/schemas/OwnerEvidence"
             }
+          },
+          "scoring": {
+            "$ref": "#/components/schemas/RequirementScoring"
           }
         },
         "required": [
@@ -5830,6 +5833,9 @@
             "items": {
               "$ref": "#/components/schemas/TeamEvidence"
             }
+          },
+          "scoring": {
+            "$ref": "#/components/schemas/RequirementScoring"
           }
         },
         "required": [
@@ -5898,16 +5904,20 @@
                 "type": "null"
               }
             ],
-            "description": "Ranking score: 70% structured score + 30% unrounded semantic percentage by default. Configurable semantic weight [0,1]; use semantic percentage alone when structured score is null; fallback to structured score when semantic input/model is unavailable. Rounded HALF_UP to two decimals."
+            "description": "For requirement-semantic-v1, sum(requirement.scoring.score * requirement.scoring.weight) / sum(weights), rounded HALF_UP to two decimals. No requirements -> null. Structured score remains evidence coverage. Legacy hybrid-interest-v1 fixtures retain the former 70/30 formula."
           },
           "rankingAlgorithmVersion": {
             "type": "string",
             "enum": [
-              "hybrid-interest-v1"
+              "hybrid-interest-v1",
+              "requirement-semantic-v1"
             ]
           },
           "semanticInterest": {
             "$ref": "#/components/schemas/SemanticInterest"
+          },
+          "semanticRequirements": {
+            "$ref": "#/components/schemas/SemanticRequirements"
           }
         },
         "required": [
@@ -5918,7 +5928,7 @@
           "algorithmVersion"
         ],
         "additionalProperties": false,
-        "description": "Draft scoring: REQUIRED weight 2, PREFERRED 1; MATCHED=1, PARTIAL=.5, GAP/UNKNOWN=0. Score is evidence coverage, not a probability. No criteria -> null score and null unknown percentage. Application semantic matching adds recommendationScore, rankingAlgorithmVersion and semanticInterest. score and algorithmVersion still describe structured evidence coverage. New fields are omitted when semantic matching is disabled. Lists sort by recommendationScore when present, then lower unknown weight, then stable ID; filters and privacy apply before inference and pagination."
+        "description": "Structured score, statuses and evidence retain their coverage meaning. With semantic matching enabled, individual scoring and semanticRequirements are added. recommendationScore is the importance-weighted mean of individual scores, with no additional global interest blend. Missing evidence remains in the denominator. Model failures fall back to structured per-requirement scores. Lists evaluate the complete filtered permitted pool before pagination."
       },
       "OwnerMatch": {
         "type": "object",
@@ -6706,7 +6716,8 @@
           "modelVersion": {
             "type": "string",
             "enum": [
-              "minilm-interest-onnx-v1"
+              "minilm-interest-onnx-v1",
+              "multilingual-minilm-requirements-onnx-v1"
             ]
           }
         },
@@ -6719,7 +6730,150 @@
           "modelVersion"
         ],
         "additionalProperties": false,
-        "description": "Local cosine similarity over current permitted research interest text/shared/personal labels and opportunity research area/INTEREST labels. score=max(0,similarity)*100, rounded to two decimals. relevance thresholds: PARTIAL >=0.45; RELEVANT >=0.75. Missing input or unavailable model yields null similarity/score, UNKNOWN relevance, weight zero. No qualification or requirement status is inferred from similarity."
+        "description": "Explanatory interest similarity. Under requirement-semantic-v1 its weight is zero: interest requirements already participate in the weighted total. Legacy hybrid-interest-v1 fixtures retain their former blend weights."
+      },
+      "RequirementScoring": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "score",
+          "weight",
+          "contribution",
+          "method",
+          "similarity",
+          "relevance",
+          "matches"
+        ],
+        "properties": {
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "weight": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "contribution": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "EXACT",
+              "SEMANTIC",
+              "STRUCTURED",
+              "EXPLICIT_GAP",
+              "MISSING_EVIDENCE",
+              "UNAVAILABLE"
+            ]
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relevance": {
+            "type": "string",
+            "enum": [
+              "RELEVANT",
+              "PARTIAL",
+              "UNRELATED",
+              "UNKNOWN"
+            ]
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field",
+                "recordId",
+                "text",
+                "criterion",
+                "similarity"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "enum": [
+                    "skills",
+                    "researchInterests",
+                    "researchInterestText",
+                    "customInterestTags",
+                    "education",
+                    "researchExperience",
+                    "researchOutputs"
+                  ]
+                },
+                "recordId": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                },
+                "criterion": {
+                  "type": "string"
+                },
+                "similarity": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        },
+        "description": "Individual requirement score (0-100), importance weight (REQUIRED=2, PREFERRED=1) and contribution to total. Exact confirmed matches score 100; explicit gaps score 0. Other criteria use the best permitted same-field record. Similarity below 0.45 contributes zero. Academic criteria use a single record; qualification, organisation and output type require exact equality. Evidence status remains the structured assessment. Rounded contributions may differ from the total by a rounding cent."
+      },
+      "SemanticRequirements": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "totalWeight",
+          "modelVersion"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "MISSING_EVIDENCE",
+              "UNAVAILABLE"
+            ]
+          },
+          "totalWeight": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "modelVersion": {
+            "type": "string",
+            "enum": [
+              "multilingual-minilm-requirements-onnx-v1"
+            ]
+          }
+        }
       }
     },
     "parameters": {

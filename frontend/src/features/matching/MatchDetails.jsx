@@ -8,6 +8,7 @@ import { labels } from '../../shared/profile-labels.js';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 import SharedRecord, { supportingRecord, sharedRecordFields } from './SharedRecord.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
+import RequirementScore from './RequirementScore.jsx';
 
 const matchReasons = {
   ALL_SKILLS_SUPPORTED: 'All requested skills have confirmed supporting evidence.',
@@ -66,12 +67,18 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
             <div className="score-large">
               {result.summary.recommendationScore ?? result.summary.score ?? '—'}
               <small>
-                {t(result.summary.semanticInterest ? 'ranking / 100' : 'coverage / 100')}
+                {t(
+                  result.summary.semanticRequirements
+                    ? 'Weighted score / 100'
+                    : result.summary.semanticInterest
+                      ? 'ranking / 100'
+                      : 'coverage / 100'
+                )}
               </small>
             </div>
           </div>
           <div className="match-metrics">
-            {result.summary.semanticInterest && (
+            {(result.summary.semanticRequirements || result.summary.semanticInterest) && (
               <span>
                 <strong>{result.summary.score ?? '—'}</strong> {t('Evidence coverage')}
               </span>
@@ -110,6 +117,7 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
                     ? item.reason
                     : t(matchReasons[item.reasonCode] || item.reason)}
                 </p>
+                <RequirementScore scoring={item.scoring} />
                 {item.evidence.length ? (
                   <div className="evidence-box">
                     <Icon name="file" size={16} />

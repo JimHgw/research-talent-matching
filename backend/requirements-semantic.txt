@@ -1,4 +1,4 @@
-# Local semantic interest matching for application ranking and US-13 evaluation.
+# Local multilingual requirement scoring and the frozen US-13 interest evaluation.
 numpy==2.3.4
 onnxruntime==1.23.2
 tokenizers==0.22.1

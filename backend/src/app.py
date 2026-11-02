@@ -67,7 +67,7 @@ def create_app(config=None):
         DOCUMENT_PROCESSING_MAX_ATTEMPTS=os.getenv("DOCUMENT_PROCESSING_MAX_ATTEMPTS", "3"),
         SEMANTIC_MATCHING_ENABLED=os.getenv("SEMANTIC_MATCHING_ENABLED", "true"),
         SEMANTIC_MATCHING_WEIGHT=os.getenv("SEMANTIC_MATCHING_WEIGHT", "0.3"),
-        SEMANTIC_MODEL_DIR=os.getenv("SEMANTIC_MODEL_DIR", str(ROOT / "data/us13/model")),
+        SEMANTIC_MODEL_DIR=os.getenv("SEMANTIC_MODEL_DIR", str(ROOT / "data/semantic/model")),
     )
     app.config.update(config or {})
     configure_semantic(app)
