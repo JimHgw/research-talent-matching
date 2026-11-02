@@ -1,0 +1,672 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "testId": "E2E-AUTH-01",
+      "relatedStory": "US-15 / US-01",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and RESEARCH_TEAM",
+      "startingState": "Anonymous, unused synthetic email addresses",
+      "steps": [
+        "Request a code through the registration page.",
+        "Complete both role registrations.",
+        "Reject missing/invalid inputs and duplicate accounts."
+      ],
+      "expectedResult": "Both roles register; invalid requests leave accounts unchanged; codes remain session-bound.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[01-register]"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_register_both_roles*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_invalid_registration_payloads*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_duplicate_email*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-AUTH-02",
+      "relatedStory": "US-15",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Existing accounts; separate cookie jars",
+      "steps": [
+        "Reveal and hide the password without changing it.",
+        "Login by email and account ID; reject invalid credentials.",
+        "Reload/focus the page and inspect account ID.",
+        "Switch account, logout and verify private content disappears."
+      ],
+      "expectedResult": "Server role is authoritative; passwords remain intact; logout clears private UI and awaits anonymous session readiness.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[01]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[49]"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_wrong_and_unknown_credentials*"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_us15_client_role*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-AUTH-03",
+      "relatedStory": "US-15 / US-01",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Anonymous",
+      "startingState": "Local loopback SMTP capture; no external mailbox",
+      "steps": [
+        "Deliver a registration code through a local SMTP listener.",
+        "Complete registration; test unconfigured SMTP failure."
+      ],
+      "expectedResult": "Local SMTP delivery succeeds; absent configuration returns 503 without exposing the code. External inbox delivery is outside this case.",
+      "checks": [
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_registration_delivers_real_smtp*"
+        },
+        {
+          "class": "tests.test_us01_registration",
+          "name": "test_unconfigured_smtp*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-PROFILE-01",
+      "relatedStory": "US-03 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Empty or unconfirmed owner profile",
+      "steps": [
+        "Edit and save profile; reload.",
+        "Review and confirm saved revision.",
+        "Try empty, missing and invalid fields.",
+        "Edit confirmed content and reconfirm."
+      ],
+      "expectedResult": "Valid content persists; invalid writes do not replace saved data; real edits invalidate confirmation.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[03]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[41]"
+        },
+        {
+          "class": "tests.test_us03",
+          "name": "test_confirm_rejects_empty*"
+        },
+        {
+          "class": "tests.test_us03",
+          "name": "test_confirm_rejects_blank*"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_invalid_profiles*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-DOC-01",
+      "relatedStory": "US-09 / US-11",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Synthetic selectable PDF and DOCX; real worker process",
+      "steps": [
+        "Upload each format.",
+        "Wait for processing and READY.",
+        "Review, correct and select sections.",
+        "Apply, verify revision and reconfirm."
+      ],
+      "expectedResult": "Only reviewed sections change; upload alone does not modify profile; import requires confirmation.",
+      "checks": [
+        {
+          "class": "tests.test_us09_frontend_integration",
+          "name": "test_us09_real_frontend_workflow*",
+          "minimumMatches": 2
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-DOC-02",
+      "relatedStory": "US-09 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Owner, second talent and team",
+      "startingState": "Prepared queued, empty, failed and ready private documents",
+      "steps": [
+        "Exercise missing, unsupported and oversized upload.",
+        "Inspect queued/failed/review-required states.",
+        "Read/download documents from non-owner sessions."
+      ],
+      "expectedResult": "Invalid upload rejected; failure/review recovery shown; non-owners cannot access documents.",
+      "checks": [
+        {
+          "class": "tests.test_us09_frontend_integration",
+          "name": "test_task61_review_states_and_accounts"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_upload_rejects_invalid_content*"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_document_read_endpoints_reject*"
+        },
+        {
+          "class": "tests.test_us09",
+          "name": "test_document_download_rejects_unauthorized*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-REGRESSION-35",
+      "relatedStory": "H18ABANANA-35",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT",
+      "startingState": "Prepared unconfirmed profile reset through owner API inside fresh test database",
+      "steps": [
+        "Upload synthetic PDF and DOCX using existing real HTTP workflow.",
+        "Assert review dialog contains suggestions and no not-recording placeholder.",
+        "Correct evidence; select skills; apply.",
+        "Verify imported revision, unchanged unselected sections and reconfirm."
+      ],
+      "expectedResult": "Both formats complete review/correction/selection/application/reconfirmation with no not-recording placeholder.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_regression_35_review_correct_apply_reconfirm*",
+          "minimumMatches": 2
+        }
+      ],
+      "datasetUsage": "prepare_run: s2_unconfirmed_profile; explicit empty-profile scenario; existing synthetic CV helper.",
+      "relatedDefect": [],
+      "retestResult": "Fix history present on base main (07f3ffc merged by 56cfeb5); both supported document formats executed, not inferred from story status."
+    },
+    {
+      "testId": "E2E-PRIVACY-01",
+      "relatedStory": "US-05 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Independent talent and team sessions",
+      "startingState": "Private by default; confirmed profile and published opportunity",
+      "steps": [
+        "Enable discovery and select fields.",
+        "Inspect team explanations.",
+        "Hide evidence, then revoke discovery.",
+        "Refresh results and retry old detail URL."
+      ],
+      "expectedResult": "Hidden fields contribute no team evidence; revocation removes result and denies old detail access.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[05]"
+        },
+        {
+          "class": "tests.test_us01",
+          "name": "test_initial_profile_and_privacy_defaults"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-OPP-01",
+      "relatedStory": "US-02",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "RESEARCH_TEAM",
+      "startingState": "No owned opportunity in isolated fixture",
+      "steps": [
+        "Create draft; save and reload; edit.",
+        "Reject invalid or missing fields.",
+        "Try publication with empty requirements.",
+        "Publish valid opportunity and inspect as talent."
+      ],
+      "expectedResult": "Draft stays owner-only; valid publication becomes visible; stale/invalid writes preserve current content.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[02]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[19]"
+        },
+        {
+          "class": "tests.test_us02",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-MATCH-01",
+      "relatedStory": "US-04 / US-05 / H18ABANANA-40",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and RESEARCH_TEAM",
+      "startingState": "Versioned labels and confirmed/discoverable states",
+      "steps": [
+        "Prepare versioned dataset.",
+        "Evaluate the 12 independently labelled cases.",
+        "Compare requirement statuses, summary, access restrictions and evidence."
+      ],
+      "expectedResult": "MATCHED, PARTIAL, GAP and UNKNOWN follow independent labels; privacy and confirmation exclusions hold.",
+      "checks": [
+        {
+          "class": "tests.test_sprint2_data_preparation",
+          "name": "test_prepared_matching_against_manual_labels*"
+        },
+        {
+          "class": "tests.test_sprint2_data_preparation",
+          "name": "test_discovery_exclusions*"
+        }
+      ],
+      "datasetUsage": "prepare_run; original 10 talents, 7 opportunities and 12 manual labels unchanged.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-MATCH-02",
+      "relatedStory": "US-18",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "RESEARCH_TEAM",
+      "startingState": "Academic requirements and visible confirmed records",
+      "steps": [
+        "Open ranked discovery and talent details.",
+        "Inspect education, experience and output explanations.",
+        "Change privacy/revision and refresh."
+      ],
+      "expectedResult": "Explanations reference eligible evidence; hidden/stale records do not remain exposed.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[53]"
+        },
+        {
+          "class": "tests.test_us18",
+          "name": "test_academic_evidence_api*"
+        },
+        {
+          "class": "tests.test_us18",
+          "name": "test_academic_profile_edits*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-ENV-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SEARCH-01",
+      "relatedStory": "US-14",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Multiple published records and opted-in talent",
+      "steps": [
+        "Search with one and multiple filters.",
+        "Use no-result query; clear filters and empty input.",
+        "Hide shared fields and refresh filtered team results."
+      ],
+      "expectedResult": "Search composes before ranking/pagination; empty UI input clears query; explicit empty API q is invalid; hidden fields cannot satisfy filters.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[14]"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_opportunity_filters_compose*"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_talent_filters*"
+        },
+        {
+          "class": "tests.test_us14",
+          "name": "test_strict_opportunity_queries*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SOURCE-01",
+      "relatedStory": "US-19",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Team owner and talent",
+      "startingState": "Source URL feature enabled explicitly for live test",
+      "steps": [
+        "Create, reload and edit safe source URL.",
+        "Clear optional URL and restore it.",
+        "Reject invalid protocols and unauthorized edits.",
+        "Inspect rendered link target and security attributes."
+      ],
+      "expectedResult": "URL persists and link points to intended safe destination; no external site is contacted by automation.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[19-source]"
+        },
+        {
+          "class": "tests.test_us19",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-EXPIRY-01",
+      "relatedStory": "US-20",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Team and talent",
+      "startingState": "Controlled opportunity clock independent of authentication",
+      "steps": [
+        "Check future, absent and expired deadlines.",
+        "Evaluate one microsecond before/at/after boundary.",
+        "Inspect list/search/recommendations/discovery.",
+        "Edit expired record and reopen explicitly."
+      ],
+      "expectedResult": "Active strictly before deadline; expired excluded from lists, matching returns 409, retained detail remains readable; reopening explicit.",
+      "checks": [
+        {
+          "class": "tests.test_us20",
+          "name": "*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-LANG-01",
+      "relatedStory": "US-21",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "English default; unsaved verbatim multilingual content",
+      "steps": [
+        "Switch among supported languages on opportunity/profile/document/privacy screens.",
+        "Verify navigation changes and actions still work.",
+        "Refresh and switch back."
+      ],
+      "expectedResult": "Locale persists; user-entered content and account identity remain unchanged.",
+      "checks": [
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[i18n]"
+        },
+        {
+          "class": "tests.test_frontend_integration",
+          "name": "test_real_frontend_workflow[49]"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SESSION-01",
+      "relatedStory": "US-15 / US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Concurrent TALENT and RESEARCH_TEAM",
+      "startingState": "s2_perfect_match and s2_team signed in",
+      "steps": [
+        "Reject team write to private talent profile.",
+        "Hide fields and revoke discovery; refresh team results.",
+        "Logout talent and inspect team session."
+      ],
+      "expectedResult": "Team cannot modify private profile; hidden evidence is UNKNOWN; revoked detail is 404; talent logout leaves team authenticated.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_independent_sessions_privacy_and_logout"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-PROFILE-02",
+      "relatedStory": "US-10",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "TALENT and team",
+      "startingState": "Confirmed s2_perfect_match",
+      "steps": [
+        "Edit and save.",
+        "Verify recommendation/discovery exclusion.",
+        "Login with second owner client and reconfirm."
+      ],
+      "expectedResult": "Saved revision persists across sessions; unconfirmed matching is blocked; reconfirm restores eligibility.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_edit_reload_reconfirm_and_matching"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SEARCH-02",
+      "relatedStory": "US-14",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "6 published opportunities; 4 opted-in confirmed profiles",
+      "steps": [
+        "Query plain, single and combined filters.",
+        "Check no-result and invalid-empty query.",
+        "Clear filters."
+      ],
+      "expectedResult": "Opportunity totals 6/1/6/1/0; team totals 4/0/4; explicit empty q returns 422.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_search_combinations_on_prepared_records"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [
+        "US16-TEST-01"
+      ],
+      "retestResult": "Initial test used unsupported skills parameter and received 422. Corrected to documented skill parameter; the unchanged expected zero-result assertion passed on exact retest."
+    },
+    {
+      "testId": "E2E-EXPIRY-02",
+      "relatedStory": "US-19 / US-20",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Copy one prepared opportunity into isolated scenario",
+      "steps": [
+        "Create with safe URL/deadline; publish.",
+        "Reject invalid URL without replacing record.",
+        "Move availability clock across exact boundary."
+      ],
+      "expectedResult": "Search/recommendation totals 1/0/0; discovery becomes 409; published record and source retained.",
+      "checks": [
+        {
+          "class": "tests.test_us16",
+          "name": "test_source_deadline_publication_and_boundary"
+        }
+      ],
+      "datasetUsage": "prepare_run; versioned records reused; scenario changes confined to fresh database.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SEMANTIC-01",
+      "relatedStory": "US-13",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Deterministic test encoder and unavailable-model scenarios",
+      "steps": [
+        "Request owner and team recommendations.",
+        "Change privacy and profile text.",
+        "Force unavailable encoder and inspect fallback."
+      ],
+      "expectedResult": "Audience-permitted interests only; unavailable model reports fallback explicitly; no qualification evidence fabricated.",
+      "checks": [
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_owner_recommendations*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_team_lists*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_model_failures*"
+        },
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_profile_edit*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-SEMANTIC-02",
+      "relatedStory": "US-13",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "Both roles",
+      "startingState": "Pinned local model and runtime required",
+      "steps": [
+        "Run real encoder through owner and team HTTP matching."
+      ],
+      "expectedResult": "Real model available, finite similarity scores and privacy-respecting evidence.",
+      "checks": [
+        {
+          "class": "tests.test_semantic_matching",
+          "name": "test_real_minilm_runs*"
+        }
+      ],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case."
+    },
+    {
+      "testId": "E2E-DATA-01",
+      "relatedStory": "H18ABANANA-40",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "QA",
+      "startingState": "Manifest sourceStatus=AUTHORISED_REAL_INPUT_REQUIRED",
+      "steps": [
+        "Inspect provenance and approved real-example count."
+      ],
+      "expectedResult": "Authorised talent and opportunity examples available for client acceptance.",
+      "checks": [],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-DEP-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "Manifest contains 0 authorised real examples; only synthetic cases available."
+    },
+    {
+      "testId": "E2E-ENV-01",
+      "relatedStory": "US-16",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Local dependencies installed; no shared services or private documents used.",
+      "accountRole": "QA",
+      "startingState": "Docker deployment environment",
+      "steps": [
+        "Probe Docker server availability before any stack operation."
+      ],
+      "expectedResult": "Disposable Docker/MySQL acceptance environment available.",
+      "checks": [],
+      "datasetUsage": "Existing isolated fixtures; prepared dataset version recorded for this run.",
+      "relatedDefect": [
+        "US16-ENV-01"
+      ],
+      "retestResult": "See execution evidence; no separate failure/retest cycle for this case.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "Docker executable exists but Docker Desktop Linux engine pipe is absent; no stack or existing database was started or modified."
+    },
+    {
+      "testId": "E2E-SOURCE-02",
+      "relatedStory": "US-19",
+      "datasetVersion": "sprint2-synthetic-v2",
+      "preconditions": "Full browser test against disposable local deployment; safe example.org destination only.",
+      "accountRole": "TALENT",
+      "startingState": "Published opportunity with safe source URL",
+      "steps": [
+        "Open opportunity detail.",
+        "Activate source link in graphical browser and inspect new tab."
+      ],
+      "expectedResult": "Intended source opens independently while the application remains available.",
+      "checks": [],
+      "datasetUsage": "Prepared opportunity with scenario URL.",
+      "relatedDefect": [
+        "US16-ENV-02"
+      ],
+      "retestResult": "Real browser attempt completed; repeat after DNS/network access is restored.",
+      "manualStatus": "BLOCKED",
+      "manualActual": "At http://127.0.0.1:5176, signed into isolated prepared talent, opened the published opportunity detail and activated https://example.org/. A separate tab targeted the exact URL; destination failed with ERR_NAME_NOT_RESOLVED. Original application remained usable with 6 opportunities. Destination loading remains blocked by network resolution."
+    }
+  ]
+}

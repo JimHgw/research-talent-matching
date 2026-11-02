@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="6" time="23.495" timestamp="2026-10-31T14:04:08.422295+11:00">
+    <testcase classname="tests.test_us16" name="test_independent_sessions_privacy_and_logout" line="37" time="2.178" />
+    <testcase classname="tests.test_us16" name="test_edit_reload_reconfirm_and_matching" line="65" time="1.846" />
+    <testcase classname="tests.test_us16" name="test_search_combinations_on_prepared_records" line="89" time="2.092" />
+    <testcase classname="tests.test_us16" name="test_source_deadline_publication_and_boundary" line="107" time="2.173" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[pdf]" line="136" time="7.792" />
+    <testcase classname="tests.test_us16" name="test_regression_35_review_correct_apply_reconfirm[docx]" line="136" time="7.369" />
+  </testsuite>
+</testsuites>
