@@ -80,36 +80,40 @@ Owners are suggested by responsibility; the team should assign actual names. One
 
 P0 identifies a prerequisite safeguard or release gate, not a confirmed production incident. P1 covers core implementation improvements. P2 covers optimisation after correctness is stable.
 
+**Difficulty scale (1-10; assessed 4 November 2026):** a relative planning estimate for a developer familiar with the current stack, considering implementation complexity, affected scope, dependencies and acceptance effort, with existing code/tests reused. Scores are separate from priority and are not effort or story-point estimates. 1-2: small local edits; 3-4: straightforward single-module changes; 5-6: moderate changes across several files with contract/regression work; 7-8: difficult cross-module state, data or recovery work; 9-10: very difficult algorithm, concurrency or platform work with demanding correctness checks.
+
 ### Frontend Tasks
 
-| ID | Task | Priority | Suggested owner | Dependencies |
-|---|---|---|---|---|
-| FE-1 | Establish typed data boundaries and the frontend regression baseline | P0 | Frontend API / architecture maintainer | Coordinate the contract baseline with BE-1 |
-| FE-2 | Extract the document review ViewModel and UseCases | P1 | Document / profile frontend developer | FE-1; integration with BE-2, BE-3 and BE-4 |
-| FE-3 | Improve query refresh, read cancellation and document polling | P1 | Shared Hooks / document frontend developer | FE-1; shared state contract coordinated with FE-2; integration with BE-6 and BE-8 |
-| FE-4 | Align editing, confirmation, privacy and account state | P1 | Profile / opportunity / account frontend developer | FE-1 and FE-3; integration with BE-3, BE-4 and BE-5 |
-| FE-5 | Verify matching presentation, accessibility and frontend delivery | P1; final release gate | Matching frontend developer, frontend lead and QA | Matching work after FE-1 and BE-7; final acceptance covers FE-2 through FE-4 and coordinates with BE-10 |
+| ID | Task | Priority | Difficulty (1-10) | Suggested owner | Dependencies |
+|---|---|---|---|---|---|
+| FE-1 | Establish typed data boundaries and the frontend regression baseline | P0 | 7/10 | Frontend API / architecture maintainer | Coordinate the contract baseline with BE-1 |
+| FE-2 | Extract the document review ViewModel and UseCases | P1 | 7/10 | Document / profile frontend developer | FE-1; integration with BE-2, BE-3 and BE-4 |
+| FE-3 | Improve query refresh, read cancellation and document polling | P1 | 8/10 | Shared Hooks / document frontend developer | FE-1; shared state contract coordinated with FE-2; integration with BE-6 and BE-8 |
+| FE-4 | Align editing, confirmation, privacy and account state | P1 | 8/10 | Profile / opportunity / account frontend developer | FE-1 and FE-3; integration with BE-3, BE-4 and BE-5 |
+| FE-5 | Verify matching presentation, accessibility and frontend delivery | P1; final release gate | 7/10 | Matching frontend developer, frontend lead and QA | Matching work after FE-1 and BE-7; final acceptance covers FE-2 through FE-4 and coordinates with BE-10 |
 
 Development against agreed fixtures can proceed before backend refactoring is merged. Final acceptance requires the relevant real API/Worker/model paths; frontend mocks alone cannot establish backend guarantees.
 
 ### Backend Tasks
 
-| ID | Task | Priority | Suggested owner | Dependencies |
-|---|---|---|---|---|
-| BE-1 | Establish API contracts, error semantics and a regression baseline | P0 | API maintainer | None |
-| BE-2 | Extract the reviewed document import application service | P1 | Document module developer | BE-1, BE-3, BE-4 |
-| BE-3 | Organise profile save and confirmation services | P1 | Profile module developer | BE-1, BE-4 |
-| BE-4 | Verify concurrent revision control and transaction atomicity | P0 | Database / core business developer | BE-1 |
-| BE-5 | Unify authorisation and team-visible data boundaries | P0 | Authorisation / matching developer | BE-1 |
-| BE-6 | Verify Worker recovery and state consistency | P1 | Document / background processing developer | BE-1, BE-4 |
-| BE-7 | Establish per-requirement scoring and model fallback behaviour | P1 | Matching module developer | BE-1, BE-5 |
-| BE-8 | Optimise queries, filtering and pagination | P2 | Query / matching developer | BE-5, BE-7 |
-| BE-9 | Standardise database upgrades and pre-release checks | P1 | Database / deployment maintainer | BE-1; final review of database changes from BE-2 through BE-8 |
-| BE-10 | Complete integration, diagnostics and delivery acceptance | P0, throughout the iteration | Backend integration lead, with QA | BE-1 through BE-9; frontend evidence from FE-1 through FE-5 for the joint release gate |
+| ID | Task | Priority | Difficulty (1-10) | Suggested owner | Dependencies |
+|---|---|---|---|---|---|
+| BE-1 | Establish API contracts, error semantics and a regression baseline | P0 | 5/10 | API maintainer | None |
+| BE-2 | Extract the reviewed document import application service | P1 | 7/10 | Document module developer | BE-1, BE-3, BE-4 |
+| BE-3 | Organise profile save and confirmation services | P1 | 6/10 | Profile module developer | BE-1, BE-4 |
+| BE-4 | Verify concurrent revision control and transaction atomicity | P0 | 8/10 | Database / core business developer | BE-1 |
+| BE-5 | Unify authorisation and team-visible data boundaries | P0 | 8/10 | Authorisation / matching developer | BE-1 |
+| BE-6 | Verify Worker recovery and state consistency | P1 | 8/10 | Document / background processing developer | BE-1, BE-4 |
+| BE-7 | Establish per-requirement scoring and model fallback behaviour | P1 | 9/10 | Matching module developer | BE-1, BE-5 |
+| BE-8 | Optimise queries, filtering and pagination | P2 | 9/10 | Query / matching developer | BE-5, BE-7 |
+| BE-9 | Standardise database upgrades and pre-release checks | P1 | 8/10 | Database / deployment maintainer | BE-1; final review of database changes from BE-2 through BE-8 |
+| BE-10 | Complete integration, diagnostics and delivery acceptance | P0, throughout the iteration | 7/10 | Backend integration lead, with QA | BE-1 through BE-9; frontend evidence from FE-1 through FE-5 for the joint release gate |
 
 ## 3. Frontend Development Requirements and Acceptance Criteria
 
 ### FE-1: Establish Typed Data Boundaries and the Frontend Regression Baseline
+
+**Difficulty: 7/10.** Combines incremental JS/TS integration, runtime contract validation and stable dependency composition while preserving session behaviour.
 
 **Objective:** introduce a small, verifiable TypeScript foundation for the review pilot and align critical frontend data assumptions with the existing API contract.
 
@@ -133,6 +137,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** scoped TypeScript configuration and script, typed DTOs and repository boundary, critical response validators, dependency composition, boundary tests and the frontend baseline report.
 
 ### FE-2: Extract the Document Review ViewModel and UseCases
+
+**Difficulty: 7/10.** Separates a stateful review workflow without losing draft, revision, acknowledgement or submission safeguards.
 
 **Objective:** separate the review workflow from rendering while preserving the existing document identity, user corrections, acknowledgement and import safeguards.
 
@@ -158,6 +164,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### FE-3: Improve Query Refresh, Read Cancellation and Document Polling
 
+**Difficulty: 8/10.** Changes shared query semantics across consumers and must handle cancellation, races, polling timers and permission loss correctly.
+
 **Objective:** keep useful content visible during safe background refreshes and make read/polling lifecycles explicit without displaying stale or unauthorised data.
 
 **Development requirements**
@@ -180,6 +188,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** shared query-state/API read updates, documents polling ViewModel, cancellation/race/timer tests, updated consumers and real slow-processing integration evidence.
 
 ### FE-4: Align Editing, Confirmation, Privacy and Account State
+
+**Difficulty: 8/10.** Coordinates multiple editors, uncertain write recovery, dependent-view invalidation and account isolation.
 
 **Objective:** make saved server state, local drafts, revisions and recovery behaviour consistent across profile, privacy and opportunity editing, while preserving account isolation.
 
@@ -205,6 +215,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** consistent editor ViewModels/recovery behaviour, invalidation rules, deferred-request/session tests and profile/privacy/opportunity API integration evidence.
 
 ### FE-5: Verify Matching Presentation, Accessibility and Frontend Delivery
+
+**Difficulty: 7/10.** Requires consistent scoring presentation plus localisation, accessibility and real-backend acceptance across several views.
 
 **Objective:** present current server scoring faithfully and verify that the complete frontend iteration is usable, localised and ready for integration release.
 
@@ -233,6 +245,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-1: Establish API Contracts, Error Semantics and a Regression Baseline
 
+**Difficulty: 5/10.** Mainly aligns existing contracts, fixtures and regression evidence; the challenge is coverage and consistency rather than new algorithms.
+
 **Objective:** provide an explicit, executable comparison of behaviour before and after subsequent refactoring.
 
 **Development requirements**
@@ -252,6 +266,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** contract review matrix, necessary contract/example updates, baseline report and additional tests. Prefer the existing `docs/api/` and `backend/tests/` locations.
 
 ### BE-2: Extract the Reviewed Document Import Application Service
+
+**Difficulty: 7/10.** Extracts a multi-step import workflow while preserving transaction atomicity, provenance and revision semantics.
 
 **Objective:** move the document import workflow out of HTTP routes while preserving atomic persistence of user-reviewed content.
 
@@ -275,6 +291,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-3: Organise Profile Save and Confirmation Services
 
+**Difficulty: 6/10.** Refactors established save/confirmation rules with shared queries and serialisation, including no-op and tag behaviour.
+
 **Objective:** centralise profile state transitions for reuse by document imports and owner profile operations.
 
 **Development requirements**
@@ -296,6 +314,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** profile services, shared query/serialisation modules, state-transition rules and regression evidence.
 
 ### BE-4: Verify Concurrent Revision Control and Transaction Atomicity
+
+**Difficulty: 8/10.** Requires controlled multi-connection concurrency and fault injection on SQLite and MySQL to prove valid state transitions and rollback.
 
 **Objective:** demonstrate that real concurrent operations cannot lose updates and protect subsequent layering changes.
 
@@ -319,6 +339,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-5: Unify Authorisation and Team-Visible Data Boundaries
 
+**Difficulty: 8/10.** Authorisation must constrain every search, scoring and evidence input, including revocation and collection paths.
+
 **Objective:** ensure authorisation governs the inputs to filtering, scoring, ranking and evidence generation as well as returned fields.
 
 **Development requirements**
@@ -341,6 +363,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-6: Verify Worker Recovery and State Consistency
 
+**Difficulty: 8/10.** Needs reproducible multi-process lease recovery, restart checks and rejection of delayed writes from stale Workers.
+
 **Objective:** verify that the existing lease mechanism remains reliable across restarts, multiple processes and timeouts.
 
 **Development requirements**
@@ -362,6 +386,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** Worker behaviour documentation, reproducible recovery steps, regression tests and at least one record of an actual process-restart check.
 
 ### BE-7: Establish Per-Requirement Scoring and Model Fallback Behaviour
+
+**Difficulty: 9/10.** Combines per-requirement scoring correctness, hard evidence constraints, real model resources and failure/cooldown recovery.
 
 **Objective:** make the existing MiniLM per-requirement scoring explainable and reproducible, while keeping the API available when the model is unavailable.
 
@@ -387,6 +413,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-8: Optimise Queries, Filtering and Pagination
 
+**Difficulty: 9/10.** Must improve data loading and SQL execution while preserving global semantic ranking, exact filtering, totals and stable pagination.
+
 **Objective:** reduce unnecessary data loading and related-record queries while preserving query results and recommendation semantics.
 
 **Development requirements**
@@ -410,6 +438,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-9: Standardise Database Upgrades and Pre-Release Checks
 
+**Difficulty: 8/10.** Covers fresh and existing databases, repeatable upgrades, MySQL DDL behaviour and verified recovery without data loss.
+
 **Objective:** demonstrate that the updated code works for both fresh installations and upgrades containing existing data.
 
 **Development requirements**
@@ -432,6 +462,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 **Deliverables:** upgrade checklist, necessary migrations, fresh-install and upgrade verification reports, and release/recovery instructions.
 
 ### BE-10: Complete Integration, Diagnostics and Delivery Acceptance
+
+**Difficulty: 7/10.** Integrates CI, diagnostics and real API/Worker/model workflows, with substantial coordination and acceptance evidence.
 
 **Objective:** give the team evidence that the iteration works and the diagnostics needed to investigate actual user failures.
 

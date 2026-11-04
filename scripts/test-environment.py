@@ -1,0 +1,149 @@
+"""Run the 14 opt-in MySQL/Docker checks using disposable test containers."""
+
+import argparse
+import os
+from pathlib import Path
+import re
+import secrets
+import shutil
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+
+from sqlalchemy import create_engine
+
+
+ROOT = Path(__file__).resolve().parents[1]
+MYSQL_TESTS = (
+    "test_migration_verifies_values_preserves_login_and_refuses_overwrite",
+    "test_failed_migration_rolls_back_every_table",
+    "test_invalid_source_does_not_create_sqlite_file",
+    "test_mysql_enforces_lengths_and_case_sensitive_ids",
+    "test_mysql_cleanup_removes_related_rows_without_rebuilding_tables",
+)
+ACADEMIC_CASES = (
+    "EDUCATION-education-criteria0-MATCHED-100-edu_test",
+    "RESEARCH_EXPERIENCE-researchExperience-criteria1-PARTIAL-50-exp_test",
+    "RESEARCH_OUTPUT-researchOutputs-criteria2-MATCHED-100-output_test",
+    "RESEARCH_OUTPUT-researchOutputs-criteria3-UNKNOWN-0-None",
+)
+TESTS = (
+    *(f"backend/tests/test_mysql.py::{name}" for name in MYSQL_TESTS),
+    *(f"backend/tests/test_us18.py::test_academic_evidence_api[{schema}-{case}]"
+      for schema in ("upgraded-legacy-schema", "upgraded-startup-schema")
+      for case in ACADEMIC_CASES),
+    "backend/tests/test_docker_stack.py::test_real_stack_login_profile_and_restart_persistence",
+)
+
+
+def docker_output(docker, *args, timeout=45):
+    result = subprocess.run([docker, *args], cwd=ROOT, capture_output=True,
+                            text=True, encoding="utf-8", errors="replace", timeout=timeout)
+    if result.returncode:
+        raise RuntimeError(result.stderr.strip() or "Docker command failed.")
+    return result.stdout.strip()
+
+
+def wait_for_mysql(url, timeout=180):
+    engine = create_engine(url, connect_args={"connect_timeout": 3})
+    deadline = time.monotonic() + timeout
+    try:
+        while True:
+            try:
+                with engine.connect() as connection:
+                    connection.exec_driver_sql("SELECT 1")
+                return
+            except Exception:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError("The disposable MySQL server did not become ready.") from None
+                time.sleep(2)
+    finally:
+        engine.dispose()
+
+
+def verify_report(report):
+    cases = ET.parse(report).getroot().findall(".//testcase")
+    expected = {node.split("::", 1)[1] for node in TESTS}
+    if len(cases) != len(TESTS) or {case.get("name") for case in cases} != expected:
+        raise RuntimeError("The report does not contain exactly the 14 requested test cases.")
+    if any(case.find(tag) is not None for case in cases for tag in ("skipped", "failure", "error")):
+        raise RuntimeError("All 14 checks must execute and pass; skips are not accepted.")
+
+
+def main():
+    argparse.ArgumentParser(description=__doc__).parse_args()
+    docker = shutil.which("docker")
+    if not docker:
+        raise RuntimeError("Install Docker Desktop and start its Linux engine first.")
+    if docker_output(docker, "info", "--format", "{{.OSType}}") != "linux":
+        raise RuntimeError("Start Docker Desktop's Linux engine first.")
+    docker_output(docker, "compose", "version")
+    shell = shutil.which("sh")
+    git_bash = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
+    if not shell and not (os.name == "nt" and git_bash.is_file()):
+        raise RuntimeError("A POSIX shell is required for the startup checks; install Git Bash on Windows.")
+
+    image = subprocess.run([docker, "image", "inspect", "mysql:8.4"], cwd=ROOT,
+                           capture_output=True, timeout=45)
+    if image.returncode:
+        print("Downloading the MySQL 8.4 test image...", flush=True)
+        pulled = subprocess.run([docker, "pull", "mysql:8.4"], cwd=ROOT, timeout=900)
+        if pulled.returncode:
+            raise RuntimeError("Could not download the MySQL 8.4 test image.")
+
+    run_id = secrets.token_hex(6)
+    name = f"banana-environment-test-{run_id}"
+    password = secrets.token_hex(20)
+    report = ROOT / ".pytest_cache/environment-tests" / f"{run_id}.xml"
+    report.parent.mkdir(parents=True, exist_ok=True)
+    container = None
+    try:
+        print("Creating an isolated MySQL 8.4 test server...", flush=True)
+        # Only this new container receives the test database and credentials.
+        # No existing container, host directory or named volume is attached.
+        container = docker_output(
+            docker, "run", "--detach", "--name", name,
+            "--label", f"com.h18abanana.environment-test={run_id}",
+            "--publish", "127.0.0.1::3306",
+            "--env", "MYSQL_DATABASE=banana_environment_test",
+            "--env", "MYSQL_USER=banana_test",
+            "--env", f"MYSQL_PASSWORD={password}",
+            "--env", f"MYSQL_ROOT_PASSWORD={secrets.token_hex(20)}",
+            "mysql:8.4", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_bin",
+        )
+        if not re.fullmatch(r"[0-9a-f]{64}", container):
+            raise RuntimeError("Docker returned an unexpected container ID.")
+        binding = docker_output(docker, "port", container, "3306/tcp")
+        match = re.fullmatch(r"127\.0\.0\.1:(\d+)", binding)
+        if not match:
+            raise RuntimeError("The test database must be published only on host loopback.")
+        url = (f"mysql+pymysql://banana_test:{password}@127.0.0.1:"
+               f"{match[1]}/banana_environment_test?charset=utf8mb4")
+        wait_for_mysql(url)
+        env = {**os.environ, "MYSQL_TEST_DATABASE_URL": url}
+        print("Running all 14 MySQL/Docker checks (no skipped checks allowed)...", flush=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", *TESTS, "--run-mysql", "--run-docker",
+             "--shard-index=1", "--shard-total=1", "-v", "-rs", "--tb=short",
+             f"--junitxml={report}"],
+            cwd=ROOT, env=env,
+        )
+        print(f"Test report: {report}", flush=True)
+        if result.returncode:
+            return result.returncode
+        verify_report(report)
+        print("All 14 environment checks passed with zero skips.", flush=True)
+        return 0
+    finally:
+        if container and re.fullmatch(r"[0-9a-f]{64}", container):
+            print("Removing the disposable MySQL test container and its anonymous volume...", flush=True)
+            docker_output(docker, "rm", "--force", "--volumes", container)
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (RuntimeError, subprocess.TimeoutExpired) as error:
+        print(f"Environment checks failed: {error}", file=sys.stderr)
+        raise SystemExit(1)

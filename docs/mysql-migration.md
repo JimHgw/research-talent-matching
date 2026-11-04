@@ -149,6 +149,23 @@ Tests cover successful migration, value-by-value verification, rollback on failu
 login with original passwords, and existing application concurrency and permission regressions.
 `--run-docker` separately verifies the complete container stack, automatic document processing and persistence after container recreation.
 
+To run the 14 environment checks that the default suite skips (five MySQL migration/storage checks,
+eight academic upgrade variants, and one complete Docker stack check), start Docker Desktop's Linux engine
+and run this command from the repository root after setup:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/test-environment.py
+```
+
+On macOS/Linux, use `.venv/bin/python scripts/test-environment.py`.
+The runner creates a separate MySQL 8.4 container with a new test database, random credentials and
+a dynamically allocated loopback port. It enables both test flags, requires all 14 checks to execute
+and pass with zero skips, and saves a JUnit report under `.pytest_cache/environment-tests/`.
+The stack check creates its own unique Compose project. Both environments clean up their temporary
+containers and data; existing application containers, databases and volumes are not used.
+The first run may download images, build application images and download the pinned semantic model.
+Windows also requires Git Bash for the automatic startup upgrade checks.
+
 For connection and transaction configuration, see the [SQLAlchemy MySQL documentation](https://docs.sqlalchemy.org/en/20/dialects/mysql.html).
 For timestamp precision, see the [MySQL fractional seconds documentation](https://dev.mysql.com/doc/refman/8.4/en/fractional-seconds.html).
 
