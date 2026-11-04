@@ -60,7 +60,7 @@ try {
   await click('Opportunities');
   await until(() => document.querySelectorAll('.opportunity-card').length === 2);
   await change('Search', 'imaging');
-  await change('University', content.university.toLowerCase());
+  await change('Organisation', content.university.toLowerCase());
   await click('Apply filters');
   await until(() => document.querySelectorAll('.opportunity-card').length === 1);
   assert.match(document.querySelector('.opportunity-card').textContent, /Imaging research/);

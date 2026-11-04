@@ -154,7 +154,7 @@ test('create academic requirements in the full-page editor without incompatible 
   await click('Create opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title': 'Academic opportunity',
-    University: 'UNSW',
+    Organisation: 'UNSW',
     Discipline: 'Computing',
     'Research area': 'Data science',
     Description: 'Research project',
@@ -164,7 +164,7 @@ test('create academic requirements in the full-page editor without incompatible 
     await click('Add requirement');
     await change(`Requirement ${index + 1} label`, `Academic check ${index + 1}`);
     await change(`Requirement ${index + 1} kind`, kind);
-    await change(field, value);
+    await change(field, value, document.querySelectorAll('.requirement-card')[index]);
   }
   await click('Save draft');
   const requirements = state.requests.find(

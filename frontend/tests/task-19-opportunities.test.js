@@ -163,7 +163,7 @@ test('team creates a draft first and publishes only after a separate action', as
   await click('My opportunities');
   await click('New opportunity');
   await change('Opportunity title *', 'Frontend integration study');
-  await change('University *', 'Test University');
+  await change('Organisation *', 'Test University');
   await change('Discipline *', 'Computer Science');
   await change('Research area *', 'Interface testing');
   await change('Description *', 'Synthetic data used by an isolated frontend test.');
@@ -238,7 +238,7 @@ test('modal creation checks saved drafts after a lost response instead of creati
   await click('New opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title *': 'Recovered draft',
-    'University *': 'UNSW',
+    'Organisation *': 'UNSW',
     'Discipline *': 'Computer Science',
     'Research area *': 'Data systems',
     'Description *': 'Synthetic recovery test.',

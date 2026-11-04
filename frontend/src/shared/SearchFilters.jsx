@@ -89,7 +89,7 @@ export default function SearchFilters({ onApply, talent = false, initialFilters 
         ) : (
           <>
             {[
-              ['university', 'University'],
+              ['university', 'Organisation'],
               ['discipline', 'Discipline'],
               ['researchArea', 'Research area'],
             ].map(([key, label]) => (

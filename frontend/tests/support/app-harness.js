@@ -94,15 +94,15 @@ function button(name) {
 async function click(name) {
   await act(async () => button(name).click());
 }
-function field(name) {
-  const label = [...document.querySelectorAll('label')].find(
+function field(name, scope = document) {
+  const label = [...scope.querySelectorAll('label')].find(
     (l) => l.querySelector(':scope > span')?.textContent === name
   );
   assert.ok(label, `Field not found: ${name}`);
   return label.querySelector('input,select,textarea');
 }
-async function change(name, value) {
-  const input = field(name);
+async function change(name, value, scope = document) {
+  const input = field(name, scope);
   await act(async () => {
     const proto =
       input.tagName === 'SELECT'

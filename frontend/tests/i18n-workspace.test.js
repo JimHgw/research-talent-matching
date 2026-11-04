@@ -79,7 +79,7 @@ for (const locale of locales) {
     await click('Create opportunity');
     const input = {
       'Opportunity title': 'Original title العربية 中文',
-      University: 'UNSW',
+      Organisation: 'UNSW',
       Discipline: 'Computer Science',
       'Research area': 'AI research',
       Description: 'Verbatim: Create opportunity; Save draft.',
@@ -123,14 +123,14 @@ for (const locale of locales) {
         t('Tags for requirement {number} ({count}/{limit})', { number: 2, count: 1, limit: 20 })
       )
     );
-    await change(t('University'), '   ');
+    await change(t('Organisation'), '   ');
     await click(t('Save draft'));
     assert.ok(
       document
         .querySelector('[role="alert"]')
         .textContent.includes(t('Complete all required fields with non-blank text.'))
     );
-    await change(t('University'), 'UNSW');
+    await change(t('Organisation'), 'UNSW');
     await change(t('Skill names for requirement {number}', { number: 1 }), 'Python\nＰＹＴＨＯＮ');
     await click(t('Save draft'));
     assert.ok(
@@ -145,6 +145,7 @@ for (const locale of locales) {
     assert.ok(text().includes(t('Opportunity saved.')));
     const request = state.requests.find((r) => r.path === '/opportunities' && r.method === 'POST');
     assert.equal(request.body.title, input['Opportunity title']);
+    assert.equal(request.body.university, input.Organisation);
     assert.equal(request.body.description, input.Description);
     assert.equal(request.body.disciplineGroup, 'STEM');
     assert.equal(request.body.requirements[0].kind, 'SKILL');

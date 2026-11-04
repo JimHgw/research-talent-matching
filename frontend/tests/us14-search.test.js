@@ -42,7 +42,7 @@ test('opportunity filters compose, encode literal text, reset pages and recover 
   await click('Opportunities');
   await click('Next');
   await change('Search', 'AI & health');
-  await change('University', 'UNSW');
+  await change('Organisation', 'UNSW');
   await selectFilter('Opportunity type', 'PhD');
   await selectFilter('Opportunity type', 'Masters');
   assert.equal(button('Opportunity type').textContent, 'PhDMasters');

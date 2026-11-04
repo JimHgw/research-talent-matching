@@ -27,7 +27,7 @@ try {
   await click('New opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title *': 'Source URL HTTP regression',
-    'University *': 'UNSW',
+    'Organisation *': 'UNSW',
     'Discipline *': 'Computing',
     'Research area *': 'AI',
     'Description *': 'Source link test opportunity.',
