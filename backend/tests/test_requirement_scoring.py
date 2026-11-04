@@ -1,13 +1,11 @@
 """Requirement-level model scoring, weighted totals and evidence boundaries."""
 
-import importlib.util
 import math
 
 import pytest
 
 from backend.src.features.matching.engine import evaluate_opportunity
 from backend.src.features.matching.semantic_runtime import enrich_matches
-from backend.src.shared.paths import ROOT
 from conftest import headers
 from test_semantic_matching import profile, semantic_app
 from test_us04 import MATCHES, RECOMMENDATIONS, checked, confirm_profile, research_team
@@ -175,9 +173,7 @@ def test_skill_privacy_and_reconfirmation_apply_to_every_endpoint(semantic_app, 
     assert checked(team.get(url), "TalentMatchPage")["total"] == 0
 
 
-@pytest.mark.skipif(not (ROOT / 'data/semantic/model/onnx/model_quint8_avx2.onnx').is_file()
-                    or importlib.util.find_spec('onnxruntime') is None, reason='Real multilingual assets required.')
-def test_real_chinese_synonyms_and_distinct_meanings_through_http(app, signed, research_team):
+def test_real_chinese_synonyms_and_distinct_meanings_through_http(application_model, app, signed, research_team):
     app.config['SEMANTIC_MATCHING_ENABLED'] = True
     saved = profile(signed, text='')
     content = saved['content']

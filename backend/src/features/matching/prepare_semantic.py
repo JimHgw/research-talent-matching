@@ -1,4 +1,4 @@
-"""Download and verify the pinned local interest encoder before serving requests."""
+"""Download and verify the pinned application requirement model before serving."""
 
 import argparse
 import os
@@ -20,6 +20,8 @@ def main(argv=None):
     download_model(directory, config)
     MiniLMEncoder(directory, config).encode(["Research requirement matching", "生物技术研究"])
     print("Multilingual requirement model downloaded and verified.")
+    print(f"Model: {config['modelVersion']} ({config['revision']})")
+    print(f"Inputs: {config['preprocessingVersion']}; thresholds: {config['thresholdVersion']}")
     return 0
 
 

@@ -1,4 +1,9 @@
-"""Score each requirement against current, audience-permitted records only."""
+"""Pure scoring over current, audience-permitted records; no model or HTTP work.
+
+The engine owns structured statuses/evidence. Plans restrict semantic inputs to
+the corresponding record kind; enrichment adds scores without rewriting those
+statuses. The runtime supplies validated request-scoped vectors or a failure.
+"""
 
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -151,10 +156,14 @@ def score_requirement(result, plan, vectors, thresholds, *, failed=False):
 
 def enrich_requirements(results, plans, vectors, thresholds, *, failed=False):
     total_weight = sum(WEIGHTS[row["requirement"]["importance"]] for row in results)
+    earned = Decimal("0")
     for result, plan in zip(results, plans, strict=True):
         scoring = score_requirement(result, plan, vectors, thresholds, failed=failed)
-        scoring["contribution"] = rounded(scoring["score"] * scoring["weight"] / total_weight)
+        # Aggregate the published, rounded row scores in decimal arithmetic.
+        # For example (45 + 45.01) / 2 is 45.005, which HALF_UP rounds to 45.01.
+        weighted = Decimal(str(scoring["score"])) * scoring["weight"]
+        earned += weighted
+        scoring["contribution"] = rounded(weighted / total_weight)
         result["scoring"] = scoring
-    total = (rounded(sum(row["scoring"]["score"] * row["scoring"]["weight"]
-                         for row in results) / total_weight) if total_weight else None)
+    total = rounded(earned / total_weight) if total_weight else None
     return total, total_weight

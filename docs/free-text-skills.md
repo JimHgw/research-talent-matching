@@ -75,6 +75,10 @@ experience, but used Python` denies R and does not deny Python. Punctuation and
 contrast clauses separate statements; target-specific negative phrases are
 supported in English and Chinese. The MR !40 regression cases exercise both
 legacy and free-text records through owner/team matching HTTP endpoints.
+Sprint 3 BE-7 also recognises Chinese negative title prefixes (`不会`, `不懂`,
+`不熟悉`, `不具备`, `没有`, `未曾`), including titles without whitespace. Negative
+duplicates take precedence over positive claims in either record order, and
+high semantic similarity cannot turn these denials into positive skill credit.
 
 ## Verification
 

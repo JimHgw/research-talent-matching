@@ -113,15 +113,20 @@ semantic_evaluation:
     - python -m pip install -r backend/requirements-dev.txt -r backend/requirements-semantic.txt
   script:
     - python -m backend.src.features.matching.evaluate_semantic --download-model --output reports/us13-results.json
-    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py -q
+    - python -m backend.src.features.matching.prepare_semantic
+    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
   cache:
-    key: us13-minilm-1110a243
+    key: minilm-us13-1110a243-application-e8f8c211
     paths:
       - data/us13/model/
+      - data/semantic/model/
   artifacts:
     when: always
     paths:
       - reports/us13-results.json
+      - reports/be7-application-model.xml
+    reports:
+      junit: reports/be7-application-model.xml
     expire_in: 1 week
 
 backend_mysql_test:
