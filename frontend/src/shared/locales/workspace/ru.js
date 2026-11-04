@@ -249,6 +249,7 @@ export default {
   PREFERRED: 'ПРЕДПОЧТИТЕЛЬНЫЙ',
   PROCESSING: 'ОБРАБОТКА',
   PUBLISHED: 'Опубликовано',
+  'Personal interest description': 'Описание личного интереса',
   'Personal interest label': 'Ярлык личного интереса',
   'Personal interest tags': 'Теги личного интереса',
   Preferred: 'Предпочтительный',

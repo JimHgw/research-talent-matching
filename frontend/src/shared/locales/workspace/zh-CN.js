@@ -234,6 +234,7 @@ export default {
   PREFERRED: '优先条件',
   PROCESSING: '处理中',
   PUBLISHED: '已发布',
+  'Personal interest description': '个人兴趣描述',
   'Personal interest label': '个人兴趣标签',
   'Personal interest tags': '个人兴趣标签',
   Preferred: '优先条件',

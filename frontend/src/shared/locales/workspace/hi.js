@@ -247,6 +247,7 @@ export default {
   PREFERRED: 'पसंदीदा',
   PROCESSING: 'प्रसंस्करण',
   PUBLISHED: 'प्रकाशित',
+  'Personal interest description': 'व्यक्तिगत रुचि का विवरण',
   'Personal interest label': 'व्यक्तिगत रुचि लेबल',
   'Personal interest tags': 'व्यक्तिगत रुचि टैग',
   Preferred: 'पसंदीदा',

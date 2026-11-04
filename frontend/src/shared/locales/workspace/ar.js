@@ -245,6 +245,7 @@ export default {
   PREFERRED: 'مفضل',
   PROCESSING: 'المعالجة',
   PUBLISHED: 'تم النشر',
+  'Personal interest description': 'وصف الاهتمام الشخصي',
   'Personal interest label': 'تسمية المصالح الشخصية',
   'Personal interest tags': 'علامات الاهتمامات الشخصية',
   Preferred: 'المفضل',

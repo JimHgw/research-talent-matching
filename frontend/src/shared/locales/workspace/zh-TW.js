@@ -233,6 +233,7 @@ export default {
   PREFERRED: '優先條件',
   PROCESSING: '處理中',
   PUBLISHED: '已釋出',
+  'Personal interest description': '個人興趣描述',
   'Personal interest label': '個人興趣標籤',
   'Personal interest tags': '個人興趣標籤',
   Preferred: '優先條件',

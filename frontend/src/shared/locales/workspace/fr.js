@@ -250,6 +250,7 @@ export default {
   PREFERRED: 'PRÉFÉRÉ',
   PROCESSING: 'TRAITEMENT',
   PUBLISHED: 'PUBLIÉ',
+  'Personal interest description': 'Description de l’intérêt personnel',
   'Personal interest label': "Etiquette d'intérêt personnel",
   'Personal interest tags': 'Balises d’intérêt personnel',
   Preferred: 'Préféré',
