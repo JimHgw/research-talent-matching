@@ -24,7 +24,7 @@ try {
   await click('New opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title *': 'FE19 HTTP integration',
-    'University *': 'UNSW',
+    'Organisation *': 'UNSW',
     'Discipline *': 'Computer Science',
     'Research area *': 'Data systems',
     'Description *': 'Created using the team opportunity editor.',

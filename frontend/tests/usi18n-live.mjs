@@ -32,7 +32,7 @@ try {
   const title = 'Original opportunity 中文 العربية';
   for (const [label, value] of Object.entries({
     'Opportunity title': title,
-    University: 'UNSW',
+    Organisation: 'UNSW',
     Discipline: 'Computer Science',
     'Research area': 'AI',
     Description: 'Verbatim description: Create opportunity; Save draft.',

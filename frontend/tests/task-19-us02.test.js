@@ -22,7 +22,7 @@ async function newDraft() {
   await click('Create opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title': 'New research project',
-    University: 'UNSW',
+    Organisation: 'UNSW',
     Discipline: 'Computer Science',
     'Research area': 'Data systems',
     Description: 'Synthetic research opportunity.',

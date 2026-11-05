@@ -249,6 +249,7 @@ export default {
   PREFERRED: 'PREFERIDO',
   PROCESSING: 'PROCESSAMENTO',
   PUBLISHED: 'PUBLICADO',
+  'Personal interest description': 'Descrição do interesse pessoal',
   'Personal interest label': 'Etiqueta de interesse pessoal',
   'Personal interest tags': 'Tags de interesse pessoal',
   Preferred: 'Preferido',

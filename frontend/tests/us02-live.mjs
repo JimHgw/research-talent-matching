@@ -23,7 +23,7 @@ try {
   await click('Create opportunity');
   for (const [label, value] of Object.entries({
     'Opportunity title': 'Real HTTP opportunity',
-    University: 'UNSW',
+    Organisation: 'UNSW',
     Discipline: 'Computer Science',
     'Research area': 'Data analysis',
     Description: 'Created by the real React editor.',

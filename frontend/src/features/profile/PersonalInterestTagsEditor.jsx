@@ -1,28 +1,33 @@
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
-import { Button } from '../../shared/ui.jsx';
+import { Button, Field } from '../../shared/ui.jsx';
 
 export default function PersonalInterestTagsEditor({ value, onChange }) {
   const { t } = useLanguage();
+  const update = (index, patch) =>
+    onChange(value.map((tag, i) => (i === index ? { ...tag, ...patch } : tag)));
   return (
     <div className="record-list">
       {value.map((tag, index) => (
         <div className="record" key={tag.id || index}>
-          <label>
-            <span>{t('Personal interest label')}</span>
+          <Field label={t('Personal interest label')}>
             <input
               value={tag.label}
               maxLength={100}
               required
-              onChange={(event) =>
-                onChange(
-                  value.map((item, i) =>
-                    i === index ? { ...item, label: event.target.value } : item
-                  )
-                )
-              }
+              onChange={(event) => update(index, { label: event.target.value })}
             />
-          </label>
+          </Field>
+          <Field label={t('Personal interest description')}>
+            {/* Legacy API entries lack descriptions; new entries always include the field. */}
+            <textarea
+              value={tag.description || ''}
+              maxLength={5000}
+              rows={3}
+              required={Object.hasOwn(tag, 'description')}
+              onChange={(event) => update(index, { description: event.target.value })}
+            />
+          </Field>
           <Button variant="text" onClick={() => onChange(value.filter((_, i) => i !== index))}>
             {t('Remove personal interest')}
           </Button>
@@ -31,7 +36,7 @@ export default function PersonalInterestTagsEditor({ value, onChange }) {
       <Button
         variant="secondary"
         disabled={value.length >= 100}
-        onClick={() => onChange([...value, { label: '' }])}
+        onClick={() => onChange([...value, { label: '', description: '' }])}
       >
         {t('Add personal interest')}
       </Button>

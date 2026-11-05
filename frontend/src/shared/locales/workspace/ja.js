@@ -245,6 +245,7 @@ export default {
   PREFERRED: '好ましい',
   PROCESSING: '処理中',
   PUBLISHED: '公開されました',
+  'Personal interest description': '個人的な興味の説明',
   'Personal interest label': '個人的な興味のラベル',
   'Personal interest tags': '個人的な興味のあるタグ',
   Preferred: '好ましい',

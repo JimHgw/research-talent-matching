@@ -20,7 +20,7 @@ const fieldLabels = {
   url: 'Link (optional)',
   evidenceText: 'Supporting evidence',
   label: 'Personal interest label',
-  university: 'University',
+  university: 'Organisation',
   researchArea: 'Research area',
   q: 'Search',
   skill: 'Skills',

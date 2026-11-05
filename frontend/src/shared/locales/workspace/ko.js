@@ -245,6 +245,7 @@ export default {
   PREFERRED: '선호',
   PROCESSING: '처리 중',
   PUBLISHED: '출판됨',
+  'Personal interest description': '개인 관심 설명',
   'Personal interest label': '개인 관심 라벨',
   'Personal interest tags': '개인 관심 태그',
   Preferred: '선호',
