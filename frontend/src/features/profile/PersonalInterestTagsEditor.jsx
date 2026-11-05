@@ -19,11 +19,12 @@ export default function PersonalInterestTagsEditor({ value, onChange }) {
             />
           </Field>
           <Field label={t('Personal interest description')}>
+            {/* Legacy API entries lack descriptions; new entries always include the field. */}
             <textarea
               value={tag.description || ''}
               maxLength={5000}
               rows={3}
-              required
+              required={Object.hasOwn(tag, 'description')}
               onChange={(event) => update(index, { description: event.target.value })}
             />
           </Field>

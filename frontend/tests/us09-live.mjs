@@ -32,7 +32,6 @@ try {
   await click('Add education');
   await change('Institution *', 'UNSW');
   await change('Qualification *', 'Master of IT');
-  await checkbox('Machine learning');
   await click('Save changes');
 
   await until(() => !!button('Save changes') && !field('Display name').matches(':disabled'));
@@ -209,6 +208,9 @@ try {
     'Machine learning; Climate-resilient urban systems'
   );
   assert.equal(field('Personal interest label').value, 'Climate-resilient urban systems');
+  // Extracted legacy tags have no per-interest description in the unchanged API.
+  assert.equal(field('Personal interest description').value, '');
+  assert.equal(field('Personal interest description').required, false);
   for (const label of [
     'Education',
     'Courses',
@@ -245,8 +247,14 @@ try {
   assert.deepEqual(withText.content.skills, confirmed.content.skills);
   assert.deepEqual(withText.content.researchInterests, confirmed.content.researchInterests);
   assert.equal(withText.confirmation.status, 'UNCONFIRMED');
-  assert.equal(field('Research interest description').value, withText.content.researchInterestText);
+  const headings = [...document.querySelectorAll('.profile-fields h3')].map(
+    (heading) => heading.textContent
+  );
+  assert.ok(!headings.includes('Research interests'));
+  assert.ok(!headings.includes('Research interest description'));
   assert.equal(field('Personal interest label').value, 'Ecological forecasting');
+  assert.equal(field('Personal interest description').value, '');
+  assert.equal(field('Personal interest description').required, false);
   assert.equal(
     (await api.tags()).items.some((tag) => tag.label === 'Ecological forecasting'),
     false

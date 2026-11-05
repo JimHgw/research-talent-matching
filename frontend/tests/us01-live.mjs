@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {
-  act,
   mount,
   remount,
   cleanup,
@@ -46,10 +45,25 @@ try {
   await click('Add skill');
   await change('Skill title', 'Financial modelling');
   await change('Supporting evidence', 'Built the test project.');
-  const interest = [...document.querySelectorAll('label')].find(
-    (label) => label.textContent.trim() === 'Machine learning'
+  const headings = [...document.querySelectorAll('.profile-fields h3')].map(
+    (heading) => heading.textContent
   );
-  await act(async () => interest.querySelector('input').click());
+  assert.ok(!headings.includes('Research interests'));
+  assert.ok(!headings.includes('Research interest description'));
+  assert.ok(headings.includes('Personal interest tags'));
+
+  // Per-interest descriptions are a frontend change; the backend contract is unchanged.
+  // Check the new editor and its validation, then remove the draft before saving.
+  await click('Add personal interest');
+  assert.equal(field('Personal interest label').validity.valueMissing, true);
+  assert.equal(field('Personal interest description').validity.valueMissing, true);
+  await change('Personal interest label', 'Ecological forecasting');
+  assert.equal(field('Personal interest description').checkValidity(), false);
+  await change('Personal interest description', 'Predicting changes in ecosystems.');
+  assert.equal(field('Personal interest label').checkValidity(), true);
+  assert.equal(field('Personal interest description').checkValidity(), true);
+  await click('Remove personal interest');
+  assert.equal(document.querySelectorAll('.record-list .record').length, 0);
   await click('Save changes');
   await until(() => text().includes('Profile saved.'));
   const api = createApi();
@@ -64,7 +78,8 @@ try {
   assert.equal(saved.content.researchOutputs[0].type, 'PROJECT');
   assert.equal(saved.content.skills[0].title, 'Financial modelling');
   assert.deepEqual(Object.keys(saved.content.skills[0]).sort(), ['evidenceText', 'id', 'title']);
-  assert.deepEqual(saved.content.researchInterests, ['interest_ml']);
+  assert.deepEqual(saved.content.researchInterests, []);
+  assert.deepEqual(saved.content.customInterestTags, []);
   assert.deepEqual(Object.keys(saved.content).sort(), [
     'courses',
     'customInterestTags',
@@ -80,14 +95,7 @@ try {
   ]);
   for (const section of ['education', 'courses', 'researchExperience', 'researchOutputs'])
     assert.match(saved.content[section][0].id, /^record_/);
-  for (const section of [
-    'education',
-    'courses',
-    'researchExperience',
-    'skills',
-    'researchInterests',
-    'researchOutputs',
-  ])
+  for (const section of ['education', 'courses', 'researchExperience', 'skills', 'researchOutputs'])
     assert.equal(saved.content[section].length, 1, section);
 
   // Reload the React application while keeping the browser cookie.
