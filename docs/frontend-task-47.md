@@ -18,32 +18,26 @@ US-14 APIs for search and deadlines.
 
 ## Source links
 
-The backend README proposes `content.sourceUrl`: an optional HTTP/HTTPS URL,
-up to 2048 characters. Sending `null` removes the link. When this frontend work
-was added, the backend and OpenAPI did not support saving this field yet.
+The US-19 backend on main accepts `content.sourceUrl`: an optional HTTP/HTTPS URL,
+up to 2048 characters. Sending `null` removes the link.
 
-The US-19 backend is now merged into main and accepts this field. The frontend build flag still defaults to false.
-After deploying the US-19 backend, enable it in the repository root `.env`:
-
-```text
-VITE_OPPORTUNITY_SOURCE_URLS=true
-```
-
-Then run `docker compose up -d --build frontend`. Both Compose files pass this
-setting as a build argument. Dockerfile applies it before `pnpm build`; changing
-a running container's environment without rebuilding will not change the UI.
-For native Vite development, use the same setting in `frontend/.env` and restart.
+The input is now enabled by default in Vite, Dockerfile and both Compose files.
+After updating, run `docker compose up -d --build frontend`. If an existing root
+`.env`, frontend `.env` or shell still sets `VITE_OPPORTUNITY_SOURCE_URLS=false`,
+remove that override or change it to `true`. Native Vite needs a restart;
+Docker needs a rebuild because the setting is read during `pnpm build`.
+Keep an explicit `false` only when using an older API without US-19 support.
 Do not copy `.env` into the image; the build needs only this non-secret flag.
 
-With the flag enabled, new records and records whose link has been cleared both
-show the input, even when the API omits `sourceUrl`. Empty input sends explicit
+New records and records whose link has been cleared both show the input by
+default, even when the API omits `sourceUrl`. Empty input sends explicit
 `null`; unchanged older records do not acquire a source URL field automatically.
 Valid links open in a new tab with `noopener noreferrer`. Adding a link does not
 fetch or import anything from that website.
 
 `us19-source-live.mjs` checks create, edit, clear, reload and re-add through the
-React editor and real HTTP API. It also checks a talent's read-only link and
-rejected writes by a different team. Run it with:
+React editor and real HTTP API without setting the feature flag. It also checks
+a talent's read-only link and rejected writes by a different team. Run it with:
 
 ```text
 python -m pytest backend/tests/test_frontend_integration.py -k 19-source --require-frontend

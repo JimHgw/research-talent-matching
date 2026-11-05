@@ -63,13 +63,16 @@ test('the core page configuration builds without opportunity or matching feature
   }
 });
 
-for (const enabled of ['true', 'false']) {
-  test(`source URL switch is embedded in the production bundle: ${enabled}`, async () => {
+for (const enabled of [undefined, 'true', 'false']) {
+  test(`source URL switch is embedded in the production bundle: ${enabled ?? 'unset'}`, async () => {
     const result = await build({
       configFile: false,
       envFile: false,
       logLevel: 'silent',
-      define: { 'import.meta.env.VITE_OPPORTUNITY_SOURCE_URLS': JSON.stringify(enabled) },
+      define: {
+        'import.meta.env.VITE_OPPORTUNITY_SOURCE_URLS':
+          enabled === undefined ? 'undefined' : JSON.stringify(enabled),
+      },
       build: {
         write: false,
         lib: {
@@ -87,6 +90,6 @@ for (const enabled of ['true', 'false']) {
     const built = await import(
       `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
     );
-    assert.equal(built.sourceUrlsEnabled, enabled === 'true');
+    assert.equal(built.sourceUrlsEnabled, enabled !== 'false');
   });
 }

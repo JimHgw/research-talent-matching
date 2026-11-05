@@ -51,7 +51,10 @@ def test_real_frontend_workflow(app, request, monkeypatch, tmp_path, story):
     if story == "01-reset":
         monkeypatch.setattr("backend.src.features.auth.reset.secrets.randbelow", lambda _: 12345)
         app.extensions["password_reset_mailer"] = lambda email, code: outbox.append((email, code))
-    extra_env = {"VITE_OPPORTUNITY_SOURCE_URLS": "true"} if story == "19-source" else {}
+    extra_env = {}
+    if story == "19-source":
+        # Exercise the shipped default, including after the API omits a cleared URL.
+        monkeypatch.delenv("VITE_OPPORTUNITY_SOURCE_URLS", raising=False)
     if story in ("41", "i18n"):
         from io import BytesIO
         from docx import Document
