@@ -1,5 +1,5 @@
-// BE-56 must support content.sourceUrl before enabling this for new records.
-export const sourceUrlsEnabled = import.meta.env?.VITE_OPPORTUNITY_SOURCE_URLS === 'true';
+// US-19 is available on main. Older deployments can explicitly disable the input.
+export const sourceUrlsEnabled = import.meta.env?.VITE_OPPORTUNITY_SOURCE_URLS !== 'false';
 
 export function validSourceUrl(value) {
   if (value == null || value === '') return true;

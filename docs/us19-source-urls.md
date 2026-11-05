@@ -37,9 +37,19 @@ Tests cover create/edit/remove/legacy omission, exact destination round trips,
 process restart, clear invalid-input errors, permissions, conflicts, old-table
 upgrades and unchanged matching evidence. Source links perform no HTTP fetching.
 
-Enable the existing frontend input with `VITE_OPPORTUNITY_SOURCE_URLS=true`, then
-restart the dev server or rebuild. Existing UI components already render valid
-links in a separate tab with `noopener noreferrer`, and omit unset links.
-`frontend/tests/us19-live.mjs` currently covers generic opportunity lifecycle and
-conflict handling; it does not yet prove source-link editing/opening through real
-HTTP. Verify the source-specific flow before claiming full UI acceptance.
+The frontend input is enabled by default. Restart Vite or rebuild the frontend
+image after updating. Remove any existing `VITE_OPPORTUNITY_SOURCE_URLS=false`
+override, or change it to `true`; keep `false` only for an older API without US-19.
+Valid links open in a separate tab with `noopener noreferrer`; unset links are
+omitted from details.
+
+`frontend/tests/us19-source-live.mjs` covers create, edit, clear, reload and re-add
+through the React editor and real HTTP API with no feature-flag override. It also
+checks read-only link attributes and rejects another team's writes. Run it with:
+
+```sh
+python -m pytest backend/tests/test_frontend_integration.py -k 19-source --require-frontend
+```
+
+This integration test checks the rendered destination; opening the external page
+itself is a separate browser check.

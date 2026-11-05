@@ -4,7 +4,7 @@ services:
       context: .
       target: runtime
       args:
-        VITE_OPPORTUNITY_SOURCE_URLS: "${VITE_OPPORTUNITY_SOURCE_URLS:-false}"
+        VITE_OPPORTUNITY_SOURCE_URLS: "${VITE_OPPORTUNITY_SOURCE_URLS:-true}"
     ports:
       - '127.0.0.1:5173:80'
     environment:

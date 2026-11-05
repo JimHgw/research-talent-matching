@@ -49,7 +49,7 @@ test('reopening date boundary is strict, with no deadline permitted', () => {
   assert.equal(futureDeadline('invalid', now), false);
 });
 
-test('source field is gated for the legacy backend and supports new content when enabled', async () => {
+test('source field is shown by default and can be disabled for an older backend', async () => {
   const item = await fixture('opportunity-published');
   const render = (sourceEnabled) =>
     act(async () =>
@@ -64,6 +64,8 @@ test('source field is gated for the legacy backend and supports new content when
         })
       )
     );
+  await render();
+  assert.ok(field('Source URL (optional)'));
   await render(false);
   assert.ok(!text().includes('Source URL (optional)'));
   await render(true);
