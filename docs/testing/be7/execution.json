@@ -1,0 +1,119 @@
+{
+  "status": "PASS",
+  "date": "2026-11-04",
+  "timezone": "Australia/Sydney",
+  "baselineCommit": "c311f74fa68dc8c18b2422475252fe8a1cf4cdb4",
+  "includesWorkingTreeChanges": true,
+  "command": ".venv/Scripts/python.exe -m pytest backend/tests --require-application-model --require-frontend -q -rs --junitxml=docs/testing/be7/acceptance.xml",
+  "executionContext": "Native host permissions; restricted execution could not start Git Bash and frontend helper processes. The complete native rerun passed.",
+  "fullSuite": {
+    "tests": "780",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "14",
+    "time": "397.164",
+    "timestamp": "2026-11-04T19:47:39.470068+11:00"
+  },
+  "passed": 766,
+  "be7Modules": {
+    "test_requirement_scoring": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    "test_semantic_matching": {
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0
+    },
+    "test_sprint3_be7": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "apiExamplesValidated": 49,
+  "skippedScope": {
+    "realDockerStack": 1,
+    "explicitMySQLChecks": 5,
+    "legacyMySQLUpgrades": 8
+  },
+  "warnings": {
+    "count": 18,
+    "reason": "Existing record_property calls in Sprint 2 / US-16 are incompatible with xunit2 metadata; test outcomes pass."
+  },
+  "modelPreparation": "prepare_semantic completed successfully and verified the pinned local application artifacts.",
+  "model": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+    "preprocessingVersion": "requirement-inputs-v1",
+    "thresholdVersion": "requirement-thresholds-v1",
+    "modelFile": "onnx/model_quint8_avx2.onnx",
+    "padId": 1,
+    "padToken": "<pad>",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "artifacts": {
+      "tokenizer.json": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8",
+      "onnx/model_quint8_avx2.onnx": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+    },
+    "maxTokens": 128,
+    "threads": 1,
+    "batchSize": 16,
+    "thresholds": {
+      "partial": 0.45,
+      "relevant": 0.75
+    }
+  },
+  "scoringVersion": "requirement-semantic-v1",
+  "realHttpScores": {
+    "chineseSynonym": 99.07,
+    "unrelated": 0,
+    "negations": [
+      {
+        "title": "不会生物科技研究",
+        "evidence": "",
+        "score": 0.0
+      },
+      {
+        "title": "生物科技研究",
+        "evidence": "我不会生物科技研究",
+        "score": 0.0
+      },
+      {
+        "title": "不会生物技术研究",
+        "evidence": "",
+        "score": 0.0
+      }
+    ]
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "packages": {
+      "pytest": "8.4.2",
+      "Flask": "3.1.2",
+      "SQLAlchemy": "2.0.44",
+      "numpy": "2.3.4",
+      "onnxruntime": "1.23.2",
+      "tokenizers": "0.22.1"
+    }
+  },
+  "sourceChecksumNormalization": "CRLF to LF",
+  "sourceSha256": {
+    "backend/src/db/skills.py": "13f9114b48f4086bdeb3f64feb3222477d55b752431500f46a5af4ba4f35015b",
+    "backend/src/features/matching/engine.py": "48ff8fa425445cb9aff5fa8735f3cabe71f1a367b924d657be8237a39c75eee9",
+    "backend/src/features/matching/academic_evidence.py": "d4b43dea84734c4a2de4b97582a231e31c1770c71208e382e542e94a2bcfb9a2",
+    "backend/src/features/matching/requirement_scoring.py": "8f95fcbd9ee19d317a1791473dca85549c1392a5179e1b60d6c2f11878c12f7b",
+    "backend/src/features/matching/semantic_runtime.py": "fd893428f09b56ef6161ce92930e7198ef64e8c7af546ff40202fc813120076c",
+    "backend/src/features/matching/semantic.py": "ca3c567c5687a4cc2b23513407bf37c366a665e9ed682742ac8c9f7fe6c56c29",
+    "backend/src/features/matching/multilingual_encoder.py": "ed728e8850e249cbd4ff86bcf28228594d258c9515f1e46ca5f2e990e1b31182",
+    "backend/src/features/matching/semantic_config.json": "4a3eed97d6b7515461c28884d27fcf6dfc28ae9c2ebdd6c7c20220aaee6cc2f0",
+    "backend/src/features/matching/prepare_semantic.py": "776bb6bbff82a7f5b90252012b917f5475c7a9a49c99da440327ee528d6dc371",
+    "backend/tests/conftest.py": "4bb0e1db8c1c640bdcd7244f52f078ce3f73e3651e81a78aec434b5c8abaccee",
+    "backend/tests/test_sprint3_be7.py": "caffc0b67a239b787ea480a6c03c8efd4a44fe6a7f77d8d8c896c0a923364765",
+    "backend/tests/test_requirement_scoring.py": "3934f43240a130357b5df8a54847a6cc342bebe3832786fc8b6ee69613ef8c15",
+    "backend/tests/test_semantic_matching.py": "3b2a8ad8ca028f4f8f8b85a09429c1c1e37b2207accb9b59d295cf20fcd3c22a",
+    "backend/tests/data/sprint3/be7-scoring.json": "5ea164dd9afdab90a7f06c8899d1c5397c590666a99956b3141f2290ec969221"
+  },
+  "junitReport": "acceptance.xml"
+}

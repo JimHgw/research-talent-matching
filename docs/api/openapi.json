@@ -5904,7 +5904,7 @@
                 "type": "null"
               }
             ],
-            "description": "For requirement-semantic-v1, sum(requirement.scoring.score * requirement.scoring.weight) / sum(weights), rounded HALF_UP to two decimals. No requirements -> null. Structured score remains evidence coverage. Legacy hybrid-interest-v1 fixtures retain the former 70/30 formula."
+            "description": "For requirement-semantic-v1, sum(requirement.scoring.score * requirement.scoring.weight) / sum(weights), aggregating the published rounded row scores in decimal arithmetic and rounding HALF_UP to two decimals. No requirements -> null. Structured score remains evidence coverage. Legacy hybrid-interest-v1 fixtures retain the former 70/30 formula."
           },
           "rankingAlgorithmVersion": {
             "type": "string",

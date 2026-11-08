@@ -1,14 +1,13 @@
 """Application semantic ranking, real inference, privacy and structured fallback."""
 
-import importlib.util
 import math
+import urllib.request
 from copy import deepcopy
 
 import pytest
 
 from backend.src.features.matching import semantic_runtime
 from backend.src.features.matching.engine import summarize
-from backend.src.shared.paths import ROOT
 from conftest import headers, sign_in
 from test_us04 import (MATCHES, RECOMMENDATIONS, checked, confirm_profile,
                        example, research_team)
@@ -159,15 +158,27 @@ def test_team_semantic_ranking_happens_before_pagination_and_batches_text(semant
     assert len(encoder.calls[0]) == 2
 
 
-@pytest.mark.parametrize("failure", ["missing", "exception", "nan", "zero", "short_batch", "dimensions"])
-def test_model_failures_keep_http_matching_available_and_scores_consistent(semantic_app, signed, research_team, tmp_path, failure):
+@pytest.mark.parametrize("failure", ["missing", "corrupt", "load", "exception", "nan", "inf", "zero", "short_batch", "dimensions"])
+def test_model_failures_keep_http_matching_available_and_scores_consistent(
+        semantic_app, signed, research_team, tmp_path, monkeypatch, caplog, failure):
     app, encoder = semantic_app
-    profile(signed)
+    saved = profile(signed)
+    share(signed, ["skills", "researchInterests"])
     published = opportunity(research_team, researchArea=GRAPH)
     runtime = app.extensions["semantic_matching"]
-    if failure == "missing":
+    def no_download(*args, **kwargs):
+        pytest.fail("A matching request must never download model resources.")
+    monkeypatch.setattr(urllib.request, "urlopen", no_download)
+    if failure in ("missing", "corrupt", "load"):
         runtime._encoder = None
         runtime.directory = tmp_path / "missing-model"
+        if failure == "corrupt":
+            runtime.directory.mkdir()
+            (runtime.directory / "tokenizer.json").write_bytes(b"corrupt")
+        elif failure == "load":
+            def broken_loader(*args):
+                raise RuntimeError("PRIVATE_EXCEPTION_SENTINEL")
+            monkeypatch.setattr(semantic_runtime, "MiniLMEncoder", broken_loader)
     else:
         def fail(texts):
             if failure == "exception":
@@ -176,7 +187,7 @@ def test_model_failures_keep_http_matching_available_and_scores_consistent(seman
                 return []
             if failure == "dimensions":
                 return [[1, 0] for _ in texts]
-            return [[float("nan") if failure == "nan" else 0] * 384 for _ in texts]
+            return [[float(failure) if failure in ("nan", "inf") else 0] * 384 for _ in texts]
         encoder.encode = fail
     data = checked(signed[0].get(RECOMMENDATIONS), "RecommendationPage")
     detail = checked(signed[0].get(f"{MATCHES}/{published['id']}"), "OwnerMatch")
@@ -186,7 +197,19 @@ def test_model_failures_keep_http_matching_available_and_scores_consistent(seman
     assert summary["semanticInterest"]["status"] == "UNAVAILABLE"
     assert summary["semanticInterest"]["weight"] == 0
     assert summary["semanticInterest"]["similarity"] is None
-    assert "PRIVATE_EXCEPTION_SENTINEL" not in str(detail)
+    assert summary["semanticRequirements"]["status"] == "UNAVAILABLE"
+    assert all(row["scoring"]["matches"] == [] for row in detail["requirements"])
+    team, csrf = research_team
+    path = f"/api/v1/opportunities/{published['id']}"
+    checked(team.put(f"{path}/shortlist/{saved['talentId']}", headers=headers(csrf)), "CollectionState")
+    for url, schema in ((path + "/talent-matches", "TalentMatchPage"),
+                        (path + "/shortlist", "TalentMatchPage"),
+                        (f"{path}/talent-matches/{saved['talentId']}", "TeamMatch")):
+        data = checked(team.get(url), schema)
+        current = data["summary"] if "summary" in data else data["items"][0]["summary"]
+        assert current == summary
+    assert "PRIVATE_EXCEPTION_SENTINEL" not in str(detail) + caplog.text
+    assert "PRIVATE_RESUME_SENTINEL" not in caplog.text
 
 
 def test_empty_interest_is_unknown_and_does_not_load_model(semantic_app, signed, research_team):
@@ -272,10 +295,7 @@ def test_profile_edit_requires_confirmation_and_new_text_replaces_old_semantics(
     assert GRAPH in encoder.calls[-1]  # Opportunity text, not a cached profile.
 
 
-@pytest.mark.skipif(not (ROOT / "data/semantic/model/onnx/model_quint8_avx2.onnx").is_file()
-                    or importlib.util.find_spec("onnxruntime") is None,
-                    reason="Pinned MiniLM artifacts are required for real application inference.")
-def test_real_minilm_runs_in_owner_and_team_http_matching(app, signed, research_team):
+def test_real_minilm_runs_in_owner_and_team_http_matching(application_model, app, signed, research_team):
     # No encoder substitution in this case.
     app.config["SEMANTIC_MATCHING_ENABLED"] = True
     saved = profile(signed, text="Using graph based neural models to discover new molecules.")

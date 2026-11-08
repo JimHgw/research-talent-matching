@@ -1,6 +1,7 @@
 import json
 import os
 import hashlib
+from pathlib import Path
 
 import pytest
 
@@ -19,6 +20,8 @@ ORIGIN = "http://127.0.0.1:5173"
 def pytest_addoption(parser):
     parser.addoption("--require-frontend", action="store_true",
                      help="Fail instead of skipping real HTTP integration when Node/jsdom is missing.")
+    parser.addoption("--require-application-model", action="store_true",
+                     help="Fail instead of skipping real application MiniLM HTTP tests when local resources are unavailable.")
     parser.addoption("--run-docker", action="store_true",
                      help="Build and test the real Docker stack in an isolated disposable project.")
     parser.addoption("--run-mysql", action="store_true",
@@ -135,6 +138,33 @@ def sign_in(client, email="talent@example.test", password=PASSWORD):
                            headers=headers(session["csrfToken"]))
     assert response.status_code == 200, response.get_json()
     return response.get_json()["csrfToken"]
+
+
+@pytest.fixture(scope="session")
+def application_model(request):
+    """Verify the application assets, independently of the historical US-13 model.
+
+    The BE-7/CI acceptance command requires this fixture: missing dependencies,
+    incomplete files, invalid checksums and load failures must fail that run.
+    Ordinary backend-only runs may explicitly report these tests as skipped.
+    """
+    from backend.src.features.matching.multilingual_encoder import MultilingualEncoder
+    from backend.src.features.matching.semantic_runtime import model_config
+
+    directory = Path(os.getenv("SEMANTIC_MODEL_DIR", str(ROOT / "data/semantic/model")))
+    if not directory.is_absolute():
+        directory = ROOT / directory
+    try:
+        encoder = MultilingualEncoder(directory, model_config())
+        encoder.encode(["生物技术研究"])
+    except Exception as error:
+        message = (f"Real application model unavailable ({type(error).__name__}). "
+                   "Install backend/requirements-semantic.txt and run "
+                   "python -m backend.src.features.matching.prepare_semantic.")
+        if request.config.getoption("--require-application-model"):
+            pytest.fail(message, pytrace=False)
+        pytest.skip(message)
+    return directory
 
 
 def headers(csrf):

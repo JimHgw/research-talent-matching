@@ -96,6 +96,11 @@ def skill_claims(skills):
     for item in skills:
         title = normalise_title(item["title"])
         negative = re.match(r"^(?:no|not|without|lack(?:ing)?(?: of)?|does not have)\s+(.+)$", title)
+        if negative is None:
+            negative = re.match(
+                r"^(?:不会|不懂|不熟悉|不具备|没有|未曾)(?:使用过|使用|用过|掌握|接触过|接触|学习过|学习)?\s*(.+)$",
+                title,
+            )
         name = negative[1] if negative else title
         evidence = normalise_title(item["evidenceText"])
         evidence_negative = _negative_evidence(evidence, name)

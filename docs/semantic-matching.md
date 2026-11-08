@@ -17,6 +17,9 @@ contribution = requirement score * weight / sum(weights)
 ```
 
 Individual scores and the final total are rounded HALF_UP to two decimals.
+Contributions and totals aggregate those published row scores using decimal
+arithmetic. In particular, two preferred scores of 45 and 45.01 produce 45.01
+from the exact mean 45.005, rather than 45.00 from floating-point drift.
 Displayed contributions may differ from their sum by a rounding cent. Missing
 requirements remain in the denominator and contribute zero. No requirements
 means a null total; an opportunity's general research area cannot add a bonus.
@@ -39,6 +42,26 @@ not establish a different degree level or output type.
 
 Skill denials and statements about wanting to learn do not supply positive
 semantic skill evidence. Interests cannot supply skill or qualification credit.
+Chinese negative title prefixes such as `不会`, `不懂` and `不熟悉` are resolved
+before exact or semantic comparisons, just like English negative titles. A
+negative claim overrides a positive duplicate regardless of record order.
+
+## Calculation boundaries
+
+| Component | Responsibility |
+| --- | --- |
+| `engine.py` / `academic_evidence.py` | Structured statuses, evidence and coverage; qualification/type/organisation equality and single-record constraints |
+| `requirement_scoring.py` | Pure same-field input plans, criterion/row scores, importance weights, decimal contributions and final score; never rewrites structured statuses/evidence |
+| `semantic_runtime.py` | Deduplicates all permitted request texts, batches vector requests, validates vectors, coordinates fallback and reports availability |
+| `multilingual_encoder.py` | Verifies pinned local files, tokenizes, infers and pools vectors; isolated inference per text avoids quantized batch drift |
+| Owner/team/collection services | Check authorization, confirmation, visibility and filters, then evaluate the full eligible pool before ranking/pagination |
+
+The shared runtime retains the encoder, lock and failure deadline. Input plans,
+text mappings and vectors live only in the current request. A model failure
+discards partial batch output; rows needing semantic comparisons use their
+structured score and `UNAVAILABLE`, with null similarity and no semantic matches.
+Exact matches, explicit gaps and genuinely missing evidence retain their own
+methods even during a failure. Diagnostics log only the exception class.
 
 ## Inputs and evidence
 
@@ -72,6 +95,14 @@ The application uses the pinned public
 with its official CPU uint8 ONNX export, 384-dimensional vectors, masked mean
 pooling and L2 normalization. Model identity, revision, SHA-256 checksums, token
 limits and thresholds are in `backend/src/features/matching/semantic_config.json`.
+The recorded versions are `requirement-inputs-v1` for input preparation,
+`requirement-thresholds-v1` for the 0.45/0.75 boundaries, and
+`requirement-semantic-v1` for scoring. Input preparation uses NFKC/whitespace/case
+normalization for structured titles and skill denials, normalized interest
+diagnostics, and original permitted criterion/source text for semantic inference.
+The encoder truncates to 128 tokens, mean-pools masked tokens and L2-normalizes
+384 dimensions. These versions describe the existing scoring contract; the
+decimal tie correction and Chinese title-denial fix preserve that contract.
 The tokenizer uses its own `<pad>` token and ID. Each distinct text is inferred
 separately because dynamic int8 batch activation ranges otherwise change scores
 between list and detail requests. Request-level text deduplication and a shared
@@ -104,6 +135,28 @@ returned. Sorting happens before pagination and uses the weighted total, lower
 unknown-evidence weight, then stable ID; null totals sort last.
 
 ## Verification
+
+Sprint 3 BE-7 acceptance must use the required-model option:
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.src.features.matching.prepare_semantic
+.\.venv\Scripts\python.exe -m pytest backend/tests/test_requirement_scoring.py backend/tests/test_semantic_matching.py backend/tests/test_sprint3_be7.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
+```
+
+The real-model fixture verifies both pinned artifacts and runs actual inference.
+Missing/corrupt resources or unavailable dependencies fail this command, rather
+than silently skipping it. Without the flag, backend-only development may skip
+these resource-dependent tests; that is not semantic acceptance. The
+`semantic_evaluation` CI job prepares and tests **both** the historical US-13 model
+and the current application model, caches them separately by directory and saves
+the application-model JUnit report. No request path prepares/downloads a model.
+
+Independent fixed expectations are in
+[`be7-scoring.json`](../backend/tests/data/sprint3/be7-scoring.json). The
+[BE-7 execution report](testing/be7/README.md) records current versions, real HTTP
+scores, fallback/gate checks and regression results. The JUnit report embeds
+model revision/checksums and observed Chinese synonym/negative scores as suite
+properties; it contains synthetic test data only.
 
 `backend/tests/test_requirement_scoring.py` covers every requirement kind,
 importance weighting, missing-input denominators, multi-skill criteria, academic

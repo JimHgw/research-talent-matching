@@ -1,17 +1,20 @@
 # H18ABANANA — Sprint 1 Frontend and Backend API Contract
 
-Version: `0.1.3-draft`
+Version: `0.1.4-draft`
 
 Prepared: 2026-10-03. English edition: 2026-10-05.
 
 Frontend language: JavaScript. Backend language: Python.
 
-Implemented extension, 2026-10-27: [semantic interest ranking](../semantic-matching.md)
-adds `recommendationScore`, `rankingAlgorithmVersion` and `semanticInterest` to
-matching summaries on existing recommendation, team matching and shortlist routes.
-Ranking defaults to 70% evidence coverage plus 30% interest similarity, with
-structured fallback and current visibility checks before inference. Structured
-coverage, requirement statuses and qualification evidence retain their meaning.
+Implemented extension, 2026-11-02; verified by Sprint 3 BE-7:
+[per-requirement semantic scoring](../semantic-matching.md) adds individual
+`scoring`, plus `recommendationScore`, `rankingAlgorithmVersion`,
+`semanticRequirements` and the diagnostic `semanticInterest` on existing matching
+routes. Ranking is the importance-weighted mean of published row scores
+(REQUIRED=2, PREFERRED=1), using decimal HALF_UP rounding. Interest diagnostics
+have zero additional weight. Current permissions apply before inference;
+structured statuses/evidence remain separate and model failures use structured
+fallback. Historical `hybrid-interest-v1` fixtures retain the former 70/30 rule.
 
 Implemented extension, 2026-10-23: opportunity SKILL requirements support
 `skillTitles: ["Financial modelling"]` with `tagIds: []`; all titles in a
@@ -2778,6 +2781,7 @@ A reduced shape compared with OwnerEvidence: no documentId, sourceType or confir
 | `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | Yes | Stable explanation category for frontend use |
 | `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
 | `evidence` | [OwnerEvidence](#model-ownerevidence)[] | Yes | Evidence records; must be empty for UNKNOWN |
+| `scoring` | object | When semantic matching is enabled | Individual score, importance weight, contribution, method, similarity, relevance and permitted matches; see [scoring rules](../semantic-matching.md#scoring) and OpenAPI `RequirementScoring` |
 
 <a id="model-teamrequirementresult"></a>
 
@@ -2790,6 +2794,7 @@ A reduced shape compared with OwnerEvidence: no documentId, sourceType or confir
 | `reasonCode` | `ALL_TAGS_SUPPORTED` / `SOME_TAGS_SUPPORTED` / `EXPLICIT_NEGATIVE_CLAIM` / `INSUFFICIENT_EVIDENCE` | Yes | Stable explanation category for frontend use |
 | `reason` | string | Yes | Displayable explanation based only on evidence the caller may use |
 | `evidence` | [TeamEvidence](#model-teamevidence)[] | Yes | Evidence records; must be empty for UNKNOWN |
+| `scoring` | object | When semantic matching is enabled | Same scoring rules as the owner, using only currently shared records; never includes owner provenance |
 
 <a id="model-matchsummary"></a>
 
@@ -2804,9 +2809,10 @@ Display the backend summary rather than recalculating from a page of results. Va
 | `requiredGapCount` | integer | Yes | Number of REQUIRED requirements classified GAP; minimum: 0 |
 | `evaluationStatus` | `EVALUATED` / `INSUFFICIENT_CRITERIA` | Yes | Evaluated or insufficient criteria |
 | `algorithmVersion` | `tag-coverage-v1` / `skill-title-interest-tags-v2` / `academic-evidence-v3` | Yes | Version of the structured evidence rules |
-| `recommendationScore` | number / null | When semantic matching is enabled | Ranking score from 0 to 100; defaults to 70% coverage + 30% semantic interest percentage; structured fallback when input/model is unavailable |
-| `rankingAlgorithmVersion` | `hybrid-interest-v1` | When semantic matching is enabled | Version of recommendation ranking, separate from structured evidence rules |
-| `semanticInterest` | object | When semantic matching is enabled | Status, raw cosine, semantic percentage, relevance, actual weight and model version; see [semantic ranking contract](../semantic-matching.md#scores-and-response-fields) |
+| `recommendationScore` | number / null | When semantic matching is enabled | Importance-weighted mean of rounded individual scores, decimal HALF_UP to two places; missing evidence remains in the denominator; null with no requirements |
+| `rankingAlgorithmVersion` | `requirement-semantic-v1` | When semantic matching is enabled | Current recommendation rules; `hybrid-interest-v1` is retained only in historical fixtures |
+| `semanticRequirements` | object | When semantic matching is enabled | `status` (AVAILABLE/MISSING_EVIDENCE/UNAVAILABLE), `totalWeight` and `modelVersion` |
+| `semanticInterest` | object | When semantic matching is enabled | Diagnostic status, cosine, score, relevance and model version; weight is always zero under current scoring; see [scoring rules](../semantic-matching.md#scoring) |
 
 <a id="model-ownermatch"></a>
 

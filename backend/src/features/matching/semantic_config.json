@@ -1,6 +1,8 @@
 {
   "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
   "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+  "preprocessingVersion": "requirement-inputs-v1",
+  "thresholdVersion": "requirement-thresholds-v1",
   "modelFile": "onnx/model_quint8_avx2.onnx",
   "padId": 1,
   "padToken": "<pad>",
