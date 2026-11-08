@@ -91,7 +91,7 @@ frontend_backend_integration:
     - python -m pip install -r backend/requirements-dev.txt
     - pnpm --dir frontend install --frozen-lockfile
   script:
-    - python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py backend/tests/test_fe3_frontend_integration.py --require-frontend --durations=10
+    - python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py backend/tests/test_fe3_frontend_integration.py backend/tests/test_fe4_frontend_integration.py --require-frontend --durations=10
 
 backend_test:
   stage: test

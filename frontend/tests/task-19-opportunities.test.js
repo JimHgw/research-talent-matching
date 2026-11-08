@@ -140,8 +140,7 @@ test('an in-flight opportunity save freezes inputs and cannot be closed or submi
   state.intercept = (path, options, body) =>
     options.method === 'PUT' && path.startsWith('/opportunities/')
       ? new Promise((resolve) => {
-          finish = () =>
-            resolve(json({ id: 'saved', revision: 3, status: 'PUBLISHED', content: body.content }));
+          finish = async () => resolve(json(await state.server.dispatch('PUT', path, body)));
         })
       : null;
   await click('Save opportunity');

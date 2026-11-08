@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -61,6 +62,7 @@ function TalentResults({
       resource.refresh();
     }
   }, [refreshVersion, resource.refresh]);
+  useDataInvalidation(resource.refresh, ['matching', 'collections', 'opportunities']);
   useEffect(() => {
     if (!resource.data?.items.some((item) => item.talent.talentId === selected)) setSelected(null);
   }, [resource.data, selected]);
@@ -196,6 +198,7 @@ export default function TalentPage({
 }) {
   const { t } = useLanguage();
   const resource = useResource(loadPublishedOpportunities, [], true, { retainData: true });
+  useDataInvalidation(resource.refresh, ['opportunities']);
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [selected, setSelected] = useState(initialOpportunity || '');
   const [shortlist, setShortlist] = useState(initialShortlist);

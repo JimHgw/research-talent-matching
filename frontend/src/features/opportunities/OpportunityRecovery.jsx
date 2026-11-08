@@ -22,6 +22,7 @@ export default function OpportunityRecovery({ editor, tags }) {
   return (
     <>
       <ErrorNotice error={error} retry={needsReview && !busy ? reload : undefined} />
+      <ErrorNotice error={editor.readError} retry={!busy ? reload : undefined} />
       {uncertain && (
         <Notice>
           {t(

@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -89,6 +90,7 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
     if (!resource.data?.items.some((item) => item.opportunity.id === selected)) setSelected(null);
     if (!resource.data?.items.some((item) => item.opportunity.id === details)) setDetails(null);
   }, [resource.data, selected, details]);
+  useDataInvalidation(resource.refresh, ['matching']);
   return (
     <>
       <div className="section-title">

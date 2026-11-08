@@ -15,7 +15,7 @@ export function useMutation() {
   }, []);
   const isPending = useCallback(() => pending.current, []);
   const clearError = useCallback(() => setError(null), []);
-  const run = useCallback(async (action, onSuccess) => {
+  const run = useCallback(async (action, onSuccess, onFailure) => {
     if (pending.current) return;
     pending.current = true;
     setBusy(true);
@@ -23,7 +23,10 @@ export function useMutation() {
       const result = await action();
       if (mounted.current) onSuccess?.(result);
     } catch (failure) {
-      if (mounted.current) setError(failure);
+      if (mounted.current) {
+        setError(failure);
+        onFailure?.(failure);
+      }
     } finally {
       pending.current = false;
       if (mounted.current) setBusy(false);

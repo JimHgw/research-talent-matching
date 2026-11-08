@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
@@ -37,6 +38,7 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
     { retainData: true }
   );
   const result = resource.data;
+  useDataInvalidation(resource.refresh, ['matching', 'opportunities']);
   return (
     <Modal title={t('Why this match?')} onClose={onClose}>
       <RefreshStatus resource={resource} />

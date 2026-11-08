@@ -1,23 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../../api/client.js';
 import { usePageGuard } from '../../shared/hooks.js';
 import { useMutation } from '../../shared/useMutation.js';
 import { emptyContent, validateOpportunity } from './fields.js';
 import { futureDeadline } from './metadata.js';
+import {
+  accessLost,
+  requiresReconciliation,
+  uncertainWrite,
+  requireSnapshot,
+} from '../../shared/editor-state.js';
+import { invalidateData } from '../../shared/data-invalidation.js';
+import { validateOpportunitySnapshot } from './opportunity-state.js';
 
-export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, onSaved, notify }) {
+export function useOpportunityEditor({
+  opportunity,
+  tags,
+  onDirty,
+  onPending,
+  onSaved,
+  notify,
+  initialError = null,
+  onReconciled,
+}) {
   const [saved, setSaved] = useState(opportunity);
   const [content, setContent] = useState(() =>
     structuredClone(opportunity?.content || emptyContent())
   );
   const [latest, setLatest] = useState(null);
   const [recent, setRecent] = useState(null);
+  const [failure, setFailure] = useState(initialError);
+  const [unavailable, setUnavailable] = useState(accessLost(initialError) ? initialError : null);
+  const readController = useRef(null);
+  useEffect(() => () => readController.current?.abort(), []);
   const { busy, error, clearError, setError, run, isPending } = useMutation();
   const dirty = JSON.stringify(content) !== JSON.stringify(saved?.content || emptyContent());
-  const uncertain =
-    ['NETWORK_ERROR', 'INVALID_RESPONSE'].includes(error?.code) || error?.status >= 500;
-  const needsReview = error?.code === 'REVISION_CONFLICT' || uncertain;
-  usePageGuard(dirty, busy, onDirty, onPending);
+  const uncertain = uncertainWrite(failure || error);
+  const needsReview = !!failure || !!latest || requiresReconciliation(error) || !!unavailable;
+  usePageGuard(dirty || needsReview, busy, onDirty, onPending);
+  function failedWrite(error) {
+    if (accessLost(error)) revoke(error);
+    else if (requiresReconciliation(error)) setFailure(error);
+  }
+  function revoke(error) {
+    setUnavailable(error);
+    setSaved(null);
+    setContent(emptyContent());
+    setLatest(null);
+    setRecent(null);
+    setFailure(null);
+  }
+  function checkedWrite(action, operation) {
+    return async () => validateOpportunitySnapshot(await action(), { previous: saved, operation });
+  }
   function change(next) {
     if (!isPending()) setContent(next);
   }
@@ -31,14 +66,17 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     }
     clearError();
     run(
-      () => api.saveOpportunity(saved?.id, saved?.revision, content),
+      checkedWrite(() => api.saveOpportunity(saved?.id, saved?.revision, content), 'save'),
       (result) => {
         setSaved(result);
         setContent(structuredClone(result.content));
         setLatest(null);
+        setFailure(null);
+        invalidateData('opportunities', 'matching', 'collections');
         notify?.('Opportunity saved.');
         onSaved?.(result);
-      }
+      },
+      failedWrite
     );
   }
   function publish() {
@@ -52,11 +90,13 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
       return;
     clearError();
     run(
-      () => api.publish(saved.id, saved.revision),
+      checkedWrite(() => api.publish(saved.id, saved.revision), 'publish'),
       (result) => {
         setSaved(result);
+        invalidateData('opportunities', 'matching', 'collections');
         notify?.('Opportunity published. Signed-in users can now discover it.');
-      }
+      },
+      failedWrite
     );
   }
   function reopen() {
@@ -77,21 +117,53 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     }
     clearError();
     run(
-      () => api.saveOpportunity(saved.id, saved.revision, content, true),
+      checkedWrite(() => api.saveOpportunity(saved.id, saved.revision, content, true), 'reopen'),
       (result) => {
         setSaved(result);
         setContent(structuredClone(result.content));
+        invalidateData('opportunities', 'matching', 'collections');
         notify?.('Opportunity reopened.');
         onSaved?.(result);
-      }
+      },
+      failedWrite
     );
   }
   function loadRecent(page = 1) {
-    run(() => api.opportunities('mine', page), setRecent);
+    if (isPending()) return;
+    readController.current?.abort();
+    const controller = new AbortController();
+    readController.current = controller;
+    run(
+      async () => {
+        const result = await api.opportunities('mine', page, {}, { signal: controller.signal });
+        requireSnapshot(Array.isArray(result?.items));
+        result.items.forEach((item) => validateOpportunitySnapshot(item));
+        return result;
+      },
+      setRecent,
+      (error) => {
+        if (accessLost(error)) revoke(error);
+      }
+    );
   }
   function reload() {
     // Read for comparison; never replace local input or retry a failed write here.
-    if (saved) run(() => api.opportunity(saved.id), setLatest);
+    if (isPending()) return;
+    readController.current?.abort();
+    const controller = new AbortController();
+    readController.current = controller;
+    if (saved)
+      run(
+        async () =>
+          validateOpportunitySnapshot(
+            await api.opportunity(saved.id, { signal: controller.signal }),
+            { previous: saved }
+          ),
+        setLatest,
+        (error) => {
+          if (accessLost(error)) revoke(error);
+        }
+      );
     else loadRecent();
   }
   function resolve(useLatest) {
@@ -99,18 +171,24 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     setSaved(latest);
     if (useLatest) setContent(structuredClone(latest.content));
     setLatest(null);
+    setFailure(null);
     clearError();
+    onReconciled?.(latest);
+    invalidateData('opportunities', 'matching', 'collections');
   }
   function openRecent(item) {
     if (isPending()) return;
     setSaved(item);
     setContent(structuredClone(item.content));
     setRecent(null);
+    setFailure(null);
     clearError();
+    onReconciled?.(item);
   }
   function continueCreating() {
-    if (isPending()) return;
+    if (isPending() || !recent) return;
     setRecent(null);
+    setFailure(null);
     clearError();
   }
   return {
@@ -119,7 +197,9 @@ export function useOpportunityEditor({ opportunity, tags, onDirty, onPending, on
     change,
     dirty,
     busy,
-    error,
+    error: failure || error,
+    readError: failure && error !== failure ? error : null,
+    unavailable,
     uncertain,
     needsReview,
     latest,

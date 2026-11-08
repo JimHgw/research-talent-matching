@@ -1,6 +1,6 @@
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
-import { Badge, Button } from '../../shared/ui.jsx';
+import { Badge, Button, ErrorNotice } from '../../shared/ui.jsx';
 import { useOpportunityEditor } from './useOpportunityEditor.js';
 import OpportunityFields from './OpportunityFields.jsx';
 import OpportunityRecovery from './OpportunityRecovery.jsx';
@@ -18,8 +18,18 @@ export default function OpportunityEditor({
   const { saved, content, change, busy, dirty, needsReview, save, publish, isPending } = editor;
   function back() {
     if (isPending()) return;
-    if (!dirty || window.confirm(t('Discard your unsaved opportunity changes?'))) onBack();
+    if ((!dirty && !needsReview) || window.confirm(t('Discard your unsaved opportunity changes?')))
+      onBack();
   }
+  if (editor.unavailable)
+    return (
+      <>
+        <Button variant="text" onClick={onBack}>
+          {t('Back to opportunities')}
+        </Button>
+        <ErrorNotice error={editor.unavailable} />
+      </>
+    );
   return (
     <div className="opportunity-editor">
       <Button variant="text" onClick={back} disabled={busy}>
