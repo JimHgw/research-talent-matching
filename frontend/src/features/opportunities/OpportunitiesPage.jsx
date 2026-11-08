@@ -1,3 +1,4 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
@@ -11,8 +12,10 @@ import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 function SelectedOpportunity({ id, editable, onBack, ...props }) {
   const { t, language } = useLanguage();
-  const resource = useResource(() => api.opportunity(id), [id], !editable);
-  if (resource.loading) return <Loading />;
+  const resource = useResource(({ signal }) => api.opportunity(id, { signal }), [id], !editable, {
+    retainData: !editable,
+  });
+  if (resource.initialLoading) return <Loading />;
   if (resource.error)
     return (
       <>
@@ -28,6 +31,7 @@ function SelectedOpportunity({ id, editable, onBack, ...props }) {
       <Button variant="text" onClick={onBack}>
         {t('Back to opportunities')}
       </Button>
+      <RefreshStatus resource={resource} />
       <OpportunityDetails opportunity={resource.data} tags={props.tags} />
     </>
   );
@@ -38,9 +42,10 @@ function OpportunityList({ scope, onSelect }) {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({});
   const resource = useResource(
-    () => api.opportunities(scope, page, filters),
+    ({ signal }) => api.opportunities(scope, page, filters, { signal }),
     [scope, page, filters],
-    true
+    true,
+    { retainData: true }
   );
   const data = resource.data;
   return (
@@ -51,7 +56,8 @@ function OpportunityList({ scope, onSelect }) {
           setFilters(next);
         }}
       />
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />

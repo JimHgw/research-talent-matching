@@ -1,3 +1,4 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
@@ -8,11 +9,17 @@ import OpportunityMetadata from './OpportunityMetadata.jsx';
 
 export default function OpportunityDetails({ opportunityId, onClose, onMatch, CollectionButton }) {
   const { t } = useLanguage();
-  const resource = useResource(() => api.opportunity(opportunityId), [opportunityId], true);
+  const resource = useResource(
+    ({ signal }) => api.opportunity(opportunityId, { signal }),
+    [opportunityId],
+    true,
+    { retainData: true }
+  );
   const opportunity = resource.data;
   return (
     <Modal title={t('Research opportunity')} onClose={onClose}>
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />

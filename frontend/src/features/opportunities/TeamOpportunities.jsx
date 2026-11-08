@@ -1,5 +1,6 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource, usePageGuard } from '../../shared/hooks.js';
 import { useMutation } from '../../shared/useMutation.js';
@@ -13,7 +14,16 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState(null);
   const { error, clearError, busy, run, isPending } = useMutation();
-  const resource = useResource(() => api.opportunities('mine', page), [page], true);
+  const resource = useResource(
+    ({ signal }) => api.opportunities('mine', page, {}, { signal }),
+    [page],
+    true,
+    { retainData: true }
+  );
+  const accessLost = [401, 403, 404].includes(resource.error?.status);
+  useEffect(() => {
+    if (accessLost) setEditor(null);
+  }, [accessLost]);
   usePageGuard(false, busy, onDirty, onPending);
   function publish(opportunity) {
     if (isPending()) return;
@@ -33,7 +43,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
           <h2>{t('Your research opportunities')}</h2>
           <p>{t('Manage drafts and publish the work you want to move forward.')}</p>
         </div>
-        <Button disabled={busy} onClick={() => setEditor({})}>
+        <Button disabled={busy || accessLost} onClick={() => setEditor({})}>
           <Icon name="plus" size={16} />
           {t('New opportunity')}
         </Button>
@@ -42,7 +52,8 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
         error={error}
         retry={error?.code === 'REVISION_CONFLICT' ? resource.refresh : undefined}
       />
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -120,7 +131,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
         </div>
       )}
       <Pager data={resource.data} onPage={setPage} />
-      {editor && (
+      {editor && !accessLost && (
         <OpportunityEditor
           onDirty={onDirty}
           onPending={onPending}

@@ -1,5 +1,6 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import {
@@ -16,13 +17,14 @@ import MatchDetails from './MatchDetails.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
 
-async function loadPublishedOpportunities() {
-  const firstPage = await api.opportunities('mine');
+async function loadPublishedOpportunities({ signal }) {
+  const firstPage = await api.opportunities('mine', 1, {}, { signal });
   let opportunities = firstPage.items;
   const pageCount = Math.ceil(firstPage.total / firstPage.pageSize);
 
   for (let page = 2; page <= pageCount; page++) {
-    const nextPage = await api.opportunities('mine', page);
+    signal.throwIfAborted();
+    const nextPage = await api.opportunities('mine', page, {}, { signal });
     opportunities = opportunities.concat(nextPage.items);
   }
 
@@ -39,16 +41,36 @@ function TalentResults({
   CollectionButton,
   filters,
   onFiltersChange,
+  refreshVersion,
 }) {
   const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const resource = useResource(
-    () =>
-      shortlist ? api.shortlist(opportunityId, page) : api.talents(opportunityId, page, filters),
+    ({ signal }) =>
+      shortlist
+        ? api.shortlist(opportunityId, page, { signal })
+        : api.talents(opportunityId, page, filters, { signal }),
     [opportunityId, page, shortlist, filters],
-    true
+    true,
+    { retainData: true }
   );
+  useEffect(() => {
+    if (refreshVersion) {
+      setSelected(null);
+      resource.refresh();
+    }
+  }, [refreshVersion, resource.refresh]);
+  useEffect(() => {
+    if (!resource.data?.items.some((item) => item.talent.talentId === selected)) setSelected(null);
+  }, [resource.data, selected]);
+  useEffect(() => {
+    // Reopen team evidence from the refreshed consent boundary after returning to the page.
+    // Keep the list visible, but never keep a previously opened private evidence dialog.
+    const closeEvidence = () => setSelected(null);
+    window.addEventListener('focus', closeEvidence);
+    return () => window.removeEventListener('focus', closeEvidence);
+  }, []);
   return (
     <>
       {!shortlist && (
@@ -62,7 +84,8 @@ function TalentResults({
           }}
         />
       )}
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -153,7 +176,7 @@ function TalentResults({
           setPage(nextPage);
         }}
       />
-      {resource.data && selected && (
+      {resource.data?.items.some((item) => item.talent.talentId === selected) && (
         <MatchDetails
           opportunityId={opportunityId}
           talentId={selected}
@@ -172,7 +195,8 @@ export default function TalentPage({
   CollectionButton,
 }) {
   const { t } = useLanguage();
-  const resource = useResource(loadPublishedOpportunities, [], true);
+  const resource = useResource(loadPublishedOpportunities, [], true, { retainData: true });
+  const [refreshVersion, setRefreshVersion] = useState(0);
   const [selected, setSelected] = useState(initialOpportunity || '');
   const [shortlist, setShortlist] = useState(initialShortlist);
   const [filters, setFilters] = useState({});
@@ -186,7 +210,14 @@ export default function TalentPage({
           <h2>{shortlist ? t('Shortlisted Candidates') : t('Find people for your next idea')}</h2>
           <p>{t('Confirmed profiles, shared with consent. Every match has an explanation.')}</p>
         </div>
-        <Button variant="secondary" disabled={resource.loading} onClick={resource.refresh}>
+        <Button
+          variant="secondary"
+          disabled={resource.loading}
+          onClick={() => {
+            resource.refresh();
+            setRefreshVersion((value) => value + 1);
+          }}
+        >
           {t('Refresh talent')}
         </Button>
       </div>
@@ -198,7 +229,8 @@ export default function TalentPage({
           'Scores and evidence use only the fields each talent has chosen to share. A low score can mean limited shared information.'
         )}
       </Notice>
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -236,6 +268,7 @@ export default function TalentPage({
               CollectionButton={CollectionButton}
               filters={filters}
               onFiltersChange={setFilters}
+              refreshVersion={refreshVersion}
             />
           )}
         </>

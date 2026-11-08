@@ -46,8 +46,12 @@ try {
   );
   assert.equal(draft.content.sourceUrl, first);
   await click('Publish');
+  // The badge now stays mounted through refresh. Read its updated class directly:
+  // jsdom 27 can cache a negative compound selector across this class mutation.
   await until(
-    () => !!document.querySelector('.team-opportunity .badge.published') && button('Edit')
+    () =>
+      document.querySelector('.team-opportunity .badge')?.classList.contains('published') &&
+      button('Edit')
   );
 
   for (const value of [updated, '', final]) {

@@ -1,3 +1,5 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDocumentsQuery } from './useDocumentsQuery.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -12,7 +14,7 @@ import {
   Notice,
   Pager,
 } from '../../shared/ui.jsx';
-import { useResource, usePageGuard } from '../../shared/hooks.js';
+import { usePageGuard } from '../../shared/hooks.js';
 import { useMutation } from '../../shared/useMutation.js';
 import { displayDate } from '../../shared/format.js';
 import ExtractionReview from './ExtractionReview.jsx';
@@ -20,24 +22,16 @@ import ExtractionReview from './ExtractionReview.jsx';
 export default function DocumentsPage({ tags, notify, navigate, onDirty, onPending }) {
   const { t, language, errorMessage } = useLanguage();
   const [page, setPage] = useState(1);
-  const resource = useResource(() => api.documents(page), [page]);
+  const resource = useDocumentsQuery(page);
   const [file, setFile] = useState(null);
   const [kind, setKind] = useState('CV');
   const { busy, error, setError, clearError, run, isPending } = useMutation();
   const [selected, setSelected] = useState(null);
-  const [paused, setPaused] = useState(false);
   const input = useRef();
-  const started = useRef(Date.now());
-  const pending = resource.data?.items.some((d) => ['QUEUED', 'PROCESSING'].includes(d.status));
-  usePageGuard(false, busy, onDirty, onPending);
   useEffect(() => {
-    if (!pending || paused) return;
-    const timer = setInterval(() => {
-      if (Date.now() - started.current >= 60000) setPaused(true);
-      else resource.refresh();
-    }, 2000);
-    return () => clearInterval(timer);
-  }, [pending, paused, resource.data]);
+    if (resource.error) setSelected(null);
+  }, [resource.error]);
+  usePageGuard(false, busy, onDirty, onPending);
   function upload(e) {
     e.preventDefault();
     if (isPending() || !file) return;
@@ -48,8 +42,6 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
         setFile(null);
         if (input.current) input.current.value = '';
         setPage(1);
-        started.current = Date.now();
-        setPaused(false);
         resource.refresh();
         notify('Document received. Processing status will update automatically.');
       }
@@ -110,25 +102,19 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
       </form>
       <div className="section-title">
         <h2>{t('Your documents')}</h2>
-        <Button
-          variant="text"
-          onClick={() => {
-            started.current = Date.now();
-            setPaused(false);
-            resource.refresh();
-          }}
-        >
+        <Button variant="text" onClick={resource.refresh}>
           {t('Refresh status')}
         </Button>
       </div>
-      {paused && (
+      {resource.paused && (
         <Notice>
           {t(
             'Automatic checks paused after 60 seconds. Refresh to check again, or continue with manual entry.'
           )}
         </Notice>
       )}
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -181,7 +167,7 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
         </div>
       )}
       <Pager data={resource.data} onPage={setPage} />
-      {selected && (
+      {selected && resource.data && (
         <ExtractionReview
           key={selected.id}
           onDirty={onDirty}
@@ -192,8 +178,6 @@ export default function DocumentsPage({ tags, notify, navigate, onDirty, onPendi
           onManual={() => navigate('profile')}
           onRefresh={() => {
             setSelected(null);
-            started.current = Date.now();
-            setPaused(false);
             resource.refresh();
           }}
           onApplied={() => {

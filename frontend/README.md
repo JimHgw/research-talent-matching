@@ -130,6 +130,9 @@ and privacy safeguards. This reuses the existing profile, document and matching
 regressions alongside the new task 41 cases.
 Use `npm run test:61` / `sh frontend/run.sh test:61` for extraction-review recovery,
 reusing the document/pending-write tests and the profile-confirmation safeguards.
+Use `npm run test:67` / `sh frontend/run.sh test:67` for Sprint 3 query refresh,
+read cancellation, permissions and document polling. See the
+[FE-3 query contract and slow-Worker verification](../docs/fe3-query-polling.md).
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 

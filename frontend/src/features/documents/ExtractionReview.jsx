@@ -8,8 +8,11 @@ import { labels } from '../../shared/profile-labels.js';
 import ProfileFields from '../profile/ProfileFields.jsx';
 import ReviewRecovery from './ReviewRecovery.jsx';
 
-async function loadReview(documentId) {
-  const result = await Promise.all([api.extraction(documentId), api.profile()]);
+async function loadReview(documentId, { signal }) {
+  const result = await Promise.all([
+    api.extraction(documentId, { signal }),
+    api.profile({ signal }),
+  ]);
   if (result[0].documentId !== documentId || result[0].status !== 'READY') {
     throw new ApiError(502, {
       error: {
@@ -37,7 +40,7 @@ export default function ExtractionReview({
   onRefresh,
 }) {
   const { t, language } = useLanguage();
-  const resource = useResource(() => loadReview(document.id), [document.id]);
+  const resource = useResource(({ signal }) => loadReview(document.id, { signal }), [document.id]);
   const [sections, setSections] = useState(null);
   const [selected, setSelected] = useState([]);
   const [ack, setAck] = useState(false);
