@@ -1,3 +1,4 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -10,12 +11,20 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
   const [page, setPage] = useState(1);
   const [details, setDetails] = useState(null);
   const [match, setMatch] = useState(null);
-  const resource = useResource(() => api.savedOpportunities(page), [page], true);
+  const resource = useResource(
+    ({ signal }) => api.savedOpportunities(page, { signal }),
+    [page],
+    true,
+    { retainData: true }
+  );
   useEffect(() => {
-    const refresh = () => resource.refresh();
-    window.addEventListener(collectionChanged, refresh);
-    return () => window.removeEventListener(collectionChanged, refresh);
+    window.addEventListener(collectionChanged, resource.refresh);
+    return () => window.removeEventListener(collectionChanged, resource.refresh);
   }, [resource.refresh]);
+  useEffect(() => {
+    if (!resource.data?.items.some((item) => item.id === details)) setDetails(null);
+    if (!resource.data?.items.some((item) => item.id === match)) setMatch(null);
+  }, [resource.data, details, match]);
   return (
     <>
       <div className="section-title">
@@ -24,7 +33,8 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
           {t('Refresh saved')}
         </Button>
       </div>
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error ? (
         <ErrorNotice error={resource.error} retry={resource.refresh} />
@@ -48,8 +58,15 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
           ))}
         </div>
       )}
-      <Pager data={resource.data} onPage={setPage} />
-      {details && (
+      <Pager
+        data={resource.data}
+        onPage={(next) => {
+          setDetails(null);
+          setMatch(null);
+          setPage(next);
+        }}
+      />
+      {resource.data?.items.some((item) => item.id === details) && (
         <OpportunityDetails
           opportunityId={details}
           onClose={() => setDetails(null)}
@@ -59,7 +76,7 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
           }}
         />
       )}
-      {match && (
+      {resource.data?.items.some((item) => item.id === match) && (
         <MatchDetails opportunityId={match} navigate={navigate} onClose={() => setMatch(null)} />
       )}
     </>

@@ -1,3 +1,4 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -10,9 +11,10 @@ export const collectionChanged = 'research-collection-changed';
 export default function CollectionButton({ opportunityId, talentId, onChange }) {
   const { t } = useLanguage();
   const resource = useResource(
-    () => api.collectionState(opportunityId, talentId),
+    ({ signal }) => api.collectionState(opportunityId, talentId, { signal }),
     [opportunityId, talentId],
-    true
+    true,
+    { retainData: true }
   );
   const mutation = useMutation();
   const [message, setMessage] = useState('');
@@ -31,10 +33,11 @@ export default function CollectionButton({ opportunityId, talentId, onChange }) 
       : 'Save Opportunity';
   return (
     <div>
+      <RefreshStatus resource={resource} />
       {saved && <span className="subtle-pill">{talentId ? t('Shortlisted') : t('Saved')}</span>}
       <Button
         variant="secondary"
-        disabled={resource.loading || !!resource.error || mutation.busy}
+        disabled={resource.loading || !!resource.error || !!resource.refreshError || mutation.busy}
         onClick={() => {
           mutation.clearError();
           setMessage('');

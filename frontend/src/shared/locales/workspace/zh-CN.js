@@ -1,5 +1,6 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Refreshing…': '正在刷新…',
   'Select options': '请选择',
   'Talent filters': '人才筛选',
   'Opportunity filters': '机会筛选',

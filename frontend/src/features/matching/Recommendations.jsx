@@ -1,5 +1,6 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
 import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
@@ -78,7 +79,16 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState(null);
   const [filters, setFilters] = useState({});
-  const resource = useResource(() => api.recommendations(page, filters), [page, filters], true);
+  const resource = useResource(
+    ({ signal }) => api.recommendations(page, filters, { signal }),
+    [page, filters],
+    true,
+    { retainData: true }
+  );
+  useEffect(() => {
+    if (!resource.data?.items.some((item) => item.opportunity.id === selected)) setSelected(null);
+    if (!resource.data?.items.some((item) => item.opportunity.id === details)) setDetails(null);
+  }, [resource.data, selected, details]);
   return (
     <>
       <div className="section-title">
@@ -98,7 +108,8 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
           setFilters(next);
         }}
       />
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : resource.error?.code === 'PROFILE_UNCONFIRMED' ? (
         <ProfileConfirmationRequired onReview={() => navigate('profile')} />
@@ -131,25 +142,33 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
             : t('Published opportunities will appear here when teams add them.')}
         </Empty>
       )}
-      <Pager data={resource.data} onPage={setPage} />
+      <Pager
+        data={resource.data}
+        onPage={(next) => {
+          setSelected(null);
+          setDetails(null);
+          setPage(next);
+        }}
+      />
 
-      {resource.data && selected && (
+      {resource.data?.items.some((item) => item.opportunity.id === selected) && (
         <MatchDetails
           opportunityId={selected}
           navigate={navigate}
           onClose={() => setSelected(null)}
         />
       )}
-      {resource.data && details && OpportunityDetails && (
-        <OpportunityDetails
-          opportunityId={details}
-          onClose={() => setDetails(null)}
-          onMatch={() => {
-            setDetails(null);
-            setSelected(details);
-          }}
-        />
-      )}
+      {resource.data?.items.some((item) => item.opportunity.id === details) &&
+        OpportunityDetails && (
+          <OpportunityDetails
+            opportunityId={details}
+            onClose={() => setDetails(null)}
+            onMatch={() => {
+              setDetails(null);
+              setSelected(details);
+            }}
+          />
+        )}
     </>
   );
 }

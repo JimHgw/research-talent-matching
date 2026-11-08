@@ -6,6 +6,7 @@ import { createMockServer } from './server.js';
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
   url: 'http://localhost:5173',
+  pretendToBeVisual: true,
 });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;

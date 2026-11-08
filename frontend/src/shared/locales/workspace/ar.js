@@ -1,5 +1,6 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Refreshing…': 'جارٍ التحديث…',
   'Select options': 'اختر الخيارات',
   'Talent filters': 'مرشحات المواهب',
   'Opportunity filters': 'مرشحات الفرص',

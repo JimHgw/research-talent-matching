@@ -1,3 +1,4 @@
+import RefreshStatus from '../../shared/RefreshStatus.jsx';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
@@ -27,14 +28,19 @@ const matchReasons = {
 export default function MatchDetails({ opportunityId, talentId, onClose, navigate, tags = [] }) {
   const { t, language } = useLanguage();
   const resource = useResource(
-    () => (talentId ? api.talentMatch(opportunityId, talentId) : api.match(opportunityId)),
+    ({ signal }) =>
+      talentId
+        ? api.talentMatch(opportunityId, talentId, { signal })
+        : api.match(opportunityId, { signal }),
     [opportunityId, talentId],
-    true
+    true,
+    { retainData: true }
   );
   const result = resource.data;
   return (
     <Modal title={t('Why this match?')} onClose={onClose}>
-      {resource.loading ? (
+      <RefreshStatus resource={resource} />
+      {resource.initialLoading ? (
         <Loading />
       ) : !talentId && resource.error?.code === 'PROFILE_UNCONFIRMED' ? (
         <ProfileConfirmationRequired

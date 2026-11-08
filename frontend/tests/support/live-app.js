@@ -7,7 +7,11 @@ const backend = process.env.TEST_API_BASE_URL;
 assert.ok(backend, 'Run this integration through pytest.');
 const origin = process.env.TEST_FRONTEND_ORIGIN || 'http://127.0.0.1:5173';
 const jar = new CookieJar();
-const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: origin, cookieJar: jar });
+const dom = new JSDOM('<!doctype html><div id="root"></div>', {
+  url: origin,
+  cookieJar: jar,
+  pretendToBeVisual: true,
+});
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.HTMLElement = dom.window.HTMLElement;

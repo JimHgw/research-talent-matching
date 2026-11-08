@@ -1,5 +1,6 @@
 // Static interface messages; user content is never translated.
 export default {
+  'Refreshing…': '새로 고치는 중…',
   'Select options': '옵션 선택',
   'Talent filters': '인재 필터',
   'Opportunity filters': '기회 필터',

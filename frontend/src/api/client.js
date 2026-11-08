@@ -59,7 +59,8 @@ export function createApi({
     let payload;
     try {
       payload = await response.json();
-    } catch {
+    } catch (error) {
+      if (error.name === 'AbortError') throw error;
       throw new ApiError(response.status, {
         error: {
           code: 'INVALID_RESPONSE',
@@ -102,34 +103,39 @@ export function createApi({
       request('/auth/login/reset/verify', { method: 'POST', body: { email, code } }),
     resetPassword: (body) => request('/auth/login/reset', { method: 'POST', body }),
     logout: () => request('/auth/logout', { method: 'POST' }),
-    tags: () => request('/tags'),
-    profile: () => request('/me/profile'),
+    tags: ({ signal } = {}) => request('/tags', { signal }),
+    profile: ({ signal } = {}) => request('/me/profile', { signal }),
     saveProfile: (expectedRevision, content) =>
       request('/me/profile', { method: 'PUT', body: { expectedRevision, content } }),
     confirm: (expectedRevision) =>
       request('/me/profile/confirmation', { method: 'POST', body: { expectedRevision } }),
-    privacy: () => request('/me/privacy'),
+    privacy: ({ signal } = {}) => request('/me/privacy', { signal }),
     savePrivacy: (body) => request('/me/privacy', { method: 'PUT', body }),
-    documents: (page = 1) => request(`/me/documents?page=${page}`),
+    documents: (page = 1, { signal } = {}) => request(`/me/documents?page=${page}`, { signal }),
     upload: (file, kind) => {
       const body = new FormData();
       body.append('file', file);
       body.append('kind', kind);
       return request('/me/documents', { method: 'POST', body });
     },
-    document: (id) => request(`/me/documents/${encodeURIComponent(id)}`),
-    extraction: (id) => request(`/me/documents/${encodeURIComponent(id)}/extraction`),
+    document: (id, { signal } = {}) =>
+      request(`/me/documents/${encodeURIComponent(id)}`, { signal }),
+    extraction: (id, { signal } = {}) =>
+      request(`/me/documents/${encodeURIComponent(id)}/extraction`, { signal }),
     apply: (id, expectedProfileRevision, sections) =>
       request(`/me/documents/${encodeURIComponent(id)}/apply`, {
         method: 'POST',
         body: { expectedProfileRevision, sections },
       }),
-    download: (id) => request(`/me/documents/${encodeURIComponent(id)}/file`, { binary: true }),
-    opportunities: (scope = 'published', page = 1, filters = {}) =>
+    download: (id, { signal } = {}) =>
+      request(`/me/documents/${encodeURIComponent(id)}/file`, { binary: true, signal }),
+    opportunities: (scope = 'published', page = 1, filters = {}, { signal } = {}) =>
       request(
-        `/opportunities?scope=${encodeURIComponent(scope)}&page=${page}${searchQuery(filters)}`
+        `/opportunities?scope=${encodeURIComponent(scope)}&page=${page}${searchQuery(filters)}`,
+        { signal }
       ),
-    opportunity: (id) => request(`/opportunities/${encodeURIComponent(id)}`),
+    opportunity: (id, { signal } = {}) =>
+      request(`/opportunities/${encodeURIComponent(id)}`, { signal }),
     saveOpportunity: (id, expectedRevision, content, reopen = false) =>
       request(id ? `/opportunities/${encodeURIComponent(id)}` : '/opportunities', {
         method: id ? 'PUT' : 'POST',
@@ -140,12 +146,14 @@ export function createApi({
         method: 'POST',
         body: { expectedRevision },
       }),
-    savedOpportunities: (page = 1) => request(`/me/saved-opportunities?page=${page}`),
-    collectionState: (opportunityId, talentId) =>
+    savedOpportunities: (page = 1, { signal } = {}) =>
+      request(`/me/saved-opportunities?page=${page}`, { signal }),
+    collectionState: (opportunityId, talentId, { signal } = {}) =>
       request(
         talentId
           ? `/opportunities/${encodeURIComponent(opportunityId)}/shortlist/${encodeURIComponent(talentId)}`
-          : `/me/saved-opportunities/${encodeURIComponent(opportunityId)}`
+          : `/me/saved-opportunities/${encodeURIComponent(opportunityId)}`,
+        { signal }
       ),
     setCollection: (opportunityId, talentId, saved) =>
       request(
@@ -154,18 +162,21 @@ export function createApi({
           : `/me/saved-opportunities/${encodeURIComponent(opportunityId)}`,
         { method: saved ? 'PUT' : 'DELETE' }
       ),
-    shortlist: (id, page = 1) =>
-      request(`/opportunities/${encodeURIComponent(id)}/shortlist?page=${page}`),
-    recommendations: (page = 1, filters = {}) =>
-      request(`/me/recommendations?page=${page}${searchQuery(filters)}`),
-    match: (id) => request(`/me/opportunity-matches/${encodeURIComponent(id)}`),
-    talents: (id, page = 1, filters = {}) =>
+    shortlist: (id, page = 1, { signal } = {}) =>
+      request(`/opportunities/${encodeURIComponent(id)}/shortlist?page=${page}`, { signal }),
+    recommendations: (page = 1, filters = {}, { signal } = {}) =>
+      request(`/me/recommendations?page=${page}${searchQuery(filters)}`, { signal }),
+    match: (id, { signal } = {}) =>
+      request(`/me/opportunity-matches/${encodeURIComponent(id)}`, { signal }),
+    talents: (id, page = 1, filters = {}, { signal } = {}) =>
       request(
-        `/opportunities/${encodeURIComponent(id)}/talent-matches?page=${page}${searchQuery(filters)}`
+        `/opportunities/${encodeURIComponent(id)}/talent-matches?page=${page}${searchQuery(filters)}`,
+        { signal }
       ),
-    talentMatch: (id, talentId) =>
+    talentMatch: (id, talentId, { signal } = {}) =>
       request(
-        `/opportunities/${encodeURIComponent(id)}/talent-matches/${encodeURIComponent(talentId)}`
+        `/opportunities/${encodeURIComponent(id)}/talent-matches/${encodeURIComponent(talentId)}`,
+        { signal }
       ),
   };
 }
