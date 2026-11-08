@@ -1,9 +1,9 @@
 import { useLanguage } from '../../shared/i18n.jsx';
-import React, { useEffect, useState } from 'react';
-import { api } from '../../api/client.js';
+import React from 'react';
 import { Badge, Button, ErrorNotice, Icon, Loading, Notice } from '../../shared/ui.jsx';
-import { useResource, usePageGuard } from '../../shared/hooks.js';
-import { useMutation } from '../../shared/useMutation.js';
+import EditorRecovery from '../../shared/EditorRecovery.jsx';
+import { useProfileEditor } from './useProfileEditor.js';
+import ProfileSummary from './ProfileSummary.jsx';
 import ProfileFields from '../profile/ProfileFields.jsx';
 
 export default function ProfilePage({
@@ -15,58 +15,29 @@ export default function ProfilePage({
   canRecommend = true,
 }) {
   const { t } = useLanguage();
-  const [profile, setProfile] = useState(null);
-  const [content, setContent] = useState(null);
-  const { error, clearError, busy, run, isPending } = useMutation();
-  const [reviewed, setReviewed] = useState(false);
-  const dirty = !!profile && JSON.stringify(profile.content) !== JSON.stringify(content);
-  const resource = useResource(api.profile, [], !dirty && !busy);
+  const editor = useProfileEditor({
+    onDirty,
+    onPending,
+    notify,
+    confirmDiscard: () => window.confirm(t('Reload and discard your unsaved edits?')),
+  });
+  const {
+    profile,
+    content,
+    error,
+    busy,
+    dirty,
+    reviewed,
+    confirmed,
+    refresh,
+    save,
+    confirm,
+    needsReview,
+  } = editor;
   const conflict = error?.code === 'REVISION_CONFLICT';
-  useEffect(() => {
-    if (resource.data) {
-      setProfile(resource.data);
-      setContent(structuredClone(resource.data.content));
-      setReviewed(false);
-      clearError();
-    }
-  }, [resource.data, clearError]);
-  usePageGuard(dirty, busy, onDirty, onPending);
-  function refresh() {
-    if (isPending()) return;
-    if (dirty && !window.confirm(t('Reload and discard your unsaved edits?'))) return;
-    clearError();
-    resource.refresh();
-  }
-  function save(e) {
-    e.preventDefault();
-    if (isPending() || !dirty) return;
-    clearError();
-    run(
-      () => api.saveProfile(profile.revision, content),
-      (next) => {
-        setProfile(next);
-        setContent(structuredClone(next.content));
-        setReviewed(false);
-        notify('Profile saved. Review and confirm to use the latest information.');
-      }
-    );
-  }
-  function confirm() {
-    if (isPending() || dirty || !reviewed || conflict) return;
-    clearError();
-    run(
-      () => api.confirm(profile.revision),
-      (next) => {
-        setProfile(next);
-        notify('Profile confirmed. Your recommendations are ready.');
-      }
-    );
-  }
-  if (resource.loading || (!content && !resource.error)) return <Loading />;
-  if (resource.error) return <ErrorNotice error={resource.error} retry={refresh} />;
-  const confirmed =
-    profile.confirmation.status === 'CONFIRMED' &&
-    profile.confirmation.confirmedRevision === profile.revision;
+  if (editor.loading) return <Loading />;
+  if (editor.unavailable || !content)
+    return <ErrorNotice error={editor.unavailable || editor.readError} retry={refresh} />;
   return (
     <form onSubmit={save}>
       <div className="section-title">
@@ -86,7 +57,10 @@ export default function ProfilePage({
           </Button>
         </div>
       </div>
-      <ErrorNotice error={error} retry={conflict ? refresh : undefined} />
+      <EditorRecovery
+        editor={editor}
+        renderVersion={(value) => <ProfileSummary content={value} tags={tags} />}
+      />
       {dirty && (
         <Notice>
           {t(
@@ -102,13 +76,7 @@ export default function ProfilePage({
         </Notice>
       )}
       <fieldset className="form-fields editor-layout" disabled={busy}>
-        <ProfileFields
-          content={content}
-          onChange={(next) => {
-            if (!isPending()) setContent(next);
-          }}
-          tags={tags}
-        />
+        <ProfileFields content={content} onChange={editor.change} tags={tags} />
         <aside className="editor-aside">
           <div className="panel sticky-panel">
             <span className="aside-icon">
@@ -120,7 +88,7 @@ export default function ProfilePage({
                 'Only the current confirmed version is used for matching. Editing your profile means reviewing it again.'
               )}
             </p>
-            <Button type="submit" className="full" disabled={busy || !dirty}>
+            <Button type="submit" className="full" disabled={busy || !dirty || needsReview}>
               {busy ? t('Saving…') : t('Save changes')}
             </Button>
             <div className="review-divider" />
@@ -132,15 +100,15 @@ export default function ProfilePage({
                   <input
                     type="checkbox"
                     checked={reviewed}
-                    disabled={dirty || conflict}
-                    onChange={(e) => setReviewed(e.target.checked)}
+                    disabled={dirty || needsReview}
+                    onChange={(e) => editor.setReviewed(e.target.checked)}
                   />
                   {t('I have reviewed my saved profile and confirm it reflects my information.')}
                 </label>
                 <Button
                   className="full"
                   variant="secondary"
-                  disabled={busy || dirty || !reviewed || conflict}
+                  disabled={busy || dirty || !reviewed || needsReview}
                   onClick={confirm}
                 >
                   {t('Confirm profile')}

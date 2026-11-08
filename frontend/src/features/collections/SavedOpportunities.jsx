@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -21,6 +22,7 @@ export default function SavedOpportunities({ OpportunityDetails, MatchDetails, n
     window.addEventListener(collectionChanged, resource.refresh);
     return () => window.removeEventListener(collectionChanged, resource.refresh);
   }, [resource.refresh]);
+  useDataInvalidation(resource.refresh, ['matching', 'collections', 'opportunities']);
   useEffect(() => {
     if (!resource.data?.items.some((item) => item.id === details)) setDetails(null);
     if (!resource.data?.items.some((item) => item.id === match)) setMatch(null);

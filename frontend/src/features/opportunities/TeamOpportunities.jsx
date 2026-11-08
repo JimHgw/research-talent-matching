@@ -8,11 +8,15 @@ import { displayDate } from '../../shared/format.js';
 import { Badge, Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import OpportunityEditor from './TeamOpportunityEditor.jsx';
 import OpportunityMetadata from './OpportunityMetadata.jsx';
+import { accessLost as isAccessLost, requiresReconciliation } from '../../shared/editor-state.js';
+import { validateOpportunitySnapshot } from './opportunity-state.js';
+import { invalidateData, useDataInvalidation } from '../../shared/data-invalidation.js';
 
 export default function TeamOpportunities({ tags, notify, navigate, onDirty, onPending }) {
   const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState(null);
+  const [blocked, setBlocked] = useState(null);
   const { error, clearError, busy, run, isPending } = useMutation();
   const resource = useResource(
     ({ signal }) => api.opportunities('mine', page, {}, { signal }),
@@ -21,18 +25,32 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
     { retainData: true }
   );
   const accessLost = [401, 403, 404].includes(resource.error?.status);
+  useDataInvalidation(resource.refresh, ['opportunities']);
   useEffect(() => {
-    if (accessLost) setEditor(null);
+    if (accessLost) {
+      setEditor(null);
+      setBlocked(null);
+    }
   }, [accessLost]);
-  usePageGuard(false, busy, onDirty, onPending);
+  usePageGuard(!!blocked, busy, onDirty, onPending);
   function publish(opportunity) {
-    if (isPending()) return;
+    if (isPending() || blocked) return;
     clearError();
     run(
-      () => api.publish(opportunity.id, opportunity.revision),
+      async () =>
+        validateOpportunitySnapshot(await api.publish(opportunity.id, opportunity.revision), {
+          previous: opportunity,
+          operation: 'publish',
+        }),
       () => {
         resource.refresh();
+        invalidateData('opportunities', 'matching', 'collections');
         notify('Opportunity published. Talent can now discover it.');
+      },
+      (error) => {
+        if (requiresReconciliation(error) || isAccessLost(error))
+          setBlocked({ opportunity, error });
+        if (isAccessLost(error)) resource.refresh();
       }
     );
   }
@@ -50,7 +68,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
       </div>
       <ErrorNotice
         error={error}
-        retry={error?.code === 'REVISION_CONFLICT' ? resource.refresh : undefined}
+        retry={blocked ? () => setEditor(blocked.opportunity) : undefined}
       />
       <RefreshStatus resource={resource} />
       {resource.initialLoading ? (
@@ -105,7 +123,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
                   </Button>
                   {opportunity.status === 'DRAFT' ? (
                     <Button
-                      disabled={busy || !opportunity.content.requirements.length}
+                      disabled={busy || !!blocked || !opportunity.content.requirements.length}
                       title={
                         !opportunity.content.requirements.length
                           ? t('Add at least one requirement before publishing')
@@ -137,6 +155,12 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
           onPending={onPending}
           opportunity={editor.id ? editor : null}
           tags={tags}
+          initialError={blocked && blocked.opportunity.id === editor.id ? blocked.error : null}
+          onReconciled={() => {
+            setBlocked(null);
+            clearError();
+            resource.refresh();
+          }}
           onClose={() => setEditor(null)}
           onSaved={() => {
             setEditor(null);

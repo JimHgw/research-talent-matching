@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
@@ -16,6 +17,7 @@ export default function OpportunityDetails({ opportunityId, onClose, onMatch, Co
     { retainData: true }
   );
   const opportunity = resource.data;
+  useDataInvalidation(resource.refresh, ['opportunities']);
   return (
     <Modal title={t('Research opportunity')} onClose={onClose}>
       <RefreshStatus resource={resource} />

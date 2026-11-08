@@ -1,52 +1,33 @@
 import { useLanguage } from '../../shared/i18n.jsx';
-import React, { useEffect, useState } from 'react';
-import { api } from '../../api/client.js';
+import React from 'react';
 import { Button, ErrorNotice, Icon, Loading, Notice } from '../../shared/ui.jsx';
-import { useResource, usePageGuard } from '../../shared/hooks.js';
-import { useMutation } from '../../shared/useMutation.js';
+import { usePrivacyEditor } from './usePrivacyEditor.js';
+import PrivacySummary from './PrivacySummary.jsx';
+import EditorRecovery from '../../shared/EditorRecovery.jsx';
 import { labels } from '../../shared/profile-labels.js';
 import { privacyFields } from './fields.js';
 
 export default function PrivacyPage({ onDirty, onPending, notify }) {
   const { t } = useLanguage();
-  const [value, setValue] = useState(null);
-  const { error, clearError, busy, run, isPending } = useMutation();
-  const [baseline, setBaseline] = useState(null);
-  const dirty = !!value && JSON.stringify(value) !== JSON.stringify(baseline);
-  const resource = useResource(api.privacy, [], !dirty && !busy);
-  useEffect(() => {
-    if (resource.data) {
-      setValue(structuredClone(resource.data));
-      setBaseline(resource.data);
-      clearError();
-    }
-  }, [resource.data, clearError]);
-  usePageGuard(dirty, busy, onDirty, onPending);
-  function refresh() {
-    if (isPending()) return;
-    if (dirty && !window.confirm(t('Reload and discard your unsaved privacy changes?'))) return;
-    clearError();
-    resource.refresh();
-  }
-  if (resource.loading || (!value && !resource.error)) return <Loading />;
-  if (resource.error) return <ErrorNotice error={resource.error} retry={refresh} />;
-  function save() {
-    if (isPending() || !dirty) return;
-    clearError();
-    run(
-      () =>
-        api.savePrivacy({
-          expectedRevision: value.revision,
-          discoverable: value.discoverable,
-          visibleFields: value.visibleFields,
-        }),
-      (saved) => {
-        setValue(structuredClone(saved));
-        setBaseline(saved);
-        notify('Privacy settings saved. Future team results use these choices.');
-      }
-    );
-  }
+  const editor = usePrivacyEditor({
+    onDirty,
+    onPending,
+    notify,
+    confirmDiscard: () => window.confirm(t('Reload and discard your unsaved privacy changes?')),
+  });
+  const {
+    content: value,
+    change: setValue,
+    saved: baseline,
+    busy,
+    dirty,
+    refresh,
+    save,
+    needsReview,
+  } = editor;
+  if (editor.loading) return <Loading />;
+  if (editor.unavailable || !value)
+    return <ErrorNotice error={editor.unavailable || editor.readError} retry={refresh} />;
   return (
     <div className="narrow-content">
       <div className="section-title">
@@ -81,9 +62,9 @@ export default function PrivacyPage({ onDirty, onPending, notify }) {
           )}
         </Notice>
       )}
-      <ErrorNotice
-        error={error}
-        retry={error?.code === 'REVISION_CONFLICT' ? refresh : undefined}
+      <EditorRecovery
+        editor={editor}
+        renderVersion={(snapshot) => <PrivacySummary value={snapshot} />}
       />
       <fieldset className="form-fields" disabled={busy}>
         <section className="panel privacy-hero">
@@ -148,7 +129,7 @@ export default function PrivacyPage({ onDirty, onPending, notify }) {
           </p>
         </Notice>
         <div className="actions">
-          <Button disabled={busy || !dirty} onClick={save}>
+          <Button disabled={busy || !dirty || needsReview} onClick={save}>
             {busy ? t('Saving…') : t('Save privacy settings')}
           </Button>
         </div>

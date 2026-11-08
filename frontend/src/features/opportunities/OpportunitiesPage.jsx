@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
 import { api } from '../../api/client.js';
@@ -15,6 +16,7 @@ function SelectedOpportunity({ id, editable, onBack, ...props }) {
   const resource = useResource(({ signal }) => api.opportunity(id, { signal }), [id], !editable, {
     retainData: !editable,
   });
+  useDataInvalidation(resource.refresh, editable ? [] : ['opportunities']);
   if (resource.initialLoading) return <Loading />;
   if (resource.error)
     return (
@@ -48,6 +50,7 @@ function OpportunityList({ scope, onSelect }) {
     { retainData: true }
   );
   const data = resource.data;
+  useDataInvalidation(resource.refresh, ['opportunities']);
   return (
     <>
       <SearchFilters

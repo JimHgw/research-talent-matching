@@ -1,6 +1,6 @@
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useState } from 'react';
-import { Button, Modal } from '../../shared/ui.jsx';
+import { Button, Modal, ErrorNotice } from '../../shared/ui.jsx';
 import { useOpportunityEditor } from './useOpportunityEditor.js';
 import OpportunityFields from './OpportunityFields.jsx';
 import OpportunityRecovery from './OpportunityRecovery.jsx';
@@ -12,22 +12,36 @@ export default function TeamOpportunityEditor({
   onSaved,
   onDirty,
   onPending,
+  initialError,
+  onReconciled,
 }) {
   const { t } = useLanguage();
-  const editor = useOpportunityEditor({ opportunity, tags, onSaved, onDirty, onPending });
+  const editor = useOpportunityEditor({
+    opportunity,
+    tags,
+    onSaved,
+    onDirty,
+    onPending,
+    initialError,
+    onReconciled,
+  });
   const { saved, content, change, dirty, busy, needsReview, save, isPending } = editor;
   const [pendingClose, setPendingClose] = useState(false);
   function close() {
     if (isPending()) return;
-    if (dirty) setPendingClose(true);
+    if ((dirty || needsReview) && !editor.unavailable) setPendingClose(true);
     else onClose();
   }
   return (
     <Modal
-      title={saved ? t('Edit research opportunity') : t('Create research opportunity')}
+      title={
+        saved || opportunity ? t('Edit research opportunity') : t('Create research opportunity')
+      }
       onClose={close}
     >
-      {pendingClose ? (
+      {editor.unavailable ? (
+        <ErrorNotice error={editor.unavailable} />
+      ) : pendingClose ? (
         <div className="editor-confirm" role="alert">
           <h3>{t('Leave without saving?')}</h3>
           <p>{t('Your unsaved opportunity changes will be discarded.')}</p>

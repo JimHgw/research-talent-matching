@@ -1,4 +1,5 @@
 import RefreshStatus from '../../shared/RefreshStatus.jsx';
+import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
@@ -17,6 +18,7 @@ export default function CollectionButton({ opportunityId, talentId, onChange }) 
     { retainData: true }
   );
   const mutation = useMutation();
+  useDataInvalidation(resource.refresh, ['collections', 'opportunities']);
   const [message, setMessage] = useState('');
   useEffect(() => {
     const refresh = () => resource.refresh();
