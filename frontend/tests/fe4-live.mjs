@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createApi } from '../src/api/client.js';
+import { api, createApi } from '../src/api/client.js';
 import {
   act,
   mount,
@@ -61,6 +61,19 @@ try {
   await click('Add education');
   await change('Institution *', 'Synthetic university');
   await change('Qualification *', 'Synthetic degree');
+  // A second tab shares cookies but not this application's in-memory CSRF token.
+  await browserApi.session();
+  await browserApi.login('talent@example.test', 'Test-password-123!');
+  await click('Save changes');
+  await until(() => text().includes('Refresh the page and try again.'));
+  assert.equal(field('Display name').value, 'FE4 synthetic talent');
+  assert.equal(button('Save changes').disabled, false);
+  assert.equal((await browserApi.profile()).revision, 0);
+  await act(async () => {
+    window.dispatchEvent(new window.Event('focus'));
+    await api.session();
+  });
+  assert.equal(count('/me/profile'), 1, 'CSRF renewal must not replay the rejected write');
   fault = { path: '/me/profile', method: 'PUT', mode: 'lost' };
   await click('Save changes');
   await until(() => text().includes('The request may have succeeded'));
@@ -68,7 +81,7 @@ try {
   assert.equal(field('Display name').value, 'FE4 synthetic talent');
   await browserApi.session();
   assert.equal((await browserApi.profile()).revision, 1);
-  assert.equal(count('/me/profile'), 1);
+  assert.equal(count('/me/profile'), 2);
   await click('Compare before continuing');
   await until(() => text().includes('Latest saved version'));
   await click('Use latest version');
@@ -114,6 +127,18 @@ try {
   );
   await checkbox('Display name');
   await checkbox('Skills');
+  await browserApi.login('talent@example.test', 'Test-password-123!');
+  await click('Save privacy settings');
+  await until(() => text().includes('Refresh the page and try again.'));
+  assert.equal(document.querySelector('[aria-label="Allow teams to discover me"]').checked, true);
+  assert.match(text(), /Saved discovery status: Off/);
+  assert.equal((await browserApi.privacy()).discoverable, false);
+  assert.equal(button('Save privacy settings').disabled, false);
+  await act(async () => {
+    window.dispatchEvent(new window.Event('focus'));
+    await api.session();
+  });
+  assert.equal(count('/me/privacy'), 1, 'CSRF renewal must not replay unsaved consent');
   fault = { path: '/me/privacy', method: 'PUT', mode: 'unreadable' };
   const confirmations = count('/me/profile/confirmation');
   await click('Save privacy settings');

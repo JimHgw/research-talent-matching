@@ -36,6 +36,38 @@ const saveLabel = (kind) => (kind === 'profile' ? 'Save changes' : 'Save privacy
 
 for (const kind of ['profile', 'privacy']) {
   const path = `/me/${kind}`;
+  test(`${kind}: CSRF rejection preserves the draft and saved revision for an explicit retry`, async () => {
+    await open(kind);
+    const baseline = await state.server.dispatch('GET', path);
+    await edit(kind);
+    let renewed = false;
+    state.intercept = (url, options) => {
+      if (url === '/auth/session') renewed = true;
+      if (url === path && options.method === 'PUT' && !renewed)
+        return json(
+          { error: { code: 'CSRF_INVALID', message: 'Refresh the page and try again.' } },
+          403
+        );
+      return null;
+    };
+    await click(saveLabel(kind));
+    assert.match(text(), /Refresh the page and try again/);
+    assert.equal(button(saveLabel(kind)).disabled, false);
+    if (kind === 'profile') assert.equal(field('Display name').value, 'Local recovery draft');
+    else {
+      assert.equal(discover().checked, true);
+      assert.match(text(), /Saved discovery status: Off/);
+    }
+    await focus();
+    assert.equal(renewed, true);
+    assert.equal(writes(path).length, 1, 'session refresh must not retry the write');
+    await click(saveLabel(kind));
+    assert.equal(writes(path).length, 2);
+    assert.equal(writes(path).at(-1).body.expectedRevision, baseline.revision);
+    assert.equal(button(saveLabel(kind)).disabled, true);
+    if (kind === 'privacy') assert.match(text(), /Saved discovery status: On/);
+  });
+
   test(`${kind}: a pending focus read cannot replace new input or advance its submission revision`, async () => {
     await open(kind);
     const baseline = await state.server.dispatch('GET', path);

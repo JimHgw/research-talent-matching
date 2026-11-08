@@ -1,7 +1,9 @@
 export const isObject = (value) =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 export const isRevision = (value) => Number.isSafeInteger(value) && value >= 0;
-export const accessLost = (error) => [401, 403, 404].includes(error?.status);
+// CSRF rejection precedes the write and does not revoke access to the saved resource.
+export const accessLost = (error) =>
+  [401, 404].includes(error?.status) || (error?.status === 403 && error?.code !== 'CSRF_INVALID');
 export const uncertainWrite = (error) =>
   ['NETWORK_ERROR', 'INVALID_RESPONSE'].includes(error?.code) ||
   error?.status === 0 ||

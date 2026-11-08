@@ -24,7 +24,7 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
     true,
     { retainData: true }
   );
-  const accessLost = [401, 403, 404].includes(resource.error?.status);
+  const accessLost = isAccessLost(resource.error);
   useDataInvalidation(resource.refresh, ['opportunities']);
   useEffect(() => {
     if (accessLost) {
@@ -156,9 +156,11 @@ export default function TeamOpportunities({ tags, notify, navigate, onDirty, onP
           opportunity={editor.id ? editor : null}
           tags={tags}
           initialError={blocked && blocked.opportunity.id === editor.id ? blocked.error : null}
-          onReconciled={() => {
-            setBlocked(null);
-            clearError();
+          onReconciled={(opportunity) => {
+            if (blocked?.opportunity.id === opportunity.id) {
+              setBlocked(null);
+              clearError();
+            }
             resource.refresh();
           }}
           onClose={() => setEditor(null)}

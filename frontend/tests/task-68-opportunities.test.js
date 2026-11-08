@@ -118,6 +118,147 @@ test('pending list publication submits its saved revision once and disables repe
   assert.match(document.querySelector('.team-opportunity').textContent, /PUBLISHED/);
 });
 
+test('reconciling another opportunity cannot release an unresolved publication while the list refresh is pending', async () => {
+  const first = await owned('DRAFT', 'DRAFT');
+  const second = {
+    ...structuredClone(first),
+    id: 'second-draft',
+    content: { ...first.content, title: 'Second draft' },
+  };
+  const previous = state.intercept;
+  let holdList = false,
+    releaseList;
+  const listing = () => json({ items: [first, second], page: 1, pageSize: 20, total: 2 });
+  state.intercept = (path, options) => {
+    if (path.startsWith('/opportunities?scope=mine'))
+      return holdList
+        ? new Promise((resolve) => {
+            releaseList = () => resolve(listing());
+          })
+        : listing();
+    if (path.endsWith('/publish')) throw new TypeError('Unknown publication outcome');
+    if (path === `/opportunities/${second.id}`)
+      return options.method === 'PUT'
+        ? json({ error: { code: 'REVISION_CONFLICT', message: 'Changed elsewhere.' } }, 409)
+        : json({ ...second, revision: second.revision + 1 });
+    return previous(path, options);
+  };
+  await act(async () => window.dispatchEvent(new window.Event('focus')));
+  await click('Publish');
+  await act(async () =>
+    document.querySelectorAll('.team-opportunity')[1].querySelector('button').click()
+  );
+  await change('Opportunity title *', 'Local second draft');
+  await click('Save opportunity');
+  await act(async () =>
+    [...document.querySelectorAll('dialog button')]
+      .find((node) => node.textContent.trim() === 'Reload latest data')
+      .click()
+  );
+  holdList = true;
+  await click('Use latest version');
+  assert.equal(typeof releaseList, 'function');
+  await click('Cancel');
+  const publish = [...document.querySelectorAll('.team-opportunity button')].filter(
+    (node) => node.textContent.trim() === 'Publish'
+  );
+  assert.equal(publish.length, 2);
+  assert.equal(
+    publish.every((node) => node.disabled),
+    true
+  );
+  await act(async () => publish[0].click());
+  assert.equal(state.requests.filter((r) => r.path.endsWith('/publish')).length, 1);
+  await act(async () => releaseList());
+  assert.equal(button('Publish').disabled, true);
+  await click('Reload latest data');
+  assert.equal(field('Opportunity title *').value, first.content.title);
+  await act(async () =>
+    [...document.querySelectorAll('dialog button')]
+      .find((node) => node.textContent.trim() === 'Reload latest data')
+      .click()
+  );
+  holdList = false;
+  await click('Use latest version');
+  await click('Cancel');
+  assert.equal(
+    button('Publish').disabled,
+    false,
+    'reconciling the blocked ID releases publication'
+  );
+  await click('Publish');
+  assert.equal(state.requests.filter((r) => r.path.endsWith('/publish')).length, 2);
+});
+
+test('list publication CSRF rejection does not block publication or open access-loss recovery', async () => {
+  const item = await owned('DRAFT', 'DRAFT');
+  const previous = state.intercept;
+  let reject = true;
+  state.intercept = (path, options) => {
+    if (path.endsWith('/publish')) {
+      if (reject)
+        return json(
+          { error: { code: 'CSRF_INVALID', message: 'Refresh the page and try again.' } },
+          403
+        );
+      return json({
+        ...item,
+        revision: item.revision + 1,
+        status: 'PUBLISHED',
+        availabilityStatus: 'ACTIVE',
+      });
+    }
+    return previous(path, options);
+  };
+  await click('Publish');
+  assert.equal(button('Publish').disabled, false);
+  assert.equal(!!document.querySelector('dialog'), false);
+  reject = false;
+  await click('Publish');
+  const attempts = state.requests.filter((r) => r.path.endsWith('/publish'));
+  assert.equal(attempts.length, 2);
+  assert.equal(attempts[1].body.expectedRevision, item.revision);
+  assert.match(text(), /Opportunity published\./);
+});
+
+for (const operation of ['save', 'reopen']) {
+  test(`opportunity ${operation}: CSRF rejection keeps input and permits a deliberate retry`, async () => {
+    const item = await owned('PUBLISHED', operation === 'reopen' ? 'EXPIRED' : 'ACTIVE');
+    await click('Edit');
+    await change('Opportunity title *', 'Preserved CSRF draft');
+    if (operation === 'reopen') await change('Deadline', '2099-01-01T12:00');
+    const previous = state.intercept;
+    let reject = true;
+    state.intercept = (path, options, body) => {
+      if (path === `/opportunities/${item.id}` && options.method === 'PUT') {
+        if (reject)
+          return json(
+            { error: { code: 'CSRF_INVALID', message: 'Refresh the page and try again.' } },
+            403
+          );
+        return json({
+          ...item,
+          content: body.content,
+          revision: item.revision + 1,
+          availabilityStatus: 'ACTIVE',
+        });
+      }
+      return previous(path, options, body);
+    };
+    const label = operation === 'reopen' ? 'Save and reopen opportunity' : 'Save opportunity';
+    await click(label);
+    assert.equal(field('Opportunity title *').value, 'Preserved CSRF draft');
+    assert.equal(button(label).disabled, false);
+    assert.match(text(), /Refresh the page and try again/);
+    reject = false;
+    await click(label);
+    const writes = state.requests.filter((r) => r.method === 'PUT');
+    assert.equal(writes.length, 2);
+    assert.equal(writes[1].body.expectedRevision, item.revision);
+    assert.equal(!!document.querySelector('dialog'), false);
+  });
+}
+
 test('a lost reopen response keeps the expired snapshot until explicit comparison accepts the server result', async () => {
   const item = await owned('PUBLISHED', 'EXPIRED');
   await click('Edit');

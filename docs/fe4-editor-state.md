@@ -29,6 +29,8 @@ Critical editor responses are checked before resetting dirty state, notifying su
 
 The list's Publish action uses the same validation and reconciliation rules. An unresolved publication blocks further publication attempts and opens the existing editor for comparison. A second opportunity cannot replace that unresolved outcome. HTTP 401/403/404 remove the relevant private editor; confirmed account changes unmount the entire previous workspace.
 
+`403 CSRF_INVALID` is a known pre-write rejection, not resource access loss. It preserves saved state, local input and the submission revision, and permits a deliberate retry after session/token renewal. A focus-driven session check does not replay the rejected write. Other 403 responses, 401 and 404 continue to clear inaccessible private state. Publication recovery is bound to the blocked opportunity ID: reconciling another opportunity never clears that block or its error, including while the list refresh remains pending.
+
 ## Confirmation and consent
 
 Save, reviewed document import and confirmation remain separate operations. A changed/imported profile requires review and explicit confirmation; no save/import automatically calls confirmation. Confirmation is blocked by dirty content, missing acknowledgement, pending operations and unresolved recovery. The server's canonical confirmation revision/status determines the display.
@@ -62,6 +64,8 @@ Executed on 8 November 2026, with Node 24.22.1 and Python 3.14.3, against the cu
 | Vite production build | Passed |
 | Frontend Prettier check | Passed |
 | CI YAML parsing and required FE-4 integration entry | Passed locally; remote pipeline not run for these uncommitted changes |
+
+Review follow-up against `36a26c30` on the same date: both P2 reports were reproduced with failing regression tests before the production fix. Six new tests cover CSRF rejection/retry for profile, privacy, opportunity save/reopen/list publication, and cross-opportunity reconciliation with a deferred list refresh (including release by the correct ID). The final full suite passes **341 tests**, with **47 FE-4 tests**. The extended FE-4 real HTTP test passes with real shared-cookie re-login and stale CSRF rejection for profile and privacy, followed by session renewal and explicit retry. Production build and the configured formatting check pass. The earlier 17-test HTTP regression result above was not rerun for this targeted follow-up.
 
 From `frontend/`:
 
