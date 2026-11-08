@@ -90,4 +90,12 @@ Verification completed on 2026-11-06 with Node 24.22.1, Python 3.14.3 and Vite 7
 
 The existing opportunity-source HTTP test now reads the mounted badge's class directly. Diagnostic reproduction showed jsdom returning no result for a cached compound class selector even though the badge's `outerHTML` and `matches()` both reported PUBLISHED. The test still requires publication and an available Edit action; production rendering is not changed for this test-environment issue.
 
+### CI execution budget
+
+Pipeline `3254327` on 2026-11-08 failed only in `backend_test` (job `6290611`). The Runner enforces a 10-minute maximum. Its log collected 764 tests, completed through approximately 95%, then terminated during the remaining US-20 tests. It reported no assertion failure before termination. The new slow-Worker test was skipped in that Python-only job because Node was unavailable; it did not cause the timeout.
+
+The SQLite backend job now uses three parallel instances of the existing deterministic `--shard-index` / `--shard-total` partitioner, also used by the MySQL job. Actual collection yields 243, 246 and 275 tests: their union is all 764 tests with no duplicate assignment. Each instance writes a separate JUnit report and prints its ten slowest test durations. Failures still fail the pipeline; no test selection or timeout bypass is introduced.
+
+The dedicated frontend/backend integration job explicitly includes `test_fe3_frontend_integration.py` with `--require-frontend`, so the slow-Worker acceptance test runs where Node and frontend dependencies are installed. Changing a YAML job timeout alone cannot exceed the Runner maximum.
+
 Execution evidence is recorded against this branch and the current backend. No MySQL deployment, native-browser layout, external scoring model or future BE-6/BE-8 implementation is certified by these tests. Re-run shared acceptance when FE-1/FE-2 and BE-6/BE-8 final implementations are integrated. FE-3 does not change ranking, filtering payloads or backend business logic.
