@@ -131,7 +131,8 @@ def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(
 
 
 @pytest.mark.parametrize("upgrade_failure", [False, True])
-def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_path, upgrade_failure):
+@pytest.mark.parametrize("upgrade_command", ["upgrade-academic-requirements", "upgrade-query-indexes"])
+def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_path, upgrade_failure, upgrade_command):
     shell = posix_shell()
     tools_dir = tmp_path / "tools"
     tools_dir.mkdir()
@@ -141,7 +142,7 @@ def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_pa
         "import json, os, sys\n"
         "with open(os.environ['STARTUP_COMMANDS'], 'a') as log:\n"
         "    log.write(json.dumps(sys.argv[1:]) + '\\n')\n"
-        "if 'upgrade-academic-requirements' in sys.argv and os.environ['FAIL_UPGRADE'] == '1':\n"
+        "if os.environ['FAIL_COMMAND'] in sys.argv and os.environ['FAIL_UPGRADE'] == '1':\n"
         "    sys.exit(19)\n",
         encoding="utf-8",
     )
@@ -156,19 +157,21 @@ def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_pa
         [shell, (ROOT / "backend/docker/entrypoint.sh").as_posix(),
          sys.executable, "-c", "print('SERVER STARTED')"],
         env={**os.environ, "PATH": str(tools_dir) + os.pathsep + os.environ.get("PATH", ""),
-             "STARTUP_COMMANDS": str(events), "FAIL_UPGRADE": str(int(upgrade_failure))},
+             "STARTUP_COMMANDS": str(events), "FAIL_UPGRADE": str(int(upgrade_failure)),
+             "FAIL_COMMAND": upgrade_command},
         capture_output=True, text=True, timeout=30,
     )
     commands = [json.loads(line) for line in events.read_text().splitlines()]
     expected = [
         ["-m", "flask", "--app", "backend.app", "init-db"],
         ["-m", "flask", "--app", "backend.app", "upgrade-opportunity-search"],
+        ["-m", "flask", "--app", "backend.app", "upgrade-query-indexes"],
         ["-m", "flask", "--app", "backend.app", "upgrade-academic-requirements", "--if-mysql"],
     ]
     if upgrade_failure:
         assert result.returncode == 19
         assert "SERVER STARTED" not in result.stdout
-        assert commands == expected
+        assert commands == (expected[:-1] if upgrade_command == "upgrade-query-indexes" else expected)
     else:
         assert result.returncode == 0, result.stdout + result.stderr
         assert "SERVER STARTED" in result.stdout

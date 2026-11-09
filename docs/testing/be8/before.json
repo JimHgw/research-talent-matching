@@ -1,0 +1,945 @@
+{
+  "label": "before",
+  "fixture_version": "be8-query-v1",
+  "reference_time": "2030-01-15T00:00:00",
+  "fixture_sha256": "c67c0d631aebedfb16de1e67dd102ffc022284546ceeb6c971cb9a757776b8c3",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "sqlalchemy": "2.0.44",
+    "database": "SQLite",
+    "commit": "74ef7bdd781f484b7f1d786d56c49990f617c62a"
+  },
+  "memory_metric": "Peak Python allocations in one additional warmed HTTP request, via tracemalloc; excludes native ONNX allocations.",
+  "groups": [
+    {
+      "size": 100,
+      "endpoint": "opportunities",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 12.153,
+      "p95_ms": 14.086,
+      "peak_python_mib": 0.395,
+      "counts": {
+        "sql": 6,
+        "related_sql": 3,
+        "opportunities_loaded": 60,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 60,
+      "response_sha256": "ac6166643fc12535c845be2cbb3a40cb8edc5ab3f31f4167ea3d2a02b0617eca",
+      "latencies_ms": [
+        12.858,
+        12.566,
+        13.323,
+        10.795,
+        12.88,
+        14.121,
+        13.672,
+        13.902,
+        13.992,
+        13.241,
+        10.835,
+        10.141,
+        12.157,
+        10.325,
+        10.827,
+        14.086,
+        12.928,
+        12.939,
+        11.447,
+        12.052,
+        11.739,
+        11.376,
+        12.15,
+        11.536,
+        11.422,
+        13.115,
+        13.457,
+        11.984,
+        11.114,
+        12.044
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              43,
+              0,
+              0,
+              "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "opportunities",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 12.166,
+      "p95_ms": 14.41,
+      "peak_python_mib": 0.398,
+      "counts": {
+        "sql": 6,
+        "related_sql": 3,
+        "opportunities_loaded": 60,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 32,
+      "response_sha256": "c082e1b639a7fda4a79bd7413deb84e47aeb053ab7e4712c5121269665999ff0",
+      "latencies_ms": [
+        11.209,
+        12.361,
+        12.295,
+        12.185,
+        12.204,
+        10.543,
+        13.918,
+        11.89,
+        11.063,
+        12.015,
+        12.034,
+        11.608,
+        13.468,
+        12.146,
+        12.075,
+        12.442,
+        11.512,
+        11.693,
+        10.648,
+        79.785,
+        14.125,
+        14.41,
+        12.462,
+        12.556,
+        13.003,
+        12.753,
+        11.37,
+        12.453,
+        11.871,
+        11.639
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              43,
+              0,
+              0,
+              "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "recommendations",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 82.542,
+      "p95_ms": 87.754,
+      "peak_python_mib": 0.578,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 60,
+        "profiles_loaded": 1,
+        "scored": 60
+      },
+      "eligible_total": 60,
+      "response_sha256": "0f86252fd92c8144f37e18ecdad20f2abb4f8b7300866dddcbeae48850d5cb1d",
+      "latencies_ms": [
+        83.481,
+        83.735,
+        79.284,
+        79.858,
+        81.379,
+        80.036,
+        80.041,
+        82.755,
+        81.79,
+        82.496,
+        81.474,
+        82.588,
+        84.695,
+        81.788,
+        97.08,
+        86.027,
+        86.861,
+        82.255,
+        87.397,
+        85.694,
+        85.229,
+        81.011,
+        78.66,
+        87.497,
+        80.245,
+        82.018,
+        85.203,
+        85.87,
+        81.841,
+        87.754
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              36,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "recommendations",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 76.034,
+      "p95_ms": 85.156,
+      "peak_python_mib": 0.402,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 60,
+        "profiles_loaded": 1,
+        "scored": 32
+      },
+      "eligible_total": 32,
+      "response_sha256": "d75b2f2ee51242af15f8fa77ae0e356a5b832fdbaa7204433b5cf3beb1cbbae5",
+      "latencies_ms": [
+        76.518,
+        80.214,
+        82.063,
+        68.581,
+        70.223,
+        70.26,
+        66.993,
+        68.751,
+        145.198,
+        85.156,
+        74.491,
+        75.173,
+        79.952,
+        71.267,
+        68.335,
+        75.55,
+        74.46,
+        83.477,
+        77.582,
+        73.947,
+        73.805,
+        81.048,
+        80.085,
+        80.426,
+        82.463,
+        77.368,
+        72.941,
+        80.433,
+        70.412,
+        80.665
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              36,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "talents",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 129.384,
+      "p95_ms": 143.582,
+      "peak_python_mib": 0.717,
+      "counts": {
+        "sql": 14,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 60,
+        "scored": 60
+      },
+      "eligible_total": 60,
+      "response_sha256": "ae1de73f4c6ed8128126fdd9185fb66da9a58a226a34f5f988a009cb3fb713af",
+      "latencies_ms": [
+        124.079,
+        129.594,
+        125.079,
+        133.82,
+        134.837,
+        131.404,
+        133.209,
+        143.582,
+        135.854,
+        134.106,
+        127.828,
+        127.225,
+        117.835,
+        123.891,
+        128.731,
+        129.58,
+        124.521,
+        117.906,
+        127.093,
+        132.611,
+        130.812,
+        131.237,
+        130.375,
+        129.188,
+        126.636,
+        123.824,
+        129.072,
+        134.954,
+        214.003,
+        128.795
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "talents",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 78.119,
+      "p95_ms": 88.182,
+      "peak_python_mib": 0.6,
+      "counts": {
+        "sql": 15,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 60,
+        "scored": 21
+      },
+      "eligible_total": 21,
+      "response_sha256": "ddd5eec42ed072d91e84c482601ac6f872c27338206cc2382d23eebb75f6796e",
+      "latencies_ms": [
+        78.114,
+        77.611,
+        78.804,
+        78.309,
+        80.493,
+        76.058,
+        88.182,
+        83.469,
+        80.132,
+        76.701,
+        79.216,
+        77.049,
+        76.062,
+        77.964,
+        79.205,
+        74.467,
+        76.076,
+        76.594,
+        94.121,
+        79.148,
+        77.105,
+        78.75,
+        78.123,
+        76.013,
+        78.073,
+        85.296,
+        83.892,
+        83.081,
+        74.212,
+        75.525
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "opportunities",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 75.697,
+      "p95_ms": 174.134,
+      "peak_python_mib": 4.099,
+      "counts": {
+        "sql": 6,
+        "related_sql": 3,
+        "opportunities_loaded": 600,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 600,
+      "response_sha256": "d4d8f17099bb835e8d1ce3ba0c36d0c9c1f4ab9485b13ffdb7c7812c3d195cae",
+      "latencies_ms": [
+        73.212,
+        152.916,
+        66.4,
+        71.012,
+        141.236,
+        59.56,
+        76.208,
+        145.423,
+        60.876,
+        76.899,
+        155.243,
+        68.653,
+        149.375,
+        66.212,
+        73.997,
+        147.842,
+        64.267,
+        70.593,
+        146.048,
+        73.476,
+        65.079,
+        182.492,
+        79.465,
+        75.186,
+        147.992,
+        72.342,
+        59.159,
+        147.206,
+        88.378,
+        174.134
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              43,
+              0,
+              0,
+              "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "opportunities",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 78.718,
+      "p95_ms": 170.759,
+      "peak_python_mib": 4.264,
+      "counts": {
+        "sql": 6,
+        "related_sql": 3,
+        "opportunities_loaded": 600,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 342,
+      "response_sha256": "1580e4039a5e60a2a05aeae38f7255c5e062103938d72fe9defdd903ccfc14fe",
+      "latencies_ms": [
+        92.448,
+        179.761,
+        79.868,
+        78.993,
+        166.476,
+        81.2,
+        78.443,
+        155.41,
+        72.098,
+        70.778,
+        170.759,
+        74.542,
+        74.403,
+        146.973,
+        72.459,
+        149.328,
+        73.232,
+        69.98,
+        158.511,
+        71.844,
+        68.321,
+        165.281,
+        70.707,
+        67.627,
+        154.096,
+        75.161,
+        65.579,
+        156.337,
+        99.925,
+        77.966
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              43,
+              0,
+              0,
+              "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "recommendations",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 503.07,
+      "p95_ms": 558.219,
+      "peak_python_mib": 5.227,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 600,
+        "profiles_loaded": 1,
+        "scored": 600
+      },
+      "eligible_total": 600,
+      "response_sha256": "140148cf894c7ac3ed46d83d736828e299d9b83b9d740165bd5c52a26f18aee2",
+      "latencies_ms": [
+        444.945,
+        513.556,
+        416.803,
+        518.593,
+        437.019,
+        507.529,
+        427.037,
+        529.033,
+        454.605,
+        527.171,
+        535.626,
+        454.749,
+        522.834,
+        445.848,
+        534.598,
+        429.769,
+        535.698,
+        439.552,
+        498.61,
+        437.395,
+        508.823,
+        558.219,
+        453.818,
+        558.269,
+        455.581,
+        540.578,
+        444.664,
+        525.589,
+        426.606,
+        545.736
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              36,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "recommendations",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 320.356,
+      "p95_ms": 423.395,
+      "peak_python_mib": 4.097,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 600,
+        "profiles_loaded": 1,
+        "scored": 342
+      },
+      "eligible_total": 342,
+      "response_sha256": "9701029d7200d01bea281ae407496c8b5117a51f680681676ac3105b227899d5",
+      "latencies_ms": [
+        321.694,
+        383.961,
+        305.654,
+        419.895,
+        317.871,
+        294.526,
+        389.622,
+        319.017,
+        382.144,
+        296.427,
+        391.976,
+        309.248,
+        423.395,
+        318.172,
+        386.361,
+        303.128,
+        302.991,
+        375.914,
+        285.455,
+        396.094,
+        307.251,
+        407.745,
+        307.371,
+        426.239,
+        336.097,
+        375.283,
+        300.248,
+        304.224,
+        377.941,
+        301.993
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_status_updated (status=?)"
+            ],
+            [
+              36,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "talents",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 760.391,
+      "p95_ms": 810.794,
+      "peak_python_mib": 6.099,
+      "counts": {
+        "sql": 14,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 600,
+        "scored": 600
+      },
+      "eligible_total": 600,
+      "response_sha256": "c09930aa1c4d0c5acced0bf6eea98e47a08beb1dccaa1af2f8651e373dd58655",
+      "latencies_ms": [
+        659.932,
+        787.415,
+        788.921,
+        705.836,
+        803.918,
+        682.194,
+        761.548,
+        802.782,
+        753.356,
+        793.39,
+        685.772,
+        756.768,
+        810.794,
+        720.561,
+        815.92,
+        778.375,
+        677.856,
+        759.235,
+        659.854,
+        775.684,
+        769.112,
+        674.775,
+        798.09,
+        681.197,
+        806.679,
+        797.749,
+        660.178,
+        771.594,
+        696.357,
+        743.696
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "talents",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 394.395,
+      "p95_ms": 472.641,
+      "peak_python_mib": 5.895,
+      "counts": {
+        "sql": 15,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 600,
+        "scored": 209
+      },
+      "eligible_total": 209,
+      "response_sha256": "c23d8f9359ec6cbff671b76a393fc82243bb14b2258a1583fb1a87d1bd90e88a",
+      "latencies_ms": [
+        413.329,
+        402.023,
+        350.793,
+        442.174,
+        346.252,
+        442.396,
+        364.514,
+        445.749,
+        365.715,
+        482.608,
+        352.436,
+        360.764,
+        452.051,
+        376.147,
+        429.789,
+        340.328,
+        472.641,
+        338.359,
+        445.234,
+        344.303,
+        418.548,
+        386.767,
+        347.908,
+        453.985,
+        369.842,
+        423.991,
+        334.197,
+        466.765,
+        329.542,
+        459.139
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "model": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+    "preprocessingVersion": "requirement-inputs-v1",
+    "thresholdVersion": "requirement-thresholds-v1",
+    "modelFile": "onnx/model_quint8_avx2.onnx",
+    "padId": 1,
+    "padToken": "<pad>",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "artifacts": {
+      "tokenizer.json": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8",
+      "onnx/model_quint8_avx2.onnx": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+    },
+    "maxTokens": 128,
+    "threads": 1,
+    "batchSize": 16,
+    "thresholds": {
+      "partial": 0.45,
+      "relevant": 0.75
+    }
+  }
+}

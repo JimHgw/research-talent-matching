@@ -2,16 +2,19 @@ from sqlalchemy import select
 
 from ...db.models import (
     Opportunity,
+    PersonalInterestTag,
     ProfileInterest,
     ProfileOrigin,
+    ProfilePersonalInterest,
+    ProfileTextDetails,
     Tag,
     TalentProfile,
 )
 from ...db.opportunity_read import serialize, serialize_many
 from ...db.skills import matching_skills, read_skills_many
-from ...db.interests import profile_components
 from ...shared.validation import ApiError, validate
 from ..opportunities import availability as opportunity_availability
+from ..opportunities.queries import READ_BATCH_SIZE, filtered_rows
 
 
 def get_owner_profile(db, user):
@@ -52,9 +55,17 @@ def read_matching_profile(db, profile):
             )
         )
     }
+    interest_text = db.scalar(select(ProfileTextDetails.research_interest_text)
+                              .where(ProfileTextDetails.talent_id == profile.talent_id))
+    personal_tags = db.execute(select(PersonalInterestTag.id, PersonalInterestTag.label).join(
+        ProfilePersonalInterest,
+        (ProfilePersonalInterest.tag_id == PersonalInterestTag.id)
+        & (ProfilePersonalInterest.talent_id == PersonalInterestTag.talent_id),
+    ).where(ProfilePersonalInterest.talent_id == profile.talent_id)
+      .order_by(ProfilePersonalInterest.position))
     return {
-        **{key: value for key, value in profile_components(db, profile.talent_id).items()
-           if key in ("researchInterestText", "customInterestTags")},
+        "researchInterestText": interest_text or "",
+        "customInterestTags": [{"id": key, "label": label} for key, label in personal_tags],
         "revision": profile.revision,
         "skills": skills,
         "skillRecords": skill_records,
@@ -67,18 +78,13 @@ def read_matching_profile(db, profile):
     }
 
 
-def list_published(db):
-    # List all published opportunities, ordered by ID.
-    now = opportunity_availability.utcnow()
-    rows = list(
-        db.scalars(
-            select(Opportunity)
-            .where(*opportunity_availability.active_predicates(now))
-            .order_by(Opportunity.id)
-        )
-    )
-
-    return serialize_many(db, rows, now)
+def list_published(db, filters=None, now=None):
+    # Load every eligible candidate, with conditions applied before child reads.
+    now = now if now is not None else opportunity_availability.utcnow()
+    rows, _ = filtered_rows(db, select(Opportunity)
+        .where(*opportunity_availability.active_predicates(now)).order_by(Opportunity.id), filters)
+    return [item for start in range(0, len(rows), READ_BATCH_SIZE)
+            for item in serialize_many(db, rows[start:start + READ_BATCH_SIZE], now)]
 
 
 def get_published(db, opportunity_id, *, active=False):

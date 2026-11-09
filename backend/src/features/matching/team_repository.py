@@ -34,7 +34,7 @@ def own_published_opportunity(db, user, opportunity_id):
     return serialize(db, opportunity, now)
 
 
-def discoverable_profiles(db, talent_id=None):
+def discoverable_profiles(db, talent_id=None, filters=None):
     query = (select(TalentProfile).join(PrivacySettings).join(User)
              .where(PrivacySettings.discoverable.is_(True),
                     TalentProfile.confirmation_status == "CONFIRMED",
@@ -44,6 +44,16 @@ def discoverable_profiles(db, talent_id=None):
     if talent_id is not None:
         validate("Id", talent_id)
         query = query.where(TalentProfile.talent_id == talent_id)
+    if filters and "interestTagId" in filters:
+        # Exact shared IDs are safe to push down only with current field consent.
+        # Personal tags, free text and hidden interests cannot satisfy this filter.
+        query = query.where(
+            select(PrivacyVisibleField.talent_id).where(
+                PrivacyVisibleField.talent_id == TalentProfile.talent_id,
+                PrivacyVisibleField.field == "researchInterests").exists(),
+            select(ProfileInterest.talent_id).where(
+                ProfileInterest.talent_id == TalentProfile.talent_id,
+                ProfileInterest.tag_id.in_(filters["interestTagId"])).exists())
     profiles = list(db.scalars(query))
     if talent_id is not None and not profiles:
         raise ApiError(404, "NOT_FOUND", "Talent profile not found.")

@@ -357,6 +357,8 @@ class Opportunity(Base):
         CheckConstraint("discipline_group IN ('STEM', 'BUSINESS')"),
         Index("ix_opportunities_owner_updated", "owner_user_id", "updated_at", "id"),
         Index("ix_opportunities_status_updated", "status", "updated_at", "id"),
+        Index("ix_opportunities_owner_page", owner_user_id, updated_at.desc(), id),
+        Index("ix_opportunities_active_page", status, expired_at, updated_at.desc(), id),
     )
 
 

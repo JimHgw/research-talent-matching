@@ -1,0 +1,1022 @@
+{
+  "label": "after",
+  "fixture_version": "be8-query-v1",
+  "reference_time": "2030-01-15T00:00:00",
+  "fixture_sha256": "c67c0d631aebedfb16de1e67dd102ffc022284546ceeb6c971cb9a757776b8c3",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "sqlalchemy": "2.0.44",
+    "database": "SQLite",
+    "commit": "74ef7bdd781f484b7f1d786d56c49990f617c62a"
+  },
+  "memory_metric": "Peak Python allocations in one additional warmed HTTP request, via tracemalloc; excludes native ONNX allocations.",
+  "groups": [
+    {
+      "size": 100,
+      "endpoint": "opportunities",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 8.556,
+      "p95_ms": 10.469,
+      "peak_python_mib": 0.208,
+      "counts": {
+        "sql": 7,
+        "related_sql": 3,
+        "opportunities_loaded": 20,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 60,
+      "response_sha256": "ac6166643fc12535c845be2cbb3a40cb8edc5ab3f31f4167ea3d2a02b0617eca",
+      "latencies_ms": [
+        8.837,
+        7.549,
+        10.469,
+        8.753,
+        8.667,
+        8.48,
+        8.935,
+        12.297,
+        8.414,
+        6.974,
+        6.788,
+        8.857,
+        7.812,
+        8.851,
+        8.632,
+        8.173,
+        7.439,
+        6.763,
+        8.891,
+        7.999,
+        8.138,
+        8.809,
+        9.304,
+        8.351,
+        8.678,
+        7.698,
+        7.568,
+        9.391,
+        7.87,
+        8.784
+      ],
+      "plans": [
+        {
+          "sql": "SELECT count(*) AS count_1 \nFROM (SELECT opportunities.id AS id, opportunities.owner_user_id AS owner_user_id, opportunities.revision AS revision, opportunities.status AS status, opportunities.title AS title, opportunities.university AS university, opportunities.discipline_group AS discipline_group, opportunities.discipline AS discipline, opportunities.research_area AS research_area, opportunities.description AS description, opportunities.opportunity_type AS opportunity_type, opportunities.source_url AS source_url, opportunities.deadline_at AS deadline_at, opportunities.expired_at AS expired_at, opportunities.created_at AS created_at, opportunities.updated_at AS updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?)) AS anon_1",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id\n LIMIT ? OFFSET ?",
+          "plan": [
+            [
+              8,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "opportunities",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 10.215,
+      "p95_ms": 14.265,
+      "peak_python_mib": 0.212,
+      "counts": {
+        "sql": 7,
+        "related_sql": 3,
+        "opportunities_loaded": 20,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 32,
+      "response_sha256": "c082e1b639a7fda4a79bd7413deb84e47aeb053ab7e4712c5121269665999ff0",
+      "latencies_ms": [
+        11.725,
+        11.489,
+        12.679,
+        15.907,
+        13.963,
+        14.265,
+        9.967,
+        10.155,
+        8.666,
+        8.759,
+        11.544,
+        11.749,
+        11.839,
+        10.669,
+        9.428,
+        10.29,
+        10.631,
+        10.275,
+        9.743,
+        9.297,
+        8.318,
+        10.971,
+        9.689,
+        9.319,
+        10.354,
+        8.706,
+        8.093,
+        8.204,
+        9.748,
+        8.471
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.description AS description, opportunities.discipline AS discipline, opportunities.opportunity_type AS \"opportunityType\", opportunities.research_area AS \"researchArea\", opportunities.title AS title, opportunities.university AS university \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) AND opportunities.discipline_group IN (?) AND opportunities.deadline_at >= ? AND opportunities.deadline_at < ? ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "plan": [
+            [
+              3,
+              0,
+              89,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "recommendations",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 86.706,
+      "p95_ms": 96.416,
+      "peak_python_mib": 0.579,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 60,
+        "profiles_loaded": 1,
+        "scored": 60
+      },
+      "eligible_total": 60,
+      "response_sha256": "0f86252fd92c8144f37e18ecdad20f2abb4f8b7300866dddcbeae48850d5cb1d",
+      "latencies_ms": [
+        84.665,
+        84.349,
+        87.577,
+        96.416,
+        85.501,
+        86.743,
+        91.043,
+        81.317,
+        87.1,
+        88.236,
+        87.287,
+        87.856,
+        85.155,
+        86.471,
+        84.164,
+        87.1,
+        85.186,
+        85.008,
+        88.314,
+        155.711,
+        84.994,
+        86.885,
+        82.27,
+        86.669,
+        82.935,
+        90.522,
+        88.294,
+        83.57,
+        84.834,
+        88.651
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ],
+            [
+              35,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "recommendations",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 72.362,
+      "p95_ms": 80.17,
+      "peak_python_mib": 0.357,
+      "counts": {
+        "sql": 14,
+        "related_sql": 6,
+        "opportunities_loaded": 32,
+        "profiles_loaded": 1,
+        "scored": 32
+      },
+      "eligible_total": 32,
+      "response_sha256": "d75b2f2ee51242af15f8fa77ae0e356a5b832fdbaa7204433b5cf3beb1cbbae5",
+      "latencies_ms": [
+        75.384,
+        78.281,
+        76.093,
+        75.875,
+        74.284,
+        72.268,
+        74.429,
+        74.298,
+        73.365,
+        75.072,
+        83.136,
+        70.091,
+        69.891,
+        69.097,
+        67.847,
+        80.17,
+        76.396,
+        73.794,
+        69.858,
+        71.721,
+        68.895,
+        69.688,
+        72.455,
+        67.64,
+        71.794,
+        78.968,
+        67.602,
+        70.649,
+        71.72,
+        71.087
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.description AS description, opportunities.discipline AS discipline, opportunities.opportunity_type AS \"opportunityType\", opportunities.research_area AS \"researchArea\", opportunities.title AS title, opportunities.university AS university \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) AND opportunities.discipline_group IN (?) AND opportunities.deadline_at >= ? AND opportunities.deadline_at < ? ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ],
+            [
+              32,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "plan": [
+            [
+              3,
+              0,
+              96,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "talents",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 124.822,
+      "p95_ms": 142.276,
+      "peak_python_mib": 0.723,
+      "counts": {
+        "sql": 14,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 60,
+        "scored": 60
+      },
+      "eligible_total": 60,
+      "response_sha256": "ae1de73f4c6ed8128126fdd9185fb66da9a58a226a34f5f988a009cb3fb713af",
+      "latencies_ms": [
+        119.846,
+        126.171,
+        124.878,
+        133.843,
+        127.569,
+        120.41,
+        126.853,
+        124.184,
+        129.504,
+        126.615,
+        130.908,
+        140.464,
+        209.477,
+        142.276,
+        124.411,
+        122.213,
+        123.615,
+        130.417,
+        124.457,
+        123.972,
+        124.765,
+        126.547,
+        121.826,
+        120.754,
+        123.357,
+        130.645,
+        123.798,
+        118.281,
+        122.492,
+        132.745
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 100,
+      "endpoint": "talents",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 79.043,
+      "p95_ms": 85.9,
+      "peak_python_mib": 0.439,
+      "counts": {
+        "sql": 15,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 33,
+        "scored": 21
+      },
+      "eligible_total": 21,
+      "response_sha256": "ddd5eec42ed072d91e84c482601ac6f872c27338206cc2382d23eebb75f6796e",
+      "latencies_ms": [
+        76.069,
+        77.074,
+        75.88,
+        75.436,
+        74.526,
+        76.026,
+        80.225,
+        79.841,
+        81.101,
+        78.226,
+        79.694,
+        81.805,
+        79.508,
+        83.304,
+        78.578,
+        83.178,
+        75.973,
+        77.783,
+        77.039,
+        76.681,
+        75.659,
+        74.235,
+        84.445,
+        79.863,
+        82.21,
+        80.132,
+        77.189,
+        85.329,
+        88.499,
+        85.9
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 AND (EXISTS (SELECT privacy_visible_fields.talent_id \nFROM privacy_visible_fields \nWHERE privacy_visible_fields.talent_id = talent_profiles.talent_id AND privacy_visible_fields.field = ?)) AND (EXISTS (SELECT profile_interests.talent_id \nFROM profile_interests \nWHERE profile_interests.talent_id = talent_profiles.talent_id AND profile_interests.tag_id IN (?))) ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              14,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              22,
+              0,
+              45,
+              "SEARCH profile_interests EXISTS USING COVERING INDEX sqlite_autoindex_profile_interests_1 (talent_id=? AND tag_id=?)"
+            ],
+            [
+              29,
+              0,
+              45,
+              "SEARCH privacy_visible_fields EXISTS USING COVERING INDEX sqlite_autoindex_privacy_visible_fields_1 (talent_id=? AND field=?)"
+            ],
+            [
+              36,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ],
+            [
+              46,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "opportunities",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 9.773,
+      "p95_ms": 12.837,
+      "peak_python_mib": 0.208,
+      "counts": {
+        "sql": 7,
+        "related_sql": 3,
+        "opportunities_loaded": 20,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 600,
+      "response_sha256": "d4d8f17099bb835e8d1ce3ba0c36d0c9c1f4ab9485b13ffdb7c7812c3d195cae",
+      "latencies_ms": [
+        9.394,
+        10.514,
+        9.704,
+        9.2,
+        10.927,
+        9.73,
+        8.309,
+        9.605,
+        8.544,
+        9.933,
+        10.825,
+        10.563,
+        12.712,
+        11.228,
+        9.629,
+        9.326,
+        12.837,
+        10.477,
+        9.637,
+        11.076,
+        8.621,
+        8.183,
+        8.111,
+        12.048,
+        11.185,
+        12.887,
+        9.393,
+        8.936,
+        10.013,
+        9.817
+      ],
+      "plans": [
+        {
+          "sql": "SELECT count(*) AS count_1 \nFROM (SELECT opportunities.id AS id, opportunities.owner_user_id AS owner_user_id, opportunities.revision AS revision, opportunities.status AS status, opportunities.title AS title, opportunities.university AS university, opportunities.discipline_group AS discipline_group, opportunities.discipline AS discipline, opportunities.research_area AS research_area, opportunities.description AS description, opportunities.opportunity_type AS opportunity_type, opportunities.source_url AS source_url, opportunities.deadline_at AS deadline_at, opportunities.expired_at AS expired_at, opportunities.created_at AS created_at, opportunities.updated_at AS updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?)) AS anon_1",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.updated_at DESC, opportunities.id\n LIMIT ? OFFSET ?",
+          "plan": [
+            [
+              8,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "opportunities",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 15.014,
+      "p95_ms": 19.073,
+      "peak_python_mib": 0.394,
+      "counts": {
+        "sql": 7,
+        "related_sql": 3,
+        "opportunities_loaded": 20,
+        "profiles_loaded": 0,
+        "scored": 0
+      },
+      "eligible_total": 342,
+      "response_sha256": "1580e4039a5e60a2a05aeae38f7255c5e062103938d72fe9defdd903ccfc14fe",
+      "latencies_ms": [
+        17.323,
+        13.983,
+        15.747,
+        13.908,
+        15.465,
+        15.713,
+        14.127,
+        14.927,
+        12.206,
+        12.818,
+        19.073,
+        15.852,
+        14.919,
+        15.046,
+        14.082,
+        17.677,
+        14.072,
+        18.443,
+        19.094,
+        14.982,
+        12.631,
+        14.607,
+        14.13,
+        18.41,
+        13.489,
+        12.363,
+        15.143,
+        17.642,
+        15.193,
+        18.892
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.description AS description, opportunities.discipline AS discipline, opportunities.opportunity_type AS \"opportunityType\", opportunities.research_area AS \"researchArea\", opportunities.title AS title, opportunities.university AS university \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) AND opportunities.discipline_group IN (?) AND opportunities.deadline_at >= ? AND opportunities.deadline_at < ? ORDER BY opportunities.updated_at DESC, opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "plan": [
+            [
+              3,
+              0,
+              89,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "recommendations",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 490.968,
+      "p95_ms": 546.434,
+      "peak_python_mib": 5.229,
+      "counts": {
+        "sql": 13,
+        "related_sql": 6,
+        "opportunities_loaded": 600,
+        "profiles_loaded": 1,
+        "scored": 600
+      },
+      "eligible_total": 600,
+      "response_sha256": "140148cf894c7ac3ed46d83d736828e299d9b83b9d740165bd5c52a26f18aee2",
+      "latencies_ms": [
+        442.996,
+        548.03,
+        414.358,
+        494.957,
+        425.786,
+        490.035,
+        491.902,
+        400.339,
+        495.229,
+        435.285,
+        509.678,
+        423.782,
+        504.61,
+        414.975,
+        500.043,
+        410.87,
+        546.434,
+        424.97,
+        510.89,
+        419.275,
+        500.824,
+        506.796,
+        419.836,
+        503.036,
+        424.728,
+        544.3,
+        451.507,
+        525.626,
+        426.1,
+        503.597
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ],
+            [
+              35,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "recommendations",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 283.551,
+      "p95_ms": 409.921,
+      "peak_python_mib": 3.079,
+      "counts": {
+        "sql": 14,
+        "related_sql": 6,
+        "opportunities_loaded": 342,
+        "profiles_loaded": 1,
+        "scored": 342
+      },
+      "eligible_total": 342,
+      "response_sha256": "9701029d7200d01bea281ae407496c8b5117a51f680681676ac3105b227899d5",
+      "latencies_ms": [
+        412.165,
+        287.081,
+        258.59,
+        273.993,
+        366.133,
+        266.291,
+        274.791,
+        357.766,
+        262.517,
+        278.373,
+        275.387,
+        372.082,
+        285.01,
+        291.781,
+        375.797,
+        275.854,
+        275.971,
+        288.306,
+        352.404,
+        272.623,
+        261.505,
+        409.921,
+        309.038,
+        282.092,
+        291.0,
+        394.498,
+        278.611,
+        272.58,
+        268.756,
+        353.901
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.description AS description, opportunities.discipline AS discipline, opportunities.opportunity_type AS \"opportunityType\", opportunities.research_area AS \"researchArea\", opportunities.title AS title, opportunities.university AS university \nFROM opportunities \nWHERE opportunities.status = ? AND opportunities.expired_at IS NULL AND (opportunities.deadline_at IS NULL OR opportunities.deadline_at > ?) AND opportunities.discipline_group IN (?) AND opportunities.deadline_at >= ? AND opportunities.deadline_at < ? ORDER BY opportunities.id",
+          "plan": [
+            [
+              4,
+              0,
+              61,
+              "SEARCH opportunities USING INDEX ix_opportunities_active_page (status=? AND expired_at=?)"
+            ],
+            [
+              32,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "plan": [
+            [
+              3,
+              0,
+              129,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "talents",
+      "filtered": false,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 760.196,
+      "p95_ms": 818.792,
+      "peak_python_mib": 6.207,
+      "counts": {
+        "sql": 14,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 600,
+        "scored": 600
+      },
+      "eligible_total": 600,
+      "response_sha256": "c09930aa1c4d0c5acced0bf6eea98e47a08beb1dccaa1af2f8651e373dd58655",
+      "latencies_ms": [
+        716.294,
+        760.393,
+        763.217,
+        686.422,
+        784.84,
+        759.219,
+        659.746,
+        767.353,
+        655.536,
+        771.651,
+        800.153,
+        680.322,
+        765.5,
+        666.376,
+        750.656,
+        772.307,
+        693.652,
+        784.173,
+        675.106,
+        759.999,
+        780.091,
+        672.94,
+        818.792,
+        789.234,
+        736.849,
+        869.854,
+        724.067,
+        784.32,
+        774.431,
+        655.829
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              9,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              17,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ],
+            [
+              26,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "size": 1000,
+      "endpoint": "talents",
+      "filtered": true,
+      "samples": 30,
+      "warmups": 3,
+      "p50_ms": 326.221,
+      "p95_ms": 425.428,
+      "peak_python_mib": 3.399,
+      "counts": {
+        "sql": 15,
+        "related_sql": 9,
+        "opportunities_loaded": 1,
+        "profiles_loaded": 333,
+        "scored": 209
+      },
+      "eligible_total": 209,
+      "response_sha256": "c23d8f9359ec6cbff671b76a393fc82243bb14b2258a1583fb1a87d1bd90e88a",
+      "latencies_ms": [
+        315.032,
+        312.475,
+        391.795,
+        330.287,
+        324.328,
+        423.982,
+        319.487,
+        325.713,
+        425.428,
+        333.612,
+        326.73,
+        322.358,
+        420.191,
+        318.824,
+        305.572,
+        396.37,
+        317.597,
+        314.796,
+        404.789,
+        325.519,
+        333.893,
+        434.917,
+        311.465,
+        339.019,
+        421.985,
+        323.448,
+        321.456,
+        309.259,
+        404.508,
+        327.862
+      ],
+      "plans": [
+        {
+          "sql": "SELECT opportunities.id, opportunities.owner_user_id, opportunities.revision, opportunities.status, opportunities.title, opportunities.university, opportunities.discipline_group, opportunities.discipline, opportunities.research_area, opportunities.description, opportunities.opportunity_type, opportunities.source_url, opportunities.deadline_at, opportunities.expired_at, opportunities.created_at, opportunities.updated_at \nFROM opportunities \nWHERE opportunities.id = ? AND opportunities.owner_user_id = ? AND opportunities.status = ?",
+          "plan": [
+            [
+              3,
+              0,
+              39,
+              "SEARCH opportunities USING INDEX sqlite_autoindex_opportunities_1 (id=?)"
+            ]
+          ]
+        },
+        {
+          "sql": "SELECT talent_profiles.talent_id, talent_profiles.user_id, talent_profiles.display_name, talent_profiles.discipline_group, talent_profiles.education, talent_profiles.courses, talent_profiles.research_experience, talent_profiles.research_outputs, talent_profiles.revision, talent_profiles.confirmation_status, talent_profiles.confirmed_revision, talent_profiles.confirmed_at, talent_profiles.updated_at \nFROM talent_profiles JOIN privacy_settings ON talent_profiles.talent_id = privacy_settings.talent_id JOIN users ON users.id = talent_profiles.user_id \nWHERE privacy_settings.discoverable IS 1 AND talent_profiles.confirmation_status = ? AND talent_profiles.confirmed_revision = talent_profiles.revision AND users.role = ? AND users.active IS 1 AND (EXISTS (SELECT privacy_visible_fields.talent_id \nFROM privacy_visible_fields \nWHERE privacy_visible_fields.talent_id = talent_profiles.talent_id AND privacy_visible_fields.field = ?)) AND (EXISTS (SELECT profile_interests.talent_id \nFROM profile_interests \nWHERE profile_interests.talent_id = talent_profiles.talent_id AND profile_interests.tag_id IN (?))) ORDER BY talent_profiles.talent_id",
+          "plan": [
+            [
+              14,
+              0,
+              215,
+              "SCAN talent_profiles USING INDEX sqlite_autoindex_talent_profiles_1"
+            ],
+            [
+              22,
+              0,
+              45,
+              "SEARCH profile_interests EXISTS USING COVERING INDEX sqlite_autoindex_profile_interests_1 (talent_id=? AND tag_id=?)"
+            ],
+            [
+              29,
+              0,
+              45,
+              "SEARCH privacy_visible_fields EXISTS USING COVERING INDEX sqlite_autoindex_privacy_visible_fields_1 (talent_id=? AND field=?)"
+            ],
+            [
+              36,
+              0,
+              47,
+              "SEARCH privacy_settings USING INDEX sqlite_autoindex_privacy_settings_1 (talent_id=?)"
+            ],
+            [
+              46,
+              0,
+              46,
+              "SEARCH users USING INDEX sqlite_autoindex_users_1 (id=?)"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "model": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+    "preprocessingVersion": "requirement-inputs-v1",
+    "thresholdVersion": "requirement-thresholds-v1",
+    "modelFile": "onnx/model_quint8_avx2.onnx",
+    "padId": 1,
+    "padToken": "<pad>",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "artifacts": {
+      "tokenizer.json": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8",
+      "onnx/model_quint8_avx2.onnx": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+    },
+    "maxTokens": 128,
+    "threads": 1,
+    "batchSize": 16,
+    "thresholds": {
+      "partial": 0.45,
+      "relevant": 0.75
+    }
+  },
+  "comparison": {
+    "baseline": "docs/testing/be8/before.json",
+    "groups_identical": 12,
+    "checks": [
+      "fixture",
+      "model",
+      "response fingerprint",
+      "total",
+      "scored candidate count"
+    ]
+  }
+}

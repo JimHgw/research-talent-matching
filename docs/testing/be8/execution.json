@@ -1,0 +1,322 @@
+{
+  "execution_date": "2026-11-09",
+  "timezone": "Australia/Sydney",
+  "baseline_commit": "74ef7bdd781f484b7f1d786d56c49990f617c62a",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "packages": {
+      "Flask": "3.1.2",
+      "SQLAlchemy": "2.0.44",
+      "pytest": "8.4.2",
+      "PyMySQL": "1.1.2",
+      "onnxruntime": "1.23.2",
+      "tokenizers": "0.22.1",
+      "numpy": "2.3.4"
+    }
+  },
+  "commands": [
+    ".venv/Scripts/python.exe scripts/benchmark-be8.py --label before --output docs/testing/be8/before.json",
+    ".venv/Scripts/python.exe scripts/benchmark-be8.py --label after --output docs/testing/be8/after.json --compare docs/testing/be8/before.json",
+    ".venv/Scripts/python.exe -m pytest backend/tests --require-application-model --require-frontend -q -rs --junitxml=docs/testing/be8/acceptance.xml",
+    ".venv/Scripts/python.exe -m pytest backend/tests/test_sprint3_be8.py --require-application-model -q --junitxml=docs/testing/be8/targeted.xml",
+    ".venv/Scripts/python.exe scripts/test-environment.py --include-be8 --report docs/testing/be8/mysql-docker.xml"
+  ],
+  "reports": {
+    "full_regression": {
+      "path": "docs/testing/be8/acceptance.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "14",
+          "tests": "810",
+          "time": "817.348",
+          "timestamp": "2026-11-09T14:06:36.184707+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "by_file": {
+        "test_ci_sharding": {
+          "passed": 8
+        },
+        "test_collections": {
+          "passed": 15
+        },
+        "test_docker_backend": {
+          "passed": 26
+        },
+        "test_docker_stack": {
+          "passed": 2,
+          "skipped": 1
+        },
+        "test_document_layout_regressions": {
+          "passed": 23
+        },
+        "test_fe3_frontend_integration": {
+          "passed": 1
+        },
+        "test_fe4_frontend_integration": {
+          "passed": 1
+        },
+        "test_free_text_skills": {
+          "passed": 13
+        },
+        "test_frontend_integration": {
+          "passed": 13
+        },
+        "test_layout": {
+          "passed": 4
+        },
+        "test_mysql": {
+          "passed": 6,
+          "skipped": 5
+        },
+        "test_opportunity_free_text_skills": {
+          "passed": 11
+        },
+        "test_portable_setup": {
+          "passed": 20
+        },
+        "test_public_sharing": {
+          "passed": 6
+        },
+        "test_requirement_scoring": {
+          "passed": 15
+        },
+        "test_semantic_matching": {
+          "passed": 28
+        },
+        "test_setup": {
+          "passed": 2
+        },
+        "test_sprint2_data_preparation": {
+          "passed": 24
+        },
+        "test_sprint3_be7": {
+          "passed": 14
+        },
+        "test_sprint3_be8": {
+          "passed": 26
+        },
+        "test_us01": {
+          "passed": 46
+        },
+        "test_us01_password_reset": {
+          "passed": 45
+        },
+        "test_us01_registration": {
+          "passed": 37
+        },
+        "test_us02": {
+          "passed": 49
+        },
+        "test_us03": {
+          "passed": 9
+        },
+        "test_us04": {
+          "passed": 14
+        },
+        "test_us05": {
+          "passed": 21
+        },
+        "test_us06": {
+          "passed": 9
+        },
+        "test_us07": {
+          "passed": 10
+        },
+        "test_us08": {
+          "passed": 10
+        },
+        "test_us09": {
+          "passed": 49
+        },
+        "test_us09_extraction": {
+          "passed": 22
+        },
+        "test_us09_frontend_integration": {
+          "passed": 3
+        },
+        "test_us09_worker": {
+          "passed": 11
+        },
+        "test_us11": {
+          "passed": 24
+        },
+        "test_us11_academic": {
+          "passed": 15
+        },
+        "test_us11_review_regressions": {
+          "passed": 23
+        },
+        "test_us13": {
+          "passed": 12
+        },
+        "test_us14": {
+          "passed": 37
+        },
+        "test_us16": {
+          "passed": 6
+        },
+        "test_us18": {
+          "passed": 21,
+          "skipped": 8
+        },
+        "test_us19": {
+          "passed": 29
+        },
+        "test_us20": {
+          "passed": 36
+        }
+      },
+      "totals": {
+        "passed": 796,
+        "skipped": 14
+      }
+    },
+    "be8_sqlite_final": {
+      "path": "docs/testing/be8/targeted.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "26",
+          "time": "54.607",
+          "timestamp": "2026-11-09T14:24:02.348089+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "by_file": {
+        "test_sprint3_be8": {
+          "passed": 26
+        }
+      },
+      "totals": {
+        "passed": 26
+      }
+    },
+    "mysql_docker_final": {
+      "path": "docs/testing/be8/mysql-docker.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "40",
+          "time": "330.511",
+          "timestamp": "2026-11-09T14:24:09.985259+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "by_file": {
+        "test_docker_stack": {
+          "passed": 1
+        },
+        "test_mysql": {
+          "passed": 5
+        },
+        "test_sprint3_be8": {
+          "passed": 26
+        },
+        "test_us18": {
+          "passed": 8
+        }
+      },
+      "totals": {
+        "passed": 40
+      }
+    }
+  },
+  "coverage": {
+    "default_skipped_environment_cases": 14,
+    "all_default_skips_passed_in_external_run": true,
+    "full_suite_unique_cases_successfully_covered_across_runs": 810,
+    "be8_critical_real_model_cases_executed_on_each_database": 2,
+    "product_source_unchanged_after_full_regression": true,
+    "post_full_regression_change": "Test-only dialect-neutral LIMIT assertion; SQLite BE-8 and MySQL/Docker suites rerun successfully; acceptance runner/docs extended."
+  },
+  "docker": {
+    "engine_version": "29.8.2",
+    "os": "linux",
+    "mysql_version": "8.4.11",
+    "mysql_image_digest": "mysql@sha256:0f51e63e537a1f176423fa03ef559aabe6fa4372a53160a44bc7e75da7d15364",
+    "isolated_test_container_and_project_volume_cleanup_verified": true
+  },
+  "benchmark": {
+    "groups_per_revision": 12,
+    "measured_requests_per_revision": 360,
+    "warmups_per_group": 3,
+    "response_equivalence_groups": 12,
+    "comparison": {
+      "baseline": "docs/testing/be8/before.json",
+      "groups_identical": 12,
+      "checks": [
+        "fixture",
+        "model",
+        "response fingerprint",
+        "total",
+        "scored candidate count"
+      ]
+    },
+    "database": "SQLite",
+    "memory_metric": "Peak Python allocations in one additional warmed HTTP request, via tracemalloc; excludes native ONNX allocations.",
+    "notes": "Benchmarks ran without concurrent test suites. MySQL was used for functional/SQL-count/upgrade verification, not for the recorded timing or EXPLAIN measurements."
+  },
+  "model": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+    "preprocessingVersion": "requirement-inputs-v1",
+    "thresholdVersion": "requirement-thresholds-v1",
+    "modelFile": "onnx/model_quint8_avx2.onnx",
+    "padId": 1,
+    "padToken": "<pad>",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "artifacts": {
+      "tokenizer.json": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8",
+      "onnx/model_quint8_avx2.onnx": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+    },
+    "maxTokens": 128,
+    "threads": 1,
+    "batchSize": 16,
+    "thresholds": {
+      "partial": 0.45,
+      "relevant": 0.75
+    }
+  },
+  "source_sha256_utf8_lf": {
+    ".gitlab-ci.yml": "2d39838aa66388740df0f5e430bc829414dd9c3e189f40c548b12100838918fe",
+    "backend/README.md": "afedca12a075f731abd9a86b53bab38ec16249705b553ac5d4172b724993e6ac",
+    "backend/docker/entrypoint.sh": "efaf066b61c64a63a18c17bb66e8a9416e00d9adf6cc9a0c956d79bee62a059c",
+    "backend/src/app.py": "71cb880c92a1146171883ab3245bcb82a12a9d3e8d9e1eda23fddf041f386aad",
+    "backend/src/db/models.py": "1e981b71ec55feefaffc352fbf225e064cb70e475bc8f088918eb67d8f87d498",
+    "backend/src/db/query_upgrade.py": "702633a87e17e9b2bab53bb188a28556bb0cdf9fa1eb2e41d919c1ca0016f9c4",
+    "backend/src/features/opportunities/queries.py": "8e4303330f3f4efd9f9a9245e4591d8c61823d9400e26543637b1c282c7802fc",
+    "backend/src/features/opportunities/service.py": "72573af319986f3d960934a8265c306e24ac43cf92c27e355271dde3dc17883a",
+    "backend/src/features/matching/repository.py": "dbdb378af8828572bae6608ed36cf65e53e7c47d89733398b75e30ad20a35c95",
+    "backend/src/features/matching/service.py": "8950ee95e630ec41478ac64736c3d76bc391c56cdc28427cdb1159460dc04787",
+    "backend/src/features/matching/team_repository.py": "73344378c473c03e2b9304e2fa777acad81a4b57cff33b9502df524a79969dc1",
+    "backend/src/features/matching/team_service.py": "8a6e95f832676e0d84d802318bfd8aca020a056643cc295a533663d0bc473416",
+    "backend/tests/be8_data.py": "a1fbb247ec3db787537ab402042e406aa770fa231a733d3de641dba03564f0de",
+    "backend/tests/data/sprint3/be8-query.json": "1d3c3e0d849dbcea15e206da430f9c70a9a58dd8c5403fe4e63fb3ac42403b75",
+    "backend/tests/test_sprint3_be8.py": "2027e57394c21824dbff625fd21e4f9b7c8e902e2100f10aec7959b2e7063cd3",
+    "backend/tests/test_us14.py": "eced8850622929adf323c4969a81a49f1d83651f2e00bd5a75f1407151bc25a7",
+    "backend/tests/test_us20.py": "c91f1c659bf3416b8dca9a2098590b16a7883e3239e5ea32162551d93b02e9c4",
+    "backend/tests/test_docker_backend.py": "bf48e4d7fe72bb0bcd119efab814aa949e3f9f3bcd5384e3f1b8d29be40cc312",
+    "scripts/benchmark-be8.py": "a4a141822e606ad232a5b8b8e0381b0a78bd4e208820a4db6a503308d7a409a2",
+    "scripts/test-environment.py": "f16157e5f35cff29d259640c8c6ff2be6fde4437af7b651b6a8095d7490667ab",
+    "docs/mysql-migration.md": "7c1ce0779f8c50add7f432c71ceb98a7c828d1fc48744a67d7ef00500a250551",
+    "docs/testing/be8/README.md": "3d6cc506de56bd908a44f217fc00c27fca88a8ab2e55e75b991d2d1840144634"
+  },
+  "artifact_sha256": {
+    "acceptance.xml": "d67caf32adb5f9510bdc786da979c22a06540ad8ea620dbee9ef2cc5d7ab5a18",
+    "after.json": "35675e9cab26499317f01c43779caf03dfd95e449cc897210f4d7e230a845e94",
+    "before.json": "9783772641f2e921a5059ec61301f12248524c0ae4c3d6db12e438422681f7e7",
+    "mysql-docker.xml": "a15c81b68fc78325b5ba81c60823ff6a1336d4d80db59349db99288263c426d3",
+    "targeted.xml": "aeea22431346d4fc9ae81d11c343c836b065faaa4c2b99f40a086e05de858f8e"
+  }
+}

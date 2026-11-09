@@ -232,6 +232,9 @@ def test_legacy_database_upgrade_supports_deadline_and_retains_expired_record(ap
     item = published(team)
     database = app.extensions["database"]
     with database.engine.begin() as connection:
+        for index in Opportunity.__table__.indexes:
+            if index.name == "ix_opportunities_active_page":
+                index.drop(connection, checkfirst=True)
         for name in ("deadline_at", "expired_at"):
             connection.exec_driver_sql(f"ALTER TABLE opportunities DROP COLUMN {name}")
     assert upgrade_opportunity_search(database) is True

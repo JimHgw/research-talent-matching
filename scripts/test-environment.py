@@ -62,17 +62,24 @@ def wait_for_mysql(url, timeout=180):
         engine.dispose()
 
 
-def verify_report(report):
+def verify_report(report, *, include_be8=False):
     cases = ET.parse(report).getroot().findall(".//testcase")
     expected = {node.split("::", 1)[1] for node in TESTS}
-    if len(cases) != len(TESTS) or {case.get("name") for case in cases} != expected:
+    environment_cases = [case for case in cases if "test_sprint3_be8" not in case.get("classname", "")]
+    if len(environment_cases) != len(TESTS) or {case.get("name") for case in environment_cases} != expected:
         raise RuntimeError("The report does not contain exactly the 14 requested test cases.")
+    be8_cases = [case for case in cases if "test_sprint3_be8" in case.get("classname", "")]
+    if (include_be8 and not be8_cases) or (not include_be8 and be8_cases):
+        raise RuntimeError("The report does not match the requested BE-8 coverage.")
     if any(case.find(tag) is not None for case in cases for tag in ("skipped", "failure", "error")):
-        raise RuntimeError("All 14 checks must execute and pass; skips are not accepted.")
+        raise RuntimeError("All requested checks must execute and pass; skips are not accepted.")
 
 
 def main():
-    argparse.ArgumentParser(description=__doc__).parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--include-be8", action="store_true", help="Also run BE-8 against the disposable MySQL server with the required real model.")
+    parser.add_argument("--report", type=Path, help="Write JUnit evidence to this path instead of the temporary report directory.")
+    args = parser.parse_args()
     docker = shutil.which("docker")
     if not docker:
         raise RuntimeError("Install Docker Desktop and start its Linux engine first.")
@@ -95,7 +102,9 @@ def main():
     run_id = secrets.token_hex(6)
     name = f"banana-environment-test-{run_id}"
     password = secrets.token_hex(20)
-    report = ROOT / ".pytest_cache/environment-tests" / f"{run_id}.xml"
+    report = args.report or ROOT / ".pytest_cache/environment-tests" / f"{run_id}.xml"
+    if not report.is_absolute():
+        report = ROOT / report
     report.parent.mkdir(parents=True, exist_ok=True)
     container = None
     try:
@@ -122,9 +131,11 @@ def main():
                f"{match[1]}/banana_environment_test?charset=utf8mb4")
         wait_for_mysql(url)
         env = {**os.environ, "MYSQL_TEST_DATABASE_URL": url}
-        print("Running all 14 MySQL/Docker checks (no skipped checks allowed)...", flush=True)
+        label = "14 MySQL/Docker checks plus BE-8 MySQL checks" if args.include_be8 else "14 MySQL/Docker checks"
+        tests = (*TESTS, "backend/tests/test_sprint3_be8.py", "--require-application-model") if args.include_be8 else TESTS
+        print(f"Running all {label} (no skipped checks allowed)...", flush=True)
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", *TESTS, "--run-mysql", "--run-docker",
+            [sys.executable, "-m", "pytest", *tests, "--run-mysql", "--run-docker",
              "--shard-index=1", "--shard-total=1", "-v", "-rs", "--tb=short",
              f"--junitxml={report}"],
             cwd=ROOT, env=env,
@@ -132,8 +143,8 @@ def main():
         print(f"Test report: {report}", flush=True)
         if result.returncode:
             return result.returncode
-        verify_report(report)
-        print("All 14 environment checks passed with zero skips.", flush=True)
+        verify_report(report, include_be8=args.include_be8)
+        print(f"All {label} passed with zero skips.", flush=True)
         return 0
     finally:
         if container and re.fullmatch(r"[0-9a-f]{64}", container):

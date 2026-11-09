@@ -38,7 +38,7 @@ def evaluate_visible(opportunity, talent, labels):
 
 def talent_matches(db, user, opportunity_id, page, page_size, filters=None):
     opportunity = own_published_opportunity(db, user, opportunity_id)
-    talents = visible_profiles(db, discoverable_profiles(db))
+    talents = visible_profiles(db, discoverable_profiles(db, filters=filters))
     labels = tag_labels(db)
     talents = [talent for talent in talents if talent_matches_filters(talent, filters or {}, labels)]
     items = evaluate_talents(opportunity, talents, labels)
