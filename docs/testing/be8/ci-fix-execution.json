@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-09",
+  "timezone": "Australia/Sydney",
+  "original_ci": {
+    "url": "https://gitlab.cse.unsw.edu.au/coursework/comp3900/26t3/capstone-projects/3900-h18a-banana/project/-/jobs/6301432",
+    "commit": "629a037b",
+    "branch": "Yu-S3-BE-8",
+    "pipeline_id": 3257265,
+    "shard": [
+      2,
+      3
+    ],
+    "result": {
+      "failure": 48,
+      "error": 5,
+      "passed": 197,
+      "skipped": 13
+    }
+  },
+  "local_checkout": {
+    "head": "6ee13d30f1b349e2049eba63c184eefc02f3705d",
+    "branch": "Yu-S3-Artchiture",
+    "unrelated_preexisting_changes_preserved": [
+      "README.md",
+      "docs/target-architecture.md"
+    ],
+    "application_sources_unchanged_by_ci_fix": true,
+    "changes_committed_or_pushed_by_agent": false
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "packages": {
+      "pytest": "8.4.2",
+      "SQLAlchemy": "2.0.44",
+      "PyMySQL": "1.1.2",
+      "Flask": "3.1.2"
+    },
+    "mysql_image_digest": "mysql@sha256:0f51e63e537a1f176423fa03ef559aabe6fa4372a53160a44bc7e75da7d15364",
+    "disposable_mysql_containers_cleaned_up": true
+  },
+  "root_cause": "A negative upgrade test dropped opportunities.expired_at and BE8 indexes without restoring them. MySQL fixtures clear rows but retain the schema; subsequent opportunity requests in shard 2/3 failed with OperationalError/HTTP 500.",
+  "fix": "Restore columns and indexes in finally; verify post-test HTTP create/publish/list; simulate interruption; run complete MySQL shard in normal collection order.",
+  "reports": {
+    "before": {
+      "path": "docs/testing/be8/ci-repro-before.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "2",
+          "time": "6.458",
+          "timestamp": "2026-11-09T15:10:25.907552+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "counts": {
+        "passed": 1,
+        "failure": 1
+      },
+      "skipped": []
+    },
+    "after": {
+      "path": "docs/testing/be8/ci-repro-after.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "3",
+          "time": "9.123",
+          "timestamp": "2026-11-09T15:12:29.361366+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "counts": {
+        "passed": 3
+      },
+      "skipped": []
+    },
+    "sqlite_be8": {
+      "path": "docs/testing/be8/ci-fix-sqlite.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "27",
+          "time": "54.161",
+          "timestamp": "2026-11-09T15:12:23.492828+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "counts": {
+        "passed": 27
+      },
+      "skipped": []
+    },
+    "complete_mysql_shard_2": {
+      "path": "docs/testing/be8/ci-mysql-shard-2.xml",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "263",
+          "time": "473.535",
+          "timestamp": "2026-11-09T15:12:57.891831+11:00",
+          "hostname": "LAPTOP-NM2IAIEG"
+        }
+      ],
+      "counts": {
+        "passed": 262,
+        "skipped": 1
+      },
+      "skipped": [
+        {
+          "name": "test_academic_upgrade_explicitly_skips_only_when_requested",
+          "reason": "This test exercises the non-MySQL startup path."
+        }
+      ]
+    }
+  },
+  "commands": [
+    ".venv/Scripts/python.exe scripts/test-environment.py --mysql-tests backend/tests/test_sprint3_be8.py::test_query_upgrade_requires_legacy_column_upgrade backend/tests/test_us01_registration.py::test_register_both_roles_atomic_defaults_and_email_id_login[RESEARCH_TEAM] --report docs/testing/be8/ci-repro-before.xml",
+    ".venv/Scripts/python.exe scripts/test-environment.py --mysql-tests backend/tests/test_sprint3_be8.py::test_query_upgrade_requires_legacy_column_upgrade backend/tests/test_us01_registration.py::test_register_both_roles_atomic_defaults_and_email_id_login[RESEARCH_TEAM] backend/tests/test_sprint3_be8.py::test_query_upgrade_precondition_restores_schema_after_exception --report docs/testing/be8/ci-repro-after.xml",
+    ".venv/Scripts/python.exe -m pytest backend/tests/test_sprint3_be8.py --require-application-model -q --junitxml=docs/testing/be8/ci-fix-sqlite.xml",
+    ".venv/Scripts/python.exe scripts/test-environment.py --mysql-shard 2 3 --report docs/testing/be8/ci-mysql-shard-2.xml"
+  ],
+  "source_sha256_utf8_lf": {
+    "backend/tests/test_sprint3_be8.py": "8d9a8f4f780cb1a101227c1e76f3d8990cab7d82ca173df8e8833c0dfe9413d8",
+    "scripts/test-environment.py": "bb5b1e84272baaa1ca1936011c1b96c1bbf8e6e340710d52895aed7f9fb9b42c",
+    "docs/testing/be8/ci-fix.md": "89a34db080c668fecc97294433c7562d139c4af1105908200f801d1980df3017",
+    "docs/testing/be8/README.md": "46fbfcb29e6146e9237dbc4de7efc807902b142c4017be8f9705425f5747f0f5",
+    "docs/mysql-migration.md": "1a18a85e56db65527c26ad8c19443dd5d42a0b563dec01fde4d0935eb0d562cd"
+  },
+  "artifact_sha256": {
+    "ci-repro-before.xml": "e683ae8aac85e874d65da88d82b30555e48859135e5caf05e217c1b4aa0783f8",
+    "ci-repro-after.xml": "b85bb56a149edf7961521141b36d6f05907f5eeb4d2f37a21cf4f68e2fcc3c6f",
+    "ci-fix-sqlite.xml": "bfdbc9cdc10c2da916943a06c525cfd6cb1c77322a5bf026364b73b6c39fe1f2",
+    "ci-mysql-shard-2.xml": "194d62ebcc92e00099fe0f83c05d574bbfa26fb3955f8434959979e941e0d39b"
+  },
+  "limits": "Local Windows test processes and disposable Docker MySQL, using the complete CI test directory, shard algorithm and order. This is not a new GitLab-hosted pipeline execution. The old job remains tied to 629a037b until the fix is committed and pushed."
+}

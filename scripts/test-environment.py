@@ -75,11 +75,24 @@ def verify_report(report, *, include_be8=False):
         raise RuntimeError("All requested checks must execute and pass; skips are not accepted.")
 
 
+def verify_mysql_report(report):
+    cases = ET.parse(report).getroot().findall(".//testcase")
+    if not cases or any(case.find(tag) is not None for case in cases for tag in ("failure", "error")):
+        raise RuntimeError("The selected MySQL tests must execute without failures or errors.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--include-be8", action="store_true", help="Also run BE-8 against the disposable MySQL server with the required real model.")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--include-be8", action="store_true", help="Also run BE-8 against the disposable MySQL server with the required real model.")
+    selection.add_argument("--mysql-shard", nargs=2, type=int, metavar=("INDEX", "TOTAL"),
+                           help="Run a complete CI MySQL shard in its normal collection order.")
+    selection.add_argument("--mysql-tests", nargs="+", metavar="NODE",
+                           help="Run selected MySQL test nodes in the supplied order.")
     parser.add_argument("--report", type=Path, help="Write JUnit evidence to this path instead of the temporary report directory.")
     args = parser.parse_args()
+    if args.mysql_shard and not 1 <= args.mysql_shard[0] <= args.mysql_shard[1]:
+        parser.error("--mysql-shard requires 1 <= INDEX <= TOTAL.")
     docker = shutil.which("docker")
     if not docker:
         raise RuntimeError("Install Docker Desktop and start its Linux engine first.")
@@ -131,20 +144,34 @@ def main():
                f"{match[1]}/banana_environment_test?charset=utf8mb4")
         wait_for_mysql(url)
         env = {**os.environ, "MYSQL_TEST_DATABASE_URL": url}
-        label = "14 MySQL/Docker checks plus BE-8 MySQL checks" if args.include_be8 else "14 MySQL/Docker checks"
-        tests = (*TESTS, "backend/tests/test_sprint3_be8.py", "--require-application-model") if args.include_be8 else TESTS
-        print(f"Running all {label} (no skipped checks allowed)...", flush=True)
+        mysql_only = args.mysql_shard is not None or args.mysql_tests is not None
+        index, total = args.mysql_shard or (1, 1)
+        if args.mysql_shard:
+            label = f"CI MySQL shard {index}/{total}"
+            tests = ("backend/tests",)
+        elif args.mysql_tests:
+            label, tests = "selected MySQL tests", args.mysql_tests
+        else:
+            label = "14 MySQL/Docker checks plus BE-8 MySQL checks" if args.include_be8 else "14 MySQL/Docker checks"
+            tests = (*TESTS, "backend/tests/test_sprint3_be8.py", "--require-application-model") if args.include_be8 else TESTS
+        flags = ["--run-mysql", f"--shard-index={index}", f"--shard-total={total}"]
+        flags += ["-q", "--durations=10"] if args.mysql_shard else ["-v", "--tb=short"]
+        if not mysql_only:
+            flags.append("--run-docker")
+        print(f"Running {label}...", flush=True)
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", *tests, "--run-mysql", "--run-docker",
-             "--shard-index=1", "--shard-total=1", "-v", "-rs", "--tb=short",
-             f"--junitxml={report}"],
+            [sys.executable, "-m", "pytest", *tests, *flags, "-rs", f"--junitxml={report}"],
             cwd=ROOT, env=env,
         )
         print(f"Test report: {report}", flush=True)
         if result.returncode:
             return result.returncode
-        verify_report(report, include_be8=args.include_be8)
-        print(f"All {label} passed with zero skips.", flush=True)
+        if mysql_only:
+            verify_mysql_report(report)
+            print(f"{label} completed without failures or errors; see the report for optional skips.", flush=True)
+        else:
+            verify_report(report, include_be8=args.include_be8)
+            print(f"All {label} passed with zero skips.", flush=True)
         return 0
     finally:
         if container and re.fullmatch(r"[0-9a-f]{64}", container):

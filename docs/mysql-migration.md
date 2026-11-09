@@ -170,6 +170,10 @@ For Sprint 3 BE-8, add `--include-be8` to also verify query/filter/page equivale
 batch-query bounds and the required real application model on the disposable MySQL server.
 Use `--report docs/testing/be8/mysql-docker.xml` to retain the combined acceptance report.
 See [BE-8 query measurements and index upgrades](testing/be8/README.md).
+For CI ordering regressions, `--mysql-shard 2 3` runs the complete MySQL shard in
+its normal collection order. `--mysql-tests NODE ...` preserves a chosen sequence
+of test nodes. Both modes use a disposable MySQL container; see the
+[BE-8 shared-schema regression](testing/be8/ci-fix.md).
 
 For connection and transaction configuration, see the [SQLAlchemy MySQL documentation](https://docs.sqlalchemy.org/en/20/dialects/mysql.html).
 For timestamp precision, see the [MySQL fractional seconds documentation](https://dev.mysql.com/doc/refman/8.4/en/fractional-seconds.html).

@@ -11,6 +11,7 @@ from sqlalchemy.schema import CreateIndex
 from backend.src.db.models import (Opportunity, PrivacySettings, PrivacyVisibleField,
                                    TalentProfile, User)
 from backend.src.db.opportunity_read import serialize_many
+from backend.src.db.opportunity_upgrade import upgrade_opportunity_search
 from backend.src.db.query_upgrade import QUERY_INDEXES, upgrade_query_indexes
 from backend.src.features.matching import repository, service, team_repository, team_service
 from backend.src.features.matching.engine import evaluate_opportunity, team_evidence
@@ -20,6 +21,7 @@ from backend.src.shared.search import opportunity_matches, search_parameters, ta
 from backend.src.shared.validation import validator
 from backend.tests.be8_data import (MANIFEST, NOW, OWNER, TARGET, TEAM,
                                    authenticated_client, seed_dataset)
+from test_us04 import make_opportunity, research_team
 
 
 @pytest.fixture(params=MANIFEST["sizes"], ids=lambda value: f"n{value}")
@@ -286,12 +288,42 @@ def test_query_upgrade_rejects_uninitialised_database(tmp_path):
         database.engine.dispose()
 
 
-def test_query_upgrade_requires_legacy_column_upgrade(app):
-    database = app.extensions["database"]
-    with database.engine.begin() as connection:
-        for index in Opportunity.__table__.indexes:
-            if index.name in QUERY_INDEXES:
-                index.drop(connection)
-        connection.exec_driver_sql("ALTER TABLE opportunities DROP COLUMN expired_at")
-    result = app.test_cli_runner().invoke(args=["upgrade-query-indexes"])
-    assert result.exit_code != 0 and "upgrade-opportunity-search" in result.output
+@contextmanager
+def without_expired_column(database):
+    # MySQL fixtures clear rows between tests, but deliberately reuse the schema.
+    # DDL commits independently, so even an interrupted assertion needs repair.
+    try:
+        with database.engine.begin() as connection:
+            for index in Opportunity.__table__.indexes:
+                if index.name in QUERY_INDEXES:
+                    index.drop(connection, checkfirst=True)
+            connection.exec_driver_sql("ALTER TABLE opportunities DROP COLUMN expired_at")
+        yield
+    finally:
+        upgrade_opportunity_search(database)
+        upgrade_query_indexes(database)
+
+
+def assert_opportunity_schema_usable(app, team):
+    inspector = inspect(app.extensions["database"].engine)
+    assert set(Opportunity.__table__.columns.keys()) <= {
+        column["name"] for column in inspector.get_columns("opportunities")}
+    assert QUERY_INDEXES <= {index["name"] for index in inspector.get_indexes("opportunities")}
+    item = make_opportunity(team)
+    response = team[0].get("/api/v1/opportunities")
+    assert response.status_code == 200, response.get_json()
+    assert item["id"] in {row["id"] for row in response.get_json()["items"]}
+
+
+def test_query_upgrade_requires_legacy_column_upgrade(app, research_team):
+    with without_expired_column(app.extensions["database"]):
+        result = app.test_cli_runner().invoke(args=["upgrade-query-indexes"])
+        assert result.exit_code != 0 and "upgrade-opportunity-search" in result.output
+    assert_opportunity_schema_usable(app, research_team)
+
+
+def test_query_upgrade_precondition_restores_schema_after_exception(app, research_team):
+    with pytest.raises(RuntimeError, match="Interrupted legacy-schema test"):
+        with without_expired_column(app.extensions["database"]):
+            raise RuntimeError("Interrupted legacy-schema test")
+    assert_opportunity_schema_usable(app, research_team)
