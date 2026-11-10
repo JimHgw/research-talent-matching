@@ -172,6 +172,16 @@ def create_app(config=None):
             raise click.ClickException(str(error)) from None
         click.echo("Opportunity search storage upgraded." if changed else "Opportunity search storage is current.")
 
+    @app.cli.command("upgrade-query-indexes")
+    def upgrade_query_indexes_command():
+        """Add BE-8 indexes to existing opportunity tables, without changing rows."""
+        from .db.query_upgrade import upgrade_query_indexes
+        try:
+            changed = upgrade_query_indexes(app.extensions["database"])
+        except ValueError as error:
+            raise click.ClickException(str(error)) from None
+        click.echo("Query indexes upgraded." if changed else "Query indexes are current.")
+
     @app.cli.command("provision-user")
     @click.option("--email", required=True)
     @click.option("--display-name", required=True)

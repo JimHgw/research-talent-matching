@@ -124,7 +124,7 @@ semantic_evaluation:
   script:
     - python -m backend.src.features.matching.evaluate_semantic --download-model --output reports/us13-results.json
     - python -m backend.src.features.matching.prepare_semantic
-    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
+    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py backend/tests/test_sprint3_be8.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
   cache:
     key: minilm-us13-1110a243-application-e8f8c211
     paths:

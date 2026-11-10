@@ -1,6 +1,5 @@
 from ...db.models import utcnow
 from ...shared.validation import ApiError
-from ...shared.search import opportunity_matches
 from .engine import evaluate_opportunity
 from .semantic_runtime import enrich_matches
 from .repository import (
@@ -44,9 +43,7 @@ def recommendations(db, user, page, page_size, filters=None):
     items = []
     pairs = []
 
-    for opportunity in list_published(db):
-        if not opportunity_matches(opportunity, filters or {}):
-            continue
+    for opportunity in list_published(db, filters):
         results, summary = evaluate_opportunity(opportunity, snapshot)
         pairs.append((opportunity, snapshot, results, summary))
         items.append({
@@ -60,16 +57,13 @@ def recommendations(db, user, page, page_size, filters=None):
 
 def ranked_page(items, page, page_size):
     items.sort(key=ranking_key)
-    ranked = [
-        {"rank": index, **item}
-        for index, item in enumerate(items, start=1)
-    ]
     start = (page - 1) * page_size
     return {
-        "items": ranked[start:start + page_size],
+        "items": [{"rank": index, **item}
+                  for index, item in enumerate(items[start:start + page_size], start=start + 1)],
         "page": page,
         "pageSize": page_size,
-        "total": len(ranked),
+        "total": len(items),
     }
 
 

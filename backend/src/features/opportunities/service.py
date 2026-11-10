@@ -11,8 +11,9 @@ from sqlalchemy import select
 from ...db.models import Opportunity, Tag, utcnow
 from ...db.skills import normalise_title
 from ...shared.validation import ApiError, SOURCE_URL_ERROR, invalid, validate
-from ...shared.search import opportunity_matches, parse_datetime
+from ...shared.search import parse_datetime
 from .availability import active_predicates, availability
+from .queries import filtered_rows
 from .repository import replace_content, serialize, serialize_many
 
 
@@ -42,10 +43,9 @@ def list_opportunities(db, user, scope, page, page_size, filters=None):
         query = select(Opportunity).where(Opportunity.owner_user_id == user.id)
     else:
         query = published_opportunities(now)
-    rows = list(db.scalars(query.order_by(Opportunity.updated_at.desc(), Opportunity.id)))
-    items = [item for item in serialize_many(db, rows, now) if opportunity_matches(item, filters or {})]
-    offset = (page - 1) * page_size
-    return {"items": items[offset:offset + page_size], "page": page, "pageSize": page_size, "total": len(items)}
+    rows, total = filtered_rows(db, query.order_by(Opportunity.updated_at.desc(), Opportunity.id),
+                                filters, page=page, page_size=page_size)
+    return {"items": serialize_many(db, rows, now), "page": page, "pageSize": page_size, "total": total}
 
 
 def check_source_url(value):

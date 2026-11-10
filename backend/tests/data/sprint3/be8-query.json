@@ -1,0 +1,12 @@
+{
+  "version": "be8-query-v1",
+  "referenceTime": "2030-01-15T00:00:00",
+  "sizes": [100, 1000],
+  "pageSize": 20,
+  "warmups": 3,
+  "samples": 30,
+  "opportunityStatesByModulo10": ["DRAFT", "DEADLINE_PAST", "RETAINED_EXPIRED", "DEADLINE_EQUAL", "ACTIVE", "ACTIVE", "ACTIVE", "ACTIVE", "ACTIVE", "ACTIVE"],
+  "talentExclusionsByModulo10": ["NO_CONSENT", "UNCONFIRMED", "INACTIVE", "WRONG_ROLE", "HIDDEN_FIELDS", "HIDDEN_SKILLS", "VISIBLE", "VISIBLE", "VISIBLE", "VISIBLE"],
+  "opportunityFilters": {"q": "研究", "university": ["ｕｎｓｗ sydney", "usyd"], "disciplineGroup": "STEM", "opportunityType": ["PHD", "MASTERS"], "deadlineFrom": "2030-01-15T00:00:00Z", "deadlineTo": "2031-01-01T00:00:00Z"},
+  "talentFilters": {"interestTagId": "interest_ml", "skill": "python", "university": "UNSW"}
+}

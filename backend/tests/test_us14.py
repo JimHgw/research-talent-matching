@@ -172,6 +172,10 @@ def test_additive_upgrade_preserves_old_opportunities_and_is_repeatable(app, res
     database = app.extensions["database"]
     # Drop just the new nullable columns to reproduce the exact old table shape.
     with database.engine.begin() as connection:
+        # BE-8's active-page index depends on expired_at; legacy tables had neither.
+        for index in Opportunity.__table__.indexes:
+            if index.name == "ix_opportunities_active_page":
+                index.drop(connection, checkfirst=True)
         for name in ("opportunity_type", "deadline_at", "expired_at"):
             connection.exec_driver_sql(f"ALTER TABLE opportunities DROP COLUMN {name}")
     assert upgrade_opportunity_search(database)
