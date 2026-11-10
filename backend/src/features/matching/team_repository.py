@@ -3,8 +3,8 @@
 from sqlalchemy import select
 
 from ...db.models import (Opportunity, PrivacySettings, PrivacyVisibleField,
-                          PersonalInterestTag, ProfileInterest, ProfileTextDetails,
-                          ProfilePersonalInterest, TalentProfile, Tag, User)
+                          ProfileInterest, ProfileTextDetails, TalentProfile, Tag, User)
+from ...db.interests import read_personal_tags_many
 from ...db.opportunity_read import serialize
 from ...db.skills import read_skills_many
 from ...shared.validation import ApiError, validate
@@ -106,14 +106,8 @@ def visible_profiles(db, profiles):
         for talent_id, interest_text in db.execute(select(ProfileTextDetails.talent_id, ProfileTextDetails.research_interest_text)
                                                    .where(ProfileTextDetails.talent_id.in_(interest_ids))):
             visible[talent_id]["fields"]["researchInterestText"] = interest_text
-        rows = db.execute(select(ProfilePersonalInterest.talent_id, PersonalInterestTag).join(
-            PersonalInterestTag,
-            (ProfilePersonalInterest.tag_id == PersonalInterestTag.id)
-            & (ProfilePersonalInterest.talent_id == PersonalInterestTag.talent_id),
-        ).where(ProfilePersonalInterest.talent_id.in_(interest_ids))
-          .order_by(ProfilePersonalInterest.talent_id, ProfilePersonalInterest.position))
-        for talent_id, tag in rows:
-            visible[talent_id]["fields"]["customInterestTags"].append({"id": tag.id, "label": tag.label})
+        for talent_id, tags in read_personal_tags_many(db, interest_ids).items():
+            visible[talent_id]["fields"]["customInterestTags"] = tags
     return list(visible.values())
 
 

@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from sqlalchemy import delete, select
 
-from .models import (ProfileComponentOrigin, PersonalInterestTag, ProfileTextDetails,
+from .models import (ProfileComponentOrigin, PersonalInterestTag, PersonalInterestTagDetails, ProfileTextDetails,
                      ProfilePersonalInterest, Tag)
 from ..shared.validation import invalid
 
@@ -19,16 +19,35 @@ def normalise_label(label):
     return display, display.casefold()
 
 
-def profile_components(db, talent_id):
-    details = db.get(ProfileTextDetails, talent_id)
-    tags = db.scalars(select(PersonalInterestTag).join(
-        ProfilePersonalInterest,
+def serialize_personal_tag(tag_id, label, description):
+    result = {"id": tag_id, "label": label}
+    if description is not None:
+        result["description"] = description
+    return result
+
+
+def read_personal_tags_many(db, talent_ids):
+    result = {talent_id: [] for talent_id in talent_ids}
+    if not result:
+        return result
+    rows = db.execute(select(ProfilePersonalInterest.talent_id, PersonalInterestTag.id,
+                             PersonalInterestTag.label, PersonalInterestTagDetails.description).join(
+        PersonalInterestTag,
         (ProfilePersonalInterest.tag_id == PersonalInterestTag.id)
         & (ProfilePersonalInterest.talent_id == PersonalInterestTag.talent_id),
-    ).where(ProfilePersonalInterest.talent_id == talent_id).order_by(ProfilePersonalInterest.position))
+    ).outerjoin(PersonalInterestTagDetails, PersonalInterestTagDetails.tag_id == PersonalInterestTag.id)
+      .where(ProfilePersonalInterest.talent_id.in_(result))
+      .order_by(ProfilePersonalInterest.talent_id, ProfilePersonalInterest.position))
+    for talent_id, tag_id, label, description in rows:
+        result[talent_id].append(serialize_personal_tag(tag_id, label, description))
+    return result
+
+
+def profile_components(db, talent_id):
+    details = db.get(ProfileTextDetails, talent_id)
     return {"researchInterestText": details.research_interest_text if details else "",
             "resumeDescription": details.resume_description if details else "",
-            "customInterestTags": [{"id": tag.id, "label": tag.label} for tag in tags]}
+            "customInterestTags": read_personal_tags_many(db, [talent_id])[talent_id]}
 
 
 def resolve_personal_tags(db, talent_id, proposals, shared_ids, field):
@@ -40,6 +59,17 @@ def resolve_personal_tags(db, talent_id, proposals, shared_ids, field):
     owned = list(db.scalars(select(PersonalInterestTag).where(PersonalInterestTag.talent_id == talent_id)))
     by_id = {tag.id: tag for tag in owned}
     by_label = {tag.normalised_label: tag for tag in owned}
+    details = {row.tag_id: row for row in db.scalars(select(PersonalInterestTagDetails).join(
+        PersonalInterestTag, PersonalInterestTagDetails.tag_id == PersonalInterestTag.id
+    ).where(PersonalInterestTag.talent_id == talent_id))}
+    descriptions = {}
+    for index, proposal in enumerate(proposals):
+        if "description" not in proposal:
+            continue
+        key = normalise_label(proposal["label"])[1]
+        if key in descriptions and descriptions[key] != proposal["description"]:
+            invalid(f"{field}.{index}.description", "Duplicate interest labels must have the same description.")
+        descriptions[key] = proposal["description"]
     shared = {}
     for tag in db.scalars(select(Tag).where(Tag.kind == "INTEREST").order_by(Tag.id)):
         shared.setdefault(normalise_label(tag.label)[1], tag.id)
@@ -60,13 +90,16 @@ def resolve_personal_tags(db, talent_id, proposals, shared_ids, field):
         if key in seen_labels:
             continue
         seen_labels.add(key)
+        tag = by_label.get(key) or by_id.get(tag_id)
+        previous_details = details.get(tag.id) if tag is not None else None
+        description = descriptions.get(key, previous_details.description if previous_details else None)
         if key in shared:
             if shared[key] not in resolved_shared:
                 resolved_shared.append(shared[key])
-            continue
-        tag = by_label.get(key)
-        if tag is None:
-            tag = by_id.get(tag_id)
+            # Keep a described personal entry as well as its shared matching tag.
+            if description is None:
+                continue
+        if key not in by_label:
             if tag is None:
                 tag = PersonalInterestTag(id="personal_" + uuid4().hex, talent_id=talent_id,
                                           label=display, normalised_label=key)
@@ -77,21 +110,28 @@ def resolve_personal_tags(db, talent_id, proposals, shared_ids, field):
             if plans[tag.id][2] != key:
                 invalid(path + ".id", "A personal tag cannot be selected with conflicting labels.")
             continue
-        plans[tag.id] = (tag, canonical_display, key)
+        plans[tag.id] = (tag, canonical_display, key, description)
         selected.append(tag)
     if len(resolved_shared) + len(selected) > 100:
         invalid(field, "Select at most 100 shared and personal interest tags combined.")
     # Plan the entire selection before mutating catalogue rows, so aliases and
     # renames cannot create duplicate selections or transient uniqueness errors.
     new_tags = []
-    for tag, display, key in plans.values():
+    for tag, display, key, description in plans.values():
         tag.label, tag.normalised_label = display, key
         if tag.id not in by_id:
             new_tags.append(tag)
     db.flush()
     db.add_all(new_tags)
     db.flush()
-    return [{"id": tag.id, "label": tag.label} for tag in selected], resolved_shared
+    for tag, _, _, description in plans.values():
+        if description is not None:
+            detail = details.get(tag.id)
+            if detail is None:
+                db.add(PersonalInterestTagDetails(tag_id=tag.id, description=description))
+            else:
+                detail.description = description
+    return [serialize_personal_tag(tag.id, tag.label, plans[tag.id][3]) for tag in selected], resolved_shared
 
 
 def replace_personal_selection(db, talent_id, entries):
