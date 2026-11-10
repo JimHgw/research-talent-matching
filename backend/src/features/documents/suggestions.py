@@ -8,6 +8,13 @@ from ...shared.validation import validator
 from .academic import extract_academic_records
 from .skill_suggestions import free_skill_suggestions
 
+PROJECT_HEADINGS = (
+    "projects", "project experience", "selected projects", "academic projects",
+    "personal projects", "research projects", "course projects",
+    "portfolio", "technical portfolio", "project portfolio", "capstone projects",
+    "competitions", "hackathons",
+    "项目经历", "项目经验", "个人项目", "课程项目", "研究项目", "竞赛经历",
+)
 
 HEADINGS = {
     "education": ("education", "academic qualifications", "qualifications", "教育背景", "教育经历"),
@@ -15,7 +22,7 @@ HEADINGS = {
     "researchExperience": ("research experience", "research experiences", "科研经历", "研究经历"),
     "skills": ("skills", "technical skills", "programming skills", "专业技能", "技能"),
     "researchInterests": ("research interests", "research interest", "interests", "研究兴趣", "研究方向"),
-    "researchOutputs": ("research outputs", "publications", "projects", "research projects", "科研成果", "研究成果"),
+    "researchOutputs": ("research outputs", "publications", "selected publications","科研成果", "研究成果",) + PROJECT_HEADINGS,
 }
 SCHEMAS = {
     "education": "Education", "courses": "Course",
@@ -41,7 +48,13 @@ OTHER_HEADINGS = {"work experience", "employment", "professional experience", "a
                   "contact", "personal information", "references", "languages", "certifications",
                   "工作经历", "联系方式", "个人信息", "获奖经历", "自我评价"}
 
-OTHER_HEADINGS |= {"additional information", "availability"}
+OTHER_HEADINGS |= {
+    "additional information", "availability",
+    "intern experience", "internship experience", "work history",
+    "employment history", "leadership", "volunteering", "volunteer experience",
+    "leadership and volunteering", "实习经历",
+}
+
 def new_extraction_result(document_id):
     return {"documentId": document_id, "status": "READY", "suggestedSections": {},
             "uncertainFields": [], "warnings": ["Review all suggestions before saving."],
@@ -66,7 +79,43 @@ def _heading(line, names):
 
     return None, ""
 
-def _sections(text):
+def _normalise_cv_headings(text):
+    """Recover standalone headings split into individual letters by PDF export."""
+    known = {name for names in HEADINGS.values() for name in names} | OTHER_HEADINGS
+    by_letters = {re.sub(r"\s+", "", name.casefold()): name for name in known}
+    output, extra_headings = [], set()
+
+    for raw in text.splitlines():
+        value = raw.strip().rstrip(":：").strip()
+        value = value.replace("\u00a0", " ").replace("\u202f", " ")
+        parts = value.split()
+        if len(parts) < 4 or not all(re.fullmatch(r"[A-Za-z&/]", part) for part in parts):
+            output.append(raw)
+            continue
+
+        heading = by_letters.get("".join(parts).casefold())
+        if heading is None:
+            groups = re.split(r" {2,}|\t+", value)
+            heading = " ".join("".join(group.split()) for group in groups).upper()
+            extra_headings.add(heading.casefold())
+        output.append(heading)
+
+    return "\n".join(output), extra_headings
+
+def _looks_like_project_heading(line):
+    """Recognise short uppercase headings with common project-section words."""
+    title = line.rstrip(":：").strip()
+    return (
+        title.isupper()
+        and len(title.split()) <= 8
+        and bool(re.fullmatch(r"[A-Z][A-Z &/–-]*", title))
+        and bool(re.search(
+            r"\b(?:PROJECTS?|COMPETITIONS?|HACKATHONS?|CAPSTONES?|PORTFOLIO|BUILDS)$",
+            title,
+        ))
+    )
+
+def _sections(text, extra_headings=()):
     aliases = {
         alias: section
         for section, names in HEADINGS.items()
@@ -76,21 +125,33 @@ def _sections(text):
     active = None
 
     for raw in text.splitlines():
+        raw = re.sub(r"^\s*[\ue000-\uf8ff]\s+", "• ", raw)
         line = _clean(raw)
-        heading, remainder = _heading(
-            line, set(aliases) | OTHER_HEADINGS
-        )
+        heading, remainder = _heading(line, set(aliases) | OTHER_HEADINGS)
+
+        if (
+            heading is None
+            and active != "researchOutputs"
+            and _looks_like_project_heading(line)
+        ):
+            heading = "projects"
 
         if active == "skills" and heading == "languages" and remainder:
             sections[active].append((line, line))
         elif heading in aliases:
             active = aliases[heading]
+            if active == "researchOutputs":
+                sections[active].append(("", heading))
             if remainder:
                 sections[active].append((remainder, line))
-        elif heading in OTHER_HEADINGS:
+        elif (
+            heading in OTHER_HEADINGS
+            or line.casefold().rstrip(":：").strip() in extra_headings
+        ):
             active = None
         elif active:
-            sections[active].append((line, line))
+            source = raw if active == "researchOutputs" else line
+            sections[active].append((line, source))
 
     return sections
 
@@ -192,8 +253,11 @@ def _records(section, lines):
     """Keep labelled blocks together; output layout gaps need not start a record."""
     block = []
     block_keys = set()
-    for index, (value, _) in enumerate(lines):
-        if not value and section == "researchOutputs" and block_keys:
+    for index, (value, source) in enumerate(lines):
+        if (
+            not value and section == "researchOutputs" and block_keys
+            and source not in HEADINGS["researchOutputs"]
+        ):
             # Inspect the next paragraph once per run of blank lines. A repeated
             # field marks a new record, including URL-first paragraphs with a title.
             if index and not lines[index - 1][0]:
@@ -387,75 +451,191 @@ def _cv_lines(section, lines):
     if section != "researchOutputs":
         return lines, []
 
-    date = r"\d{4}(?:[./]\d{1,2})?"
-    marker = re.compile(
-        rf"^(?:team\s+)?project\s*\|\s*{date}\s*[-–—]\s*"
-        rf"(?:{date}|present|current)"
-        rf"(?:\s*\(expected\))?$",
+    month = (
+        r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|"
+        r"Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|"
+        r"Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?"
+    )
+    year = r"(?:19|20)\d{2}"
+    date = (
+        rf"(?:{month}\s+{year}|(?:0?[1-9]|1[0-2])[/.-]{year}|"
+        rf"{year}(?:[./-](?:0?[1-9]|1[0-2])|年(?:\d{{1,2}}月)?)?)"
+    )
+    date_span = re.compile(
+        rf"(?:{month}\s*[-–—]\s*{month}\s+{year}|"
+        rf"{date}(?:\s*(?:[-–—~至]|\bto\b)\s*"
+        rf"(?:{date}|present|current|ongoing|至今))?)(?:\s*\(expected\))?",
         re.I,
     )
-
-    # Retain gaps so _records can distinguish layout spacing from a new output.
+    date_tail = re.compile(rf"(?<!\S)\(?{date_span.pattern}\)?$", re.I)
+    separator = re.compile(r"\s*[|\t·]\s*| {2,}")
+    role = re.compile(
+        r"(?:(?:team|group|individual|personal|academic|research|course|capstone)\s+)?project"
+        r"|(?:团队|个人|课程|研究)?项目",
+        re.I,
+    )
+    metadata = re.compile(
+        r"^(?:tech(?:nology)? stack|technologies|tools|stack|role|dates?|duration|"
+        r"技术栈|技术|角色|时间)\s*[:：]",
+        re.I,
+    )
+    bullet = re.compile(r"^\s*(?:[•●⚫▪◦]\s*|[-*]\s+|\d+[.)]\s+)")
+    action = re.compile(
+        r"^(?:built|developed|implemented|designed|created|tested|improved|"
+        r"evaluated|led|worked|used|wrote|collaborated|maintained)\b"
+        r"|^(?:负责|实现了|开发了|完成了)",
+        re.I,
+    )
+    explicit = re.compile(
+        r"^(?:title|type)\s*[:\t]|^(?:project|publication|other)\s*[:|\t]",
+        re.I,
+    )
+    url_pattern = re.compile(
+        r"https?://[^\s<>|]+|(?:[\w-]+\.)+[a-z]{2,}/[^\s<>|]+", re.I,
+    )
     rows = list(lines)
     converted, issues = [], []
-    index = 0
 
-    def project_date_index(title_index):
-        if not rows[title_index][0]:
+    def is_heading(index):
+        value, source = rows[index]
+        return not value and source in HEADINGS["researchOutputs"]
+
+    def next_line(index):
+        index += 1
+        while index < len(rows) and not rows[index][0]:
+            if is_heading(index):
+                return None
+            index += 1
+        return index if index < len(rows) else None
+
+    def link(value):
+        value = re.sub(
+            r"^(?:url|link|repo(?:sitory)?|github)\s*[:：]\s*", "",
+            value, flags=re.I,
+        ).rstrip(".,;，。；")
+        if not url_pattern.fullmatch(value):
             return None
-        date_index = title_index + 1
-        while date_index < len(rows) and not rows[date_index][0]:
-            date_index += 1
-        if date_index < len(rows) and marker.fullmatch(rows[date_index][0]):
-            return date_index
+        scheme, mark, rest = value.partition("://")
+        return scheme.lower() + mark + rest if mark else "https://" + value
+
+    def has_date(cells):
+        return any(
+            date_span.fullmatch(metadata.sub("", cell).strip())
+            for cell in cells
+        )
+
+    def title_like(value):
+        return (
+            0 < len(value) <= 300 and len(value.split()) <= 24
+            and not action.match(value) and not explicit.match(value)
+            and not metadata.match(value) and not role.fullmatch(value)
+            and not link(value) and not date_span.fullmatch(value)
+            and not re.match(r"^(?:description|url)\s*[:\t]", value, re.I)
+            and not value.endswith((".", "!", "?", "。", "！", "？"))
+        )
+
+    def project_start(index, in_projects):
+        value, raw = rows[index]
+        value = re.sub(r"^\d+[.)]\s+", "", value)
+        cells = separator.split(value)
+
+        if in_projects and not explicit.match(value) and not link(value):
+            if len(cells) > 1 and title_like(cells[0]) and has_date(cells[1:]):
+                return cells[0], index, True
+
+            dated = date_tail.search(value)
+            if dated:
+                prefix = value[:dated.start()].rstrip(" |·–—-(")
+                title = separator.split(prefix, maxsplit=1)[0].strip()
+                if title_like(title):
+                    return title, index, True
+
+        if len(cells) != 1 or not title_like(value):
+            return None
+
+        after = next_line(index)
+        if after is None:
+            return None
+        following, original = rows[after]
+        following_cells = separator.split(following)
+        dated = has_date(following_cells)
+
+        if role.fullmatch(following_cells[0]) and has_date(following_cells[1:]):
+            return value, after, True
+        if in_projects and (
+            dated or metadata.match(following)
+            or (not bullet.match(raw) and (link(following) or bullet.match(original)))
+        ):
+            return value, after, dated
         return None
 
+    index = 0
+    in_projects = False
+    allow_legacy = False
     while index < len(rows):
-        date_index = project_date_index(index)
-        if date_index is None:
+        if is_heading(index):
+            heading = rows[index][1]
+            in_projects = heading in PROJECT_HEADINGS
+            allow_legacy = heading not in {"publications", "selected publications"}
             converted.append(rows[index])
             index += 1
             continue
 
-        title = rows[index][0]
-        end = date_index + 1
+        entry = project_start(index, in_projects) if allow_legacy else None
+        if entry is None:
+            converted.append(rows[index])
+            index += 1
+            continue
 
+        title, cue_index, dated_title = entry
+        end = cue_index + 1
+        seen_description = bool(
+            cue_index > index
+            and (bullet.match(rows[cue_index][1]) or action.match(rows[cue_index][0]))
+        )
         while end < len(rows):
-            if project_date_index(end) is not None:
+            value, raw = rows[end]
+            if is_heading(end) or explicit.match(value):
                 break
 
-            key = (
-                re.split(r"[:\t]", rows[end][0], maxsplit=1)[0]
-                .strip().casefold()
-            )
-            if key in ("title", "type") or re.match(
-                r"^(PUBLICATION|PROJECT|OTHER)\s*[:|\t]",
-                rows[end][0],
-                re.I,
-            ):
+            next_entry = project_start(end, in_projects)
+            if next_entry and (next_entry[2] or seen_description or not dated_title):
                 break
 
+            if re.match(r"^url\s*[:\t]", value, re.I):
+                after = next_line(end)
+                if after is not None and explicit.match(rows[after][0]):
+                    break
+
+            if bullet.match(raw) or action.match(value):
+                seen_description = True
             end += 1
 
         source = " ".join(value for value, _ in rows[index:end] if value)
+        links = set()
+        for offset, (value, raw) in enumerate(rows[index:end]):
+            if offset and (bullet.match(raw) or action.match(value)):
+                break
+            links.update(url for cell in separator.split(value) if (url := link(cell)))
+
         converted.extend([
             ("", ""),
             ("Title: " + title, title),
-            ("Type: PROJECT", rows[date_index][0]),
+            ("Type: PROJECT", title),
             ("Description: " + source[:5000], source),
-            ("", ""),
         ])
+        if len(links) == 1:
+            url = links.pop()
+            if validator("ResearchOutput").is_valid({
+                "id": "candidate", "title": title, "type": "PROJECT",
+                "description": "", "url": url,
+            }):
+                converted.append(("URL: " + url, url))
+        converted.append(("", ""))
 
         if len(source) > 5000:
-            issues.append(
-                "Project description was shortened to "
-                "5000 characters; consult the original file."
-            )
-
-        issues.append(
-            "Review the project record against the source "
-            "title, dates and description."
-        )
+            issues.append("Project description was shortened to 5000 characters.")
+        issues.append("Review the inferred project title and description against the source.")
         index = end
 
     return converted, issues
@@ -515,10 +695,17 @@ def build_extraction_result(document_id, text, tags):
         if len(description) > 20000:
             result["uncertainFields"].append({"field": "resumeDescription", "status": "UNKNOWN",
                                                "reason": "Resume description was shortened to 20000 characters; consult the original file."})
-    sections = _sections(text)
-    academic, academic_issues = extract_academic_records(text, OTHER_HEADINGS | {
-        alias for section, aliases in HEADINGS.items() if section not in ("education", "courses")
-        for alias in aliases})
+    text, extra_headings = _normalise_cv_headings(text)
+    sections = _sections(text, extra_headings)
+    academic, academic_issues = extract_academic_records(
+        text,
+        OTHER_HEADINGS | extra_headings | {
+            alias
+            for section, aliases in HEADINGS.items()
+            if section not in ("education", "courses")
+            for alias in aliases
+        },
+    )
     for section, lines in sections.items():
         if section == "skills":
             items, issues = free_skill_suggestions(lines)
