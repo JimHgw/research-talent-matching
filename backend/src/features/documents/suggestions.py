@@ -97,8 +97,20 @@ def _normalise_cv_headings(text):
         if heading is None:
             groups = re.split(r" {2,}|\t+", value)
             heading = " ".join("".join(group.split()) for group in groups).upper()
+            if not (
+                _looks_like_project_heading(heading)
+                or re.search(
+                    r"\b(?:EDUCATION|EXPERIENCE|SKILLS|PUBLICATIONS?|CERTIFICATIONS?|"
+                    r"AWARDS|VOLUNTEERING|LEADERSHIP|ACTIVITIES|INTERESTS|COURSES?|"
+                    r"BACKGROUND|HISTORY|SUMMARY)$",
+                    heading,
+                )
+            ):
+                output.append(raw)
+                continue
             extra_headings.add(heading.casefold())
-        output.append(heading)
+
+        output.append(heading.upper() if value.isupper() else heading)
 
     return "\n".join(output), extra_headings
 
@@ -122,24 +134,46 @@ def _sections(text, extra_headings=()):
         for alias in names
     }
     sections = {section: [] for section in HEADINGS}
-    active = None
+    active = active_heading = None
+    rows = text.splitlines()
 
-    for raw in text.splitlines():
+    for index, raw in enumerate(rows):
         raw = re.sub(r"^\s*[\ue000-\uf8ff]\s+", "• ", raw)
         line = _clean(raw)
         heading, remainder = _heading(line, set(aliases) | OTHER_HEADINGS)
 
         if (
             heading is None
-            and active != "researchOutputs"
+            and active_heading not in PROJECT_HEADINGS
+            and raw.strip() == line
             and _looks_like_project_heading(line)
         ):
             heading = "projects"
+
+        # These words can be section headings or ordinary skill names.
+        if active == "skills" and heading in {"leadership", "volunteering"}:
+            after_blank = index > 0 and not rows[index - 1].strip()
+            standalone = raw.strip() == line and not remainder
+            if not (
+                standalone
+                and (line.endswith((":", "：")) or (after_blank and line.isupper()))
+            ):
+                heading, remainder = None, ""
+
+        # A bare portfolio label can be the name of an entry inside Projects.
+        if (
+            active_heading in PROJECT_HEADINGS
+            and heading in {"portfolio", "technical portfolio", "project portfolio"}
+            and not remainder
+            and not line.endswith((":", "："))
+        ):
+            heading = None
 
         if active == "skills" and heading == "languages" and remainder:
             sections[active].append((line, line))
         elif heading in aliases:
             active = aliases[heading]
+            active_heading = heading
             if active == "researchOutputs":
                 sections[active].append(("", heading))
             if remainder:
@@ -148,7 +182,7 @@ def _sections(text, extra_headings=()):
             heading in OTHER_HEADINGS
             or line.casefold().rstrip(":：").strip() in extra_headings
         ):
-            active = None
+            active = active_heading = None
         elif active:
             source = raw if active == "researchOutputs" else line
             sections[active].append((line, source))
@@ -534,6 +568,23 @@ def _cv_lines(section, lines):
             and not value.endswith((".", "!", "?", "。", "！", "？"))
         )
 
+    def continues_previous_line(index):
+        if index == 0 or not rows[index - 1][0]:
+            return False
+
+        previous, previous_raw = rows[index - 1]
+        raw = rows[index][1]
+        previous_indent = len(previous_raw) - len(previous_raw.lstrip())
+        indent = len(raw) - len(raw.lstrip())
+        unfinished = re.search(
+            r"(?:[,/&]|\b(?:and|or|with|using|for|to|of))\s*$",
+            previous,
+            re.I,
+        )
+        return bool(
+            unfinished or (bullet.match(previous_raw) and indent > previous_indent)
+        )
+    
     def project_start(index, in_projects):
         value, raw = rows[index]
         value = re.sub(r"^\d+[.)]\s+", "", value)
@@ -564,7 +615,10 @@ def _cv_lines(section, lines):
             return value, after, True
         if in_projects and (
             dated or metadata.match(following)
-            or (not bullet.match(raw) and (link(following) or bullet.match(original)))
+            or (not bullet.match(raw)
+                and not continues_previous_line(index)
+                and (link(following) or bullet.match(original))
+                )
         ):
             return value, after, dated
         return None
