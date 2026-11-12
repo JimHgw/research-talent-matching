@@ -2,15 +2,14 @@ from sqlalchemy import select
 
 from ...db.models import (
     Opportunity,
-    PersonalInterestTag,
     ProfileInterest,
     ProfileOrigin,
-    ProfilePersonalInterest,
     ProfileTextDetails,
     Tag,
     TalentProfile,
 )
 from ...db.opportunity_read import serialize, serialize_many
+from ...db.interests import read_personal_tags_many
 from ...db.skills import matching_skills, read_skills_many
 from ...shared.validation import ApiError, validate
 from ..opportunities import availability as opportunity_availability
@@ -57,15 +56,9 @@ def read_matching_profile(db, profile):
     }
     interest_text = db.scalar(select(ProfileTextDetails.research_interest_text)
                               .where(ProfileTextDetails.talent_id == profile.talent_id))
-    personal_tags = db.execute(select(PersonalInterestTag.id, PersonalInterestTag.label).join(
-        ProfilePersonalInterest,
-        (ProfilePersonalInterest.tag_id == PersonalInterestTag.id)
-        & (ProfilePersonalInterest.talent_id == PersonalInterestTag.talent_id),
-    ).where(ProfilePersonalInterest.talent_id == profile.talent_id)
-      .order_by(ProfilePersonalInterest.position))
     return {
         "researchInterestText": interest_text or "",
-        "customInterestTags": [{"id": key, "label": label} for key, label in personal_tags],
+        "customInterestTags": read_personal_tags_many(db, [profile.talent_id])[profile.talent_id],
         "revision": profile.revision,
         "skills": skills,
         "skillRecords": skill_records,

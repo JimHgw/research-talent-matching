@@ -233,6 +233,15 @@ class PersonalInterestTag(Base):
                       UniqueConstraint("id", "talent_id"))
 
 
+class PersonalInterestTagDetails(Base):
+    """Add descriptions without changing existing personal-interest catalogue rows."""
+
+    __tablename__ = "personal_interest_tag_details"
+    tag_id: Mapped[str] = mapped_column(ForeignKey("personal_interest_tags.id"), primary_key=True)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    tag: Mapped[PersonalInterestTag] = relationship()
+
+
 class ProfilePersonalInterest(Base):
     __tablename__ = "profile_personal_interests"
     talent_id: Mapped[str] = mapped_column(ForeignKey("talent_profiles.talent_id"), primary_key=True)

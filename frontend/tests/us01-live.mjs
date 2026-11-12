@@ -9,6 +9,7 @@ import {
   change,
   click,
   login,
+  checkbox,
   requests,
 } from './support/live-app.js';
 import { createApi } from '../src/api/client.js';
@@ -48,12 +49,13 @@ try {
   const headings = [...document.querySelectorAll('.profile-fields h3')].map(
     (heading) => heading.textContent
   );
-  assert.ok(!headings.includes('Research interests'));
-  assert.ok(!headings.includes('Research interest description'));
+  assert.ok(headings.includes('Research interests'));
+  assert.ok(headings.includes('Research interest description'));
   assert.ok(headings.includes('Personal interest tags'));
+  await checkbox('Machine learning');
+  await change('Research interest description', 'I study ecological forecasting.');
 
-  // Per-interest descriptions are a frontend change; the backend contract is unchanged.
-  // Check the new editor and its validation, then remove the draft before saving.
+  // Keep the new interest through the real save and reload, including its description.
   await click('Add personal interest');
   assert.equal(field('Personal interest label').validity.valueMissing, true);
   assert.equal(field('Personal interest description').validity.valueMissing, true);
@@ -62,8 +64,6 @@ try {
   await change('Personal interest description', 'Predicting changes in ecosystems.');
   assert.equal(field('Personal interest label').checkValidity(), true);
   assert.equal(field('Personal interest description').checkValidity(), true);
-  await click('Remove personal interest');
-  assert.equal(document.querySelectorAll('.record-list .record').length, 0);
   await click('Save changes');
   await until(() => text().includes('Profile saved.'));
   const api = createApi();
@@ -78,8 +78,14 @@ try {
   assert.equal(saved.content.researchOutputs[0].type, 'PROJECT');
   assert.equal(saved.content.skills[0].title, 'Financial modelling');
   assert.deepEqual(Object.keys(saved.content.skills[0]).sort(), ['evidenceText', 'id', 'title']);
-  assert.deepEqual(saved.content.researchInterests, []);
-  assert.deepEqual(saved.content.customInterestTags, []);
+  assert.deepEqual(saved.content.researchInterests, ['interest_ml']);
+  assert.equal(saved.content.researchInterestText, 'I study ecological forecasting.');
+  assert.equal(saved.content.customInterestTags.length, 1);
+  assert.equal(saved.content.customInterestTags[0].label, 'Ecological forecasting');
+  assert.equal(
+    saved.content.customInterestTags[0].description,
+    'Predicting changes in ecosystems.'
+  );
   assert.deepEqual(Object.keys(saved.content).sort(), [
     'courses',
     'customInterestTags',
@@ -106,8 +112,44 @@ try {
   assert.equal(field('Course code').value, courseCode);
   assert.equal(field('Link (optional)').value, outputUrl);
   assert.equal(field('Skill title').value, 'Financial modelling');
+  assert.equal(field('Research interest description').value, saved.content.researchInterestText);
+  assert.equal(field('Personal interest label').value, 'Ecological forecasting');
+  assert.equal(field('Personal interest description').value, 'Predicting changes in ecosystems.');
+  assert.equal(field('Personal interest description').required, false);
+  assert.equal(
+    [...document.querySelectorAll('label')]
+      .find((label) => label.textContent.trim() === 'Machine learning')
+      .querySelector('input').checked,
+    true
+  );
 
-  await api.saveProfile(1, { ...saved.content, displayName: 'Saved by another tab' });
+  await checkbox('Machine learning');
+  await change('Research interest description', 'Reviewed ecological interests.');
+  await change('Personal interest description', 'Updated ecosystem forecasting interests.');
+  await click('Save changes');
+  await until(() => text().includes('Saved profile revision 2'));
+  const edited = await api.profile();
+  assert.deepEqual(edited.content.researchInterests, []);
+  assert.equal(edited.content.researchInterestText, 'Reviewed ecological interests.');
+  assert.equal(
+    edited.content.customInterestTags[0].description,
+    'Updated ecosystem forecasting interests.'
+  );
+
+  await change('Research interest description', '');
+  await change('Personal interest description', '');
+  await click('Save changes');
+  await until(() => text().includes('Saved profile revision 3'));
+  await remount();
+  await until(() => text().includes('Tell your research story'));
+  assert.equal(field('Research interest description').value, '');
+  assert.equal(field('Personal interest description').value, '');
+
+  const current = await api.profile();
+  await api.saveProfile(current.revision, {
+    ...current.content,
+    displayName: 'Saved by another tab',
+  });
   await change('Display name', 'Keep my draft');
   await click('Save changes');
   await until(() => text().includes('Your profile changed.'));

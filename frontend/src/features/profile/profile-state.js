@@ -35,7 +35,11 @@ export function validateProfile(profile, { previous, operation } = {}) {
     content.customInterestTags === undefined ||
       (Array.isArray(content.customInterestTags) &&
         content.customInterestTags.every(
-          (tag) => isObject(tag) && typeof tag.id === 'string' && typeof tag.label === 'string'
+          (tag) =>
+            isObject(tag) &&
+            typeof tag.id === 'string' &&
+            typeof tag.label === 'string' &&
+            (tag.description === undefined || typeof tag.description === 'string')
         ))
   );
   for (const field of ['researchInterestText', 'resumeDescription'])

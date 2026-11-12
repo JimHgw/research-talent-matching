@@ -6518,6 +6518,10 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000
           }
         },
         "required": [
@@ -6536,6 +6540,11 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "description": "Optional per-interest description. Omit to preserve an existing description; send an empty string to clear it."
           }
         },
         "required": [
