@@ -110,7 +110,7 @@ def _normalise_cv_headings(text):
                 continue
             extra_headings.add(heading.casefold())
 
-        output.append(heading.upper() if value.isupper() else heading)
+        output.append((heading.upper() if value.isupper() else heading) + ":")
 
     return "\n".join(output), extra_headings
 
@@ -162,7 +162,8 @@ def _sections(text, extra_headings=()):
 
         # A bare portfolio label can be the name of an entry inside Projects.
         if (
-            active_heading in PROJECT_HEADINGS
+            active == "researchOutputs"
+            and active_heading not in {"publications", "selected publications"}
             and heading in {"portfolio", "technical portfolio", "project portfolio"}
             and not remainder
             and not line.endswith((":", "："))
@@ -513,7 +514,7 @@ def _cv_lines(section, lines):
         r"技术栈|技术|角色|时间)\s*[:：]",
         re.I,
     )
-    bullet = re.compile(r"^\s*(?:[•●⚫▪◦]\s*|[-*]\s+|\d+[.)]\s+)")
+    bullet = re.compile(r"^\s*(?:[•●⚫▪◦]\s*|[-*–—]\s+|\d+[.)]\s+)")
     action = re.compile(
         r"^(?:built|developed|implemented|designed|created|tested|improved|"
         r"evaluated|led|worked|used|wrote|collaborated|maintained)\b"
@@ -568,27 +569,29 @@ def _cv_lines(section, lines):
             and not value.endswith((".", "!", "?", "。", "！", "？"))
         )
 
-    def continues_previous_line(index):
+    def starts_new_paragraph(index):
+        """A weak title needs a section boundary, blank line or completed sentence."""
         if index == 0 or not rows[index - 1][0]:
-            return False
-
-        previous, previous_raw = rows[index - 1]
-        raw = rows[index][1]
-        previous_indent = len(previous_raw) - len(previous_raw.lstrip())
-        indent = len(raw) - len(raw.lstrip())
-        unfinished = re.search(
-            r"(?:[,/&]|\b(?:and|or|with|using|for|to|of))\s*$",
-            previous,
-            re.I,
-        )
-        return bool(
-            unfinished or (bullet.match(previous_raw) and indent > previous_indent)
-        )
+            return True
+        previous = rows[index - 1][0].rstrip()
+        return previous.endswith((".", "!", "?", "。", "！", "？"))
     
-    def project_start(index, in_projects):
+    def project_start(index, in_projects, inside_project=False):
         value, raw = rows[index]
         value = re.sub(r"^\d+[.)]\s+", "", value)
         cells = separator.split(value)
+
+        after = next_line(index)
+        following, original = rows[after] if after is not None else ("", "")
+        following_cells = separator.split(following)
+        explicit_metadata = (
+            bool(role.fullmatch(following_cells[0]))
+            and has_date(following_cells[1:])
+        )
+
+        # Inside a project, a list item needs explicit metadata to start another project.
+        if inside_project and bullet.match(raw) and not explicit_metadata:
+            return None
 
         if in_projects and not explicit.match(value) and not link(value):
             if len(cells) > 1 and title_like(cells[0]) and has_date(cells[1:]):
@@ -601,24 +604,18 @@ def _cv_lines(section, lines):
                 if title_like(title):
                     return title, index, True
 
-        if len(cells) != 1 or not title_like(value):
+        if len(cells) != 1 or not title_like(value) or after is None:
             return None
-
-        after = next_line(index)
-        if after is None:
-            return None
-        following, original = rows[after]
-        following_cells = separator.split(following)
-        dated = has_date(following_cells)
-
-        if role.fullmatch(following_cells[0]) and has_date(following_cells[1:]):
+        if explicit_metadata:
             return value, after, True
+
+        dated = has_date(following_cells)
         if in_projects and (
             dated or metadata.match(following)
-            or (not bullet.match(raw)
-                and not continues_previous_line(index)
+            or (
+                not bullet.match(raw) and starts_new_paragraph(index)
                 and (link(following) or bullet.match(original))
-                )
+            )
         ):
             return value, after, dated
         return None
@@ -652,7 +649,7 @@ def _cv_lines(section, lines):
             if is_heading(end) or explicit.match(value):
                 break
 
-            next_entry = project_start(end, in_projects)
+            next_entry = project_start(end, in_projects, inside_project=True)
             if next_entry and (next_entry[2] or seen_description or not dated_title):
                 break
 
