@@ -125,20 +125,30 @@ profile PUT, so older clients saving the original eight fields preserve text and
 personal selections. The OpenAPI schemas, examples and existing review/profile
 controls have been extended together.
 
+Personal-interest inputs and saved entries also accept an optional `description`
+of up to 5,000 characters. Saves and reviewed imports retain it with the tag;
+omitting it preserves an existing description, while `""` clears it. Legacy
+label-only entries remain valid. My profile exposes shared research interests,
+the overall research-interest description and personal interests for review,
+editing and removal after an import or reload.
+
 Personal labels use NFKC, collapsed whitespace and case-insensitive exact
 deduplication. Labels have 1–100 visible characters; shared and personal interest
 selections have a combined maximum of 100. Resolve exact shared INTEREST labels
 first, then the current owner's catalogue. A shared match adds its canonical
-shared ID and creates no private duplicate. Unselected owner-local records remain
-available for reuse. IDs from another owner are rejected. No private label enters
+shared ID. Label-only proposals create no private duplicate; a described proposal
+also retains a personal entry so its description is preserved. Duplicate labels
+with conflicting descriptions are rejected instead of discarding text.
+Unselected owner-local records remain available for reuse. IDs from another
+owner are rejected. No private label enters
 GET `/tags`. Stale/invalid/concurrent writes cannot leave orphan tags or partial
 profile updates.
 
 ## Privacy and matching boundary
 
 The existing `researchInterests` privacy control covers shared IDs, interest text
-and selected personal labels together. Team list/detail queries require a current
-confirmed revision and discovery consent, and select only permitted interest
+and selected personal labels and their descriptions together. Team list/detail
+queries require a current confirmed revision and discovery consent, and select only permitted interest
 content. Hiding the group removes all three fields and their influence.
 
 The privacy page lists the eight consent groups accepted by `ProfileField` and
@@ -180,6 +190,8 @@ widens the legacy resume-text column before starting the API/worker.
 The upgrade is additive: `profile_text_details` stores the text components;
 `personal_interest_tags` stores owner-local labels; `profile_personal_interests`
 stores ordered selections with a same-owner foreign key;
+`personal_interest_tag_details` stores optional per-interest descriptions without
+altering existing catalogue rows;
 `profile_component_origins` stores the new components' provenance. Existing tables,
 IDs, profile revisions, confirmations, credentials and document results remain
 unchanged. The original component-table additions require no ALTER; the later

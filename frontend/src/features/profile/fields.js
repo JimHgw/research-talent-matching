@@ -26,6 +26,8 @@ export const fieldConfigs = {
 
 export const profileSections = Object.keys(fieldConfigs).concat([
   'skills',
+  'researchInterests',
+  'researchInterestText',
   'customInterestTags',
   'resumeDescription',
 ]);

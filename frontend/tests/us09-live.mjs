@@ -208,7 +208,7 @@ try {
     'Machine learning; Climate-resilient urban systems'
   );
   assert.equal(field('Personal interest label').value, 'Climate-resilient urban systems');
-  // Extracted legacy tags have no per-interest description in the unchanged API.
+  // Extracted tags may omit the optional per-interest description.
   assert.equal(field('Personal interest description').value, '');
   assert.equal(field('Personal interest description').required, false);
   for (const label of [
@@ -228,6 +228,7 @@ try {
     'Reviewed unified resume description with Python, SQL and ecological forecasting.'
   );
   await change('Personal interest label', 'Ecological forecasting');
+  await change('Personal interest description', 'Reviewed ecosystem forecasting interests.');
   await checkbox(
     'I understand that importing replaces the selected sections in my profile and requires a separate confirmation.'
   );
@@ -243,6 +244,10 @@ try {
   );
   assert.equal(withText.content.customInterestTags.length, 1);
   assert.equal(withText.content.customInterestTags[0].label, 'Ecological forecasting');
+  assert.equal(
+    withText.content.customInterestTags[0].description,
+    'Reviewed ecosystem forecasting interests.'
+  );
   assert.match(withText.content.customInterestTags[0].id, /^personal_/);
   assert.deepEqual(withText.content.skills, confirmed.content.skills);
   assert.deepEqual(withText.content.researchInterests, confirmed.content.researchInterests);
@@ -250,10 +255,14 @@ try {
   const headings = [...document.querySelectorAll('.profile-fields h3')].map(
     (heading) => heading.textContent
   );
-  assert.ok(!headings.includes('Research interests'));
-  assert.ok(!headings.includes('Research interest description'));
+  assert.ok(headings.includes('Research interests'));
+  assert.ok(headings.includes('Research interest description'));
+  assert.equal(field('Research interest description').value, withText.content.researchInterestText);
   assert.equal(field('Personal interest label').value, 'Ecological forecasting');
-  assert.equal(field('Personal interest description').value, '');
+  assert.equal(
+    field('Personal interest description').value,
+    'Reviewed ecosystem forecasting interests.'
+  );
   assert.equal(field('Personal interest description').required, false);
   assert.equal(
     (await api.tags()).items.some((tag) => tag.label === 'Ecological forecasting'),

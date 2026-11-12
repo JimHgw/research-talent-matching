@@ -45,7 +45,12 @@ export default function ProfileSummary({ content, tags }) {
       </p>
       <p>{content.researchInterestText}</p>
       <h5>{t('Personal interest tags')}</h5>
-      <p>{content.customInterestTags?.map((tag) => tag.label).join(', ')}</p>
+      {content.customInterestTags?.map((tag) => (
+        <div key={tag.id}>
+          <strong>{tag.label}</strong>
+          {tag.description && <p>{tag.description}</p>}
+        </div>
+      ))}
       <h5>{t('Resume description')}</h5>
       <p>{content.resumeDescription}</p>
     </div>

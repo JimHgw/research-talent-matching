@@ -9,7 +9,7 @@ import pytest
 from sqlalchemy import func, inspect, select
 
 from backend.src.app import create_app
-from backend.src.db.models import (Base, ProfileComponentOrigin, PersonalInterestTag,
+from backend.src.db.models import (Base, ProfileComponentOrigin, PersonalInterestTag, PersonalInterestTagDetails,
                                    ProfileTextDetails, ProfilePersonalInterest)
 from backend.src.features.documents.suggestions import build_extraction_result
 from backend.src.shared.validation import validator
@@ -333,7 +333,7 @@ def test_visibility_group_shares_interests_but_never_the_whole_resume(app, signe
     content = profile(client)["content"]
     content.update(displayName="Talent", resumeDescription="Private contact: private@example.test",
                    researchInterestText="Public reviewed interest description", researchInterests=["interest_ml"],
-                   customInterestTags=[{"label": "Urban resilience"}])
+                   customInterestTags=[{"label": "Urban resilience", "description": "Climate adaptation research."}])
     saved = checked(save(signed, content, 0))
     opportunity = make_opportunity(research_team, [{"id": "interest", "kind": "INTEREST", "label": "ML",
                          "importance": "REQUIRED", "tagIds": ["interest_ml"]}])
@@ -355,6 +355,7 @@ def test_visibility_group_shares_interests_but_never_the_whole_resume(app, signe
     share([])
     hidden = checked(team.get(f"{url}/{saved['talentId']}"))
     assert hidden["talent"]["fields"] == {}
+    assert "Climate adaptation research." not in json.dumps(hidden)
     assert hidden["summary"]["score"] == 0
     assert hidden["requirements"][0]["status"] == "UNKNOWN"
     share([], False)
@@ -367,7 +368,7 @@ def test_additive_upgrade_preserves_old_tables_and_profiles(tmp_path):
     from backend.src.db.database import Database
     from backend.src.db.models import TalentProfile, User
     database = Database(f"sqlite:///{(tmp_path / 'legacy.db').as_posix()}")
-    added = {model.__tablename__ for model in (ProfileTextDetails, PersonalInterestTag,
+    added = {model.__tablename__ for model in (ProfileTextDetails, PersonalInterestTag, PersonalInterestTagDetails,
                                               ProfilePersonalInterest, ProfileComponentOrigin)}
     try:
         Base.metadata.create_all(database.engine, tables=[table for table in Base.metadata.sorted_tables if table.name not in added])
