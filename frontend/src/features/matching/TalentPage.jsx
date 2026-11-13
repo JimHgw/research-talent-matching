@@ -18,6 +18,7 @@ import {
 import MatchDetails from './MatchDetails.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
+import MatchScore from './MatchScore.jsx';
 
 async function loadPublishedOpportunities({ signal }) {
   const firstPage = await api.opportunities('mine', 1, {}, { signal });
@@ -123,17 +124,7 @@ function TalentResults({
                     .join('')
                     .slice(0, 2)}
                 </span>
-                <span
-                  className="score-chip"
-                  title={t(
-                    item.summary.semanticRequirements || item.summary.semanticInterest
-                      ? 'Recommendation score'
-                      : 'Evidence coverage'
-                  )}
-                >
-                  {item.summary.recommendationScore ?? item.summary.score ?? '—'}
-                  <small>/100</small>
-                </span>
+                <MatchScore summary={item.summary} />
               </div>
               <h3>{item.talent.fields.displayName || t('Anonymous talent')}</h3>
               <p className="muted">

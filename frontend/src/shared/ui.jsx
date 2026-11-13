@@ -191,7 +191,17 @@ export function Modal({ title, children, onClose }) {
   const { t } = useLanguage();
   const ref = useRef();
   useEffect(() => {
-    ref.current.showModal();
+    const dialog = ref.current;
+    const owner = dialog.ownerDocument;
+    const trigger = owner.activeElement;
+    dialog.showModal();
+    return () => {
+      const active = owner.activeElement;
+      if (dialog.open) dialog.close?.();
+      if (trigger?.isConnected && (active === owner.body || dialog.contains(active))) {
+        trigger.focus();
+      }
+    };
   }, []);
   return (
     <dialog

@@ -109,3 +109,31 @@ export function requireMatchDetail(value: unknown) {
   }
   return value;
 }
+
+export function usesRequirementRanking(summary: MatchSummary) {
+  return (
+    summary.rankingAlgorithmVersion === 'requirement-semantic-v1' || !!summary.semanticRequirements
+  );
+}
+
+export function primaryMatchScore(summary: MatchSummary) {
+  if (usesRequirementRanking(summary)) {
+    return {
+      label: 'Weighted score / 100',
+      name: 'Recommendation score',
+      value: summary.recommendationScore ?? null,
+    };
+  }
+  if (
+    summary.rankingAlgorithmVersion === 'hybrid-interest-v1' ||
+    summary.semanticInterest ||
+    summary.recommendationScore !== undefined
+  ) {
+    return {
+      label: 'ranking / 100',
+      name: 'Recommendation score',
+      value: summary.recommendationScore ?? null,
+    };
+  }
+  return { label: 'coverage / 100', name: 'Evidence coverage', value: summary.score };
+}
