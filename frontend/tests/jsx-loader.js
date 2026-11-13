@@ -13,8 +13,9 @@ export async function load(url, context, nextLoad) {
       ),
     };
   }
-  if (!url.endsWith('.jsx')) return nextLoad(url, context);
+  const extension = /\.(jsx|ts|tsx)$/.exec(url)?.[1];
+  if (!extension) return nextLoad(url, context);
   const source = await readFile(new URL(url), 'utf8');
-  const result = await transformWithEsbuild(source, url, { loader: 'jsx', jsx: 'transform' });
+  const result = await transformWithEsbuild(source, url, { loader: extension, jsx: 'transform' });
   return { format: 'module', source: result.code, shortCircuit: true };
 }

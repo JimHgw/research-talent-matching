@@ -3,6 +3,7 @@ import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
+import { requireMatchPage } from '../../api/match-contract.ts';
 import { useResource } from '../../shared/hooks.js';
 import {
   Button,
@@ -49,9 +50,10 @@ function TalentResults({
   const [selected, setSelected] = useState(null);
   const resource = useResource(
     ({ signal }) =>
-      shortlist
+      (shortlist
         ? api.shortlist(opportunityId, page, { signal })
-        : api.talents(opportunityId, page, filters, { signal }),
+        : api.talents(opportunityId, page, filters, { signal })
+      ).then(requireMatchPage),
     [opportunityId, page, shortlist, filters],
     true,
     { retainData: true }
