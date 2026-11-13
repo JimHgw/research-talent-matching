@@ -10,6 +10,7 @@ import MatchDetails from './MatchDetails.jsx';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
+import MatchScore from './MatchScore.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const { t } = useLanguage();
@@ -32,19 +33,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
           <small>{content.university}</small>
           <span className="card-category">{t(content.disciplineGroup)}</span>
         </div>
-        {summary && (
-          <span
-            className="score-chip"
-            title={t(
-              summary.semanticRequirements || summary.semanticInterest
-                ? 'Recommendation score'
-                : 'Evidence coverage'
-            )}
-          >
-            {summary.recommendationScore ?? summary.score ?? '—'}
-            <small>/100</small>
-          </span>
-        )}
+        {summary && <MatchScore summary={summary} />}
       </div>
       <h3>{content.title}</h3>
       <p className="card-description">{content.description}</p>
