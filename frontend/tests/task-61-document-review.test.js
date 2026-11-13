@@ -206,6 +206,53 @@ test('changing a reviewed suggestion or selection requires a fresh acknowledgeme
   assert.equal(dialogButton('Apply reviewed sections').disabled, true);
 });
 
+test('a committed import with an invalid success response requires checking the saved profile', async () => {
+  await documents();
+  await review();
+  await change('Supporting evidence', 'Correction saved by the server');
+  await checkbox('I understand that importing replaces');
+  state.intercept = async (path, options, body) => {
+    if (!path.endsWith('/apply')) return null;
+    const saved = await state.server.dispatch(options.method, path, body);
+    return json({ ...saved, revision: 'unreadable' });
+  };
+  await dialogClick('Apply reviewed sections');
+  assert.match(text(), /The request may have succeeded/);
+  assert.equal(field('Supporting evidence').value, 'Correction saved by the server');
+  assert.equal(dialogButton('Apply reviewed sections').disabled, true);
+  assert.equal(dialogButton('Reload suggestions').disabled, true);
+  await dialogClick('Apply reviewed sections');
+  await dialogClick('Review latest profile');
+  assert.ok(document.querySelector('dialog'));
+  window.confirm = () => true;
+  await dialogClick('Review latest profile');
+  assert.equal(document.querySelector('dialog'), null);
+  assert.match(text(), /Needs confirmation/);
+  assert.equal(field('Supporting evidence').value, 'Correction saved by the server');
+  assert.equal(state.requests.filter((r) => r.path.endsWith('/apply')).length, 1);
+});
+
+test('a late document read cannot replace the next review or its draft', async () => {
+  const [first] = await documents(['first.pdf', 'second.pdf']);
+  let finish;
+  state.intercept = async (path) => {
+    if (path !== `/me/documents/${first.id}/extraction`) return null;
+    const result = await state.server.dispatch('GET', path);
+    result.suggestedSections.skills[0].evidenceText = 'LATE FIRST DOCUMENT';
+    return new Promise((resolve) => {
+      finish = () => resolve(json(result));
+    });
+  };
+  await review('first.pdf');
+  await dialogClick('Close dialog');
+  await review('second.pdf');
+  await change('Supporting evidence', 'Keep the second document draft');
+  await act(finish);
+  assert.match(document.querySelector('dialog').textContent, /second.pdf/);
+  assert.doesNotMatch(text(), /LATE FIRST DOCUMENT/);
+  assert.equal(field('Supporting evidence').value, 'Keep the second document draft');
+});
+
 test('Escape and browser unload preserve corrections until the user discards them', async () => {
   await documents();
   await review();

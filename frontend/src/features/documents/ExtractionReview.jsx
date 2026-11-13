@@ -1,120 +1,24 @@
 import { useLanguage, translateDiagnostic } from '../../shared/i18n.jsx';
-import React, { useEffect, useState } from 'react';
-import { api, ApiError } from '../../api/client.js';
+import React from 'react';
 import { Button, ErrorNotice, Loading, Modal, Notice } from '../../shared/ui.jsx';
-import { useResource, usePageGuard, useUnsaved } from '../../shared/hooks.js';
-import { useMutation } from '../../shared/useMutation.js';
 import { labels } from '../../shared/profile-labels.js';
 import ProfileFields from '../profile/ProfileFields.jsx';
 import ReviewRecovery from './ReviewRecovery.jsx';
+import { useExtractionReviewViewModel } from './useExtractionReviewViewModel.js';
 
-async function loadReview(documentId, { signal }) {
-  const result = await Promise.all([
-    api.extraction(documentId, { signal }),
-    api.profile({ signal }),
-  ]);
-  if (result[0].documentId !== documentId || result[0].status !== 'READY') {
-    throw new ApiError(502, {
-      error: {
-        code: 'INVALID_RESPONSE',
-        message:
-          'The review result did not match this document or its ready state. Refresh its status before reviewing.',
-      },
-    });
-  }
-  return result;
-}
-
-const unavailable = (error) =>
-  ['EXTRACTION_NOT_READY', 'EXTRACTION_FAILED'].includes(error?.code) ||
-  [401, 403, 404].includes(error?.status);
-
-export default function ExtractionReview({
-  document,
-  tags,
-  onClose,
-  onApplied,
-  onDirty,
-  onPending,
-  onManual,
-  onRefresh,
-}) {
+export default function ExtractionReview({ document, tags, ...actions }) {
   const { t, language } = useLanguage();
-  const resource = useResource(({ signal }) => loadReview(document.id, { signal }), [document.id]);
-  const [sections, setSections] = useState(null);
-  const [selected, setSelected] = useState([]);
-  const [ack, setAck] = useState(false);
-  const { error, clearError, busy, run, isPending } = useMutation();
-  const dirty =
-    !!sections &&
-    !!resource.data &&
-    (JSON.stringify(sections) !== JSON.stringify(resource.data[0].suggestedSections) ||
-      JSON.stringify([...selected].sort()) !== JSON.stringify(Object.keys(sections).sort()));
-  usePageGuard(false, busy, onDirty, onPending);
-  // The native modal isolates navigation; protect closing it and leaving the browser too.
-  useUnsaved(dirty && !busy);
-  useEffect(() => {
-    if (resource.data) {
-      const s = resource.data[0].suggestedSections;
-      setSections(structuredClone(s));
-      setSelected(Object.keys(s));
-      setAck(false);
-      clearError();
-    }
-  }, [resource.data, clearError]);
-  function discardAllowed() {
-    return (
-      !isPending() &&
-      (!dirty || window.confirm(t('Discard your changes to the extraction suggestions?')))
-    );
-  }
-  function close() {
-    if (!discardAllowed()) return;
-    onClose();
-  }
-  function manual() {
-    if (!discardAllowed()) return;
-    onClose();
-    onManual();
-  }
-  function refreshDocuments() {
-    if (discardAllowed()) onRefresh();
-  }
-  function reload() {
-    if (!discardAllowed()) return;
-    setSections(null);
-    setSelected([]);
-    setAck(false);
-    clearError();
-    resource.refresh();
-  }
-  function apply(e) {
-    e.preventDefault();
-    if (
-      isPending() ||
-      !ack ||
-      !selected.length ||
-      error?.code === 'REVISION_CONFLICT' ||
-      unavailable(error)
-    )
-      return;
-    clearError();
-    run(
-      () =>
-        api.apply(
-          document.id,
-          resource.data[1].revision,
-          Object.fromEntries(selected.map((key) => [key, sections[key]]))
-        ),
-      onApplied
-    );
-  }
-  const blocked = resource.error || (unavailable(error) ? error : null);
+  const review = useExtractionReviewViewModel({
+    ...actions,
+    documentId: document.id,
+    confirmDiscard: () => window.confirm(t('Discard your changes to the extraction suggestions?')),
+  });
+  const { sections, selected, busy, error, blocked, uncertain, close, manual, reload } = review;
   const recovery = {
     error: blocked,
     retry: reload,
     onManual: manual,
-    onRefresh: refreshDocuments,
+    onRefresh: review.refreshDocuments,
     onClose: close,
   };
   return (
@@ -123,22 +27,27 @@ export default function ExtractionReview({
         {t('Reviewing: ')}
         <bdi>{document.fileName}</bdi>
       </p>
-      {resource.loading || (!sections && !blocked) ? (
+      {review.loading ? (
         <Loading />
       ) : blocked ? (
         <ReviewRecovery {...recovery} />
       ) : !Object.keys(sections).length ? (
         <ReviewRecovery {...recovery} empty />
       ) : (
-        <form onSubmit={apply}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            review.apply();
+          }}
+        >
           <fieldset className="form-fields" disabled={busy}>
-            {!!resource.data[0].warnings.length && (
-              <Notice>{resource.data[0].warnings.map((message) => t(message)).join(' ')}</Notice>
+            {!!review.warnings.length && (
+              <Notice>{review.warnings.map((message) => t(message)).join(' ')}</Notice>
             )}
             <p>
               {t('Choose the sections to import. Edit any suggestion below before applying it.')}
             </p>
-            <Button variant="text" disabled={busy} onClick={reload}>
+            <Button variant="text" disabled={busy || uncertain} onClick={reload}>
               {t('Reload suggestions')}
             </Button>
             <div className="tag-options">
@@ -147,12 +56,7 @@ export default function ExtractionReview({
                   <input
                     type="checkbox"
                     checked={selected.includes(key)}
-                    onChange={(e) => {
-                      setSelected(
-                        e.target.checked ? [...selected, key] : selected.filter((k) => k !== key)
-                      );
-                      setAck(false);
-                    }}
+                    onChange={(e) => review.select(key, e.target.checked)}
                   />
                   {t(labels[key])}
                 </label>
@@ -160,15 +64,12 @@ export default function ExtractionReview({
             </div>
             <ProfileFields
               content={sections}
-              onChange={(value) => {
-                setSections(value);
-                setAck(false);
-              }}
+              onChange={review.edit}
               tags={tags}
               identity={false}
               sections={selected}
             />
-            {resource.data[0].uncertainFields.map((f, i) => (
+            {review.uncertainFields.map((f, i) => (
               <p className="help" key={i}>
                 {t(labels[f.field])}: {t(f.status.replaceAll('_', ' '))} —{' '}
                 {translateDiagnostic(language, f.reason)}
@@ -176,7 +77,11 @@ export default function ExtractionReview({
             ))}
             <ErrorNotice error={error} />
             <label className="check-label">
-              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={review.acknowledged}
+                onChange={(e) => review.acknowledge(e.target.checked)}
+              />
               {t(
                 'I understand that importing replaces the selected sections in my profile and requires a separate confirmation.'
               )}
@@ -185,19 +90,20 @@ export default function ExtractionReview({
               <Button variant="secondary" disabled={busy} onClick={close}>
                 {t('Cancel')}
               </Button>
-              <Button
-                type="submit"
-                disabled={busy || !ack || !selected.length || error?.code === 'REVISION_CONFLICT'}
-              >
+              <Button type="submit" disabled={!review.canApply}>
                 {busy ? t('Importing…') : t('Apply reviewed sections')}
               </Button>
             </div>
-            {error?.code === 'REVISION_CONFLICT' && (
+            {(uncertain || error?.code === 'REVISION_CONFLICT') && (
               <Notice>
                 <p>
-                  {t(
-                    'Your profile changed while this review was open. Your corrections have been kept. Review the latest profile, or reload suggestions and review them again before importing.'
-                  )}
+                  {uncertain
+                    ? t(
+                        'The request may have succeeded. Reload the latest data and check it before trying again.'
+                      )
+                    : t(
+                        'Your profile changed while this review was open. Your corrections have been kept. Review the latest profile, or reload suggestions and review them again before importing.'
+                      )}
                 </p>
                 <Button variant="text" onClick={manual}>
                   {t('Review latest profile')}

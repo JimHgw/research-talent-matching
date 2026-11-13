@@ -3,6 +3,7 @@ import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
+import { requireMatchPage } from '../../api/match-contract.ts';
 import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
@@ -81,7 +82,7 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
   const [details, setDetails] = useState(null);
   const [filters, setFilters] = useState({});
   const resource = useResource(
-    ({ signal }) => api.recommendations(page, filters, { signal }),
+    ({ signal }) => api.recommendations(page, filters, { signal }).then(requireMatchPage),
     [page, filters],
     true,
     { retainData: true }

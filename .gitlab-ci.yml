@@ -55,6 +55,7 @@ frontend_test:
     - pnpm install --frozen-lockfile
 
   script:
+    - pnpm typecheck
     - pnpm test
 
 

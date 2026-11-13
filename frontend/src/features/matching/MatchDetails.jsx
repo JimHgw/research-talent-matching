@@ -3,6 +3,7 @@ import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
+import { requireMatchDetail } from '../../api/match-contract.ts';
 import { useResource } from '../../shared/hooks.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
@@ -30,9 +31,10 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
   const { t, language } = useLanguage();
   const resource = useResource(
     ({ signal }) =>
-      talentId
+      (talentId
         ? api.talentMatch(opportunityId, talentId, { signal })
-        : api.match(opportunityId, { signal }),
+        : api.match(opportunityId, { signal })
+      ).then(requireMatchDetail),
     [opportunityId, talentId],
     true,
     { retainData: true }
