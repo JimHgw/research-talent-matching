@@ -5,21 +5,22 @@ import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const src = fileURLToPath(new URL('../src/', import.meta.url));
+const sourcePath = (file) => relative(src, file).replaceAll('\\', '/');
 function files(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? files(resolve(dir, entry.name)) : [resolve(dir, entry.name)]
   );
 }
 const edges = files(src)
-  .filter((file) => /\.(jsx?|css)$/.test(file))
+  .filter((file) => /\.(jsx?|tsx?|css)$/.test(file))
   .flatMap((file) => {
     const contents = readFileSync(file, 'utf8');
     const paths = [...contents.matchAll(/(?:from\s+|import\s+|@import\s+)["'](\.[^"']+)["']/g)].map(
       (match) => match[1]
     );
     return paths.map((path) => ({
-      from: relative(src, file),
-      to: relative(src, resolve(dirname(file), path)),
+      from: sourcePath(file),
+      to: sourcePath(resolve(dirname(file), path)),
       resolved: resolve(dirname(file), path),
     }));
   });

@@ -3,12 +3,14 @@ import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React, { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
+import { requireMatchPage } from '../../api/match-contract.ts';
 import { useResource } from '../../shared/hooks.js';
 import { Button, Empty, ErrorNotice, Icon, Loading, Pager } from '../../shared/ui.jsx';
 import MatchDetails from './MatchDetails.jsx';
 import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequired.jsx';
 import SearchFilters from '../../shared/SearchFilters.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
+import MatchScore from './MatchScore.jsx';
 
 function OpportunityCard({ opportunity, summary, rank, onView, onDetails, CollectionButton }) {
   const { t } = useLanguage();
@@ -31,19 +33,7 @@ function OpportunityCard({ opportunity, summary, rank, onView, onDetails, Collec
           <small>{content.university}</small>
           <span className="card-category">{t(content.disciplineGroup)}</span>
         </div>
-        {summary && (
-          <span
-            className="score-chip"
-            title={t(
-              summary.semanticRequirements || summary.semanticInterest
-                ? 'Recommendation score'
-                : 'Evidence coverage'
-            )}
-          >
-            {summary.recommendationScore ?? summary.score ?? '—'}
-            <small>/100</small>
-          </span>
-        )}
+        {summary && <MatchScore summary={summary} />}
       </div>
       <h3>{content.title}</h3>
       <p className="card-description">{content.description}</p>
@@ -81,7 +71,7 @@ export default function Recommendations({ navigate, OpportunityDetails, Collecti
   const [details, setDetails] = useState(null);
   const [filters, setFilters] = useState({});
   const resource = useResource(
-    ({ signal }) => api.recommendations(page, filters, { signal }),
+    ({ signal }) => api.recommendations(page, filters, { signal }).then(requireMatchPage),
     [page, filters],
     true,
     { retainData: true }

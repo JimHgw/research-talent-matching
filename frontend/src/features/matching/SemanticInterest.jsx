@@ -1,34 +1,48 @@
 import React from 'react';
+import { usesRequirementRanking } from '../../api/match-contract.ts';
 import { useLanguage } from '../../shared/i18n.jsx';
 
 export default function SemanticInterest({ summary, compact = false }) {
   const { t } = useLanguage();
-  if (summary.semanticRequirements) {
-    const status = summary.semanticRequirements.status;
-    return (
-      <section className={`semantic-interest ${compact ? 'compact' : ''}`}>
-        <strong>{t('Weighted requirement score')}</strong>
-        <p className="help">
-          {t(
-            'Total = sum of requirement score × weight ÷ sum of weights. Required: 2; preferred: 1.'
-          )}
-        </p>
-        {status === 'UNAVAILABLE' && (
-          <p className="help">{t('Model unavailable; using structured evidence')}</p>
-        )}
-        {status === 'MISSING_EVIDENCE' && (
-          <p className="help">{t('No available information for this requirement')}</p>
-        )}
-        {!compact && (
-          <p className="help">
-            {t('Semantic scores describe relevance; evidence badges describe confirmed support.')}
-          </p>
-        )}
-      </section>
-    );
-  }
+  const requirements = summary.semanticRequirements;
   const interest = summary.semanticInterest;
-  if (!interest) return null;
+  if (!requirements && !interest) return null;
+  return (
+    <>
+      {requirements && (
+        <section className={`semantic-interest ${compact ? 'compact' : ''}`}>
+          <strong>{t('Weighted requirement score')}</strong>
+          <p className="help">
+            {t(
+              'Total = sum of requirement score × weight ÷ sum of weights. Required: 2; preferred: 1.'
+            )}
+          </p>
+          {requirements.status === 'UNAVAILABLE' && (
+            <p className="help">{t('Model unavailable; using structured evidence')}</p>
+          )}
+          {requirements.status === 'MISSING_EVIDENCE' && (
+            <p className="help">{t('No available information for this requirement')}</p>
+          )}
+          {!compact && (
+            <p className="help">
+              {t('Semantic scores describe relevance; evidence badges describe confirmed support.')}
+            </p>
+          )}
+        </section>
+      )}
+      {interest && (
+        <InterestDiagnostic
+          interest={interest}
+          compact={compact}
+          legacy={!usesRequirementRanking(summary)}
+        />
+      )}
+    </>
+  );
+}
+
+function InterestDiagnostic({ interest, compact, legacy }) {
+  const { t } = useLanguage();
   const available = interest.status === 'AVAILABLE';
   const relevance = {
     RELEVANT: t('Closely related'),
@@ -39,16 +53,18 @@ export default function SemanticInterest({ summary, compact = false }) {
     <section className={`semantic-interest ${compact ? 'compact' : ''}`}>
       <div className="row-between">
         <strong>{t('Research interest similarity')}</strong>
-        {available && <span>{interest.score}/100</span>}
+        {available && interest.score !== null && <span>{interest.score}/100</span>}
       </div>
       <p className="help">
-        {available
+        {available && interest.score !== null
           ? relevance[interest.relevance]
-          : interest.status === 'MISSING_EVIDENCE'
-            ? t('Interest information is unavailable; ranked by evidence coverage.')
-            : t('Interest similarity is unavailable; ranked by evidence coverage.')}
+          : !legacy
+            ? t('Not available')
+            : interest.status === 'MISSING_EVIDENCE'
+              ? t('Interest information is unavailable; ranked by evidence coverage.')
+              : t('Interest similarity is unavailable; ranked by evidence coverage.')}
       </p>
-      {!compact && available && (
+      {legacy && !compact && available && interest.score !== null && (
         <>
           <p className="help">
             {t('Evidence weight {evidence}%; interest weight {interest}%.', {

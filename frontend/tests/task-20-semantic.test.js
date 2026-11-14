@@ -148,3 +148,33 @@ test('requirement model fallback explains the structured scores', async () => {
   );
   assert.doesNotMatch(dialog.textContent, /NaN|undefined|null/);
 });
+
+test('lists and details distinguish zero from an unavailable server recommendation score', async () => {
+  const detail = await fixture('owner-match-requirement-semantic');
+  const recommendations = await fixture('recommendations-semantic');
+  const [first] = recommendations.items;
+  first.summary = { ...detail.summary, recommendationScore: null, score: 50 };
+  recommendations.items.push({
+    ...first,
+    rank: 2,
+    opportunity: { ...first.opportunity, id: 'opp_second' },
+    summary: { ...detail.summary, recommendationScore: 0 },
+  });
+  recommendations.total = 2;
+  detail.summary = first.summary;
+  state.intercept = (path) =>
+    path.startsWith('/me/recommendations?')
+      ? json(recommendations)
+      : path.startsWith('/me/opportunity-matches/')
+        ? json(detail)
+        : null;
+  await mount();
+  await click('Recommended opportunities');
+  const [unavailable, zero] = document.querySelectorAll('.score-chip');
+  assert.equal(unavailable.textContent.trim(), '—');
+  assert.match(unavailable.getAttribute('aria-label'), /Not available/);
+  assert.equal(zero.textContent.trim(), '0/100');
+  await click('Why this match?');
+  assert.match(document.querySelector('.score-large').textContent, /—.*Recommendation score/s);
+  assert.match(document.querySelector('.match-metrics').textContent, /50.*Evidence coverage/s);
+});

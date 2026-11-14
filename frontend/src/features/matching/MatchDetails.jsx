@@ -3,6 +3,7 @@ import { useDataInvalidation } from '../../shared/data-invalidation.js';
 import { useLanguage } from '../../shared/i18n.jsx';
 import React from 'react';
 import { api } from '../../api/client.js';
+import { primaryMatchScore, requireMatchDetail } from '../../api/match-contract.ts';
 import { useResource } from '../../shared/hooks.js';
 import { displayDate } from '../../shared/format.js';
 import { Badge, ErrorNotice, Icon, Loading, Modal } from '../../shared/ui.jsx';
@@ -11,6 +12,7 @@ import ProfileConfirmationRequired from '../../shared/ProfileConfirmationRequire
 import SharedRecord, { supportingRecord, sharedRecordFields } from './SharedRecord.jsx';
 import SemanticInterest from './SemanticInterest.jsx';
 import RequirementScore from './RequirementScore.jsx';
+import MatchScore from './MatchScore.jsx';
 
 const matchReasons = {
   ALL_SKILLS_SUPPORTED: 'All requested skills have confirmed supporting evidence.',
@@ -30,9 +32,10 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
   const { t, language } = useLanguage();
   const resource = useResource(
     ({ signal }) =>
-      talentId
+      (talentId
         ? api.talentMatch(opportunityId, talentId, { signal })
-        : api.match(opportunityId, { signal }),
+        : api.match(opportunityId, { signal })
+      ).then(requireMatchDetail),
     [opportunityId, talentId],
     true,
     { retainData: true }
@@ -72,21 +75,10 @@ export default function MatchDetails({ opportunityId, talentId, onClose, navigat
                 })}
               </p>
             </div>
-            <div className="score-large">
-              {result.summary.recommendationScore ?? result.summary.score ?? '—'}
-              <small>
-                {t(
-                  result.summary.semanticRequirements
-                    ? 'Weighted score / 100'
-                    : result.summary.semanticInterest
-                      ? 'ranking / 100'
-                      : 'coverage / 100'
-                )}
-              </small>
-            </div>
+            <MatchScore summary={result.summary} detail />
           </div>
           <div className="match-metrics">
-            {(result.summary.semanticRequirements || result.summary.semanticInterest) && (
+            {primaryMatchScore(result.summary).name === 'Recommendation score' && (
               <span>
                 <strong>{result.summary.score ?? '—'}</strong> {t('Evidence coverage')}
               </span>
