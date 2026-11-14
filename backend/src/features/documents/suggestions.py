@@ -83,9 +83,9 @@ def _normalise_cv_headings(text):
     """Recover standalone headings split into individual letters by PDF export."""
     known = {name for names in HEADINGS.values() for name in names} | OTHER_HEADINGS
     by_letters = {re.sub(r"\s+", "", name.casefold()): name for name in known}
-    output, extra_headings, spaced_lines = [], set(), set()
+    output, extra_headings = [], set()
 
-    for line_index, raw in enumerate(text.splitlines()):
+    for raw in text.splitlines():
         value = raw.strip().rstrip(":：").strip()
         value = value.replace("\u00a0", " ").replace("\u202f", " ")
         parts = value.split()
@@ -112,9 +112,8 @@ def _normalise_cv_headings(text):
 
         suffix = ":" if raw.strip().endswith((":", "：")) else ""
         output.append((heading.upper() if value.isupper() else heading) + suffix)
-        spaced_lines.add(line_index)
 
-    return "\n".join(output), extra_headings, spaced_lines
+    return "\n".join(output), extra_headings
 
 def _looks_like_project_heading(line):
     """Recognise short uppercase headings with common project-section words."""
@@ -129,7 +128,7 @@ def _looks_like_project_heading(line):
         ))
     )
 
-def _sections(text, extra_headings=(), spaced_lines=()):
+def _sections(text, extra_headings=()):
     aliases = {
         alias: section
         for section, names in HEADINGS.items()
@@ -160,7 +159,6 @@ def _sections(text, extra_headings=(), spaced_lines=()):
                 standalone
                 and (
                     line.endswith((":", "："))
-                    or index in spaced_lines
                     or (after_blank and line.isupper())
                 )
             ):
@@ -521,6 +519,7 @@ def _cv_lines(section, lines):
         re.I,
     )
     bullet = re.compile(r"^\s*(?:[•●⚫▪◦]\s*|[-*–—]\s+|\d+[.)]\s+)")
+    numbering = re.compile(r"^\s*(\d{1,4})[.)]\s+")
     action = re.compile(
         r"^(?:built|developed|implemented|designed|created|tested|improved|"
         r"evaluated|led|worked|used|wrote|collaborated|maintained|launched|released|shipped)\b"
@@ -541,13 +540,18 @@ def _cv_lines(section, lines):
         value, source = rows[index]
         return not value and source in HEADINGS["researchOutputs"]
 
+    # Layout gaps must not be rescanned for every candidate or cross a section.
+    following_lines = [None] * len(rows)
+    following_index = None
+    for row_index in range(len(rows) - 1, -1, -1):
+        following_lines[row_index] = following_index
+        if is_heading(row_index):
+            following_index = None
+        elif rows[row_index][0]:
+            following_index = row_index
+
     def next_line(index):
-        index += 1
-        while index < len(rows) and not rows[index][0]:
-            if is_heading(index):
-                return None
-            index += 1
-        return index if index < len(rows) else None
+        return following_lines[index]
 
     def link(value):
         value = re.sub(
@@ -592,19 +596,34 @@ def _cv_lines(section, lines):
         ):
             return False
 
+        # Rejoin a likely name split across a PDF line wrap, including in
+        # undated projects. Scan the trailing words once, without backtracking
+        # over arbitrarily long descriptions.
+        if value.istitle() and not previous.endswith((".", "!", "?", "。", "！", "？")):
+            prepositions = {"on", "in", "at", "with", "using", "for", "to", "of", "from"}
+            words = previous.split()
+            tail = len(words) - 1
+            while tail >= 0 and words[tail].casefold() not in prepositions:
+                word = words[tail]
+                if not word[:1].isupper() or not re.fullmatch(r"[\w.-]+", word):
+                    break
+                tail -= 1
+            if 0 <= tail < len(words) - 1 and words[tail].casefold() in prepositions:
+                return False
+
         indent = len(raw) - len(raw.lstrip())
         previous_indent = len(previous_raw) - len(previous_raw.lstrip())
         return not (
             bullet.match(previous_raw) and indent > previous_indent
         )
     
-    def project_start(index, in_projects, inside_project=False):
+    def project_start(index, in_projects, current_start=None):
         value, raw = rows[index]
         if not value:
             return None
 
-        numbered = bool(re.match(r"^\s*\d+[.)]\s+", raw))
-        value = re.sub(r"^\d+[.)]\s+", "", value)
+        marker = bullet.match(raw)
+        value = bullet.sub("", value, count=1).strip()
         cells = separator.split(value)
 
         after = next_line(index)
@@ -614,21 +633,52 @@ def _cv_lines(section, lines):
             bool(role.fullmatch(following_cells[0]))
             and has_date(following_cells[1:])
         )
+        paragraph_start = index == 0 or not rows[index - 1][0]
+        paragraph_boundary = paragraph_start or rows[index - 1][0].rstrip().endswith(
+            (".", "!", "?", "。", "！", "？"),
+        )
 
-        # Inside a project, a list item needs explicit metadata to start another project.
-        if inside_project and bullet.match(raw) and not (explicit_metadata or numbered):
-            return None
-
+        inline_entry = None
         if in_projects and not explicit.match(value) and not link(value):
             if len(cells) > 1 and title_like(cells[0]) and has_date(cells[1:]):
-                return cells[0], index, True
+                inline_entry = cells[0], index, True
 
-            dated = date_tail.search(value)
-            if dated:
-                prefix = value[:dated.start()].rstrip(" |·–—-(")
+            tail = date_tail.search(value)
+            if inline_entry is None and tail:
+                prefix = value[:tail.start()].rstrip(" |·–—-(")
                 title = separator.split(prefix, maxsplit=1)[0].strip()
                 if title_like(title):
-                    return title, index, True
+                    inline_entry = title, index, True
+
+        if current_start is not None and marker and not explicit_metadata:
+            indent = len(raw) - len(raw.lstrip())
+            current_raw = rows[current_start][1]
+            current_indent = len(current_raw) - len(current_raw.lstrip())
+            if indent > current_indent:
+                return None
+
+            # Inline section headings share their source line with the first
+            # entry, so read its ordinal from the section content instead.
+            number = numbering.match(rows[index][0])
+            current_number = numbering.match(rows[current_start][0])
+            consecutive = bool(
+                number and current_number
+                and int(number[1]) == int(current_number[1]) + 1
+            )
+            dated_title = inline_entry is not None or (
+                len(cells) == 1 and title_like(value) and has_date(following_cells)
+            )
+            # Fresh numbering may label achievements. Only an established
+            # project sequence can continue without a layout gap. For ordinary
+            # bullets, a completed sentence also survives PDF's omitted blanks.
+            list_boundary = paragraph_start or consecutive or (
+                not rows[index][0].lstrip()[:1].isdecimal() and paragraph_boundary
+            )
+            if not (dated_title and list_boundary):
+                return None
+
+        if inline_entry is not None:
+            return inline_entry
 
         if len(cells) != 1 or not title_like(value) or after is None:
             return None
@@ -636,14 +686,14 @@ def _cv_lines(section, lines):
             return value, after, True
 
         dated = has_date(following_cells)
-        if in_projects and (
-            dated or metadata.match(following)
-            or (
-                not bullet.match(raw) and independent_title(index)
-                and (link(following) or bullet.match(original))
-            )
-        ):
-            return value, after, dated
+        if in_projects and dated:
+            return value, after, True
+
+        weak_cue = metadata.match(following) or (
+            not marker and (link(following) or bullet.match(original))
+        )
+        if in_projects and weak_cue and independent_title(index):
+            return value, after, False
         return None
 
     index = 0
@@ -675,7 +725,9 @@ def _cv_lines(section, lines):
             if is_heading(end) or explicit.match(value):
                 break
 
-            next_entry = project_start(end, in_projects, inside_project=True)
+            next_entry = project_start(
+                end, in_projects, current_start=index,
+            )
             if next_entry and (next_entry[2] or seen_description or not dated_title):
                 break
 
@@ -772,8 +824,8 @@ def build_extraction_result(document_id, text, tags):
         if len(description) > 20000:
             result["uncertainFields"].append({"field": "resumeDescription", "status": "UNKNOWN",
                                                "reason": "Resume description was shortened to 20000 characters; consult the original file."})
-    text, extra_headings, spaced_lines = _normalise_cv_headings(text)
-    sections = _sections(text, extra_headings, spaced_lines)
+    text, extra_headings = _normalise_cv_headings(text)
+    sections = _sections(text, extra_headings)
     academic, academic_issues = extract_academic_records(
         text,
         OTHER_HEADINGS | extra_headings | {
