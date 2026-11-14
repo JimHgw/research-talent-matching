@@ -234,8 +234,7 @@ The [US-09 guide](../docs/us09-documents.md) documents extraction limits and rec
 After setup completes, run from the repository root:
 
 ```sh
-.venv/bin/python -m flask --app backend.app init-db
-.venv/bin/python -m flask --app backend.app seed-tags
+.venv/bin/python -m flask --app backend.app prepare-db
 .venv/bin/python -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT
 .venv/bin/python -m flask --app backend.app provision-user --email team@example.test --display-name "Demo Team" --role RESEARCH_TEAM
 export COOKIE_SECURE=false
@@ -257,8 +256,7 @@ Set `COOKIE_SECURE=false` in that terminal as well.
 After **First step after cloning** completes, run from the repository root:
 
 ```powershell
-.\.venv\Scripts\python.exe -m flask --app backend.app init-db
-.\.venv\Scripts\python.exe -m flask --app backend.app seed-tags
+.\.venv\Scripts\python.exe -m flask --app backend.app prepare-db
 .\.venv\Scripts\python.exe -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT
 .\.venv\Scripts\python.exe -m flask --app backend.app provision-user --email team@example.test --display-name "Demo Team" --role RESEARCH_TEAM
 $env:COOKIE_SECURE = 'false'
@@ -502,3 +500,7 @@ or interest requirements, save and publish. Sign in as talent to browse its
 published details. Another team can read the published content but cannot edit
 it. `tests/test_us02.py` covers the lifecycle, permissions, validation, pagination,
 restarts, foreign keys, rollback and simultaneous writers against real SQLite.
+
+## Database release preflight (BE-9)
+
+For both fresh and existing installations, use `prepare-db` before starting API/worker services. It runs the complete ordered upgrade sequence and read-only compatibility check; `init-db` alone cannot migrate existing tables. Docker uses the same command. See the [release checklist and recovery rehearsal](../docs/testing/be9-release.md).

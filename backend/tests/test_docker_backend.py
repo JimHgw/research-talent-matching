@@ -131,8 +131,8 @@ def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(
 
 
 @pytest.mark.parametrize("upgrade_failure", [False, True])
-@pytest.mark.parametrize("upgrade_command", ["upgrade-academic-requirements", "upgrade-query-indexes"])
-def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_path, upgrade_failure, upgrade_command):
+@pytest.mark.parametrize("upgrade_command", ["prepare-db"])
+def test_startup_runs_release_preflight_before_server_and_stops_on_failure(tmp_path, upgrade_failure, upgrade_command):
     shell = posix_shell()
     tools_dir = tmp_path / "tools"
     tools_dir.mkdir()
@@ -162,23 +162,14 @@ def test_startup_runs_academic_upgrade_before_server_and_stops_on_failure(tmp_pa
         capture_output=True, text=True, timeout=30,
     )
     commands = [json.loads(line) for line in events.read_text().splitlines()]
-    expected = [
-        ["-m", "flask", "--app", "backend.app", "init-db"],
-        ["-m", "flask", "--app", "backend.app", "upgrade-opportunity-search"],
-        ["-m", "flask", "--app", "backend.app", "upgrade-query-indexes"],
-        ["-m", "flask", "--app", "backend.app", "upgrade-academic-requirements", "--if-mysql"],
-    ]
+    assert commands == [["-m", "flask", "--app", "backend.app", "prepare-db"]]
     if upgrade_failure:
         assert result.returncode == 19
         assert "SERVER STARTED" not in result.stdout
-        assert commands == (expected[:-1] if upgrade_command == "upgrade-query-indexes" else expected)
     else:
         assert result.returncode == 0, result.stdout + result.stderr
         assert "SERVER STARTED" in result.stdout
-        assert commands == expected + [
-            ["-m", "flask", "--app", "backend.app", "upgrade-resume-text"],
-            ["-m", "flask", "--app", "backend.app", "seed-tags"],
-        ]
+
 
 
 @pytest.mark.parametrize("launcher", ["powershell", "shell"])

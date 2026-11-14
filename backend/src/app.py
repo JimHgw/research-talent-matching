@@ -17,6 +17,7 @@ from werkzeug.exceptions import HTTPException
 
 from .db.database import Database
 from .db.migration import register_migration_command
+from .db.release import check_schema, register_release_commands
 from .db.models import (AuthSession, LoginAttempt, PasswordResetAttempt, PasswordResetCode,
                         RegistrationAttempt, RegistrationCode, utcnow)
 from .features.auth.routes import auth, provision_user
@@ -87,6 +88,7 @@ def create_app(config=None):
     app.config["ALLOWED_ORIGINS"] = origins
     app.extensions["database"] = Database(app.config["DATABASE_URL"])
     register_migration_command(app)
+    register_release_commands(app)
     app.extensions["password_hasher"] = PasswordHasher()
     app.extensions["dummy_hash"] = app.extensions["password_hasher"].hash(secrets.token_urlsafe(32))
     app.extensions["registration_mailer"] = send_registration_code
@@ -107,7 +109,8 @@ def create_app(config=None):
         try:
             with app.extensions["database"].transaction() as db:
                 db.execute(select(1))
-        except SQLAlchemyError:
+            check_schema(app.extensions["database"])
+        except (SQLAlchemyError, ValueError):
             return jsonify(status="unavailable"), 503
         return jsonify(status="ok")
 
@@ -219,8 +222,11 @@ def create_app(config=None):
         help="Attempt one queued document and exit.",
     )
     def process_documents(once):
-        # Add the lease table when upgrading an existing native installation.
-        app.extensions["database"].initialise()
+        # Workers never repair schema while processing; use the release command first.
+        try:
+            check_schema(app.extensions["database"])
+        except (ValueError, SQLAlchemyError):
+            raise click.ClickException("Worker schema is incompatible or unavailable; run prepare-db before starting.") from None
         if once:
             processed = process_next_document()
 
