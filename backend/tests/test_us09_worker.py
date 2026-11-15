@@ -109,8 +109,18 @@ def test_pre_upgrade_processing_document_is_recovered(app, queued):
         assert db.get(DocumentProcessingLease, queued).attempts == 1
 
 
-def test_cli_adds_missing_lease_table_without_recreating_existing_documents(app, queued):
+def test_release_adds_missing_lease_table_before_worker_processing(app, queued):
     DocumentProcessingLease.__table__.drop(app.extensions["database"].engine)
+    try:
+        result = app.test_cli_runner().invoke(args=["process-documents", "--once"])
+        assert result.exit_code != 0
+        assert "run prepare-db" in result.output
+        with app.extensions["database"].transaction() as db:
+            assert db.get(Document, queued).status == "QUEUED"
+    finally:
+        # Restore the shared MySQL schema even if an assertion above fails.
+        prepared = app.test_cli_runner().invoke(args=["prepare-db"])
+        assert prepared.exit_code == 0, prepared.output
     process(app)
     with app.extensions["database"].transaction() as db:
         assert db.get(Document, queued).status == "READY"
