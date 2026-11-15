@@ -1,19 +1,19 @@
-"""Validate and save user-reviewed document sections."""
+"""Validate resolved reviewed sections against loaded reference data."""
 
-from ...db.models import ProfileInterest, ProfileOrigin, Tag
-from ...db.interests import (COMPONENTS, TEXT_FIELDS, replace_personal_selection, set_component_origin,
-                            set_profile_text)
+from ...db.interests import TEXT_FIELDS
+from ...db.skills import check_skills
 from ...shared.validation import invalid
-from ...db.skills import check_skills, replace_skills
-from sqlalchemy import delete
 
-def check_reviewed_sections(db, sections):
+
+def check_reviewed_sections(sections, tag_kinds):
     for section, entries in sections.items():
         if section in TEXT_FIELDS:
             continue
+
         if section == "skills":
             check_skills(entries, "sections.skills")
             continue
+
         if section == "researchInterests":
             ids = entries
         else:
@@ -28,76 +28,9 @@ def check_reviewed_sections(db, sections):
         if section != "researchInterests":
             continue
 
-        expected = "INTEREST"
-
         for tag_id in ids:
-            tag = db.get(Tag, tag_id)
-
-            if tag is None or tag.kind != expected:
+            if tag_kinds.get(tag_id) != "INTEREST":
                 invalid(
                     f"sections.{section}",
-                    f"Select an existing {expected} tag.",
+                    "Select an existing INTEREST tag.",
                 )
-
-def replace_reviewed_skills(db, profile, skills):
-    replace_skills(db, profile.talent_id, skills)
-
-
-def replace_reviewed_interests(db, profile, interests):
-    db.execute(
-        delete(ProfileInterest).where(
-            ProfileInterest.talent_id == profile.talent_id
-        )
-    )
-
-    for position, tag_id in enumerate(interests):
-        db.add(
-            ProfileInterest(
-                talent_id=profile.talent_id,
-                tag_id=tag_id,
-                position=position,
-            )
-        )
-
-def save_reviewed_sections(db, profile, sections, document_id):
-    for section, entries in sections.items():
-        if section in COMPONENTS:
-            if section in TEXT_FIELDS:
-                set_profile_text(db, profile.talent_id, section, entries)
-            else:
-                replace_personal_selection(db, profile.talent_id, entries)
-            set_component_origin(db, profile.talent_id, section, "USER_REVIEWED_DOCUMENT", document_id)
-            continue
-        if section == "education":
-            profile.education = entries
-
-        elif section == "courses":
-            profile.courses = entries
-
-        elif section == "researchExperience":
-            profile.research_experience = entries
-
-        elif section == "researchOutputs":
-            profile.research_outputs = entries
-
-        elif section == "skills":
-            replace_reviewed_skills(db, profile, entries)
-
-        elif section == "researchInterests":
-            replace_reviewed_interests(db, profile, entries)
-
-        # Record the source of each submitted section.
-        origin = db.get(
-            ProfileOrigin,
-            (profile.talent_id, section),
-        )
-
-        if origin is None:
-            origin = ProfileOrigin(
-                talent_id=profile.talent_id,
-                field=section,
-            )
-            db.add(origin)
-
-        origin.source_type = "USER_REVIEWED_DOCUMENT"
-        origin.document_id = document_id
