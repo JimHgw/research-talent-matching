@@ -994,7 +994,7 @@
       "put": {
         "operationId": "replaceMyProfile",
         "summary": "Save the complete talent profile",
-        "description": "Compare expectedRevision atomically. An actual content change increments revision and resets confirmation for the whole profile; exact no-op keeps revision and confirmation. Changed sections become MANUAL provenance; unchanged sections retain origin. All content keys are required: read-modify-write the whole object. Server rejects unknown, duplicate or wrong-kind tag IDs.",
+        "description": "Compare expectedRevision atomically. An actual content change increments revision and resets confirmation for the whole profile; exact no-op keeps revision and confirmation. Changed sections become MANUAL provenance; unchanged sections retain origin. The eight legacy content fields are required. Optional researchInterestText, customInterestTags and resumeDescription preserve stored values when omitted; explicit empty strings or arrays clear them. Read-modify-write the whole object. Server rejects unknown, duplicate or wrong-kind tag IDs.",
         "tags": [
           "me"
         ],
@@ -2869,7 +2869,7 @@
       "post": {
         "operationId": "publishOpportunity",
         "summary": "Publish a research opportunity",
-        "description": "Owner-only. Require current revision, valid basic fields and at least one requirement with known, correctly typed tags. DRAFT -> PUBLISHED increments revision. Repeating on the current published revision returns the same object.",
+        "description": "Owner-only. Require the current revision, valid basic fields and at least one valid supported requirement. Shared tag IDs, when supplied, must exist and match the requirement kind. SKILL requirements also support free-text skillTitles, and academic requirements use their typed criteria. A supplied deadline must be in the future for initial publication. DRAFT to PUBLISHED increments revision. Repeating on the current published revision returns the same object.",
         "tags": [
           "opportunities"
         ],
@@ -3016,7 +3016,7 @@
       "get": {
         "operationId": "listMyRecommendations",
         "summary": "List ranked opportunity recommendations for the current talent",
-        "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Order score descending, unknownWeightPercent ascending, opportunityId ascending; null scores last. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route. US-14: the same opportunity search filters apply to active recommendations before ranking/count/pagination.",
+        "description": "409 PROFILE_UNCONFIRMED unless confirmedRevision equals current profile revision. Evaluate all published opportunities against owner-confirmed content. Use recommendationScore when present, otherwise score. Sort the selected score descending with null last, then unknownWeightPercent ascending with null last, then opportunityId ascending. rank is 1-based global rank. Empty opportunity pool returns 200 items=[]. Private owner fields may be used on this owner-only route. US-14: the same opportunity search filters apply to active recommendations before ranking/count/pagination.",
         "tags": [
           "me"
         ],
@@ -3494,7 +3494,7 @@
       "get": {
         "operationId": "listTalentMatches",
         "summary": "List matching talent for a team-owned opportunity",
-        "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Order score descending, unknownWeightPercent ascending, talentId ascending; null scores last. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner. US-14: q searches only permitted fields and interest labels/text. Unknown parameters return 422. Current consent/confirmation/visibility are applied before filtering, scoring, totals and ranks.",
+        "description": "Published opportunity owner only. Exclude opted-out or currently unconfirmed profiles before calculating total, rank or scores. Evaluate using only visible fields; hidden fields are treated like missing evidence. Use recommendationScore when present, otherwise score. Sort the selected score descending with null last, then unknownWeightPercent ascending with null last, then talentId ascending. rank is global. Empty visible fields are allowed and produce Unknown; never leak hidden names/email/files. An unpublished opportunity returns 404 on this route, including to its owner. An unpublished opportunity returns 404 on this route, including to its owner. US-14: q searches only permitted fields and interest labels/text. Unknown parameters return 422. Current consent/confirmation/visibility are applied before filtering, scoring, totals and ranks.",
         "tags": [
           "opportunities"
         ],
