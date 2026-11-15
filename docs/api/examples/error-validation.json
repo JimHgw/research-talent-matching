@@ -1,11 +1,11 @@
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "Some fields are invalid.",
+    "message": "Check the submitted fields.",
     "fieldErrors": [
       {
-        "field": "content.skills[0].tagId",
-        "message": "Unknown skill tag."
+        "field": "content.skills[0].title",
+        "message": "Does not satisfy minLength."
       }
     ]
   },

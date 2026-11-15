@@ -131,7 +131,7 @@ List parameters are `page` (default 1, minimum 1) and `pageSize` (default 20, ra
 
 - `total` counts all results the caller may access, not just the current page.
 - Opportunity lists sort by `updatedAt` descending, then `id` ascending. Documents sort by `createdAt` descending, then `id` ascending.
-- Match lists sort by `score` descending, `unknownWeightPercent` ascending, then object ID ascending. Null scores come last.
+- Match lists use `recommendationScore` when present; otherwise they use `score`. Sort the selected score descending with null last, then `unknownWeightPercent` ascending with null last, then object ID ascending.
 - `rank` is the global rank before pagination, starting at 1. It does not restart on each page.
 - Each request uses current data; there is no cross-request pagination snapshot. Refetch after profile, opportunity or privacy changes.
 - The small shared tag vocabulary is returned without pagination.
@@ -1612,7 +1612,7 @@ Related Jira subtasks: H18ABANANA-19, H18ABANANA-28.
 
 Permission: **Team owner**.
 
-Owner-only. Check the current revision, basic fields and at least one valid requirement whose tags exist and have the correct kind. DRAFT → PUBLISHED increments revision. Repeating publication with the current published revision does not increment it again; a stale revision still returns 409.
+Owner-only. Check the current revision, basic fields and at least one valid supported requirement. Shared tag IDs, when supplied, must exist and have the correct kind. SKILL requirements also support free-text skillTitles, and academic requirements use their typed criteria. A supplied deadline must be in the future for initial publication. DRAFT → PUBLISHED increments revision. Repeating publication with the current published revision does not increment it again; a stale revision still returns 409.
 
 
 | Parameter | Location | Required | Type / allowed values | Constraints |
