@@ -106,10 +106,11 @@ def create_app(config=None):
     @app.get("/healthz")
     def health():
         """Read-only container readiness check; never allocate a user session."""
+        if not app.extensions["schema_ready"]:
+            return jsonify(status="unavailable"), 503
         try:
             with app.extensions["database"].transaction() as db:
                 db.execute(select(1))
-            check_schema(app.extensions["database"])
         except (SQLAlchemyError, ValueError):
             return jsonify(status="unavailable"), 503
         return jsonify(status="ok")
@@ -245,4 +246,13 @@ def create_app(config=None):
             if not processed:
                 sleep(1)
 
+    # Validate once per application process, including native API startup. Keep
+    # administrative commands available when an old/absent schema needs repair.
+    app.extensions["schema_ready"] = False
+    try:
+        check_schema(app.extensions["database"])
+    except (SQLAlchemyError, ValueError):
+        pass
+    else:
+        app.extensions["schema_ready"] = True
     return app

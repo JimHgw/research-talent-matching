@@ -83,6 +83,7 @@ def register_release_commands(app):
     @click.pass_context
     def prepare(context):
         """Create missing tables, explicitly upgrade existing tables, seed and verify."""
+        app.extensions["schema_ready"] = False
         try:
             with upgrade_lock(app.extensions["database"]):
                 for name, options in (
@@ -93,6 +94,7 @@ def register_release_commands(app):
                 ):
                     click.echo(f"Database release step: {name}")
                     context.invoke(app.cli.commands[name], **options)
+            app.extensions["schema_ready"] = True
         except (ValueError, SQLAlchemyError) as error:
             raise click.ClickException(str(error) if isinstance(error, ValueError)
                                        else "Database preparation failed; services must remain stopped. Review the failed step and restore or retry.") from None

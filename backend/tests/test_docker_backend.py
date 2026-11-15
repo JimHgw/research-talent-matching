@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import event, func, select
 from sqlalchemy.exc import OperationalError
 
 from backend.src.db.models import AuthSession, LoginAttempt, User
@@ -28,7 +28,22 @@ def posix_shell():
     return shell
 
 
-def test_health_check_does_not_create_sessions_or_expose_database_errors(app):
+def test_health_check_does_not_create_sessions_or_expose_database_errors(app, monkeypatch):
+    from backend.src.app import create_app
+    import backend.src.app as application
+    original_check = application.check_schema
+    calls = []
+
+    def startup_check(database):
+        calls.append(database)
+        original_check(database)
+
+    monkeypatch.setattr(application, "check_schema", startup_check)
+    app = create_app(app.config)
+    assert len(calls) == 1 and app.extensions["schema_ready"]
+    def unexpected_check(database):
+        pytest.fail("Health probes must not inspect the schema")
+    monkeypatch.setattr(application, "check_schema", unexpected_check)
     database = app.extensions["database"]
 
     def counts():
@@ -38,11 +53,22 @@ def test_health_check_does_not_create_sessions_or_expose_database_errors(app):
 
     before = counts()
     client = app.test_client()
+    request_ids = set()
+    statements = []
+    def record_sql(connection, cursor, statement, parameters, context, executemany):
+        statements.append(statement.strip().upper())
+    event.listen(database.engine, "before_cursor_execute", record_sql)
     for _ in range(2):
         response = client.get("/healthz")
         assert response.status_code == 200
         assert response.json == {"status": "ok"}
         assert "Set-Cookie" not in response.headers
+        request_ids.add(response.headers["X-Request-Id"])
+        assert response.headers["Cache-Control"] == "no-store"
+    assert len(request_ids) == 2
+    event.remove(database.engine, "before_cursor_execute", record_sql)
+    assert statements.count("SELECT 1") == 2
+    assert set(statements) <= {"BEGIN", "SELECT 1"}
     assert counts() == before
 
     class UnavailableDatabase:
@@ -55,8 +81,31 @@ def test_health_check_does_not_create_sessions_or_expose_database_errors(app):
         assert response.status_code == 503
         assert response.json == {"status": "unavailable"}
         assert "private" not in response.get_data(as_text=True)
+        assert response.headers["X-Request-Id"] not in request_ids
     finally:
         app.extensions["database"] = database
+    assert client.get("/healthz").status_code == 200
+    database.engine.dispose()
+
+
+def test_startup_connection_failure_requires_successful_preparation(app, monkeypatch):
+    import backend.src.app as application
+    def unavailable(database):
+        raise OperationalError("private SQL", {}, Exception("private database location"))
+    with monkeypatch.context() as patch:
+        patch.setattr(application, "check_schema", unavailable)
+        restarted = application.create_app(app.config)
+    try:
+        # Connectivity has recovered, but startup validation never succeeded.
+        response = restarted.test_client().get("/healthz")
+        assert response.status_code == 503
+        assert response.json == {"status": "unavailable"}
+        assert response.headers["X-Request-Id"]
+        result = restarted.test_cli_runner().invoke(args=["prepare-db"])
+        assert result.exit_code == 0, result.output
+        assert restarted.test_client().get("/healthz").status_code == 200
+    finally:
+        restarted.extensions["database"].engine.dispose()
 
 
 def test_container_initialization_preserves_accounts_and_stops_on_seed_conflict(tmp_path):

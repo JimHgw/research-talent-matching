@@ -27,6 +27,18 @@ def prepare(app):
     assert "Database schema is compatible" in result.output
 
 
+def assert_startup_unhealthy(app):
+    restarted = create_app(app.config)
+    try:
+        for _ in range(2):
+            response = restarted.test_client().get("/healthz")
+            assert response.status_code == 503
+            assert response.json == {"status": "unavailable"}
+            assert response.headers["X-Request-Id"]
+    finally:
+        restarted.extensions["database"].engine.dispose()
+
+
 def snapshot(database):
     metadata = MetaData()
     metadata.reflect(database.engine)
@@ -58,6 +70,7 @@ def structure(database):
     "upgrade-academic-requirements", "upgrade-resume-text", "seed-tags", "check-schema"])
 def test_release_sequence_stops_at_failed_step(app, monkeypatch, step):
     import click
+    prepare(app)
     executed = []
     order = ["init-db", "upgrade-opportunity-search", "upgrade-query-indexes",
              "upgrade-academic-requirements", "upgrade-resume-text", "seed-tags", "check-schema"]
@@ -70,6 +83,8 @@ def test_release_sequence_stops_at_failed_step(app, monkeypatch, step):
     result = app.test_cli_runner().invoke(args=["prepare-db"])
     assert result.exit_code != 0 and "Injected release failure" in result.output
     assert executed == order[:order.index(step) + 1]
+    assert not app.extensions["schema_ready"]
+    assert app.test_client().get("/healthz").status_code == 503
 
 
 def test_missing_schema_blocks_health_and_native_worker(app):
@@ -78,7 +93,7 @@ def test_missing_schema_blocks_health_and_native_worker(app):
         connection.exec_driver_sql("DROP INDEX ix_opportunities_active_page" +
                                    (" ON opportunities" if connection.dialect.name == "mysql" else ""))
     try:
-        assert app.test_client().get("/healthz").status_code == 503
+        assert_startup_unhealthy(app)
         result = app.test_cli_runner().invoke(args=["process-documents", "--once"])
         assert result.exit_code != 0 and "Worker schema is incompatible" in result.output
     finally:
@@ -190,7 +205,7 @@ def test_mysql_fresh_legacy_repeat_unicode_and_restore(release_mysql, sqlite_sou
         backup = mysql_tool("mysqldump", "--single-transaction", "--skip-lock-tables", "--no-tablespaces",
                             "--set-gtid-purged=OFF", "--hex-blob", url.database)
         assert backup
-        assert app.test_client().get("/healthz").status_code == 503
+        assert_startup_unhealthy(app)
         prepare(app)
         upgraded = snapshot(database)
         assert_preserved(before, upgraded)
