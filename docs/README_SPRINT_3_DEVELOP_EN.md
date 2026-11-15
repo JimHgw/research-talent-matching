@@ -438,6 +438,8 @@ Development against agreed fixtures can proceed before backend refactoring is me
 
 ### BE-9: Standardise Database Upgrades and Pre-Release Checks
 
+Implementation and verification: [database release checklist, schema inventory and recovery](testing/be9-release.md). Use `prepare-db` for local and Docker startup; `check-schema` is the read-only preflight.
+
 **Difficulty: 8/10.** Covers fresh and existing databases, repeatable upgrades, MySQL DDL behaviour and verified recovery without data loss.
 
 **Objective:** demonstrate that the updated code works for both fresh installations and upgrades containing existing data.

@@ -187,8 +187,7 @@ For existing databases, rebuilding the application image or running `init-db` do
 For local deployments, stop API/worker writes, keep a database backup and the existing configuration, then run:
 
 ```powershell
-.\.venv\Scripts\python.exe -m flask --app backend.app init-db
-.\.venv\Scripts\python.exe -m flask --app backend.app upgrade-resume-text
+.\.venv\Scripts\python.exe -m flask --app backend.app prepare-db
 ```
 
 On macOS/Linux, use `.venv/bin/python`. The upgrade only widens the existing
@@ -205,3 +204,7 @@ upgrade. There is no need to delete data volumes.
 `backend/tests/test_us11_review_regressions.py` covers manual saves, reviewed imports, complete round trips of
 17,000/20,000 four-byte characters, atomic rejection when the limit is exceeded, and data preservation and repeated
 execution after upgrading an old TEXT column, using a real MySQL test database.
+
+## Current release sequence
+
+Use the [BE-9 checklist](testing/be9-release.md) for fresh installations, existing MySQL upgrades, readiness and verified backup/restore. `prepare-db` includes all explicit upgrades and vocabulary seeding. The SQLite-to-MySQL copy procedure above still requires an empty destination and must run **before** seeding or normal container startup.
