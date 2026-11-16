@@ -1,6 +1,6 @@
 # Sprint 3 BE-4 并发版本控制与事务原子性验收
 
-执行日期：2026-11-16（Australia/Sydney）。基线提交 `ab6b0d3beff6414d39504cfa70ec52ba61c44eaa`，结果包含本分支工作区修改。所有测试使用独立临时数据库：SQLite 为 pytest 临时文件；MySQL 为一次性 `mysql:8.4` 容器中以 `_test` 结尾的数据库，不读取或修改本地业务数据库。
+执行日期：2026-11-16（Australia/Sydney）。基线提交 `ab6b0d3beff6414d39504cfa70ec52ba61c44eaa`；本分支随后合并了 `origin/main`（含 BE-2 导入服务），以下 BE-4 结果与证据均在合并后的代码上重新生成。所有测试使用独立临时数据库：SQLite 为 pytest 临时文件；MySQL 为一次性 `mysql:8.4` 容器中以 `_test` 结尾的数据库，不读取或修改本地业务数据库。
 
 测试文件：[`backend/tests/test_sprint3_be4.py`](../../../backend/tests/test_sprint3_be4.py)。
 
@@ -100,8 +100,8 @@ MySQL 的观测循环每 2 ms 查询一次状态，只用于观察，不决定�
 
 | 数据库 | BE-4 测试 | 竞争轮次 | 第二写者被观测为阻塞 | 反向对照 | 故障注入 | 全量后端测试 |
 | --- | --- | --- | --- | --- | --- | --- |
-| SQLite 3.51.0 | 43 passed | 60 / 60 符合预期 | 不适用（见第 4 节） | [200, 500] OperationalError | 22 / 22 回滚 | 986 passed, 32 skipped |
-| MySQL 8.4.13 | 43 passed | 60 / 60 符合预期 | 60 / 60 | [200, 500] IntegrityError | 22 / 22 回滚 | MYSQL_FULL_RESULT |
+| SQLite 3.51.0 | 43 passed | 60 / 60 符合预期 | 不适用（见第 4 节） | [200, 500] OperationalError | 22 / 22 回滚 | 合并前：986 passed, 32 skipped；合并后：相关套件 262 passed |
+| MySQL 8.4.13 | 43 passed | 60 / 60 符合预期 | 60 / 60 | [200, 500] IntegrityError | 22 / 22 回滚 | 合并后：1009 passed, 1 failed*, 20 skipped |
 
 证据文件：
 
@@ -110,7 +110,9 @@ MySQL 的观测循环每 2 ms 查询一次状态，只用于观察，不决定�
 
 证据 JSON 中 `rounds` 为每轮的状态码、前后版本、是否观测到阻塞与耗时；`controls` 为写锁首语句与反向对照；`faults` 为每个注入点。
 
-全量后端测试中 32 个 skip 为需要额外开关的套件（`--run-docker`、真实语义模型、前端集成等），与本任务无关。
+全量后端测试的 skip 与本任务无关：MySQL 下 20 个为 `--run-docker` 容器测试、本机未安装的真实语义模型、仅 Windows/PowerShell 的启动脚本，以及仅适用于非 MySQL 的启动路径；SQLite 下多出的 skip 为需要 `--run-mysql` 的 MySQL 专用测试。
+
+\* 合并后 MySQL 全量运行中，前端浏览器端到端测试 `test_frontend_integration.py::test_real_frontend_workflow[19]` 因页面等待超时失败；该次运行与其他测试并行占用本机，期间所有后端请求均返回 200/201。单独重跑该测试在 MySQL 与 SQLite 上均通过，判断为负载导致的超时，与 BE-4 无关。合并后的 SQLite 全量运行被中途停止，只记录了 BE-1、BE-2、BE-4 与 US-01/02/09/11 相关套件（262 passed）。
 
 ## 7. 复现
 

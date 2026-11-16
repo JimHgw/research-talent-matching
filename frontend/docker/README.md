@@ -7,9 +7,11 @@ backend data volume. The separate configuration below is only for a backend
 running on the host; do not combine these two Compose files with `-f`.
 
 This configuration builds the JavaScript frontend using Node 24 and pnpm 11.25.0,
-then serves the production bundle with Nginx. The Python backend, virtual
-environment and SQLite database stay on the host. No backend source, credentials,
-test fixtures or local dependencies are copied into the image.
+then serves the production bundle with Nginx. The Python backend runs on the
+host with its existing virtual environment and database configuration. This
+frontend-only Compose file does not start a database; use the configured MySQL
+service or an explicitly configured legacy SQLite database. No backend source,
+credentials, test fixtures or local dependencies are copied into the image.
 
 Install and start Docker Desktop on macOS/Windows, or Docker Engine with Compose
 v2 on Linux. Verify availability with `docker version` and `docker compose version`.

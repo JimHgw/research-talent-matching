@@ -4,18 +4,18 @@ from flask import Blueprint, jsonify, send_file
 from sqlalchemy import func, select
 from uuid import uuid4
 
-from ...db.database import database, require_write_lock
-from ...db.interests import resolve_personal_tags
+from ...db.database import database
+from ...db.models import Document, TalentProfile
 from ...db.skills import upgrade_extraction_skills
-from ...db.models import Document, DocumentExtraction, TalentProfile, utcnow
 from ...shared.pagination import pagination
 from ...shared.security import require_csrf, require_user
-from ...shared.validation import ApiError, body, invalid, validator
+from ...shared.validation import ApiError, body
 
-from ..profile.routes import own_profile, serialize_profile
+from ..profile.repository import own_profile
+from .repository import get_extraction, own_document
+from .service import apply_reviewed_extraction
 from .storage import save_upload, stored_file_path
 from .uploads import read_upload, validate_file
-from .review import check_reviewed_sections, save_reviewed_sections
 
 documents = Blueprint("documents", __name__, url_prefix="/api/v1")
 
@@ -35,32 +35,6 @@ def serialize_document(document):
         ) + "Z",
         "error": document.error
     }
-
-def own_document(db, user, document_id):
-    # Validate the document ID against the API contract.
-    if not validator("Id").is_valid(document_id):
-        invalid(
-            "documentId",
-            "Use an ID of 1–64 letters, digits, underscores or hyphens.",
-        )
-
-    document = db.scalar(
-        select(Document)
-        .join(TalentProfile)
-        .where(
-            Document.id == document_id,
-            TalentProfile.user_id == user.id,
-        )
-    )
-
-    if document is None:
-        raise ApiError(
-            404,
-            "NOT_FOUND",
-            "Document not found.",
-        )
-
-    return document
 
 
 @documents.get("/me/documents")
@@ -194,7 +168,7 @@ def document_extraction_get(document_id):
                 "The document could not be processed.",
             )
 
-        extraction = db.get(DocumentExtraction, document_id)
+        extraction = get_extraction(db, document_id)
 
         if extraction is None:
             raise ApiError(
@@ -213,59 +187,16 @@ def document_apply_post(document_id):
         session, user = require_user(db, "TALENT")
         require_csrf(session)
 
-        document = own_document(db, user, document_id)
+        # Preserve ownership-before-body error precedence.
+        own_document(db, user, document_id)
         data = body("ApplyExtractionRequest")
-        if document.status in ("QUEUED", "PROCESSING"):
-            raise ApiError(
-                409,
-                "EXTRACTION_NOT_READY",
-                "The document is still being processed.",
-            )
 
-        if document.status == "FAILED":
-            raise ApiError(
-                422,
-                "EXTRACTION_FAILED",
-                "The document could not be processed.",
-            )
-
-        profile = own_profile(db, user)
-
-        require_write_lock(db)
-        if data["expectedProfileRevision"] != profile.revision:
-            raise ApiError(
-                409,
-                "REVISION_CONFLICT",
-                "Your profile changed. Reload the latest version.",
-                revision=profile.revision,
-            )
-
-        sections = data["sections"]
-        if "customInterestTags" in sections:
-            current = serialize_profile(db, profile)["content"]
-            personal, shared = resolve_personal_tags(
-                db, profile.talent_id, sections["customInterestTags"],
-                sections.get("researchInterests", current["researchInterests"]), "sections.customInterestTags")
-            sections["customInterestTags"] = personal
-            if "researchInterests" in sections or shared != current["researchInterests"]:
-                sections["researchInterests"] = shared
-        elif "researchInterests" in sections:
-            current = serialize_profile(db, profile)["content"]
-            if len(sections["researchInterests"]) + len(current["customInterestTags"]) > 100:
-                invalid("sections.researchInterests", "Select at most 100 shared and personal interest tags combined.")
-        check_reviewed_sections(db, sections)
-
-        profile.revision += 1
-        profile.confirmation_status = "UNCONFIRMED"
-        profile.confirmed_revision = None
-        profile.confirmed_at = None
-        profile.updated_at = utcnow()
-
-        save_reviewed_sections(
-            db, profile, sections, document.id
+        result = apply_reviewed_extraction(
+            db,
+            user,
+            document_id,
+            expected_profile_revision=data["expectedProfileRevision"],
+            sections=data["sections"],
         )
-
-        db.flush()
-        result = serialize_profile(db, profile)
 
     return jsonify(result)

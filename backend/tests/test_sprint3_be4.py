@@ -34,7 +34,7 @@ from sqlalchemy import event, select, text
 
 from backend.src.db.database import WRITE_LOCK, require_write_lock
 from backend.src.db.models import Base, Document, DocumentExtraction, PersonalInterestTag
-from backend.src.features.documents import routes as document_routes
+from backend.src.features.documents import service as document_service
 from backend.src.features.profile import routes as profile_routes
 from conftest import headers, sign_in
 from test_us01 import sample
@@ -645,14 +645,14 @@ def test_failure_during_a_child_write_rolls_back_everything(app, actors, ready_d
 
     if target == "after-all-writes":
         # Fail in the final serialisation, after every statement has been flushed.
-        for module in (profile_routes, document_routes):
+        for module in (profile_routes, document_service):
             real = module.serialize_profile
 
-            def failing(db, profile, _real=real):
+            def failing(*args, _real=real, **kwargs):
                 if written and not fired:
                     fired.append("after-flush")
                     raise RuntimeError("BE-4 injected failure after all writes")
-                return _real(db, profile)
+                return _real(*args, **kwargs)
             monkeypatch.setattr(module, "serialize_profile", failing)
     event.listen(engine, "before_cursor_execute", on_execute)
     try:

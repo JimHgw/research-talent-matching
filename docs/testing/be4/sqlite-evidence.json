@@ -13,7 +13,7 @@
       "revisionAfter": 1,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 14.201
+      "elapsedMs": 102.598
     },
     {
       "test": "profile_save_vs_save",
@@ -28,7 +28,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.204
+      "elapsedMs": 42.812
     },
     {
       "test": "profile_save_vs_save",
@@ -43,7 +43,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.206
+      "elapsedMs": 24.418
     },
     {
       "test": "profile_save_vs_save",
@@ -58,7 +58,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.001
+      "elapsedMs": 29.641
     },
     {
       "test": "profile_save_vs_save",
@@ -73,7 +73,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.08
+      "elapsedMs": 46.965
     },
     {
       "test": "profile_save_vs_save",
@@ -88,7 +88,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.447
+      "elapsedMs": 22.315
     },
     {
       "test": "profile_save_vs_save",
@@ -103,7 +103,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.181
+      "elapsedMs": 43.371
     },
     {
       "test": "profile_save_vs_save",
@@ -118,7 +118,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.963
+      "elapsedMs": 79.648
     },
     {
       "test": "profile_save_vs_save",
@@ -133,7 +133,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.613
+      "elapsedMs": 280.363
     },
     {
       "test": "profile_save_vs_save",
@@ -148,7 +148,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 8.512
+      "elapsedMs": 27.741
     },
     {
       "test": "import_vs_manual_save",
@@ -164,7 +164,7 @@
       "revisionAfter": 1,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.764
+      "elapsedMs": 53.073
     },
     {
       "test": "import_vs_manual_save",
@@ -180,7 +180,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.068
+      "elapsedMs": 69.274
     },
     {
       "test": "import_vs_manual_save",
@@ -196,7 +196,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.331
+      "elapsedMs": 25.053
     },
     {
       "test": "import_vs_manual_save",
@@ -212,7 +212,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.406
+      "elapsedMs": 31.961
     },
     {
       "test": "import_vs_manual_save",
@@ -228,7 +228,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.841
+      "elapsedMs": 28.422
     },
     {
       "test": "import_vs_manual_save",
@@ -244,7 +244,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.361
+      "elapsedMs": 19.51
     },
     {
       "test": "import_vs_manual_save",
@@ -260,7 +260,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.79
+      "elapsedMs": 32.823
     },
     {
       "test": "import_vs_manual_save",
@@ -276,7 +276,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.296
+      "elapsedMs": 30.504
     },
     {
       "test": "import_vs_manual_save",
@@ -292,7 +292,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.817
+      "elapsedMs": 25.629
     },
     {
       "test": "import_vs_manual_save",
@@ -308,7 +308,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.067
+      "elapsedMs": 24.703
     },
     {
       "test": "confirmation_vs_edit",
@@ -324,7 +324,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.73
+      "elapsedMs": 56.682
     },
     {
       "test": "confirmation_vs_edit",
@@ -340,7 +340,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 10.491
+      "elapsedMs": 22.529
     },
     {
       "test": "confirmation_vs_edit",
@@ -356,7 +356,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 8.419
+      "elapsedMs": 17.796
     },
     {
       "test": "confirmation_vs_edit",
@@ -372,7 +372,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.584
+      "elapsedMs": 24.545
     },
     {
       "test": "confirmation_vs_edit",
@@ -388,7 +388,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 10.046
+      "elapsedMs": 21.114
     },
     {
       "test": "confirmation_vs_edit",
@@ -404,7 +404,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.475
+      "elapsedMs": 23.673
     },
     {
       "test": "confirmation_vs_edit",
@@ -420,7 +420,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.891
+      "elapsedMs": 32.004
     },
     {
       "test": "confirmation_vs_edit",
@@ -436,7 +436,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.704
+      "elapsedMs": 22.922
     },
     {
       "test": "confirmation_vs_edit",
@@ -452,7 +452,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 8.417
+      "elapsedMs": 15.613
     },
     {
       "test": "confirmation_vs_edit",
@@ -468,7 +468,7 @@
       "revisionAfter": 11,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.429
+      "elapsedMs": 31.225
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -484,7 +484,7 @@
       "revisionAfter": 1,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 12.721
+      "elapsedMs": 31.122
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -500,7 +500,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 11.326
+      "elapsedMs": 21.589
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -516,7 +516,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.961
+      "elapsedMs": 25.771
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -532,7 +532,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.403
+      "elapsedMs": 45.66
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -548,7 +548,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.348
+      "elapsedMs": 23.423
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -564,7 +564,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.627
+      "elapsedMs": 16.048
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -580,7 +580,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.331
+      "elapsedMs": 22.176
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -596,7 +596,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.567
+      "elapsedMs": 20.259
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -612,7 +612,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.199
+      "elapsedMs": 14.264
     },
     {
       "test": "duplicate_import_and_stale_retry",
@@ -628,7 +628,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.645
+      "elapsedMs": 15.918
     },
     {
       "test": "privacy_vs_privacy",
@@ -643,7 +643,7 @@
       "revisionAfter": 1,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 3.881
+      "elapsedMs": 61.454
     },
     {
       "test": "privacy_vs_privacy",
@@ -658,7 +658,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.697
+      "elapsedMs": 18.762
     },
     {
       "test": "privacy_vs_privacy",
@@ -673,7 +673,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 3.092
+      "elapsedMs": 8.082
     },
     {
       "test": "privacy_vs_privacy",
@@ -688,7 +688,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 2.74
+      "elapsedMs": 7.951
     },
     {
       "test": "privacy_vs_privacy",
@@ -703,7 +703,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 3.006
+      "elapsedMs": 6.879
     },
     {
       "test": "privacy_vs_privacy",
@@ -718,7 +718,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 2.775
+      "elapsedMs": 17.124
     },
     {
       "test": "privacy_vs_privacy",
@@ -733,7 +733,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 2.962
+      "elapsedMs": 6.92
     },
     {
       "test": "privacy_vs_privacy",
@@ -748,7 +748,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 2.985
+      "elapsedMs": 8.05
     },
     {
       "test": "privacy_vs_privacy",
@@ -763,7 +763,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.762
+      "elapsedMs": 11.039
     },
     {
       "test": "privacy_vs_privacy",
@@ -778,7 +778,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 2.955
+      "elapsedMs": 6.313
     },
     {
       "test": "opportunity_writes",
@@ -794,7 +794,7 @@
       "revisionAfter": 2,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.25
+      "elapsedMs": 20.402
     },
     {
       "test": "opportunity_writes",
@@ -810,7 +810,7 @@
       "revisionAfter": 3,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 7.09
+      "elapsedMs": 13.51
     },
     {
       "test": "opportunity_writes",
@@ -826,7 +826,7 @@
       "revisionAfter": 4,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.96
+      "elapsedMs": 14.89
     },
     {
       "test": "opportunity_writes",
@@ -842,7 +842,7 @@
       "revisionAfter": 5,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 6.469
+      "elapsedMs": 28.804
     },
     {
       "test": "opportunity_writes",
@@ -858,7 +858,7 @@
       "revisionAfter": 6,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 8.749
+      "elapsedMs": 20.553
     },
     {
       "test": "opportunity_writes",
@@ -874,7 +874,7 @@
       "revisionAfter": 7,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.96
+      "elapsedMs": 22.267
     },
     {
       "test": "opportunity_writes",
@@ -890,7 +890,7 @@
       "revisionAfter": 8,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 9.006
+      "elapsedMs": 26.952
     },
     {
       "test": "opportunity_writes",
@@ -906,7 +906,7 @@
       "revisionAfter": 9,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.43
+      "elapsedMs": 24.2
     },
     {
       "test": "opportunity_writes",
@@ -922,7 +922,7 @@
       "revisionAfter": 10,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.579
+      "elapsedMs": 81.64
     },
     {
       "test": "opportunity_writes",
@@ -938,7 +938,7 @@
       "revisionAfter": 11,
       "secondLockRequestedWhileFirstHeldLock": true,
       "secondObservedBlockedInProcesslist": null,
-      "elapsedMs": 5.594
+      "elapsedMs": 22.227
     }
   ],
   "faults": [
@@ -1322,7 +1322,7 @@
       "dialect": "sqlite",
       "serverVersion": "3.51.0",
       "firstStatement": "BEGIN IMMEDIATE",
-      "statements": 47
+      "statements": 48
     },
     {
       "test": "lock_first:opportunity",

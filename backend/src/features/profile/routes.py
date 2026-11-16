@@ -4,52 +4,32 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import delete, select
 
 from ...db.database import database, require_write_lock
-from ...db.interests import (COMPONENTS, TEXT_FIELDS, profile_components, replace_personal_selection,
-                            resolve_personal_tags, set_component_origin, set_profile_text)
-from ...db.models import ProfileComponentOrigin
-from ...db.skills import check_skills, read_skills_many, replace_skills
-from ...db.models import (ProfileInterest, ProfileOrigin, Tag, TagDisciplineGroup,
-                          TalentProfile, utcnow)
+from ...db.interests import (
+    COMPONENTS,
+    TEXT_FIELDS,
+    replace_personal_selection,
+    resolve_personal_tags,
+    set_component_origin,
+    set_profile_text,
+)
+from ...db.models import (
+    ProfileInterest,
+    ProfileOrigin,
+    Tag,
+    TagDisciplineGroup,
+    utcnow,
+)
+from ...db.skills import check_skills, replace_skills
 from ...shared.security import require_csrf, require_user
 from ...shared.validation import ApiError, body, invalid, validate
+from .repository import load_profile_details, own_profile
+from .serialization import ARRAYS, SCALARS, serialize_profile
+
 
 profiles = Blueprint("profiles", __name__, url_prefix="/api/v1")
-SCALARS = {"displayName": "display_name", "disciplineGroup": "discipline_group"}
-ARRAYS = {"education": "education", "courses": "courses", "researchExperience": "research_experience",
-          "researchOutputs": "research_outputs"}
 BASE_SECTIONS = (*ARRAYS, "skills", "researchInterests")
 SECTIONS = (*BASE_SECTIONS, *COMPONENTS)
 
-
-def timestamp(value):
-    return value.isoformat(timespec="microseconds") + "Z" if value is not None else None
-
-
-def serialize_profile(db, profile):
-    content = {field: getattr(profile, attr) for field, attr in (SCALARS | ARRAYS).items()}
-    content["skills"] = read_skills_many(db, [profile.talent_id])[profile.talent_id]
-    content["researchInterests"] = list(db.scalars(
-        select(ProfileInterest.tag_id).where(ProfileInterest.talent_id == profile.talent_id)
-        .order_by(ProfileInterest.position)))
-    content.update(profile_components(db, profile.talent_id))
-    origins = [{"field": row.field, "sourceType": row.source_type, "documentId": row.document_id}
-               for model in (ProfileOrigin, ProfileComponentOrigin)
-               for row in db.scalars(select(model).where(model.talent_id == profile.talent_id))]
-    return {
-        "talentId": profile.talent_id, "revision": profile.revision, "content": content,
-        "confirmation": {"status": profile.confirmation_status,
-                         "confirmedRevision": profile.confirmed_revision,
-                         "confirmedAt": timestamp(profile.confirmed_at)},
-        "origins": sorted(origins, key=lambda item: item["field"]),
-        "updatedAt": timestamp(profile.updated_at),
-    }
-
-
-def own_profile(db, user):
-    profile = db.scalar(select(TalentProfile).where(TalentProfile.user_id == user.id))
-    if profile is None:
-        raise ApiError(404, "NOT_FOUND", "Profile not found.")
-    return profile
 
 
 def check_content(db, content):
@@ -90,7 +70,10 @@ def tags_get():
 def profile_get():
     with database().transaction() as db:
         _, user = require_user(db, "TALENT")
-        result = serialize_profile(db, own_profile(db, user))
+        profile = own_profile(db, user)
+        result = serialize_profile(
+            profile, load_profile_details(db, profile)
+        )
     return jsonify(result)
 
 
@@ -106,7 +89,7 @@ def profile_put():
         if data["expectedRevision"] != profile.revision:
             raise ApiError(409, "REVISION_CONFLICT", "Your profile changed. Reload the latest version.",
                            revision=profile.revision)
-        old = serialize_profile(db, profile)
+        old = serialize_profile(profile, load_profile_details(db, profile))
         content = data["content"]
         for field in COMPONENTS:
             content.setdefault(field, old["content"][field])
@@ -141,7 +124,7 @@ def profile_put():
                 set_profile_text(db, profile.talent_id, field, content[field])
             replace_personal_selection(db, profile.talent_id, content["customInterestTags"])
             db.flush()
-            result = serialize_profile(db, profile)
+            result = serialize_profile(profile, load_profile_details(db, profile))
     return jsonify(result)
 
 @profiles.post("/me/profile/confirmation")
@@ -166,7 +149,7 @@ def profile_confirm():
             )
 
         # Check the name and information column
-        current = serialize_profile(db, profile)
+        current = serialize_profile(profile, load_profile_details(db, profile))
         content = current["content"]
 
         if not content["displayName"].strip():
@@ -195,7 +178,7 @@ def profile_confirm():
             db.flush()
 
         # Organize the returned data
-        result = serialize_profile(db, profile)
+        result = serialize_profile(profile, load_profile_details(db, profile))
 
     return jsonify(result)
 
