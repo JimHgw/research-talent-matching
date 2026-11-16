@@ -13,8 +13,23 @@ from .models import Base, DatabaseWriteLock
 from ..shared.paths import ROOT
 
 
+WRITE_LOCK = "h18_write_lock"
+
+
 def database():
     return current_app.extensions["database"]
+
+
+def require_write_lock(db):
+    """Guard revision comparisons: they must read state only after the writer lock is held.
+
+    ``Database.transaction(write=True)`` takes that lock before any application read
+    (SQLite ``BEGIN IMMEDIATE``; MySQL ``database_write_lock ... FOR UPDATE``). A
+    comparison made in a read transaction could pass against a stale revision and
+    lose a concurrent update, so it is rejected as a programming error.
+    """
+    if not db.info.get(WRITE_LOCK):
+        raise RuntimeError("Revision checks require database().transaction(write=True).")
 
 
 class Database:
@@ -72,4 +87,5 @@ class Database:
                         # across API processes and document workers. Released on commit/rollback.
                         session.execute(select(DatabaseWriteLock.id).where(
                             DatabaseWriteLock.id == 1).with_for_update()).scalar_one()
+                    session.info[WRITE_LOCK] = write
                     yield session

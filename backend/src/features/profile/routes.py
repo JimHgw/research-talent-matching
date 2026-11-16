@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import delete, select
 
-from ...db.database import database
+from ...db.database import database, require_write_lock
 from ...db.interests import (COMPONENTS, TEXT_FIELDS, profile_components, replace_personal_selection,
                             resolve_personal_tags, set_component_origin, set_profile_text)
 from ...db.models import ProfileComponentOrigin
@@ -102,6 +102,7 @@ def profile_put():
         require_csrf(session)
         data = body("ProfileWrite")
         profile = own_profile(db, user)
+        require_write_lock(db)
         if data["expectedRevision"] != profile.revision:
             raise ApiError(409, "REVISION_CONFLICT", "Your profile changed. Reload the latest version.",
                            revision=profile.revision)
@@ -155,6 +156,7 @@ def profile_confirm():
         data = body("RevisionRequest")
 
         # The version checked by the user must be the current version
+        require_write_lock(db)
         if data["expectedRevision"] != profile.revision:
             raise ApiError(
                 409,

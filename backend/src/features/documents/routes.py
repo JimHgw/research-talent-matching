@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, send_file
 from sqlalchemy import func, select
 from uuid import uuid4
 
-from ...db.database import database
+from ...db.database import database, require_write_lock
 from ...db.interests import resolve_personal_tags
 from ...db.skills import upgrade_extraction_skills
 from ...db.models import Document, DocumentExtraction, TalentProfile, utcnow
@@ -231,6 +231,7 @@ def document_apply_post(document_id):
 
         profile = own_profile(db, user)
 
+        require_write_lock(db)
         if data["expectedProfileRevision"] != profile.revision:
             raise ApiError(
                 409,
