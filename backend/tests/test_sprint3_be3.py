@@ -379,4 +379,3 @@ def test_manual_noop_and_identical_import_have_different_revision_rules(direct_d
     assert second["revision"] == first["revision"] + 1
     assert second["content"] == first["content"]
     assert save(database, deepcopy(second["content"]), second["revision"]) == second
-
