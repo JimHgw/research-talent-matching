@@ -3,10 +3,10 @@
 from copy import deepcopy
 
 from ...db.database import require_write_lock
-from ...db.models import utcnow
 from ...shared.validation import ApiError, invalid, validate
 from ..profile.repository import load_profile_details, own_profile
 from ..profile.serialization import serialize_profile
+from ..profile.state import mark_profile_changed
 from . import repository
 from .review import check_reviewed_sections
 
@@ -94,11 +94,7 @@ def apply_reviewed_extraction(
     )
     check_reviewed_sections(reviewed, tag_kinds)
 
-    profile.revision += 1
-    profile.confirmation_status = "UNCONFIRMED"
-    profile.confirmed_revision = None
-    profile.confirmed_at = None
-    profile.updated_at = utcnow()
+    mark_profile_changed(profile)
 
     repository.save_reviewed_sections(
         db, profile, reviewed, document.id

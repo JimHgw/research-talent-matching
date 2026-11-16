@@ -35,7 +35,7 @@ from sqlalchemy import event, select, text
 from backend.src.db.database import WRITE_LOCK, require_write_lock
 from backend.src.db.models import Base, Document, DocumentExtraction, PersonalInterestTag
 from backend.src.features.documents import service as document_service
-from backend.src.features.profile import routes as profile_routes
+from backend.src.features.profile import service as profile_service
 from conftest import headers, sign_in
 from test_us01 import sample
 from test_us02 import content as opportunity_content
@@ -645,7 +645,7 @@ def test_failure_during_a_child_write_rolls_back_everything(app, actors, ready_d
 
     if target == "after-all-writes":
         # Fail in the final serialisation, after every statement has been flushed.
-        for module in (profile_routes, document_service):
+        for module in (profile_service, document_service):
             real = module.serialize_profile
 
             def failing(*args, _real=real, **kwargs):
