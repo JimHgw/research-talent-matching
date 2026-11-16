@@ -42,3 +42,15 @@ def serialize_profile(profile, details):
         ),
         "updatedAt": timestamp(profile.updated_at),
     }
+
+
+def serialize_tag_catalogue(rows):
+    return [
+        {
+            "id": tag.id,
+            "label": tag.label,
+            "kind": tag.kind,
+            "disciplineGroups": groups,
+        }
+        for tag, groups in rows
+    ]
