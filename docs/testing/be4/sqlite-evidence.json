@@ -1,0 +1,1357 @@
+{
+  "rounds": [
+    {
+      "test": "profile_save_vs_save",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 102.598
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 42.812
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 24.418
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 29.641
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 46.965
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.315
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 43.371
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 79.648
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 280.363
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 27.741
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 53.073
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 69.274
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 25.053
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 31.961
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 28.422
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 19.51
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 32.823
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 30.504
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 25.629
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 24.703
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 56.682
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.529
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "edit-first/already-confirmed",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 17.796
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "confirm-first/already-confirmed",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 24.545
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 21.114
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 23.673
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "edit-first/already-confirmed",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 32.004
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "confirm-first/already-confirmed",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.922
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 15.613
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 10,
+      "revisionAfter": 11,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 31.225
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 31.122
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 21.589
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 25.771
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 45.66
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 23.423
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 16.048
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.176
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 20.259
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 14.264
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 15.918
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 61.454
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 18.762
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 8.082
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 7.951
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 6.879
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 17.124
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 6.92
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 8.05
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 11.039
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 6.313
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 0,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "publish-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 20.402
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 1,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 13.51
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 2,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 14.89
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 3,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 28.804
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 4,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 20.553
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 5,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.267
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 6,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 26.952
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 7,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 24.2
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 8,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 81.64
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 9,
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 10,
+      "revisionAfter": 11,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": null,
+      "elapsedMs": 22.227
+    }
+  ],
+  "faults": [
+    {
+      "test": "save:talent_profiles",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 2,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:personal_interest_tags",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:personal_interest_tag_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_interests",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 5,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_skill_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 6,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_text_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 7,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_skill_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_personal_interests",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 8,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_origins",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 3,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_component_origins",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 4,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:after-all-writes",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 10,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:talent_profiles",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 2,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:personal_interest_tags",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:personal_interest_tag_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_interests",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 11,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_skill_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 15,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_text_details",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 9,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "profile_personal_interests",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_personal_interests",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 4,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_origins",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 3,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_component_origins",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 6,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "profile_personal_interests",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:after-all-writes",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 17,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "confirmation:talent_profiles",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "confirmation:after-all-writes",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    }
+  ],
+  "controls": [
+    {
+      "test": "lock_first:profile",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 36
+    },
+    {
+      "test": "lock_first:confirmation",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 17
+    },
+    {
+      "test": "lock_first:privacy",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 9
+    },
+    {
+      "test": "lock_first:import",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 48
+    },
+    {
+      "test": "lock_first:opportunity",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 21
+    },
+    {
+      "test": "lock_first:publish",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "firstStatement": "BEGIN IMMEDIATE",
+      "statements": 12
+    },
+    {
+      "test": "negative_control_unlocked_save_vs_save",
+      "dialect": "sqlite",
+      "serverVersion": "3.51.0",
+      "statuses": [
+        200,
+        500
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "lostUpdate": false,
+      "uncontrolledErrors": [
+        "OperationalError"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import delete, select
 
-from ...db.database import database
+from ...db.database import database, require_write_lock
 from ...db.models import PrivacySettings, PrivacyVisibleField, TalentProfile, utcnow
 from ...shared.security import require_csrf, require_user
 from ...shared.validation import ApiError, body
@@ -49,6 +49,7 @@ def privacy_put():
         require_csrf(session)
         data = body("PrivacyWrite")
         settings = own_settings(db, user)
+        require_write_lock(db)
         if data["expectedRevision"] != settings.revision:
             raise ApiError(409, "REVISION_CONFLICT",
                            "Your privacy settings changed. Reload the latest version.",

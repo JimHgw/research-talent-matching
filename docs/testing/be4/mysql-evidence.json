@@ -1,0 +1,1357 @@
+{
+  "rounds": [
+    {
+      "test": "profile_save_vs_save",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 33.109
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.334
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 18.888
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 18.536
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 18.785
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.678
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.371
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 18.139
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 16.915
+    },
+    {
+      "test": "profile_save_vs_save",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 16.098
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 30.773
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 23.359
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 22.159
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 21.818
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 22.254
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 23.348
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 37.644
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 19.105
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "import-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 20.855
+    },
+    {
+      "test": "import_vs_manual_save",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 20.776
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 24.818
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 27.969
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "edit-first/already-confirmed",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 20.172
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "confirm-first/already-confirmed",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 24.753
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 20.19
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 30.435
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "edit-first/already-confirmed",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 19.713
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "confirm-first/already-confirmed",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 24.344
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "edit-first",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 19.207
+    },
+    {
+      "test": "confirmation_vs_edit",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "confirm-first",
+      "statuses": [
+        200,
+        200
+      ],
+      "revisionBefore": 10,
+      "revisionAfter": 11,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 25.698
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 48.21
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 28.387
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 28.349
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 26.692
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 28.674
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 27.365
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 28.589
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 26.936
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 27.308
+    },
+    {
+      "test": "duplicate_import_and_stale_retry",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 28.478
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 23.663
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 13.956
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 10.769
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 11.293
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 12.61
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 10.953
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 12.089
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 12.234
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 10.774
+    },
+    {
+      "test": "privacy_vs_privacy",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 11.079
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 0,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "publish-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 22.408
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 1,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 19.946
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 2,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 19.731
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 3,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 18.635
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 4,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.331
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 5,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.184
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 6,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 7,
+      "revisionAfter": 8,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 17.989
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 7,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 8,
+      "revisionAfter": 9,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 118.181
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 8,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 9,
+      "revisionAfter": 10,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 26.898
+    },
+    {
+      "test": "opportunity_writes",
+      "round": 9,
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "order": "save-vs-save",
+      "statuses": [
+        200,
+        409
+      ],
+      "revisionBefore": 10,
+      "revisionAfter": 11,
+      "secondLockRequestedWhileFirstHeldLock": true,
+      "secondObservedBlockedInProcesslist": true,
+      "elapsedMs": 38.095
+    }
+  ],
+  "faults": [
+    {
+      "test": "save:talent_profiles",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 2,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:personal_interest_tags",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:personal_interest_tag_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_interests",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 5,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_skill_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 6,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_text_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 7,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_skill_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_personal_interests",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 8,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_origins",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 3,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:profile_component_origins",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 4,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "save:after-all-writes",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 10,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:talent_profiles",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 2,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:personal_interest_tags",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:personal_interest_tag_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tags"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_interests",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 11,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_skill_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 15,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_text_details",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 9,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_origins",
+        "profile_personal_interests",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_personal_interests",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "DELETE",
+      "writesBeforeFailure": 4,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_origins",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "INSERT",
+      "writesBeforeFailure": 3,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:profile_component_origins",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 6,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_origins",
+        "profile_personal_interests",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "import:after-all-writes",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 17,
+      "tablesWrittenBeforeFailure": [
+        "personal_interest_tag_details",
+        "personal_interest_tags",
+        "profile_component_origins",
+        "profile_interests",
+        "profile_origins",
+        "profile_personal_interests",
+        "profile_skill_details",
+        "profile_text_details",
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "confirmation:talent_profiles",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "UPDATE",
+      "writesBeforeFailure": 0,
+      "tablesWrittenBeforeFailure": [],
+      "rolledBack": true,
+      "retryStatus": 200
+    },
+    {
+      "test": "confirmation:after-all-writes",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "status": 500,
+      "injectedAt": "after-flush",
+      "writesBeforeFailure": 1,
+      "tablesWrittenBeforeFailure": [
+        "talent_profiles"
+      ],
+      "rolledBack": true,
+      "retryStatus": 200
+    }
+  ],
+  "controls": [
+    {
+      "test": "lock_first:profile",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 36
+    },
+    {
+      "test": "lock_first:confirmation",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 17
+    },
+    {
+      "test": "lock_first:privacy",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 9
+    },
+    {
+      "test": "lock_first:import",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 48
+    },
+    {
+      "test": "lock_first:opportunity",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 21
+    },
+    {
+      "test": "lock_first:publish",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "firstStatement": "SELECT database_write_lock.id \nFROM database_write_lock \nWHERE database_write_lock.id = %(id_1)s FOR UPDATE",
+      "statements": 12
+    },
+    {
+      "test": "negative_control_unlocked_save_vs_save",
+      "dialect": "mysql",
+      "serverVersion": "8.4.13",
+      "statuses": [
+        200,
+        500
+      ],
+      "revisionBefore": 0,
+      "revisionAfter": 1,
+      "lostUpdate": false,
+      "uncontrolledErrors": [
+        "IntegrityError"
+      ]
+    }
+  ]
+}

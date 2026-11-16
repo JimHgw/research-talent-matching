@@ -7,6 +7,9 @@ from urllib.parse import urlsplit
 from jsonschema import FormatChecker
 
 from sqlalchemy import select
+from sqlalchemy.orm import object_session
+
+from ...db.database import require_write_lock
 
 from ...db.models import Opportunity, Tag, utcnow
 from ...db.skills import normalise_title
@@ -98,6 +101,7 @@ def check_content(db, content, *, published=False):
 
 
 def check_revision(opportunity, expected):
+    require_write_lock(object_session(opportunity))
     if opportunity.revision != expected:
         raise ApiError(409, "REVISION_CONFLICT", "This opportunity changed. Reload and compare the latest version.",
                        revision=opportunity.revision)

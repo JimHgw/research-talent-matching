@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 
+from ...db.database import require_write_lock
 from ...db.models import utcnow
 from ...shared.validation import ApiError, invalid, validate
 from ..profile.repository import load_profile_details, own_profile
@@ -51,6 +52,8 @@ def apply_reviewed_extraction(
 
     profile = own_profile(db, user)
 
+    # The caller's write transaction already holds the writer lock (BE-4).
+    require_write_lock(db)
     if data["expectedProfileRevision"] != profile.revision:
         raise ApiError(
             409,
