@@ -13,7 +13,7 @@ from ..shared.validation import validate
 from .matching.repository import get_published
 from .matching.service import ranked_page
 from .matching.team_repository import (discoverable_profiles, own_published_opportunity,
-                                       tag_labels, visible_profiles)
+                                       tag_labels, team_projection)
 from .matching.team_service import evaluate_talents
 
 collections = Blueprint("collections", __name__, url_prefix="/api/v1")
@@ -66,9 +66,9 @@ def shortlist_list(opportunity_id):
         page, size = pagination()
         ids = set(db.scalars(select(ShortlistedTalent.talent_id).where(
             ShortlistedTalent.opportunity_id == opportunity_id)))
-        # Recheck consent, confirmation and active account on EVERY retrieval.
-        profiles = [profile for profile in discoverable_profiles(db) if profile.talent_id in ids]
-        talents = visible_profiles(db, profiles)
+        # Saved rows are IDs only: consent, confirmation, active account and field
+        # visibility are re-evaluated through the same projection on EVERY retrieval.
+        talents = team_projection(db, talent_ids=ids)
         labels = tag_labels(db)
         items = evaluate_talents(opportunity, talents, labels)
         result = ranked_page(items, page, size)
