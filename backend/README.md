@@ -4,10 +4,11 @@ Flask + MySQL 8.4 + SQLAlchemy ORM implementation for verified-email registratio
 manual talent profiles, confirmation, privacy, research opportunities and two-sided matching. Requests and responses follow the checked-in
 [Sprint 1 contract](../docs/api/sprint-1-api-contract.md) and its OpenAPI models.
 
-For current sprint requirements, backend subtasks, proposed API/data changes and
-acceptance criteria, see the [Sprint 2 backend developer README](../README_SPRINT2_BACKEND_EN.md).
-It is a development specification. The implemented US-11 resume extraction
-extension is described in the [US-11 guide](../docs/us11-resume-extraction.md):
+For Sprint 3 development requirements and acceptance criteria, see the
+[Sprint 3 development guide](../docs/README_SPRINT_3_DEVELOP_EN.md). The
+[Sprint 2 backend guide](../README_SPRINT2_BACKEND_EN.md) retains the earlier
+development specification. The implemented US-11 resume extraction extension
+is described in the [US-11 guide](../docs/us11-resume-extraction.md):
 free-text skill titles/evidence, recognised interest tags, personal-interest proposals
 and a unified owner-only `resumeDescription`. Existing upload, worker, review and
 apply endpoints provide the complete workflow. Unmatched source text is retained.
@@ -40,8 +41,9 @@ Unicode comparisons. Existing installations run `upgrade-query-indexes` after
 `upgrade-opportunity-search`; Docker startup runs it automatically. See the
 [query rules, measurements and verification](../docs/testing/be8/README.md).
 US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
-The measured decision keeps the application's structured interest matcher as its
-fallback. Optional embedding dependencies are separate from API/worker dependencies.
+The current application's structured matcher supplies the semantic fallback.
+`requirements.txt` includes `requirements-semantic.txt`, so normal backend
+installation also installs NumPy, ONNX Runtime and tokenizers.
 Team opportunities additionally support [free-text skill requirements](../docs/free-text-skills.md#opportunity-skill-requirements).
 
 For an existing installation, rerun `init-db` using its existing database
@@ -68,13 +70,23 @@ so the Windows host development dependencies stay compatible.
 
 ## First step after cloning: install the development environment
 
-**After pulling the repository, run the setup program before writing code,
-starting either service or running tests.** Run it again after dependency files
-change. Choose the entry point for your operating system.
+**After cloning, run the setup program before native development.** Run it
+again when dependency files change. An existing compatible environment can
+be reused for changes that do not alter dependencies. Choose the entry point
+for your operating system.
+
+Use **Python 3.12 or 3.13**, preferably Python 3.13, for the pinned dependency
+set in this checkout. Before setup, verify the selected interpreter and any
+existing `.venv`. The current setup scripts check a minimum Python version;
+they do not enforce an upper version limit before installing dependencies.
+For a fresh setup, ensure that the repository `.venv` uses Python 3.12 or
+3.13. If an existing `.venv` uses Python 3.14, rename it to retain a backup,
+then create the replacement `.venv` with a Python 3.12 or 3.13 interpreter
+before rerunning setup. Keep the backup until the replacement is verified.
 
 ### macOS / Linux
 
-Install Python 3.12+ and Node.js 22.13+ **with npm**, and make `python3`, `node`
+Install Python 3.12 or 3.13 and Node.js 22.13+ **with npm**, and make `python3`, `node`
 and `npm` available on PATH. On Linux, the Python installation also needs its
 `venv`/`ensurepip` support (some distributions package it separately).
 From the repository root:
@@ -109,7 +121,9 @@ The program uses its own location, so it also works when invoked with an absolut
 path from another directory. Wait for **Setup complete** before continuing.
 It performs these steps automatically:
 
-1. Reuse Python 3.12+ or install Python 3.13 with WinGet, then create/reuse `.venv/`.
+1. Locate an existing Python interpreter or install Python 3.13 with WinGet,
+   then create/reuse `.venv/`. The selected interpreter and existing environment
+   must use Python 3.12 or 3.13 for this checkout.
 2. Reuse Node.js 22.13+ with npm, or install Node.js LTS with WinGet.
 3. Install all backend runtime and test dependencies from `requirements-dev.txt`.
 4. Install the pnpm version pinned in `frontend/package.json` inside `.venv/node-tools/`.
@@ -207,9 +221,12 @@ backend/
   .env.example            # Backend environment-variable reference
 ```
 
-Features use `db/` and `shared/` without importing another feature. Register new
-feature blueprints in `src/app.py`. The repository's `docs/api/` remains the shared
-contract and fixture source; existing SQLite files remain in the root `data/`.
+Features reuse `db/` and `shared/`. Reviewed document imports also reuse
+profile queries and serialization through `features/profile/repository.py`
+and `features/profile/serialization.py`. Keep these reusable modules
+independent of HTTP route modules. Register new feature blueprints in
+`src/app.py`. The repository's `docs/api/` remains the shared contract and
+fixture source; existing SQLite files remain in the root `data/`.
 
 ## Start the services
 

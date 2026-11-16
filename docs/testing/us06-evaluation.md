@@ -237,3 +237,4 @@ From the `backend` directory:
 
 ```bash
 python -m pytest
+```

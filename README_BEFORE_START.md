@@ -1,25 +1,19 @@
 # Before Starting: Windows Docker Run Guide
 
 This guide covers starting, checking and shutting down the complete application
-from Windows PowerShell. The root Compose configuration runs the frontend,
-backend and document worker. Public sharing is optional.
+from Windows PowerShell. The root Compose configuration runs MySQL, the
+frontend, the backend and the document worker. Public sharing is optional.
 
 ## 1. Prepare before starting
 
 1. Start Docker Desktop and wait until its engine is ready. Use Linux containers.
-2. Open PowerShell in the repository root. On this computer:
-
-   ```powershell
-   Set-Location 'C:\COMP\3900\project'
-   ```
-
-   On another computer, replace the path with that computer's repository path.
-
+2. Open PowerShell in your repository root, the directory containing
+   `compose.yaml`.
 3. Stop any native Vite/Flask processes or other applications using the configured
-   frontend and backend ports. This computer's root `.env` uses frontend port
-   5173 and backend host port 18000 because Windows reserves a range containing
-   8000. The repository defaults are 5173 and 8000; adjust the example health-check
-   URLs if your settings differ.
+   frontend and backend host ports. The defaults are 5173 and 8000; an existing
+   root `.env` or shell environment may override them through `FRONTEND_PORT`
+   and `BACKEND_PORT`. Keep valid existing settings. Use the published addresses
+   reported by Compose for health checks.
 4. Keep using the existing Compose project name. The default is
    `banana-backend`; if you previously set `COMPOSE_PROJECT_NAME`, keep the same
    value so the application uses the same database volume.
@@ -45,22 +39,24 @@ service. See [registration and SMTP setup](docs/us01-registration.md).
 
 ## 2. Start the application: choose one mode
 
-### A. Local use on this computer
+### A. Local use
 
 Run from the repository root:
 
 ```powershell
-docker compose up --build --detach --wait --wait-timeout 120 --force-recreate
+docker compose up --build --detach --wait --wait-timeout 180 --force-recreate
 ```
 
-This builds the application and starts all three services in the background.
+This builds the application and starts MySQL, the frontend, the backend and
+the document worker in the background.
 Recreating the frontend together with the backend refreshes its connection to
 the backend. Database and uploaded files are retained.
 
-After the command succeeds, open <http://127.0.0.1:5173>.
-The backend host port (18000 on this computer) is the API, not the website.
-`localhost` on someone else's computer
-refers to their computer; use a public sharing mode for people on other networks.
+After the command succeeds, open <http://127.0.0.1:5173> when using the default
+frontend port. With a custom `FRONTEND_PORT`, use that port instead. The backend
+host port serves the API; the website is served through the frontend port.
+`localhost` on another computer refers to that computer; use a public sharing
+mode for people on other networks.
 
 ### B. Public access through your assigned ngrok URL
 
@@ -131,23 +127,34 @@ leaving an old sharing container running with outdated application settings.
 
 ## 3. Check the application after startup
 
-Check the three application services:
+Check all four services:
 
 ```powershell
 docker compose ps
 ```
 
-`frontend` and `backend` should be running and healthy. `document-worker` should
-be running; it has no health probe or browser port. A failed startup wait needs
-investigation before using or sharing the application. The first build can take
-longer than 120 seconds; the wait timeout applies to service startup after build.
+`mysql`, `frontend` and `backend` should be running and healthy.
+`document-worker` should be running; it has no health probe or browser port.
+A failed startup wait needs investigation before using or sharing the
+application. The first build can take longer than 180 seconds; the wait timeout
+applies to service startup after build.
 
-With this computer's configured ports, check the frontend, backend and API proxy:
+Read the current published addresses and check the frontend, backend and API
+proxy. These commands use the existing port mappings, including custom ports:
 
 ```powershell
-curl.exe -fsS http://127.0.0.1:5173/healthz
-curl.exe -fsS http://127.0.0.1:18000/healthz
-curl.exe -i http://127.0.0.1:5173/api/v1/auth/session
+$frontendAddress = docker compose port frontend 80
+if ($LASTEXITCODE -ne 0 -or -not $frontendAddress) {
+    throw 'Cannot resolve the frontend host port. Check docker compose ps.'
+}
+$backendAddress = docker compose port backend 8000
+if ($LASTEXITCODE -ne 0 -or -not $backendAddress) {
+    throw 'Cannot resolve the backend host port. Check docker compose ps.'
+}
+
+curl.exe -fsS "http://$frontendAddress/healthz"
+curl.exe -fsS "http://$backendAddress/healthz"
+curl.exe -i "http://$frontendAddress/api/v1/auth/session"
 ```
 
 Expected results: frontend text `ok`; backend JSON with `"status":"ok"`; and
@@ -273,7 +280,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\share.ps1 -Action logs
 | --- | --- |
 | Cannot connect to Docker | Start Docker Desktop and confirm Linux containers are selected. |
 | A configured host port is already in use | Stop the process using that port. For custom ports, update the root `.env`; changing `FRONTEND_PORT` also requires matching `ALLOWED_ORIGINS`. |
-| Windows reports a socket access-permission error with no process listening | Check `netsh interface ipv4 show excludedportrange protocol=tcp`. Choose an available host port outside the excluded ranges and set `BACKEND_PORT` in the root `.env`; this computer uses 18000. The backend's internal container port remains 8000. |
+| Windows reports a socket access-permission error with no process listening | Check `netsh interface ipv4 show excludedportrange protocol=tcp`. Choose an available host port outside the excluded ranges and set `BACKEND_PORT` in the root `.env`. Keep an existing valid port. The backend's internal container port remains 8000. |
 | Startup times out or the page returns 502 | Inspect application logs and container status. For local mode, rerun the full local startup command to recreate frontend and backend together; for public mode, rerun its sharing script. |
 | The page opens but login/save fails | Keep one URL per session; for public access, rerun the sharing script to refresh the allowed origin and session settings. |
 | Registration/reset email does not arrive | Check the root `.env` SMTP settings, provider credentials and spam folder. Reapply settings using your chosen startup mode. Demo provisioning is available for login without SMTP. |

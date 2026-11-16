@@ -18,40 +18,39 @@ The real HTTP workflow is `tests/us14-live.mjs`, run by the shared backend harne
 
 ## Local tests after setup
 
-Use the existing repository-root `setup.sh` (macOS/Linux) or `setup.ps1` (Windows)
-to install project dependencies as described below. There is no separate frontend
-installer. Setup uses pnpm 11.25.0 and the committed `pnpm-lock.yaml`; it requires
-Node 22.13+ with npm. Node 24 LTS is also supported.
+Use the repository-root `setup.sh` (macOS/Linux) or `setup.ps1` (Windows) for
+first-time installation, following the [backend setup guide](../backend/README.md#first-step-after-cloning-install-the-development-environment).
+An existing compatible environment can be reused when dependencies have not
+changed. Setup uses pnpm 11.25.0 and the committed `pnpm-lock.yaml`; Node.js
+22.13+ with npm is required.
 
-If you installed Node inside the existing Python virtual environment using
-nodeenv, activate that environment before running commands. From the repository
-root on macOS/Linux:
+After setup, run the full frontend check from the repository root.
 
-```sh
-. .venv/bin/activate
-node --version
-npm --version
-cd frontend
-npm run check
+On Windows:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\frontend\run.ps1 check
 ```
 
-Activation is only needed to expose your locally installed tools. The frontend
-tests, build and visual test service themselves run with Node in an ordinary
-terminal, without Codex or a running Python backend. `npm run` executes existing
-project scripts; it does not install dependencies or create a second lockfile.
-Keep the full repository checkout: test fixtures also live in `docs/api/` beside
-`frontend/`.
+On macOS/Linux:
 
-`npm run check` runs all frontend tests, builds the production bundle, and checks
-formatting. It stops with a nonzero exit status if any step fails. Passing these
-checks verifies the frontend in isolation; real backend integration is a separate
-check described below.
+```sh
+sh frontend/run.sh check
+```
 
-If `node` or `npm` is not found, activate your environment or correct your PATH.
-If `run.sh` reports a missing saved toolchain, complete setup successfully to
-create `.venv/toolchain.json`. A Node 22.12 installation can run already-installed
-frontend dependencies but cannot run the pinned pnpm installer; upgrade Node to
-22.13+ before rerunning setup.
+These launchers read `.venv/toolchain.json` and expose the saved Node/pnpm
+toolchain. No globally installed pnpm or running Python API is required.
+If the saved toolchain is missing or invalid, follow the backend setup guide
+before continuing.
+
+The `check` command runs TypeScript typechecking, all frontend tests, the
+production build and formatting checks, in that order. It stops if any stage
+fails. From `frontend/`, `npm run check` invokes the same package script when
+Node and the pinned pnpm are already available on PATH.
+
+Frontend checks use Node and the checked-in fixtures. Keep the full repository
+checkout because shared API fixtures live in `docs/api/`. These checks verify
+the frontend in isolation; real backend integration is checked separately below.
 
 ## Run with the Python backend
 
@@ -67,7 +66,7 @@ dependencies and verifies both test suites. `run.ps1` uses the saved local
 toolchain, so it works in a fresh terminal without globally installed pnpm.
 See [first-time setup](../backend/README.md#first-step-after-cloning-install-the-development-environment).
 
-On macOS/Linux, install Python 3.12+ and Node.js 22.13+ with npm on PATH,
+On macOS/Linux, install Python 3.12 or 3.13 and Node.js 22.13+ with npm on PATH,
 then run these commands from `frontend/`:
 
 ```sh
@@ -116,7 +115,9 @@ From `frontend/`, use these commands on macOS, Linux or Windows:
 npm run check
 ```
 
-To run just one stage, use `npm test`, `npm run build`, or `npm run format:check`.
+To run one stage, use `npm run typecheck`, `npm test`, `npm run build`, or
+`npm run format:check`. The saved-toolchain launchers also accept `typecheck`,
+`test`, `build` and `format:check`.
 For focused checks, use `npm run test:18` for login/navigation,
 `npm run test:19` for opportunities, `npm run test:21` for profile/privacy, or `npm run test:22` for documents. Focused
 checks do not replace the full suite, which also covers shared code and contracts.
@@ -139,7 +140,7 @@ uncertain-write recovery, consent and account isolation. See the
 After full-stack setup, `sh run.sh check` or `./run.ps1 check` are alternatives
 that use the saved toolchain.
 
-- `tests/api.test.js`: the shared client/contract, including all 29 operations,
+- `tests/api.test.js`: the shared client/contract, including all current OpenAPI operations,
   request payloads, pagination, CSRF, multipart upload, downloads and errors.
 - `tests/task-18-shell.test.js`: login/logout, unavailable service and mobile navigation.
 - `tests/task-49-account-language.test.js`: password visibility, persisted language

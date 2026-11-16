@@ -8,7 +8,6 @@
 | Base commit | 3a15eff07d0f23ccbde4b8119049c75ab55b5d11 |
 | Branch | H18ABANANA-70-EstablishAPIContracts |
 | Operating system | Windows |
-| Virtual environment | demo313 |
 | Python | 3.13.17 |
 | pytest | 8.4.2 |
 | Default test database | Temporary SQLite databases |
@@ -65,13 +64,14 @@ application model through --require-frontend and
 --require-application-model.
 
 The following setup and command reproduce the verification structure.
-Run from the repository root with demo313 activated:
+Run from the repository root with a Python 3.13 virtual environment activated
+and the project test dependencies installed:
 
 ```powershell
 $env:PYTHONDONTWRITEBYTECODE = '1'
 $env:PYTEST_ADDOPTS = (($env:PYTEST_ADDOPTS + ' -p no:cacheprovider').Trim())
 
-$be1Evidence = Join-Path (Resolve-Path '..\..').Path ('reports\be1-full-' + [guid]::NewGuid().ToString('N'))
+$be1Evidence = Join-Path ([System.IO.Path]::GetTempPath()) ('be1-full-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $be1Evidence | Out-Null
 
 $env:PYTEST_DEBUG_TEMPROOT = Join-Path $be1Evidence 'pytest-temp'
@@ -204,7 +204,9 @@ API regression. The failed-run XML was retained outside the checkout.
 ## 11. Raw execution evidence
 
 Paths below are relative to the surrounding COMP3900 workspace, outside
-the project repository:
+the project repository. These are locations in the original local evidence
+archive, not repository files or prerequisites for reproduction. A new run
+creates its own external output directory.
 
 - Baseline XML:
   reports/be1-before.xml
