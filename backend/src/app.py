@@ -228,6 +228,7 @@ def create_app(config=None):
             check_schema(app.extensions["database"])
         except (ValueError, SQLAlchemyError):
             raise click.ClickException("Worker schema is incompatible or unavailable; run prepare-db before starting.") from None
+        app.logger.setLevel("INFO")
         if once:
             processed = process_next_document()
 
