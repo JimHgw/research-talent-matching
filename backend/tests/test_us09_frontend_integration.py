@@ -2,7 +2,6 @@
 
 import os
 import subprocess
-import sys
 import json
 import hashlib
 from threading import Thread
@@ -10,6 +9,7 @@ from threading import Thread
 import pytest
 from werkzeug.serving import make_server
 
+from backend.tests.worker_process_probe import Probe
 from backend.src.shared.paths import ROOT
 from backend.tests.test_frontend_integration import frontend_node
 from backend.tests.test_us09_extraction import CV_TEXT, text_pdf, text_docx, upload, process
@@ -42,17 +42,12 @@ def test_us09_real_frontend_workflow(app, request, tmp_path, format):
     )
 
     http_thread.start()
-    # Use the actual deployable CLI process rather than an in-test worker loop.
-    worker_log = (tmp_path / "worker.log").open("w+", encoding="utf-8")
-    worker = subprocess.Popen(
-        [sys.executable, "-m", "flask", "--app", "backend.app", "process-documents"],
-        cwd=ROOT, stdout=worker_log, stderr=subprocess.STDOUT,
-        env={**os.environ, "FLASK_SKIP_DOTENV": "1", "COOKIE_SECURE": "false",
-             "DATABASE_URL": app.config["DATABASE_URL"],
-             "DOCUMENT_STORAGE_DIR": app.config["DOCUMENT_STORAGE_DIR"]},
-    )
+    # Track the actual Worker interpreter, including Windows launchers.
+    worker = Probe(app, tmp_path, "daemon", 0)
 
     try:
+        worker.receive("ready")
+        worker.send("go")
         result = subprocess.run(
             [
                 node,
@@ -78,19 +73,15 @@ def test_us09_real_frontend_workflow(app, request, tmp_path, format):
             },
         )
 
-        worker_log.flush()
-        worker_log.seek(0)
-        assert result.returncode == 0, result.stdout + result.stderr + worker_log.read()
+        assert result.returncode == 0, (
+            result.stdout
+            + result.stderr
+            + worker.log_path.read_text(encoding="utf-8")
+        )
         assert "US-09 real HTTP integration passed" in result.stdout
 
     finally:
-        worker.terminate()
-        try:
-            worker.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            worker.kill()
-            worker.wait(timeout=5)
-        worker_log.close()
+        worker.close()
         server.shutdown()
         server.server_close()
         http_thread.join(timeout=5)
