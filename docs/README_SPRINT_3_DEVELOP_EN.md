@@ -465,6 +465,8 @@ Implementation and verification: [database release checklist, schema inventory a
 
 ### BE-10: Complete Integration, Diagnostics and Delivery Acceptance
 
+Current execution evidence and consolidated release notes: [BE-10 release acceptance](testing/be10-release.md).
+
 **Difficulty: 7/10.** Integrates CI, diagnostics and real API/Worker/model workflows, with substantial coordination and acceptance evidence.
 
 **Objective:** give the team evidence that the iteration works and the diagnostics needed to investigate actual user failures.
