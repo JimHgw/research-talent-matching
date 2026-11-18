@@ -1,5 +1,6 @@
 stages:
   - test
+  - acceptance
   - build
 
 
@@ -92,7 +93,14 @@ frontend_backend_integration:
     - python -m pip install -r backend/requirements-dev.txt
     - pnpm --dir frontend install --frozen-lockfile
   script:
-    - python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py backend/tests/test_fe3_frontend_integration.py backend/tests/test_fe4_frontend_integration.py --require-frontend --durations=10
+    - python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py backend/tests/test_fe3_frontend_integration.py backend/tests/test_fe4_frontend_integration.py --require-frontend --durations=10 --junitxml=reports/frontend-integration.xml
+  artifacts:
+    when: always
+    reports:
+      junit: reports/frontend-integration.xml
+    paths:
+      - reports/frontend-integration.xml
+    expire_in: 1 week
 
 backend_test:
   stage: test
@@ -125,7 +133,7 @@ semantic_evaluation:
   script:
     - python -m backend.src.features.matching.evaluate_semantic --download-model --output reports/us13-results.json
     - python -m backend.src.features.matching.prepare_semantic
-    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py backend/tests/test_sprint3_be8.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
+    - python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py backend/tests/test_sprint3_be8.py backend/tests/test_sprint3_be10.py --require-application-model -q -rs --junitxml=reports/be7-application-model.xml
   cache:
     key: minilm-us13-1110a243-application-e8f8c211
     paths:
@@ -172,13 +180,33 @@ backend_mysql_test:
       engine.dispose()
       PY
   script:
-    - python -m pytest backend/tests --run-mysql --shard-index "$CI_NODE_INDEX" --shard-total "$CI_NODE_TOTAL" -q --durations=10 --junitxml=reports/mysql-tests.xml
+    - python -m pytest backend/tests --run-mysql --shard-index "$CI_NODE_INDEX" --shard-total "$CI_NODE_TOTAL" -q --durations=10 --junitxml="reports/mysql-tests-${CI_NODE_INDEX}.xml"
   artifacts:
     when: always
     reports:
-      junit: reports/mysql-tests.xml
+      junit: reports/mysql-tests-*.xml
     paths:
-      - reports/mysql-tests.xml
+      - reports/mysql-tests-*.xml
+    expire_in: 1 week
+
+release_acceptance:
+  stage: acceptance
+  image: python:3.12-slim
+  needs:
+    - job: backend_test
+      artifacts: true
+    - job: backend_mysql_test
+      artifacts: true
+    - job: frontend_backend_integration
+      artifacts: true
+    - job: semantic_evaluation
+      artifacts: true
+  script:
+    - python scripts/verify_release.py
+  artifacts:
+    when: always
+    paths:
+      - reports/release-acceptance.json
     expire_in: 1 week
 
 frontend_build:
