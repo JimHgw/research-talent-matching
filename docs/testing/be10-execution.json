@@ -1,0 +1,138 @@
+{
+  "branch": "be10/integration-diagnostics-release",
+  "implementationCommit": "f032218eb851533492fbd37e3ea9328f7f4e58e7",
+  "baseCommit": "5c3a96c0ebe90083c94247c503201bc46a6396f2",
+  "executionSource": "Implementation working tree before commit; final diagnostics/workflow retest after removing redundant worker logging. Subsequent evidence commit changes documentation only.",
+  "recordedAtUtc": "2026-11-18T08:40:52.426803+00:00",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "mysql": "8.4.13",
+    "onnxruntime": "1.23.2",
+    "tokenizers": "0.22.1"
+  },
+  "model": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "modelVersion": "multilingual-minilm-requirements-onnx-v1",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "preprocessingVersion": "requirement-inputs-v1",
+    "thresholdVersion": "requirement-thresholds-v1"
+  },
+  "mandatoryGate": "PASS",
+  "groups": {
+    "backend": {
+      "passed": 1092,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 15,
+      "reports": [
+        "backend-tests-1.xml",
+        "backend-tests-2.xml",
+        "backend-tests-3.xml"
+      ]
+    },
+    "mysql": {
+      "passed": 1104,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 3,
+      "reports": [
+        "mysql-tests-1.xml",
+        "mysql-tests-2.xml",
+        "mysql-tests-3.xml"
+      ]
+    },
+    "frontend": {
+      "passed": 18,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        "frontend-integration.xml"
+      ]
+    },
+    "actualModel": {
+      "passed": 101,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        "be7-application-model.xml"
+      ]
+    }
+  },
+  "additionalChecks": {
+    "docker-release.xml": {
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 12,
+      "expectedBaselineFailure": false
+    },
+    "diagnostics-retest.xml": {
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 24,
+      "expectedBaselineFailure": false
+    },
+    "baseline-diagnostics.xml": {
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "expectedBaselineFailure": true
+    },
+    "baseline-semantic.xml": {
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "expectedBaselineFailure": true
+    },
+    "frontendCheck": {
+      "passed": 348,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "typecheck": "PASS",
+      "build": "PASS",
+      "format": "PASS",
+      "exitCode": 0
+    }
+  },
+  "reportSha256": {
+    "backend-tests-1.xml": "925d0830ef89adc3c87c69f8881cf779f0528d9869db7ca40816de417d796350",
+    "backend-tests-2.xml": "bc567507a458f058ee1794ba7b9b15d7b3f1fd6f3fc341bb71b4ec7bfe5fa692",
+    "backend-tests-3.xml": "15f55ccd033e3983264963aa6c0b6ea5728a5e180c4d7502ceebfe9a045699b4",
+    "baseline-diagnostics.xml": "8a87a2dcfeb72fa4e1ccf85baf37937114707896f4fde13eefe045e296bd524c",
+    "baseline-semantic.xml": "a73be30a94d99611812c2557bdc8fc8c5d05c9b5fe0aff250f53058b878942ea",
+    "be7-application-model.xml": "ce52be7d66ec0502d2fb246d7fcfda1466becc5f6d8cd64c27dac27e49a741e7",
+    "diagnostics-retest.xml": "0f9e4da7cf6b34e35171b75d01480051e9245c802cd062383094333fdc5513d2",
+    "docker-release.xml": "75a50b311554429010e26e6d8688cb8fa515061a841b77b253cfa2fb35e130c9",
+    "frontend-integration.xml": "b0073dc78243925fe28fe9151aba6b3345adb7308984ecd89096cd9c88b2c8ad",
+    "mysql-tests-1.xml": "b2a43e10fff65e270ee42ea9038b8702e05fe4075f67bda2a5c6c3f98f7519f7",
+    "mysql-tests-2.xml": "36cd99db9e7dc8be30ad9e60e894cc701e05be9836e8ae52fedd5c2ca82f1ed0",
+    "mysql-tests-3.xml": "c3d21bcb12041b7fb8475cf5a82ea21eb7783b336228417c6a3dda76f2fa0aa1"
+  },
+  "commands": [
+    "python -m backend.src.features.matching.prepare_semantic",
+    "python -m pytest backend/tests --require-application-model --shard-total 3 --shard-index N -q --tb=short -o junit_family=legacy --junitxml=.pytest_cache/be10/backend-tests-N.xml",
+    "python -m pytest backend/tests --run-mysql --require-application-model --shard-total 3 --shard-index N -q --tb=short -o junit_family=legacy --junitxml=.pytest_cache/be10/mysql-tests-N.xml",
+    "python -m pytest backend/tests/test_frontend_integration.py backend/tests/test_us09_frontend_integration.py backend/tests/test_fe3_frontend_integration.py backend/tests/test_fe4_frontend_integration.py --require-frontend -q --tb=short -o junit_family=legacy --junitxml=.pytest_cache/be10/frontend-integration.xml",
+    "python -m pytest backend/tests/test_us13.py backend/tests/test_semantic_matching.py backend/tests/test_requirement_scoring.py backend/tests/test_sprint3_be7.py backend/tests/test_sprint3_be8.py backend/tests/test_sprint3_be10.py --require-application-model -q --tb=short -o junit_family=legacy --junitxml=.pytest_cache/be10/be7-application-model.xml",
+    "python -m pytest backend/tests/test_docker_stack.py backend/tests/test_sprint3_be9.py --run-docker -q --tb=short -o junit_family=legacy --junitxml=.pytest_cache/be10/docker-release.xml",
+    "python -m pytest backend/tests/test_sprint3_be10.py backend/tests/test_release_gate.py --require-application-model -q --tb=short --junitxml=.pytest_cache/be10/diagnostics-retest.xml",
+    "python scripts/dev.py frontend check",
+    "python scripts/verify_release.py --reports .pytest_cache/be10 --output .pytest_cache/be10/release-acceptance.json"
+  ],
+  "commandContext": "Local Python is .venv/Scripts/python.exe; N=1,2,3, each MySQL shard uses its own disposable database. Baseline reproduction loads main modules only inside isolated Python processes.",
+  "limitations": [
+    "Synthetic isolated data; no shared-server deployment",
+    "Node/jsdom real HTTP integration, not a new manual accessibility audit",
+    "Docker recovery executed locally, not in CI",
+    "Optional platform-specific skips covered in separate runs"
+  ],
+  "preservedUntrackedDirectory": "test-output/"
+}

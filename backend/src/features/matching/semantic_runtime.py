@@ -11,7 +11,7 @@ from pathlib import Path
 from threading import Lock
 from time import monotonic
 
-from flask import current_app, has_app_context
+from flask import current_app, g, has_app_context, has_request_context
 
 from ...shared.paths import ROOT
 from .semantic import cosine, interest_input, opportunity_input, relevance
@@ -114,6 +114,7 @@ def enrich_matches(pairs):
     runtime = current_app.extensions["semantic_matching"]
     vectors = {}
     failed = False
+    started = monotonic()
     try:
         if texts:
             vectors = dict(zip(texts, runtime.encode(texts), strict=True))
@@ -121,8 +122,11 @@ def enrich_matches(pairs):
                         if left["text"] and right["text"] else None for left, right in inputs]
     except Exception as error:
         # Diagnostics must never contain profile text, identifiers or file paths.
-        current_app.logger.warning("Semantic matching unavailable (%s); using evidence coverage.",
-                                   type(error).__name__)
+        current_app.logger.warning(
+            "Semantic matching unavailable (%s); using evidence coverage. "
+            "request_id=%s stage=semantic outcome=FALLBACK duration_ms=%.2f",
+            type(error).__name__, getattr(g, "request_id", "-") if has_request_context() else "-",
+            (monotonic() - started) * 1000)
         similarities = [None] * len(pairs)
         failed = True
         vectors = None

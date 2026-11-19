@@ -1,6 +1,7 @@
 """Application factory and administrative commands. No data is seeded on startup."""
 
 import json
+import logging
 import os
 import secrets
 from datetime import timedelta
@@ -9,7 +10,7 @@ from urllib.parse import urlsplit
 
 import click
 from argon2 import PasswordHasher
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, request
 from sqlalchemy import delete, select
 from sqlalchemy.engine import URL
 from sqlalchemy.exc import SQLAlchemyError
@@ -35,7 +36,7 @@ from .features.documents.routes import documents
 from .features.documents.worker import process_next_document
 from .features.collections import collections
 
-from time import sleep
+from time import perf_counter, sleep
 
 
 
@@ -118,16 +119,26 @@ def create_app(config=None):
     @app.before_request
     def request_id():
         g.request_id = secrets.token_hex(16)
+        g.request_started = perf_counter()
 
     @app.after_request
     def response_headers(response):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Request-Id"] = g.request_id
+        if response.status_code >= 400:
+            # Route endpoint is application-owned; never log URLs, bodies,
+            # headers, error messages or validation field values.
+            app.logger.log(logging.ERROR if response.status_code >= 500 else logging.WARNING,
+                "Request %s stage=request endpoint=%s status=%s category=%s error_type=%s duration_ms=%.2f",
+                g.request_id, request.endpoint or "unmatched", response.status_code,
+                getattr(g, "error_category", "UNAVAILABLE"), getattr(g, "error_type", "-"),
+                (perf_counter() - g.request_started) * 1000)
         return response
 
     @app.errorhandler(ApiError)
     def api_error(error):
+        g.error_category = error.code
         value = {"code": error.code, "message": error.message, "fieldErrors": error.fields}
         if error.revision is not None:
             value["currentRevision"] = error.revision
@@ -146,7 +157,7 @@ def create_app(config=None):
     @app.errorhandler(Exception)
     def internal_error(error):
         # Avoid logging SQL parameters, passwords, cookies or submitted profile content.
-        app.logger.error("Request %s failed (%s)", g.request_id, type(error).__name__)
+        g.error_type = type(error).__name__
         return api_error(ApiError(500, "INTERNAL_ERROR", "The service could not complete this request."))
 
     @app.cli.command("init-db")
