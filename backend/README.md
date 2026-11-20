@@ -39,7 +39,7 @@ Sprint 3 BE-8 moves ordinary list pagination before related-record loading and
 filters matching candidates before scoring, preserving global ranking and exact
 Unicode comparisons. Existing installations run `upgrade-query-indexes` after
 `upgrade-opportunity-search`; Docker startup runs it automatically. See the
-[query rules, measurements and verification](../docs/testing/be8/README.md).
+[BE-8 benchmark and verification results](../docs/testing/be8/execution.json).
 US-13 now has a [runnable local semantic experiment and recorded comparison](../docs/testing/us13-evaluation.md).
 The current application's structured matcher supplies the semantic fallback.
 `requirements.txt` includes `requirements-semantic.txt`, so normal backend

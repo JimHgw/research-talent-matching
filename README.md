@@ -1,6 +1,6 @@
 # project
 
-For the architecture after the Sprint 3 improvements, see the [target architecture guide (Chinese)](docs/target-architecture.md).
+For Sprint 3 architecture and development guidance, see the [Sprint 3 development guide](docs/README_SPRINT_3_DEVELOP_EN.md).
 
 The database now uses **MySQL 8.4 + SQLAlchemy**. Start a new environment with `docker compose up --build --detach --wait --wait-timeout 180`.
 If you do not need the old data, start the services directly. **To preserve existing SQLite data, follow the [MySQL migration guide](docs/mysql-migration.md) to back up and import it before starting the updated services.**
