@@ -97,7 +97,13 @@ reads/saves, US-03 profile confirmation, all five US-02 opportunity operations,
 owner recommendations, privacy settings and US-05 team discovery. The discovery
 page shows only published opportunities owned by the team, backend ranks and
 permitted profile fields/evidence. It refreshes on entry, window focus or
-**Refresh talent**. Document endpoints remain unimplemented.
+**Refresh talent**.
+
+The US-09 document API lets talent users list their documents, upload PDF or DOCX
+files, check processing status, download originals, and review and import selected
+extracted sections into their profiles. Imported changes require separate profile
+confirmation. Follow the [document worker setup guide](../docs/us09-documents.md#running-the-worker)
+to enable extraction in local development.
 
 ## Frontend in Docker
 

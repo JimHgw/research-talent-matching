@@ -1,51 +1,83 @@
-# Frontend and backend in Docker
+# Docker run guide for macOS and Linux
 
-To let people on other networks access this computer through a temporary HTTPS
-URL, use `share.ps1` and [the public sharing guide](public-sharing.md).
+For Windows PowerShell startup and the project's ngrok and Cloudflare sharing
+scripts, see the [Windows Docker run guide](../README_BEFORE_START.md).
 
 The root `compose.yaml` runs four containers in the existing
 `banana-backend` project: Nginx serves the frontend, Gunicorn serves the Python
 API, a document worker processes uploads, and MySQL stores database records. They join `banana-backend_default`; Docker resolves the backend service name
 without a host gateway or fixed container IP.
 
-The browser opens `http://127.0.0.1:5173` and sends relative `/api/v1` requests.
+The browser sends relative `/api/v1` requests from the published frontend address.
 Nginx forwards the complete path to `http://backend:8000`, preserving cookies,
 Origin and the CSRF header. The backend's host port can change without changing
 this internal address. The frontend builds from `./frontend`; the backend builds
 from the repository root with its own Dockerfile and build-context exclusions.
 
+## Install Docker
+
+- On **macOS**, install Docker Desktop for your Mac's chip and open it. It includes
+  Compose. [Docker Desktop for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+- On **Linux**, follow your distribution's instructions to install and start Docker
+  Engine with the Compose plugin. [Docker Engine](https://docs.docker.com/engine/install/) ·
+  [Compose plugin](https://docs.docker.com/compose/install/linux/)
+
+Run these checks in a terminal. `docker version` should show server details.
+Use a Compose version that supports `up --wait`. Python and Node run inside the
+application images. [Compose startup options](https://docs.docker.com/reference/cli/docker/compose/up/)
+
+```sh
+docker version
+docker compose version
+```
+
+## Configure the project
+
+The stack uses MySQL 8.4. If you need to keep data from an existing SQLite
+installation, complete the migration before starting the updated stack.
+[SQLite to MySQL migration guide](mysql-migration.md)
+
+Open a terminal in the repository root, where `compose.yaml` lives. Compose
+reads the root `.env` automatically. Use the existing file for overrides, or
+create it from the template if it is missing.
+
+```sh
+if [ ! -e .env ]; then
+    cp .env.example .env
+fi
+```
+
+For custom ports or MySQL settings, see [ports, cookies and storage](#ports-cookies-and-storage).
+
+For email registration or email-based password reset, configure SMTP in that
+`.env` before startup. Set `SMTP_HOST` and `SMTP_FROM`, and add `SMTP_USERNAME`
+and `SMTP_PASSWORD` if your mail provider requires authentication. Match
+`SMTP_PORT` and `SMTP_SECURITY` to your provider. Compose defaults to port
+`587`, `starttls` and an `SMTP_TIMEOUT` of `10` seconds when those three settings
+are blank. Keep real SMTP credentials out of Git commits.
+[SMTP setup and registration](us01-registration.md)
+
 ## Start the stack
 
-The database is MySQL 8.4 in its own service. **Existing SQLite installations must
-follow the [migration guide](mysql-migration.md) before starting the new stack.**
-MySQL uses `mysql_data`; `backend_data` retains uploaded files and the original SQLite database.
-
-Install and start Docker Desktop with Linux containers on macOS/Windows, or Docker
-Engine with Compose on Linux. Use Compose with `up --wait` support. Host Python,
-Node and the native virtual environment are not required for this workflow.
-The first build downloads the base images and dependencies.
-
-From the repository root, on macOS, Linux or PowerShell:
+Stop any processes using the frontend and backend host ports before starting.
+The first build downloads the base images and dependencies. Run from the
+repository root.
 
 ```sh
 docker compose config --quiet
-docker compose up --build --detach --wait --wait-timeout 180
+docker compose up --build --detach --wait --wait-timeout 180 --force-recreate
 docker compose ps
 ```
 
-Stop existing Vite/Flask processes or other containers using ports 5173/8000
-before startup. The frontend starts after the backend reports healthy; the wait
-also checks the frontend health endpoint. Build time is separate from the
-180-second startup wait. A failed wait is not a successful deployment; inspect
-`docker compose logs --tail=100` before retrying.
+MySQL, the backend and the frontend should report healthy. The document worker
+should report running. The 180-second wait covers startup after the build.
+If startup times out, inspect `docker compose logs --tail=100` before retrying.
 
-Open `http://127.0.0.1:5173`. These containers serve the real API without demo
-fixtures or a mock fallback. The backend initializes missing tables and seeds
-tags, but does not create accounts automatically. Configure SMTP in the root
-`.env`, then use **Register** on the login screen or visit `/register` to create
-a TALENT or RESEARCH_TEAM account with an emailed verification code. See the
-[registration guide](us01-registration.md) for SMTP setup and password rules.
-For development accounts, provisioning is also available:
+Open `http://127.0.0.1:5173` with the default frontend port. If you changed
+`FRONTEND_PORT`, use the address from `docker compose port frontend 80`.
+Startup prepares the database and seeds tags. Sign in with an existing account
+or use **Register** after configuring SMTP. To create development accounts,
+run these commands.
 
 ```sh
 docker compose exec backend python -m flask --app backend.app provision-user --email talent@example.test --display-name "Demo Talent" --role TALENT
@@ -58,10 +90,15 @@ throughout a session. Docker volumes do not automatically import the host's
 
 ## Verify the complete path
 
+Read the published addresses before checking health and the API proxy. These
+commands work with the port overrides in your root `.env`.
+
 ```sh
-curl -f http://127.0.0.1:5173/healthz
-curl -f http://127.0.0.1:8000/healthz
-curl -i http://127.0.0.1:5173/api/v1/auth/session
+frontend_address=$(docker compose port frontend 80)
+backend_address=$(docker compose port backend 8000)
+curl -fsS "http://${frontend_address}/healthz"
+curl -fsS "http://${backend_address}/healthz"
+curl -fsi "http://${frontend_address}/api/v1/auth/session"
 ```
 
 The first endpoint checks Nginx; the second checks the backend/database. The third
@@ -93,10 +130,8 @@ that images build or containers communicate.
 
 ## Ports, cookies and storage
 
-Copy the root `.env.example` to `.env` for overrides. Compose reads the root
-`.env` automatically; the existing backend-only launchers explicitly select it.
-`frontend/.env` remains a Vite configuration file and does not configure the
-integrated Nginx proxy.
+Use the root `.env` for Docker overrides. `frontend/.env` configures Vite when
+running the frontend on the host.
 
 | Variable          | Default                            | Meaning                                                   |
 | ----------------- | ---------------------------------- | --------------------------------------------------------- |
@@ -121,16 +156,20 @@ use the same MySQL settings. Configure `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PA
 and `MYSQL_ROOT_PASSWORD` in the root `.env`; defaults are for local development.
 MySQL has no host port unless you add `compose.mysql-local.yaml` for native development.
 
-```sh
-docker compose stop
-docker compose down
-```
+## Stop the stack
 
-Both preserve the database volume. Do not add `--volumes` / `-v` unless you intend
-to erase that project's data. Images and build cache are Docker resources, not
-repository files.
+Use `docker compose stop` to stop services and keep their containers. Use
+`docker compose down` to stop services and remove their containers and network.
+Both commands preserve the named volumes for the database and uploads. Adding
+`--volumes` to `docker compose down` deletes those volumes.
 
 ## Separate workflows and updates
+
+For native development on macOS or Linux, install the host runtimes and run
+`sh setup.sh` from the repository root. Then follow the service startup steps
+for MySQL, the API, the document worker and Vite.
+[Native setup](../backend/README.md#first-step-after-cloning-install-the-development-environment) ·
+[Native startup](../backend/README.md#start-the-services)
 
 `sh docker-backend.sh` or `docker-backend.ps1` still builds/starts only the backend,
 for use with native Vite. Use [the frontend-only configuration](../frontend/docker/README.md)
@@ -138,13 +177,8 @@ only with a backend running on the host. The integrated route avoids the Linux
 host-loopback/host-gateway mismatch. Do not merge the root and frontend-only
 Compose files: their relative build contexts refer to different directories.
 
-After changing frontend/backend code, rebuild the affected images. If replacing
-the backend container, also recreate the frontend so Nginx resolves the backend's
-new container address:
-
-```sh
-docker compose up --build --detach --wait --wait-timeout 180 --force-recreate
-```
+After changing application code or `.env`, repeat the startup command to apply
+the changes and refresh Nginx's connection to the backend. [Start the stack](#start-the-stack)
 
 Nginx and the upload endpoint allow 11 MiB request bodies for 10 MiB files plus
 multipart overhead. The backend also validates the actual file size and format.
