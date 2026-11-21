@@ -21,8 +21,12 @@ frontend, the backend and the document worker. Public sharing is optional.
 The Docker workflow does not require activating `.venv`, installing host Python
 or Node dependencies, or running `setup.ps1`. An already active `.venv` is fine.
 
+If you need to keep data from an existing SQLite installation, follow the
+[SQLite to MySQL migration guide](docs/mysql-migration.md) before starting the
+updated application.
+
 The root `.env` is optional for default local startup. If you need SMTP or port
-settings, create it only if it does not already exist:
+settings, use the existing file or create it from `.env.example` using this command.
 
 ```powershell
 if (-not (Test-Path -LiteralPath .\.env)) {
@@ -30,12 +34,14 @@ if (-not (Test-Path -LiteralPath .\.env)) {
 }
 ```
 
-Preserve existing settings. For email registration and email password resets,
-configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_SECURITY`,
-`SMTP_USERNAME`, `SMTP_PASSWORD` and `SMTP_TIMEOUT` in the root `.env`, using
-your mail provider's settings. Keep credentials in your local configuration.
-The sharing scripts reuse these settings; a public URL does not provide an email
-service. See [registration and SMTP setup](docs/us01-registration.md).
+If you need email registration or email-based password reset, configure SMTP in
+the root `.env` before starting the application. Set `SMTP_HOST` and `SMTP_FROM`,
+and provide `SMTP_USERNAME` and `SMTP_PASSWORD` if your mail provider requires
+authentication. Match `SMTP_PORT` and `SMTP_SECURITY` to your provider. Compose
+defaults to port `587`, `starttls` and an `SMTP_TIMEOUT` of `10` seconds when
+those values are blank. Both sharing scripts use the same settings. Keep real
+SMTP credentials out of Git commits.
+See [registration and SMTP setup](docs/us01-registration.md).
 
 ## 2. Start the application: choose one mode
 
@@ -68,17 +74,16 @@ The script can reuse the extension's existing token. Without a configured
 extension, supply `NGROK_AUTHTOKEN` through your local environment before running
 the script.
 
-For the first run, or after application code changes, build the application
-images first. Then start sharing, replacing the example with your actual URL:
+For the first run, replace the example URL with your assigned ngrok URL and run
+the startup script.
 
 ```powershell
-docker compose build
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1 -Url https://your-name.ngrok-free.dev
 ```
 
-The script starts the application, configures public login and connects ngrok
-directly to the frontend container. You do not need to start the local mode first.
-Wait until it prints `Share this URL: ...`, then open and share that HTTPS URL.
+The script builds the application images, starts the services, configures public
+login and connects ngrok directly to the frontend container. Wait until it prints
+`Share this URL: ...`, then open and share that HTTPS URL.
 If the browser shows ngrok's warning page, click **Visit Site**.
 
 After a successful first run, the URL is saved locally. On later runs:
@@ -87,10 +92,8 @@ After a successful first run, the URL is saved locally. On later runs:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\share-ngrok.ps1
 ```
 
-Run `docker compose build` again before this command if the code changed; the
-ngrok script does not explicitly rebuild application images. Pass `-Url` again
-if the saved URL is missing or your assigned URL changes. The script accepts
-assigned HTTPS domains ending in `ngrok-free.dev` or `ngrok-free.app`.
+Pass `-Url` again if the saved URL is missing or your assigned URL changes.
+The script accepts assigned HTTPS domains ending in `ngrok-free.dev` or `ngrok-free.app`.
 An optional trailing `/` is accepted and removed automatically. Use the root
 URL without a page path or query string.
 
@@ -289,8 +292,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\share.ps1 -Action logs
 | Network reports `Resource is still in use` on shutdown | Run `docker compose down --remove-orphans` to remove remaining project sharing containers. |
 
 After code or `.env` changes, rerun the startup process for the mode you are
-using. For ngrok, rebuild images first when code changes. Running only the base
-local startup command while sharing can replace public login settings.
+using. Running only the base local startup command while sharing can replace
+public login settings.
 
 Further detail: [Docker integration](docs/docker-integration.md),
 [ngrok sharing](docs/ngrok-sharing.md),
