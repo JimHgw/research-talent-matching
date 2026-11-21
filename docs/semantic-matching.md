@@ -153,7 +153,7 @@ the application-model JUnit report. No request path prepares/downloads a model.
 
 Independent fixed expectations are in
 [`be7-scoring.json`](../backend/tests/data/sprint3/be7-scoring.json). The
-[BE-7 execution report](testing/be7/README.md) records current versions, real HTTP
+[BE-7 execution record](testing/be7/execution.json) records current versions, real HTTP
 scores, fallback/gate checks and regression results. The JUnit report embeds
 model revision/checksums and observed Chinese synonym/negative scores as suite
 properties; it contains synthetic test data only.

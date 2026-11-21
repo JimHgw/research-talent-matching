@@ -1,8 +1,7 @@
 """Sprint 3 BE-5: authorisation and team-visible data boundaries.
 
 Every check uses the real Flask routes, SQLite/MySQL persistence and separate
-test clients (independent cookie jars). The access matrix below is the
-executable form of docs/testing/be5/README.md section 1.
+test clients (independent cookie jars).
 """
 
 from copy import deepcopy
