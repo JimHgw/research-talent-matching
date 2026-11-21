@@ -4,6 +4,8 @@ This guide covers starting, checking and shutting down the complete application
 from Windows PowerShell. The root Compose configuration runs MySQL, the
 frontend, the backend and the document worker. Public sharing is optional.
 
+For macOS and Linux, use the [Docker run guide](docs/docker-integration.md).
+
 ## 1. Prepare before starting
 
 1. Start Docker Desktop and wait until its engine is ready. Use Linux containers.
