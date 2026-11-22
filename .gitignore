@@ -10,3 +10,9 @@ __pycache__/
 *.pyc
 /data/
 /banana-backend.tar
+
+# Local configuration and deployment backups
+.env
+.env.local
+migration-backup-*
+*.log
